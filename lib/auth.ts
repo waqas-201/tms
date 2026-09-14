@@ -4,7 +4,7 @@ import prisma from "./prisma";
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
-    provider: "sqlite",
+    provider: "postgresql",
   }),
   secret: process.env.BETTER_AUTH_SECRET || "tms_secret_hakim_key_karachi_1990_unani_secret_8921",
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",

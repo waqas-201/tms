@@ -1,0 +1,157 @@
+@import "tailwindcss";
+
+:root {
+  --background: #faf8f5;
+  --foreground: #1e1c19;
+  --primary: #123824;
+  --primary-hover: #0c2719;
+  --secondary: #2a5a3d;
+  --accent: #c59b27;
+  --accent-light: #fcf6e6;
+  --muted: #6a6660;
+  --border: #e6dfd5;
+  --card-bg: #ffffff;
+  --card-border: #eeeaee;
+}
+
+@theme {
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-playfair), Georgia, Cambria, "Times New Roman", Times, serif;
+
+  --color-brand-emerald-950: #0a1f14;
+  --color-brand-emerald-900: #123824;
+  --color-brand-emerald-800: #1a4d33;
+  --color-brand-emerald-700: #256644;
+  --color-brand-emerald-600: #318258;
+  --color-brand-emerald-500: #42a36f;
+  --color-brand-emerald-100: #e5f4eb;
+  --color-brand-emerald-50: #f2f9f5;
+
+  --color-brand-gold-700: #8c6a15;
+  --color-brand-gold-600: #aa821c;
+  --color-brand-gold-500: #c59b27;
+  --color-brand-gold-400: #dcaf38;
+  --color-brand-gold-100: #fbf3dc;
+  --color-brand-gold-50: #fdfbf3;
+
+  --color-sand-50: #faf8f5;
+  --color-sand-100: #f4eee5;
+  --color-sand-200: #e8ded2;
+  --color-sand-300: #d7c9b8;
+  --color-sand-400: #b5a28c;
+  --color-sand-900: #1e1c19;
+
+  --color-charcoal-900: #1a1816;
+  --color-charcoal-800: #2b2824;
+  --color-charcoal-700: #3f3b35;
+  --color-charcoal-600: #59534b;
+  --color-charcoal-500: #7a7268;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Offset sticky header + announcement bar when jumping to in-page anchors */
+  scroll-padding-top: 120px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Luxury typography styling */
+h1, h2, h3, .font-editorial {
+  font-family: var(--font-serif);
+  letter-spacing: -0.015em;
+}
+
+/* Urdu typography refinement */
+.font-urdu {
+  font-family: "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", "Urdu Typesetting", "Arabic Typesetting", serif;
+  line-height: 1.8;
+  direction: rtl;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f4eee5;
+}
+::-webkit-scrollbar-thumb {
+  background: #c59b27;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #123824;
+}
+
+/* Subtle editorial shadow */
+.shadow-luxury {
+  box-shadow: 0 4px 20px -2px rgba(18, 56, 36, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+}
+
+.shadow-luxury-hover {
+  box-shadow: 0 12px 30px -4px rgba(18, 56, 36, 0.1), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+}
+
+.shadow-drawer {
+  box-shadow: -10px 0 35px -5px rgba(18, 56, 36, 0.15);
+}
+
+/* Glass & translucent headers */
+.glass-header {
+  background: rgba(250, 248, 245, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* ---------- Micro-interactions ---------- */
+
+/* Dropdown / flyout entrance */
+@keyframes tms-fade-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: tms-fade-in 0.25s ease-out both;
+}
+
+/* Cart badge / icon bump when the count changes */
+@keyframes tms-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+.animate-pop {
+  animation: tms-pop 0.35s ease-out;
+}
+
+/* Gentle float for hero trust badges */
+@keyframes tms-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+.animate-float {
+  animation: tms-float 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-pop,
+  .animate-float {
+    animation: none;
+  }
+}

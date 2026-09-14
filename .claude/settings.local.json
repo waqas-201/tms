@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:tameeresehat.com)",
+      "Bash(npm list *)",
+      "Bash(npm install *)",
+      "Bash(npx prisma *)",
+      "Bash(npm ls *)"
+    ]
+  }
+}

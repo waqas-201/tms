@@ -139,6 +139,17 @@ export interface Translations {
   hoursText: string;
   sendInquiry: string;
   faqTitle: string;
+
+  // Consultation Page
+  consultationHeading: string;
+  consultationSubtitle: string;
+
+  // Contact Page
+  contactHeading: string;
+  contactSubtitle: string;
+  address: string;
+  timings: string;
+  sendMessage: string;
 }
 
 export const DICTIONARY: Record<Language, Translations> = {
@@ -280,6 +291,17 @@ export const DICTIONARY: Record<Language, Translations> = {
     hoursText: "Monday – Saturday: 10:00 AM – 9:00 PM PST",
     sendInquiry: "Send a Message to Clinic",
     faqTitle: "Frequently Asked Patient Questions",
+
+    // Consultation Page
+    consultationHeading: "Confidential Online Hakim Consultation",
+    consultationSubtitle:
+      "Complete this confidential diagnostic questionnaire and receive a personalized Unani temperament (Mizaj) assessment and herbal prescription via WhatsApp, usually within 2–4 hours.",
+    contactHeading: "Contact Our Clinic & Dispensary",
+    contactSubtitle:
+      "Reach the Hakim's clinical desk directly for appointments, prescription queries, and nationwide herbal medicine delivery.",
+    address: "Address",
+    timings: "Timings",
+    sendMessage: "Send a Message to the Clinic",
   },
 
   ur: {
@@ -420,6 +442,17 @@ export const DICTIONARY: Record<Language, Translations> = {
     hoursText: "پیر تا ہفتہ: صبح 10:00 بجے تا رات 9:00 بجے",
     sendInquiry: "مطب کو براہِ راست پیغام بھیجیں",
     faqTitle: "مریضوں کے عام اور اہم سوالات",
+
+    // Consultation Page
+    consultationHeading: "حکیم صاحب سے خفیہ آن لائن طبی معائنہ",
+    consultationSubtitle:
+      "یہ خفیہ طبی سوالنامہ مکمل کریں اور واٹس ایپ کے ذریعے حکیم صاحب کی طرف سے آپ کے مزاج کی تشخیص اور ذاتی نسخہ حاصل کریں، عموماً 2 تا 4 گھنٹے میں۔",
+    contactHeading: "ہمارے مطب و ڈسپنسری سے رابطہ کریں",
+    contactSubtitle:
+      "اپائنٹمنٹ، نسخہ جات اور ملک گیر ادویات کی ترسیل کے لیے براہِ راست حکیم صاحب کی کلینکل ڈیسک سے رابطہ کریں۔",
+    address: "پتہ",
+    timings: "اوقات",
+    sendMessage: "مطب کو پیغام بھیجیں",
   },
 };
 

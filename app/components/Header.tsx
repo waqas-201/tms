@@ -117,23 +117,24 @@ export default function Header() {
           <div className="flex items-center justify-between gap-6">
 
             {/* Brand Logo & Signature */}
-            <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-              <div className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full overflow-hidden bg-white p-0.5 border border-[#e6dfd5] shadow-2xs group-hover:border-[#c59b27] transition-colors">
+            <Link href="/" className="flex items-center gap-3 group shrink-0">
+              <div className="relative h-9 sm:h-10 w-auto shrink-0 overflow-hidden rounded-md border border-[#e6dfd5]/60 group-hover:border-[#c59b27]/50 transition-colors">
                 <Image
                   src="/images/cropped-logo.png"
                   alt="Tameer-e-Sehat"
-                  fill
-                  className="object-contain p-0.5"
+                  width={160}
+                  height={40}
+                  className="h-full w-auto object-contain"
                   priority
                 />
               </div>
-              <div className="flex flex-col">
-                <span className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#123824] leading-tight group-hover:text-[#1a4d33] transition-colors">
+              <div className="hidden sm:flex flex-col">
+                <span className="font-serif text-lg font-bold tracking-tight text-[#123824] leading-tight group-hover:text-[#1a4d33] transition-colors">
                   Tameer-e-Sehat
                 </span>
-                <span className="text-[10px] tracking-widest text-[#857f76] uppercase flex items-center gap-1 font-medium -mt-0.5">
+                <span className="text-[10px] tracking-widest text-[#857f76] flex items-center gap-1 font-medium -mt-0.5">
                   <span className="text-[#c59b27] font-serif font-bold">تعمیرِ صحت</span>
-                  <span className="opacity-40">·</span>
+                  <span className="opacity-30">·</span>
                   <span>Est. 1990</span>
                 </span>
               </div>

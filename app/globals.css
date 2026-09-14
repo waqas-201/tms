@@ -75,13 +75,6 @@ h1, h2, h3, .font-editorial {
   letter-spacing: -0.015em;
 }
 
-/* Urdu typography refinement */
-.font-urdu {
-  font-family: "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", "Urdu Typesetting", "Arabic Typesetting", serif;
-  line-height: 1.8;
-  direction: rtl;
-}
-
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

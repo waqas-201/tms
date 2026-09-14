@@ -7,17 +7,15 @@ import {
   Award,
   Leaf,
   ShieldCheck,
-  Clock,
   Heart,
   Activity,
-  ArrowRight,
   MessageCircle,
 } from "lucide-react";
 
 export const metadata = {
-  title: "The Hakim & Heritage · 35+ Years of Classical Tibb",
+  title: "About Us · 35+ Years of Herbal Care",
   description:
-    "Learn about the history, clinical philosophy, and botanical standards of Tameer-e-Sehat, serving families across Pakistan since 1990 in Karachi.",
+    "Learn about our clinic history, our Hakim's philosophy, and our pure herbal preparation standards at Tameer-e-Sehat in Karachi.",
 };
 
 export default function AboutPage() {
@@ -31,20 +29,16 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 relative z-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1a4d33] border border-[#256644] text-[#c59b27] text-xs font-medium tracking-wide">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Legacy & Lineage · Established 1990</span>
+            <span>Serving Families Since 1990</span>
           </div>
 
           <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
-            The Hakim, The Heritage, <br />
-            <span className="italic font-normal text-[#c59b27]">and The Purity of Eastern Healing</span>
+            Our Story, Our Hakim, <br />
+            <span className="italic font-normal text-[#c59b27]">and the Care in Natural Healing</span>
           </h1>
 
-          <p className="font-urdu text-xl text-[#f4eee5]/90 font-medium pt-2" dir="rtl">
-            35 سالہ طبیب کا اعتماد، خالص حکمت اور قدرتی شفا
-          </p>
-
           <p className="text-sm sm:text-base text-[#f4eee5]/80 max-w-2xl mx-auto leading-relaxed pt-2">
-            For more than three decades, Tameer-e-Sehat has preserved the authentic principles of Greco-Arab Unani medicine (Tibb) in Karachi, helping thousands of patients restore vitality naturally.
+            For more than 35 years in Karachi, Tameer-e-Sehat has been providing pure, honest herbal remedies and personalized health advice for families across Pakistan.
           </p>
         </div>
       </section>
@@ -58,7 +52,7 @@ export default function AboutPage() {
               <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-xl bg-[#f4eee5] border border-[#e6dfd5]">
                 <Image
                   src="/images/1-scaled.png"
-                  alt="Tameer-e-Sehat Botanical Heritage and Consultation"
+                  alt="Tameer-e-Sehat Clinic & Hakim Consultation"
                   fill
                   className="object-cover"
                   priority
@@ -72,13 +66,13 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <h4 className="font-serif text-sm font-bold text-[#123824]">
-                      Registered Clinical Practice
+                      Established Herbal Clinic
                     </h4>
                     <p className="text-xs text-[#6a6660]">Karachi, Sindh, Pakistan</p>
                   </div>
                 </div>
                 <p className="text-xs text-[#59534b] leading-relaxed">
-                  Located at Plot no L, 41 Korangi Crossing Rd, Karachi. We maintain strict hygienic standards for raw herb storage, steam distillation, and patient record confidentiality.
+                  Located at Plot no L, 41 Korangi Crossing Rd, Karachi. We maintain clean, hygienic standards for herb preparation, fresh distillations, and patient care.
                 </p>
               </div>
             </div>
@@ -87,31 +81,31 @@ export default function AboutPage() {
             <div className="lg:col-span-7 space-y-6">
               <div className="space-y-2">
                 <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
-                  The Founder&apos;s Mission
+                  Our Philosophy
                 </span>
                 <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#123824] leading-tight">
-                  Honoring the Sacred Bond Between the Healer, the Patient, and the Earth
+                  Real Care, Pure Herbs, and Honest Advice
                 </h2>
               </div>
 
-              <div className="prose prose-stone text-sm text-[#59534b] space-y-4 leading-relaxed">
+              <div className="text-sm text-[#59534b] space-y-4 leading-relaxed">
                 <p>
-                  In a world dominated by hurried consultations and symptom-suppressing pharmaceuticals, <strong>Tameer-e-Sehat</strong> was founded with a singular conviction: genuine health requires understanding the individual constitution (*Mizaj*) and restoring the body&apos;s natural equilibrium (*Itidal*).
+                  In a world where quick medicines often just hide symptoms, <strong>Tameer-e-Sehat</strong> was founded with a clear goal: to understand why your body feels unwell and help it recover naturally.
                 </p>
 
                 <p>
-                  Our clinic began over 35 years ago in Karachi. Through thousands of in-person pulse diagnoses, tongue evaluations, and in-depth patient dialogues, our Hakims observed that chronic modern complaints—digestive sluggishness, liver congestion, joint fatigue, skin inflammation, and nervous exhaustion—stem from internal thermal and metabolic imbalances.
+                  Our clinic began over 35 years ago in Karachi. Through thousands of personal checkups, pulse examinations, and patient conversations, our Hakims noticed that many everyday health problems — like stomach gas, acidity, liver heat, knee stiffness, and low energy — can be healed with the right daily habits and clean, natural herbs.
                 </p>
 
                 <p>
-                  Rather than selling generic mass-produced supplements, we formulate classical small-batch remedies: pure steam-distilled floral waters (*Arqiyat*), whole-fruit preserves simmered in raw cane infusions (*Murabbajaat*), and deep-penetrating herbal oils (*Roghan*).
+                  Instead of mass-producing chemical products, we prepare traditional small-batch remedies: pure steam-distilled herbal waters (<em>Arq</em>), sweet fruit preserves in honey (<em>Murabba</em>), and soothing joint oils (<em>Roghan</em>).
                 </p>
               </div>
 
               {/* Quote callout */}
               <div className="p-5 rounded-xl bg-[#faf8f5] border-l-4 border-[#c59b27] space-y-2 my-4">
                 <p className="font-serif italic text-base text-[#123824]">
-                  &ldquo;A true Hakim does not heal the illness; he restores the patient&apos;s innate vital defense (*Tabiat-e-Mudabbira*) so the body may heal itself.&rdquo;
+                  &ldquo;A good Hakim doesn&apos;t just cover up symptoms — he helps your body recover its own natural strength and vitality.&rdquo;
                 </p>
                 <span className="text-xs text-[#6a6660] font-medium block">
                   — Hakim Sahib, Founder of Tameer-e-Sehat
@@ -133,8 +127,8 @@ export default function AboutPage() {
                   rel="noopener noreferrer"
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white hover:bg-[#faf8f5] text-[#123824] text-xs font-semibold rounded-md border border-[#e6dfd5] transition-colors"
                 >
-                  <MessageCircle className="w-4 h-4 text-[#25D366]" />
-                  <span>WhatsApp Health Desk</span>
+                  <MessageCircle className="w-4 h-4 text-[#256644]" />
+                  <span>Chat on WhatsApp</span>
                 </a>
               </div>
             </div>
@@ -142,18 +136,18 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* The 4 Principles of Tibb-e-Unani */}
+      {/* 4 Pillars of Natural Healing */}
       <section className="py-20 border-b border-[#e6dfd5] bg-[#faf8f5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
           <div className="text-center max-w-3xl mx-auto space-y-3">
             <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
-              Philosophical Foundation
+              Our Method
             </span>
             <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#123824]">
-              The Classical Foundations of Eastern Medicine
+              How Natural Herbal Medicine Works
             </h2>
             <p className="text-xs sm:text-sm text-[#59534b]">
-              Derived from centuries of accumulated clinical insight from Ibn Sina (Avicenna), Al-Razi, and legendary Unani Masters.
+              Time-tested wisdom refined through decades of hands-on patient care.
             </p>
           </div>
 
@@ -163,13 +157,10 @@ export default function AboutPage() {
                 <Activity className="w-6 h-6" />
               </div>
               <h3 className="font-serif text-base font-bold text-[#123824]">
-                Mizaj (Temperament)
+                Personalized Care
               </h3>
-              <p className="font-urdu text-xs text-[#2a5a3d] font-semibold text-right" dir="rtl">
-                مزاج اور طبعی اعتدال
-              </p>
               <p className="text-xs text-[#59534b] leading-relaxed">
-                Every human constitution is governed by an individual equilibrium of primary qualities: Hot, Cold, Moist, and Dry. Treatments are custom-matched to counteract constitutional excess.
+                Every person is unique. We listen to your symptoms and daily lifestyle first before suggesting remedies.
               </p>
             </div>
 
@@ -178,13 +169,10 @@ export default function AboutPage() {
                 <Heart className="w-6 h-6" />
               </div>
               <h3 className="font-serif text-base font-bold text-[#123824]">
-                Akhlat (The Four Humors)
+                Natural Cleansing
               </h3>
-              <p className="font-urdu text-xs text-[#2a5a3d] font-semibold text-right" dir="rtl">
-                اخلاطِ اربعہ: دم، بلغم، صفرا، سودا
-              </p>
               <p className="text-xs text-[#59534b] leading-relaxed">
-                Optimal health relies on pure, balanced humors (Blood, Phlegm, Yellow Bile, Black Bile). Stagnant or toxic humors are gently cleansed through hepatic and renal herbs.
+                Helping your stomach, liver, and digestive system clear out excess heat and waste so you feel light and refreshed.
               </p>
             </div>
 
@@ -193,13 +181,10 @@ export default function AboutPage() {
                 <ShieldCheck className="w-6 h-6" />
               </div>
               <h3 className="font-serif text-base font-bold text-[#123824]">
-                Tabiat-e-Mudabbira
+                Strengthening Immunity
               </h3>
-              <p className="font-urdu text-xs text-[#2a5a3d] font-semibold text-right" dir="rtl">
-                طبیعتِ مدبرۂ بدن
-              </p>
               <p className="text-xs text-[#59534b] leading-relaxed">
-                The innate supreme biological intelligence within every body. Pure herbs act as catalysts to fortify this innate resistance without overriding natural organ functions.
+                Pure herbs support your body&apos;s natural defense system gently without causing unwanted side effects.
               </p>
             </div>
 
@@ -208,36 +193,33 @@ export default function AboutPage() {
                 <Leaf className="w-6 h-6" />
               </div>
               <h3 className="font-serif text-base font-bold text-[#123824]">
-                Ilaj-bil-Ghiza & Dawa
+                Diet & Daily Habits
               </h3>
-              <p className="font-urdu text-xs text-[#2a5a3d] font-semibold text-right" dir="rtl">
-                علاج بالغذاء و پرہیز
-              </p>
               <p className="text-xs text-[#59534b] leading-relaxed">
-                Medicine without dietary harmony (*Parhez*) is incomplete. We provide tailored food guidance alongside herbal formulations for enduring systemic wellness.
+                Healthy food and good habits are half the cure. We give you easy dietary tips to follow alongside your remedy.
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Apothecary Craftsmanship */}
+      {/* Craftsmanship */}
       <section className="py-20 bg-white border-b border-[#e6dfd5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             <div className="lg:col-span-6 space-y-6">
               <div className="space-y-2">
                 <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
-                  The Apothecary Standards
+                  Quality Standards
                 </span>
                 <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#123824] leading-tight">
-                  Small-Batch Preparation & Classical Steam Distillation
+                  How We Prepare Our Natural Remedies
                 </h2>
               </div>
 
               <div className="space-y-4 text-xs sm:text-sm text-[#59534b] leading-relaxed">
                 <p>
-                  Most modern commercial herbs are processed through high-heat industrial presses with artificial flavoring agents and preservatives. At Tameer-e-Sehat, we deliberately retain the slower, artisanal methods of the traditional master apothecary.
+                  Most commercial brands use artificial flavorings and chemical preservatives. At Tameer-e-Sehat, we take our time to prepare each remedy using clean, traditional methods.
                 </p>
 
                 <div className="space-y-3 pt-2">
@@ -247,10 +229,10 @@ export default function AboutPage() {
                     </div>
                     <div>
                       <strong className="text-[#123824] font-semibold block text-sm">
-                        Deg-Bhabka Steam Distillation (کشیدات)
+                        Pure Steam Distilled Waters (Arq)
                       </strong>
                       <span className="text-xs text-[#6a6660]">
-                        Fresh botanicals (such as Makoh and Kasni) are distilled slowly in copper condensators to capture pure volatile plant essences without alcohol.
+                        Fresh herbs like Kasni and Makoh are distilled slowly using steam to capture their natural benefits without alcohol or chemicals.
                       </span>
                     </div>
                   </div>
@@ -261,10 +243,10 @@ export default function AboutPage() {
                     </div>
                     <div>
                       <strong className="text-[#123824] font-semibold block text-sm">
-                        Triple-Filtered Raw Honey & Cane Base (مربہ جات)
+                        Slow Cooked Fruit Preserves (Murabba)
                       </strong>
                       <span className="text-xs text-[#6a6660]">
-                        Fresh Amla, Kashmiri apples, carrots, and Harar berries are slowly steeped to preserve enzymatic vitality and bio-available Vitamin C.
+                        Fresh Amla, Kashmiri apples, carrots, and Harar berries are slowly simmered in pure honey and natural syrup to protect their vitamins.
                       </span>
                     </div>
                   </div>
@@ -275,10 +257,10 @@ export default function AboutPage() {
                     </div>
                     <div>
                       <strong className="text-[#123824] font-semibold block text-sm">
-                        Cold Maceration for Pain & Skin Oils (روغنیات)
+                        Cold Steeped Joint & Skin Oils (Roghan)
                       </strong>
                       <span className="text-xs text-[#6a6660]">
-                        Therapeutic herbs are cold-macerated for 72 hours in pure olive and sesame oils, allowing natural warming alkaloids to penetrate deep tissues.
+                        Herbs are gently steeped in pure olive and sesame oils to create soothing joint and muscle oils that absorb easily.
                       </span>
                     </div>
                   </div>
@@ -304,10 +286,10 @@ export default function AboutPage() {
       <section className="py-16 bg-[#123824] text-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
           <h2 className="font-serif text-2xl sm:text-4xl font-bold text-white">
-            Experience Time-Honored Healing Today
+            Experience Natural Healing Today
           </h2>
           <p className="text-xs sm:text-sm text-[#f4eee5]/80 max-w-xl mx-auto leading-relaxed">
-            Whether you visit our physical clinic in Karachi or consult online from anywhere in Pakistan, you receive the same dedicated care and genuine herbal purity.
+            Whether you visit our clinic in Karachi or consult online from anywhere in Pakistan, you receive genuine care and authentic herbal remedies.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
@@ -315,13 +297,13 @@ export default function AboutPage() {
               href="/consultation"
               className="w-full sm:w-auto px-7 py-3.5 bg-[#c59b27] hover:bg-[#aa821c] text-[#123824] font-semibold text-xs uppercase tracking-wider rounded-md transition-colors shadow-md"
             >
-              Book Online Consultation
+              Start Free Consultation
             </Link>
             <Link
               href="/products"
               className="w-full sm:w-auto px-7 py-3.5 bg-[#1a4d33] hover:bg-[#256644] text-white font-semibold text-xs uppercase tracking-wider rounded-md border border-[#256644] transition-colors"
             >
-              Explore Apothecary
+              Explore All Products
             </Link>
           </div>
         </div>

@@ -42,7 +42,6 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     const filtered = PRODUCTS.filter((item) => {
       return (
         item.name.toLowerCase().includes(q) ||
-        item.urduName.includes(q) ||
         item.shortDescription.toLowerCase().includes(q) ||
         item.categoryLabel.toLowerCase().includes(q) ||
         item.benefits.some((b) => b.toLowerCase().includes(q)) ||
@@ -84,7 +83,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search herbal preserves, arqiyat, pain oil, symptoms, or ingredients..."
+            placeholder="Search remedies, preserves, arq, pain oils, or symptoms..."
             className="w-full bg-transparent text-sm text-[#1a1816] placeholder-[#6a6660] focus:outline-none"
           />
           {query && (
@@ -117,10 +116,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 "Arq Makoh",
                 "Joint Pain Oil",
                 "Tahiri Marham",
-                "Murabba Harr",
+                "Harar Murabba",
                 "Liver Health",
-                "Digestive Gas",
-                "Dry Fruits",
+                "Stomach Gas & Acidity",
+                "Pure Herbs",
               ].map((chip) => (
                 <button
                   key={chip}
@@ -134,7 +133,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
             <div className="pt-4 border-t border-[#e6dfd5]/60 text-xs text-[#6a6660]">
               <p>
-                💡 Tip: You can search in English (e.g. <em>Apple Murabba</em>) or Urdu (e.g. <em>عرق مکوہ</em>).
+                💡 Tip: You can search by remedy name (e.g. <em>Apple Murabba</em>) or symptom (e.g. <em>Joint pain</em>).
               </p>
             </div>
           </div>
@@ -145,16 +144,16 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           <div className="max-h-96 overflow-y-auto p-4 divide-y divide-[#e6dfd5]/60">
             {results.length === 0 ? (
               <div className="py-12 text-center text-xs text-[#6a6660]">
-                No specific formulations matching &ldquo;<span className="font-semibold text-[#1a1816]">{query}</span>&rdquo;.
+                No remedies found matching &ldquo;<span className="font-semibold text-[#1a1816]">{query}</span>&rdquo;.
                 <p className="mt-2 text-[11px]">
-                  Need guidance? You can ask the Hakim directly for personalized guidance.
+                  Need guidance? You can talk to our Hakim directly for personalized advice.
                 </p>
                 <Link
                   href="/consultation"
                   onClick={onClose}
                   className="mt-3 inline-block text-xs text-[#123824] font-semibold underline decoration-[#c59b27]"
                 >
-                  Request Hakim Consultation &rarr;
+                  Talk to Hakim Online &rarr;
                 </Link>
               </div>
             ) : (

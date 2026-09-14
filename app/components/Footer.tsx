@@ -4,7 +4,6 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CLINIC_INFO } from "@/app/data/products";
-import { useLanguage } from "@/app/context/LanguageContext";
 import {
   MapPin,
   Phone,
@@ -18,8 +17,6 @@ import {
 } from "lucide-react";
 
 export default function Footer() {
-  const { t, isUrdu } = useLanguage();
-
   return (
     <footer className="bg-[#123824] text-[#f4eee5] border-t border-[#1a4d33] pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -31,12 +28,10 @@ export default function Footer() {
             </div>
             <div>
               <h4 className="text-sm font-semibold text-white">
-                {isUrdu ? "100% خالص جڑی بوٹیاں" : "100% Pure Botanicals"}
+                100% Pure Herbs
               </h4>
               <p className="text-xs text-[#f4eee5]/70 mt-0.5">
-                {isUrdu
-                  ? "کیمیکل اور مصنوعی رنگوں سے مکمل پاک دیسی ادویات۔"
-                  : "Authentic, chemical-free herbs sourced from certified organic harvests."}
+                Authentic, clean herbs sourced fresh with zero chemical additives.
               </p>
             </div>
           </div>
@@ -47,12 +42,10 @@ export default function Footer() {
             </div>
             <div>
               <h4 className="text-sm font-semibold text-white">
-                {isUrdu ? "مستند حکیم کی تیاری" : "Hakim Formulated"}
+                Experienced Hakim
               </h4>
               <p className="text-xs text-[#f4eee5]/70 mt-0.5">
-                {isUrdu
-                  ? "کراچی میں 1990ء سے 35 سالہ مستند طبی خدمات۔"
-                  : "35+ years of clinical Unani Tibb expertise since 1990 in Karachi."}
+                Formulated by qualified herbal practitioners with 35+ years of experience.
               </p>
             </div>
           </div>
@@ -63,12 +56,10 @@ export default function Footer() {
             </div>
             <div>
               <h4 className="text-sm font-semibold text-white">
-                {isUrdu ? "ملک گیر کیش آن ڈیلیوری" : "Pakistan-Wide COD"}
+                Cash on Delivery
               </h4>
               <p className="text-xs text-[#f4eee5]/70 mt-0.5">
-                {isUrdu
-                  ? "کراچی، لاہور، اسلام آباد اور تمام چھوٹے بڑے شہروں میں ترسیل۔"
-                  : "Fast courier dispatch to Karachi, Lahore, Islamabad, and all cities."}
+                Fast courier delivery to Karachi, Lahore, Islamabad, and across Pakistan.
               </p>
             </div>
           </div>
@@ -79,12 +70,10 @@ export default function Footer() {
             </div>
             <div>
               <h4 className="text-sm font-semibold text-white">
-                {isUrdu ? "مکمل راز داری کا تحفظ" : "Confidential Care"}
+                Private & Confidential
               </h4>
               <p className="text-xs text-[#f4eee5]/70 mt-0.5">
-                {isUrdu
-                  ? "مریض کی علامات اور ریکارڈ کا مکمل طبی رازداری سے تحفظ۔"
-                  : "Discreet health consultations with strict privacy protection."}
+                Friendly, private advice focused on your personal health and symptoms.
               </p>
             </div>
           </div>
@@ -108,15 +97,13 @@ export default function Footer() {
                   Tameer-e-Sehat
                 </span>
                 <span className="block text-xs text-[#c59b27] font-medium tracking-wide">
-                  تعمیرِ صحت · مرکزِ علاج بالطب و حکمت
+                  Herbal Clinic & Natural Remedies
                 </span>
               </div>
             </div>
 
             <p className="text-xs text-[#f4eee5]/80 leading-relaxed max-w-sm">
-              {isUrdu
-                ? "تعمیرِ صحت 1990ء سے پاکستان میں یونانی حکمت اور قدرتی جڑی بوٹیوں کی خالص تیاری کے لیے ایک بااعتماد ادارہ ہے۔ ہم روایتی حکمت کو دورِ جدید کے معیار کے ساتھ ملا کر عوام تک پہنچاتے ہیں۔"
-                : "Established in 1990, Tameer-e-Sehat is a trusted Pakistani botanical health house and clinical practice. We bridge classical Greco-Arab Unani medicine with contemporary quality standards to bring pure, honest remedies to Pakistani households."}
+              Established in 1990 in Karachi, Tameer-e-Sehat is a trusted herbal clinic and remedy center. We use pure, natural herbs and time-tested recipes to provide honest, gentle remedies for you and your family.
             </p>
 
             <div className="pt-2 flex items-center gap-3">
@@ -127,13 +114,13 @@ export default function Footer() {
                 className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold rounded-md transition-colors shadow-xs"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>{isUrdu ? "واٹس ایپ ڈیسک" : "WhatsApp Health Desk"}</span>
+                <span>Chat on WhatsApp</span>
               </a>
               <Link
                 href="/consultation"
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#1a4d33] hover:bg-[#256644] text-white text-xs font-semibold rounded-md transition-colors border border-[#256644]"
               >
-                <span>{isUrdu ? "طبی معائنہ فارم" : "Request Consultation"}</span>
+                <span>Free Consultation</span>
               </Link>
             </div>
           </div>
@@ -141,37 +128,37 @@ export default function Footer() {
           {/* Quick Links */}
           <div className="space-y-3">
             <h4 className="font-serif text-sm font-semibold text-[#c59b27] uppercase tracking-wider">
-              {isUrdu ? "اہم لنکس" : "Navigation"}
+              Navigation
             </h4>
             <ul className="space-y-2 text-xs text-[#f4eee5]/80">
               <li>
                 <Link href="/" className="hover:text-white transition-colors">
-                  {t("home")}
+                  Home
                 </Link>
               </li>
               <li>
                 <Link href="/about" className="hover:text-white transition-colors">
-                  {t("about")}
+                  About Us
                 </Link>
               </li>
               <li>
                 <Link href="/consultation" className="hover:text-white transition-colors">
-                  {t("consultation")}
+                  Online Consultation
                 </Link>
               </li>
               <li>
                 <Link href="/products" className="hover:text-white transition-colors">
-                  {t("products")}
+                  All Products
                 </Link>
               </li>
               <li>
                 <Link href="/track-order" className="hover:text-white transition-colors">
-                  {isUrdu ? "آرڈر ٹریکنگ" : "Track Order"}
+                  Track Order (COD)
                 </Link>
               </li>
               <li>
                 <Link href="/contact" className="hover:text-white transition-colors">
-                  {t("contact")}
+                  Contact & Clinic
                 </Link>
               </li>
             </ul>
@@ -180,37 +167,37 @@ export default function Footer() {
           {/* Formulations / Categories */}
           <div className="space-y-3">
             <h4 className="font-serif text-sm font-semibold text-[#c59b27] uppercase tracking-wider">
-              {isUrdu ? "ادویات و قرابادین" : "Formulations"}
+              Categories
             </h4>
             <ul className="space-y-2 text-xs text-[#f4eee5]/80">
               <li>
                 <Link href="/products?category=murabbajaat" className="hover:text-white transition-colors">
-                  Murabbajaat (مربہ جات)
+                  Herbal Preserves (Murabba)
                 </Link>
               </li>
               <li>
                 <Link href="/products?category=arqiyat" className="hover:text-white transition-colors">
-                  Pure Arqiyat (عرق و کشیدات)
+                  Pure Herbal Waters (Arq)
                 </Link>
               </li>
               <li>
                 <Link href="/products?category=oils-marham" className="hover:text-white transition-colors">
-                  Pain Relief Oils & Marham (روغنیات)
+                  Pain Relief Oils & Balms
                 </Link>
               </li>
               <li>
                 <Link href="/products?category=herbs-seeds" className="hover:text-white transition-colors">
-                  Single Herbs & Mufradat (مفردات)
+                  Whole Herbs & Seeds
                 </Link>
               </li>
               <li>
                 <Link href="/products?category=teas-vitality" className="hover:text-white transition-colors">
-                  Vitality Teas & Seeds (مقویات)
+                  Wellness Teas & Energy Mixes
                 </Link>
               </li>
               <li className="pt-2 border-t border-[#1a4d33]/50">
                 <Link href="/admin" className="text-[#c59b27] hover:underline font-semibold">
-                  {isUrdu ? "حکیم و ایڈمن پورٹل" : "Hakim & Admin Portal"}
+                  Admin Portal
                 </Link>
               </li>
             </ul>
@@ -219,7 +206,7 @@ export default function Footer() {
           {/* Clinic & Contact Info */}
           <div className="space-y-3">
             <h4 className="font-serif text-sm font-semibold text-[#c59b27] uppercase tracking-wider">
-              {t("clinicDispensary")}
+              Clinic & Store
             </h4>
             <div className="space-y-2.5 text-xs text-[#f4eee5]/80">
               <div className="flex items-start gap-2">
@@ -252,29 +239,27 @@ export default function Footer() {
         {/* Safety & Legal Disclaimer */}
         <div className="pt-8 border-t border-[#1a4d33]/60 space-y-3 text-[11px] text-[#f4eee5]/60 leading-relaxed">
           <p>
-            <strong className="text-[#c59b27]">{isUrdu ? "ضروری طبی تنبیہ:" : "Important Healthcare Notice:"}</strong> {isUrdu
-              ? "اس ویب سائٹ پر فراہم کردہ معلومات اور یونانی مرکبات قدیم طب کے مستند اصولوں پر مبنی ہیں جو طبعی اعتدال کے لیے تیار کیے گئے ہیں۔ یہ ہنگامی طبی یا جراحی علاج کا متبادل نہیں ہیں۔ حاملہ خواتین یا شدید امراض میں مبتلا افراد استعمال سے قبل اپنے معالج یا حکیم صاحب سے ضرور مشورہ کریں۔"
-              : "The traditional Unani/herbal formulations and guidance offered on this website are based on established Eastern herbal pharmacopeia (Tibb-e-Unani). They are designed for holistic wellness and constitutional balance (Mizaj). They are not intended to replace emergency medical treatments or allopathic surgical care. Pregnant women and individuals undergoing critical pharmaceutical therapy should consult their healthcare practitioner before introducing new herbal regimens."}
+            <strong className="text-[#c59b27]">Important Health Notice:</strong> Our natural remedies and advice are based on traditional herbal medicine. They are designed to support your daily wellness, digestion, and natural body strength. If you have a severe medical emergency or are pregnant, please consult your doctor. Keep all natural remedies in a cool, dry place away from direct sunlight.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#1a4d33]/40 text-xs">
             <p>
-              &copy; {new Date().getFullYear()} {CLINIC_INFO.brandName} ({CLINIC_INFO.brandUrdu}). All rights reserved. Registered Herbal Health House, Karachi, Pakistan.
+              &copy; {new Date().getFullYear()} {CLINIC_INFO.brandName}. All rights reserved. Registered Herbal Health Clinic, Karachi, Pakistan.
             </p>
             <div className="flex items-center gap-4 text-[#f4eee5]/70">
               <Link href="/consultation" className="hover:text-white transition-colors">
-                {isUrdu ? "طبی ضوابط" : "Consultation Ethics"}
+                Consultation Help
               </Link>
               <span>·</span>
               <Link href="/track-order" className="hover:text-white transition-colors">
-                {isUrdu ? "آرڈر ٹریکنگ" : "Track Order"}
+                Track Order
               </Link>
               <span>·</span>
               <Link href="/contact" className="hover:text-white transition-colors">
-                {isUrdu ? "رازداری پالیسی" : "Privacy Policy"}
+                Contact & Support
               </Link>
               <span>·</span>
               <Link href="/login" className="hover:text-white transition-colors">
-                {isUrdu ? "لاگ ان" : "Sign In"}
+                Sign In
               </Link>
             </div>
           </div>

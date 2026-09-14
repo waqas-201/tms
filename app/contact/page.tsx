@@ -1,21 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { CLINIC_INFO } from "@/app/data/products";
-import { useLanguage } from "@/app/context/LanguageContext";
 import {
   MapPin,
   Phone,
-  Mail,
   Clock,
   MessageCircle,
-  Sparkles,
   Send,
   CheckCircle2,
-  HelpCircle,
   ChevronDown,
-  ShieldCheck,
   Building2,
   Loader2,
   AlertCircle,
@@ -23,40 +17,30 @@ import {
 
 const FAQS = [
   {
-    q: "Do you offer in-person pulse diagnosis and physical consultations?",
-    qUrdu: "کیا مطب میں نبض شناسی اور بالمشافہ معائنہ کی سہولت موجود ہے؟",
-    a: "Yes. Our physical clinic is located at Plot no L, 41 Korangi Crossing Rd, Sector 31 B Korangi, Karachi. We welcome walk-in patients from Monday to Saturday between 10:00 AM and 9:00 PM. Prior appointment via phone or WhatsApp is recommended to avoid wait times.",
-    aUrdu: "جی ہاں! ہمارا مطب کورنگی کراسنگ روڈ سیکٹر 31 بی کورنگی کراچی میں واقع ہے۔ پیر تا ہفتہ صبح 10 بجے سے رات 9 بجے تک مریض تشریف لا سکتے ہیں۔",
+    q: "Can I visit your physical clinic in Karachi?",
+    a: "Yes! Our clinic is located at Plot no L, 41 Korangi Crossing Rd, Sector 31 B Korangi, Karachi. We welcome visitors Monday through Saturday from 10:00 AM to 9:00 PM.",
   },
   {
-    q: "How does the online Hakim consultation work for patients outside Karachi?",
-    qUrdu: "کراچی سے باہر کے مریضوں کے لیے آن لائن طبی مشورے کا طریقہ کار کیا ہے؟",
-    a: "Patients across Pakistan (Lahore, Islamabad, Peshawar, Quetta, etc.) fill out our detailed clinical intake form. Hakim Sahib reviews your thermal temperament (Mizaj) and conducts a direct WhatsApp audio/text consultation to prescribe customized herbal remedies.",
-    aUrdu: "پورے پاکستان سے مریض ہماری ویب سائٹ پر طبی معائنہ فارم پر کرتے ہیں۔ حکیم صاحب علامات اور مزاج کا جائزہ لے کر واٹس ایپ پر براہ راست نسخہ تجویز فرماتے ہیں۔",
+    q: "How does the online consultation work for other cities?",
+    a: "If you live in Lahore, Islamabad, Rawalpindi, Peshawar, Quetta, or any other city across Pakistan, simply fill out our short consultation form or message us on WhatsApp. Our Hakim will review your symptoms and advise you directly.",
   },
   {
-    q: "What are your delivery timelines and Cash on Delivery (COD) policies?",
-    qUrdu: "ترسیل (Delivery) کے اوقات اور کیش آن ڈیلیوری کے کیا ضوابط ہیں؟",
-    a: "Karachi deliveries arrive within 24 to 48 hours. Orders to all other cities in Pakistan take 2 to 4 business days via reliable tracked courier services. You pay cash upon receiving the sealed parcel.",
-    aUrdu: "کراچی میں 24 سے 48 گھنٹے اور دیگر شہروں میں 2 تا 4 دن میں پارسل پہنچ جاتا ہے۔ ترسیل پر کیش آن ڈیلیوری کی سہولت میسر ہے۔",
+    q: "What are your delivery times and Cash on Delivery policy?",
+    a: "Karachi deliveries arrive within 24 to 48 hours. Orders to all other cities in Pakistan take 2 to 4 business days. You comfortably pay cash upon receiving your sealed parcel.",
   },
   {
-    q: "Are all formulations completely free of steroids and synthetic chemicals?",
-    qUrdu: "کیا تمام ادویات سٹیرائیڈ اور مصنوعی کیمیکلز سے مکمل پاک ہیں؟",
-    a: "Strictly 100%. Tameer-e-Sehat has operated continuously since 1990 adhering to classical Unani pharmacopeia. Our distillates, preserves, and oils are prepared in small artisanal batches with zero chemical adulteration.",
-    aUrdu: "سو فیصد خالص۔ تعمیر صحت 1990ء سے خالص جڑی بوٹیوں اور یونانی اصولوں کے مطابق ادویات تیار کر رہا ہے جن میں کوئی نقصان دہ کیمیکل شامل نہیں۔",
+    q: "Are all remedies 100% pure and chemical-free?",
+    a: "Yes, 100%. Tameer-e-Sehat has been preparing authentic herbal remedies since 1990. Our preserves, distillates, and oils are prepared in clean, small batches with zero steroids or chemicals.",
   },
 ];
 
 export default function ContactPage() {
-  const { t, isUrdu } = useLanguage();
-
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
     email: "",
     city: "Karachi",
-    subject: "General Clinical Inquiry",
+    subject: "General Question",
     message: "",
   });
 
@@ -84,14 +68,14 @@ export default function ContactPage() {
 
       setSubmitted(true);
     } catch (err: any) {
-      setError(err.message || "Failed to send message.");
+      setError(err.message || "Failed to send message. Please try again or WhatsApp us.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleWhatsAppDirect = () => {
-    const text = `*Assalam-o-Alaikum Tameer-e-Sehat Clinic,*\n*Name:* ${formData.name || "Patient"}\n*Phone:* ${formData.phone || "—"}\n*City:* ${formData.city || "Karachi"}\n*Topic:* ${formData.subject}\n*Message:* ${formData.message || "I would like to inquire regarding clinic consultation and herbal remedies."}`;
+    const text = `*Assalam-o-Alaikum Tameer-e-Sehat,*\n*Name:* ${formData.name || "Customer"}\n*Phone:* ${formData.phone || "—"}\n*City:* ${formData.city || "Karachi"}\n*Subject:* ${formData.subject}\n*Message:* ${formData.message || "I would like to inquire regarding clinic consultation and herbal remedies."}`;
     window.open(
       `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(text)}`,
       "_blank"
@@ -108,19 +92,19 @@ export default function ContactPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 relative z-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1a4d33] border border-[#256644] text-[#c59b27] text-xs font-medium tracking-wide">
             <Building2 className="w-3.5 h-3.5" />
-            <span>{isUrdu ? "مرکزِ علاج بالطب و دواخانہ" : "Clinic & Apothecary Dispensary"}</span>
+            <span>Clinic & Support</span>
           </div>
 
           <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
-            {t("contactHeading")}
+            Contact & Clinic Details
           </h1>
 
-          <p className="font-urdu text-xl text-[#f4eee5]/90 font-medium" dir="rtl">
-            رابطہ و طبی معائنہ · کراچی مطب و آن لائن رہنمائی
+          <p className="text-base sm:text-lg text-[#f4eee5]/90 font-serif italic max-w-xl mx-auto">
+            Get in touch with us for questions, order help, or to visit our clinic in Karachi.
           </p>
 
           <p className="text-xs sm:text-sm text-[#f4eee5]/80 max-w-xl mx-auto leading-relaxed">
-            {t("contactSubtitle")}
+            We are here to assist you with how to use remedies, ingredients, delivery status, and clinic timings.
           </p>
         </div>
       </section>
@@ -134,12 +118,10 @@ export default function ContactPage() {
             <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#e6dfd5] shadow-xs space-y-6">
               <div className="space-y-1 border-b border-[#f4eee5] pb-4">
                 <h3 className="font-serif text-lg font-bold text-[#123824]">
-                  {t("clinicDispensary")}
+                  Karachi Clinic & Store
                 </h3>
                 <p className="text-xs text-[#6a6660]">
-                  {isUrdu
-                    ? "کورنگی کراچی میں 35 سال سے قائم مستند دواخانہ و مطب۔"
-                    : "Serving Karachi patients continuously since 1990."}
+                  Serving families continuously since 1990.
                 </p>
               </div>
 
@@ -149,7 +131,7 @@ export default function ContactPage() {
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-[#1a1816]">{t("address")}</h4>
+                    <h4 className="font-bold text-[#1a1816]">Address</h4>
                     <p className="text-[#59534b] leading-relaxed mt-0.5">
                       {CLINIC_INFO.address}
                     </p>
@@ -161,7 +143,7 @@ export default function ContactPage() {
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-[#1a1816]">{t("phone")}</h4>
+                    <h4 className="font-bold text-[#1a1816]">Phone & WhatsApp</h4>
                     <a
                       href={`tel:${CLINIC_INFO.phone}`}
                       className="text-[#123824] hover:text-[#c59b27] font-medium block mt-0.5"
@@ -177,7 +159,7 @@ export default function ContactPage() {
                     <Clock className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-[#1a1816]">{t("timings")}</h4>
+                    <h4 className="font-bold text-[#1a1816]">Opening Hours</h4>
                     <p className="text-[#59534b] mt-0.5">{CLINIC_INFO.timings}</p>
                     <p className="text-[#c59b27] font-medium mt-0.5">{CLINIC_INFO.fridayTimings}</p>
                   </div>
@@ -193,7 +175,7 @@ export default function ContactPage() {
                   className="w-full flex items-center justify-center gap-2 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold rounded-md shadow-xs transition-colors"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>{isUrdu ? "واٹس ایپ پر فوری رابطہ کریں" : "Chat Directly on WhatsApp"}</span>
+                  <span>Chat Directly on WhatsApp</span>
                 </a>
               </div>
             </div>
@@ -203,12 +185,10 @@ export default function ContactPage() {
           <div className="lg:col-span-7 bg-white p-6 sm:p-10 rounded-2xl border border-[#e6dfd5] shadow-xs space-y-6">
             <div className="space-y-1 border-b border-[#f4eee5] pb-4">
               <h3 className="font-serif text-lg font-bold text-[#123824]">
-                {t("sendMessage")}
+                Send Us a Message
               </h3>
               <p className="text-xs text-[#6a6660]">
-                {isUrdu
-                  ? "کسی بھی سوال، دوا کی تفصیل یا مشاورت کے لیے پیغام بھیجیں۔"
-                  : "Send your inquiries, formulation questions, or appointment requests."}
+                Have a question about our products or need advice? Send us a message below.
               </p>
             </div>
 
@@ -218,18 +198,16 @@ export default function ContactPage() {
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <h4 className="font-serif text-lg font-bold text-[#123824]">
-                  {isUrdu ? "شکریہ! آپ کا پیغام موصول ہو گیا ہے" : "Thank You! Your message has been received."}
+                  Thank You! Your message has been received.
                 </h4>
                 <p className="text-xs text-[#59534b] max-w-sm mx-auto">
-                  {isUrdu
-                    ? "ہماری طبی ٹیم جلد آپ سے رابطہ کرے گی۔"
-                    : "Our clinical support team will review your inquiry and get back to you shortly."}
+                  Our friendly team will review your question and get back to you shortly.
                 </p>
                 <button
                   onClick={() => setSubmitted(false)}
                   className="px-5 py-2 bg-[#123824] text-white text-xs font-semibold rounded-md"
                 >
-                  {isUrdu ? "نیا پیغام بھیجیں" : "Send Another Message"}
+                  Send Another Message
                 </button>
               </div>
             ) : (
@@ -244,7 +222,7 @@ export default function ContactPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-[#1a1816]">
-                      {t("fullName")} <span className="text-red-500">*</span>
+                      Full Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -258,7 +236,7 @@ export default function ContactPage() {
 
                   <div className="space-y-1.5">
                     <label className="text-xs font-semibold text-[#1a1816]">
-                      {t("phone")} <span className="text-red-500">*</span>
+                      Phone Number <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="tel"
@@ -273,28 +251,28 @@ export default function ContactPage() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-[#1a1816]">
-                    {isUrdu ? "موضوع (Subject)" : "Subject / Reason for Inquiry"} <span className="text-red-500">*</span>
+                    Subject / Topic <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     required
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    placeholder="e.g. Consultation availability, Product dosage inquiry"
+                    placeholder="e.g. Question about Arq Kasni dosage, Delivery timing"
                     className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-[#1a1816]">
-                    {isUrdu ? "پیغام (Message)" : "Your Message"} <span className="text-red-500">*</span>
+                    Your Message <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     required
                     rows={4}
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    placeholder="Write your health inquiry, order query, or question..."
+                    placeholder="Write your health question or order inquiry here..."
                     className="w-full text-xs p-3.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
                   />
                 </div>
@@ -308,12 +286,12 @@ export default function ContactPage() {
                     {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>{isUrdu ? "بھیج رہے ہیں..." : "Submitting to DB..."}</span>
+                        <span>Sending...</span>
                       </>
                     ) : (
                       <>
                         <Send className="w-4 h-4" />
-                        <span>{isUrdu ? "پیغام بھیجیں" : "Submit Inquiry to Clinic"}</span>
+                        <span>Submit Message</span>
                       </>
                     )}
                   </button>
@@ -336,10 +314,10 @@ export default function ContactPage() {
         <div className="bg-white p-6 sm:p-10 rounded-2xl border border-[#e6dfd5] shadow-xs space-y-6">
           <div className="space-y-1 text-center max-w-2xl mx-auto">
             <span className="text-xs font-semibold text-[#c59b27] uppercase tracking-widest">
-              {isUrdu ? "عام سوالات و جوابات" : "Patient Queries"}
+              Common Questions
             </span>
             <h3 className="font-serif text-2xl font-bold text-[#123824]">
-              {isUrdu ? "اکثر پوچھے جانے والے طبی سوالات" : "Frequently Asked Questions"}
+              Frequently Asked Questions
             </h3>
           </div>
 
@@ -353,7 +331,7 @@ export default function ContactPage() {
                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
                   className="w-full p-4 text-left flex items-center justify-between gap-4 font-serif text-xs sm:text-sm font-semibold text-[#123824] hover:text-[#c59b27] transition-colors"
                 >
-                  <span>{isUrdu ? faq.qUrdu : faq.q}</span>
+                  <span>{faq.q}</span>
                   <ChevronDown
                     className={`w-4 h-4 text-[#6a6660] transition-transform duration-200 shrink-0 ${
                       openFaq === idx ? "rotate-180 text-[#123824]" : ""
@@ -362,7 +340,7 @@ export default function ContactPage() {
                 </button>
                 {openFaq === idx && (
                   <div className="px-4 pb-4 pt-1 text-xs text-[#59534b] leading-relaxed border-t border-[#e6dfd5] bg-white">
-                    {isUrdu ? faq.aUrdu : faq.a}
+                    {faq.a}
                   </div>
                 )}
               </div>

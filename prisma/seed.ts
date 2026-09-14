@@ -212,7 +212,7 @@ async function main() {
         create: [
           {
             productName: "Jawarish Shahi",
-            productUrduName: "جوارش شاہی",
+            productUrduName: "",
             sizeName: "Standard Jar",
             sizeWeight: "250g",
             price: 850,
@@ -221,7 +221,7 @@ async function main() {
           },
           {
             productName: "Arq-e-Gulab Khas",
-            productUrduName: "عرق گلاب خاص",
+            productUrduName: "",
             sizeName: "Glass Bottle",
             sizeWeight: "800ml",
             price: 750,

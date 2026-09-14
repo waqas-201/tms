@@ -2,34 +2,20 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useSession, signOut } from "@/lib/auth-client";
-import { useLanguage } from "@/app/context/LanguageContext";
+import { signOut } from "@/lib/auth-client";
 import {
   Activity,
   ShoppingBag,
   Stethoscope,
-  Users,
   Package,
   MessageSquare,
-  Search,
-  Filter,
-  CheckCircle2,
-  Clock,
-  Truck,
-  AlertCircle,
   RefreshCw,
   LogOut,
-  Sparkles,
   DollarSign,
-  ChevronRight,
   ExternalLink,
-  Plus,
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
-  const { isUrdu } = useLanguage();
-  const { data: sessionData, isPending } = useSession();
-
   const [activeTab, setActiveTab] = useState<"overview" | "consultations" | "orders" | "products" | "inquiries">("overview");
   const [stats, setStats] = useState<any>(null);
   const [orders, setOrders] = useState<any[]>([]);
@@ -162,7 +148,7 @@ export default function AdminDashboardPage() {
                 Tameer-e-Sehat · Hakim & Operations Desk
               </h1>
               <span className="text-[10px] text-[#c59b27] font-mono block">
-                SQLite + Prisma + Better-Auth DB Dashboard
+                Database Dashboard
               </span>
             </div>
           </div>
@@ -772,7 +758,7 @@ export default function AdminDashboardPage() {
                   Apothecary Products & Stock Control
                 </h2>
                 <p className="text-xs text-[#6a6660]">
-                  Live formulations loaded from SQLite database via Prisma.
+                  Live formulations loaded from database.
                 </p>
               </div>
             </div>
@@ -795,7 +781,6 @@ export default function AdminDashboardPage() {
                       <tr key={p.id} className="hover:bg-[#faf8f5]/50">
                         <td className="p-3.5 font-medium text-[#123824]">
                           <div>{p.name}</div>
-                          <div className="font-urdu text-[11px] text-[#c59b27]">{p.urduName}</div>
                         </td>
                         <td className="p-3.5 text-[#59534b]">
                           {p.categoryLabel || p.categoryId}
@@ -842,7 +827,7 @@ export default function AdminDashboardPage() {
                 Patient & Client Contact Inquiries
               </h2>
               <p className="text-xs text-[#6a6660]">
-                Messages submitted through the contact page stored in SQLite.
+                Messages submitted through the contact page stored in database.
               </p>
             </div>
 

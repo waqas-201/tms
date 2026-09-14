@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Outfit, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/app/context/CartContext";
-import { LanguageProvider } from "@/app/context/LanguageContext";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import CartDrawer from "@/app/components/CartDrawer";
@@ -43,8 +42,6 @@ export const metadata: Metadata = {
     "Herbal Medicine Pakistan",
     "Cash on Delivery Pakistan",
     "Tibb-e-Unani",
-    "تعمیرِ صحت",
-    "حکیم",
   ],
   authors: [{ name: "Tameer-e-Sehat Traditional Healthcare" }],
   openGraph: {
@@ -75,16 +72,14 @@ export default function RootLayout({
       className={`${outfit.variable} ${playfair.variable} h-full antialiased scroll-smooth`}
     >
       <body className="min-h-full flex flex-col bg-[#faf8f5] text-[#1e1c19] font-sans selection:bg-[#c59b27]/20 selection:text-[#123824]">
-        <LanguageProvider>
-          <CartProvider>
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <CartDrawer />
-            <WhatsAppFloat />
-            <Toast />
-          </CartProvider>
-        </LanguageProvider>
+        <CartProvider>
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+          <CartDrawer />
+          <WhatsAppFloat />
+          <Toast />
+        </CartProvider>
       </body>
     </html>
   );

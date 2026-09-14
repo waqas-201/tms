@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
 import { CLINIC_INFO, CONSULTATION_AREAS } from "@/app/data/products";
-import { useLanguage } from "@/app/context/LanguageContext";
 import { useSession } from "@/lib/auth-client";
 import {
   Sparkles,
@@ -13,15 +11,11 @@ import {
   Send,
   UserCheck,
   CheckCircle,
-  Phone,
-  HelpCircle,
   Loader2,
   AlertCircle,
-  FileText,
 } from "lucide-react";
 
 export default function ConsultationPage() {
-  const { t, isUrdu } = useLanguage();
   const { data: sessionData } = useSession();
 
   const [formData, setFormData] = useState({
@@ -31,7 +25,7 @@ export default function ConsultationPage() {
     city: (sessionData?.user as any)?.city || "Karachi",
     phone: (sessionData?.user as any)?.phone || "",
     email: sessionData?.user?.email || "",
-    primaryConcern: "Digestive / Stomach Issues (معدہ و ہاضمہ)",
+    primaryConcern: "Stomach, Gas & Acidity (Digestion)",
     duration: "1 to 3 months",
     symptomsDescription: "",
     priorTreatments: "",
@@ -50,18 +44,17 @@ export default function ConsultationPage() {
   };
 
   const generateWhatsAppUrl = (ticket?: string) => {
-    const text = `*Assalam-o-Alaikum Hakim Sahib (Tameer-e-Sehat Consultation Request)*\n` +
+    const text = `*Assalam-o-Alaikum Hakim Sahib (Tameer-e-Sehat Health Consultation)*\n` +
       (ticket ? `*Ticket Number:* ${ticket}\n` : "") +
-      `*Patient Name:* ${formData.fullName}\n` +
+      `*Name:* ${formData.fullName}\n` +
       `*Age & Gender:* ${formData.age} yrs · ${formData.gender}\n` +
       `*City:* ${formData.city}\n` +
       `*Phone:* ${formData.phone}\n\n` +
-      `*Primary Health Concern:* ${formData.primaryConcern}\n` +
-      `*Duration of Illness:* ${formData.duration}\n\n` +
-      `*Detailed Symptoms:* ${formData.symptomsDescription || "As discussed"}\n\n` +
-      `*Prior Treatments/Medications:* ${formData.priorTreatments || "None"}\n` +
-      `*Digestive/Routine Notes:* ${formData.dietHabits || "Standard"}\n\n` +
-      `_I am requesting your diagnostic evaluation and tailored herbal prescription. JazakAllah._`;
+      `*Main Health Issue:* ${formData.primaryConcern}\n` +
+      `*Duration:* ${formData.duration}\n\n` +
+      `*Symptoms Description:* ${formData.symptomsDescription || "As discussed"}\n\n` +
+      `*Current/Past Medicines:* ${formData.priorTreatments || "None"}\n\n` +
+      `_I am requesting your guidance and recommended herbal remedy. Thank you._`;
 
     return `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(text)}`;
   };
@@ -97,7 +90,7 @@ export default function ConsultationPage() {
 
       setSubmittedDossier(json.data);
     } catch (err: any) {
-      setError(err.message || "Failed to submit diagnostic questionnaire.");
+      setError(err.message || "Failed to submit consultation form. Please try again or message on WhatsApp.");
     } finally {
       setLoading(false);
     }
@@ -113,30 +106,30 @@ export default function ConsultationPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 relative z-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1a4d33] border border-[#256644] text-[#c59b27] text-xs font-medium tracking-wide">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>{isUrdu ? "طبی تشخیص و معائنہ کا مستند نظام" : "Confidential Unani Diagnostic Portal"}</span>
+            <span>Free Online Health Consultation</span>
           </div>
 
           <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
-            {t("consultationHeading")}
+            Talk to Our Hakim Online
           </h1>
 
-          <p className="font-urdu text-xl text-[#f4eee5]/90 font-medium" dir="rtl">
-            اپنے امراض و کیفیات کے علاج کے لیے حکیم صاحب سے طبی مشورہ حاصل کریں
+          <p className="text-base sm:text-lg text-[#f4eee5]/90 font-serif italic max-w-xl mx-auto">
+            Get personalized health guidance, dietary tips, and the right natural remedies for your body.
           </p>
 
           <p className="text-xs sm:text-sm text-[#f4eee5]/80 max-w-xl mx-auto leading-relaxed">
-            {t("consultationSubtitle")}
+            Fill out the quick form below. Our experienced Hakim will review your symptoms carefully and guide you towards natural recovery.
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-xs text-[#f4eee5]/70">
             <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#c59b27]" /> {isUrdu ? "مکمل طبی رازداری" : "100% Private & Discreet"}
+              <ShieldCheck className="w-4 h-4 text-[#c59b27]" /> 100% Private & Confidential
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-[#c59b27]" /> {isUrdu ? "2 تا 4 گھنٹے میں جواب" : "2-4 Hours Response Time"}
+              <Clock className="w-4 h-4 text-[#c59b27]" /> 2 to 4 Hours Response Time
             </span>
             <span className="flex items-center gap-1.5">
-              <UserCheck className="w-4 h-4 text-[#c59b27]" /> {isUrdu ? "35 سالہ طبی تجربہ" : "35+ Years Certified Practice"}
+              <UserCheck className="w-4 h-4 text-[#c59b27]" /> 35+ Years Clinical Experience
             </span>
           </div>
         </div>
@@ -152,13 +145,13 @@ export default function ConsultationPage() {
 
             <div className="space-y-2">
               <span className="text-xs uppercase font-semibold text-[#c59b27] tracking-widest">
-                {isUrdu ? "طبی معائنہ فارم درج ہو گیا" : "Diagnostic Dossier Saved to Clinical DB"}
+                Form Saved Successfully
               </span>
               <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#123824]">
-                {isUrdu ? "حکیم صاحب کو آپ کا طبی ریکارڈ موصول ہو گیا ہے" : "Consultation Request Received!"}
+                Consultation Request Received!
               </h2>
               <p className="text-xs sm:text-sm text-[#59534b]">
-                {isUrdu ? "آپ کا تصدیقی نمبر:" : "Your official consultation reference ticket is:"}{" "}
+                Your reference ticket number is:{" "}
                 <strong className="text-[#123824] font-mono text-sm sm:text-base px-2.5 py-1 bg-[#faf8f5] rounded border border-[#e6dfd5]">
                   {submittedDossier.ticketNumber}
                 </strong>
@@ -167,18 +160,16 @@ export default function ConsultationPage() {
 
             <div className="p-5 bg-[#faf8f5] rounded-xl border border-[#e6dfd5] text-left text-xs text-[#59534b] space-y-2 max-w-lg mx-auto">
               <p>
-                <strong>{isUrdu ? "مریض کا نام:" : "Patient:"}</strong> {submittedDossier.fullName} ({submittedDossier.age} yrs, {submittedDossier.gender})
+                <strong>Name:</strong> {submittedDossier.fullName} ({submittedDossier.age} yrs, {submittedDossier.gender})
               </p>
               <p>
-                <strong>{isUrdu ? "شہر و فون:" : "City & Phone:"}</strong> {submittedDossier.city} · {submittedDossier.phone}
+                <strong>City & Phone:</strong> {submittedDossier.city} · {submittedDossier.phone}
               </p>
               <p>
-                <strong>{isUrdu ? "طبی کیفیت:" : "Symptoms:"}</strong> {submittedDossier.primarySymptoms}
+                <strong>Symptoms:</strong> {submittedDossier.primarySymptoms}
               </p>
               <p className="text-[11px] text-[#6a6660] pt-1 border-t border-[#e6dfd5]">
-                {isUrdu
-                  ? "حکیم صاحب خود آپ کے کیس کا جائزہ لے کر واٹس ایپ یا فون پر تفصیلی رہنمائی اور نسخہ تجویز فرمائیں گے۔"
-                  : "Hakim Sahib will review your symptomatic profile (Mizaj) and contact you via WhatsApp / phone with customized guidance."}
+                Hakim Sahib will review your symptoms and contact you via WhatsApp / phone with honest guidance and natural recommendations.
               </p>
             </div>
 
@@ -190,14 +181,14 @@ export default function ConsultationPage() {
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold rounded-md shadow-xs transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
-                <span>{isUrdu ? "واٹس ایپ پر حکیم صاحب کو مطلع کریں" : "Open WhatsApp with Ticket Dossier"}</span>
+                <span>Open WhatsApp with Ticket</span>
               </a>
 
               <button
                 onClick={() => setSubmittedDossier(null)}
                 className="w-full sm:w-auto px-6 py-3 bg-[#123824] text-white text-xs font-semibold rounded-md"
               >
-                {isUrdu ? "نیا فارم پر کریں" : "Submit Another Intake"}
+                Submit Another Request
               </button>
             </div>
           </div>
@@ -207,12 +198,10 @@ export default function ConsultationPage() {
             <div className="lg:col-span-8 bg-white p-6 sm:p-10 rounded-2xl border border-[#e6dfd5] shadow-xs space-y-6">
               <div className="space-y-1 border-b border-[#f4eee5] pb-4">
                 <h2 className="font-serif text-xl font-bold text-[#123824]">
-                  {isUrdu ? "طبی معائنہ فارم (انتیک فارم)" : "Patient Clinical Intake Questionnaire"}
+                  Health & Symptoms Form
                 </h2>
                 <p className="text-xs text-[#6a6660]">
-                  {isUrdu
-                    ? "تمام معلومات حکیم صاحب کے پاس مکمل راز داری میں محفوظ رہتی ہیں۔"
-                    : "Please share accurate health symptoms for personalized Unani Mizaj diagnosis."}
+                  Please share your symptoms honestly so our Hakim can give you accurate guidance.
                 </p>
               </div>
 
@@ -227,12 +216,12 @@ export default function ConsultationPage() {
                 {/* Section 1: Demographics */}
                 <div className="space-y-3">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-[#c59b27]">
-                    1. {isUrdu ? "بنیادی معلومات" : "Patient Information"}
+                    1. Your Contact Information
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1.5 sm:col-span-2">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        {t("fullName")} <span className="text-red-500">*</span>
+                        Full Name <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -247,7 +236,7 @@ export default function ConsultationPage() {
 
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        {isUrdu ? "عمر (سال)" : "Age (Years)"} <span className="text-red-500">*</span>
+                        Age (Years) <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="number"
@@ -263,7 +252,7 @@ export default function ConsultationPage() {
 
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        {isUrdu ? "جنس" : "Gender"} <span className="text-red-500">*</span>
+                        Gender <span className="text-red-500">*</span>
                       </label>
                       <select
                         name="gender"
@@ -271,15 +260,15 @@ export default function ConsultationPage() {
                         onChange={handleChange}
                         className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
                       >
-                        <option value="Male">{isUrdu ? "مرد (Male)" : "Male"}</option>
-                        <option value="Female">{isUrdu ? "خاتون (Female)" : "Female"}</option>
-                        <option value="Other">{isUrdu ? "دیگر" : "Other"}</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
                       </select>
                     </div>
 
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        {t("phone")} / WhatsApp <span className="text-red-500">*</span>
+                        Phone / WhatsApp <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="tel"
@@ -294,7 +283,7 @@ export default function ConsultationPage() {
 
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        {t("city")} <span className="text-red-500">*</span>
+                        City <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -312,13 +301,13 @@ export default function ConsultationPage() {
                 {/* Section 2: Clinical Details */}
                 <div className="space-y-3 pt-3 border-t border-[#f4eee5]">
                   <h3 className="text-xs font-bold uppercase tracking-wider text-[#c59b27]">
-                    2. {isUrdu ? "طبی علامات و مرض کی تفصیل" : "Symptom & Disease Details"}
+                    2. Your Symptoms & Health Concerns
                   </h3>
 
                   <div className="space-y-4">
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        {isUrdu ? "مرکزی طبی مسئلہ / زمرہ" : "Primary Health Area"} <span className="text-red-500">*</span>
+                        Main Health Concern <span className="text-red-500">*</span>
                       </label>
                       <select
                         name="primaryConcern"
@@ -327,8 +316,8 @@ export default function ConsultationPage() {
                         className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
                       >
                         {CONSULTATION_AREAS.map((a) => (
-                          <option key={a.title} value={`${a.title} (${a.urduTitle})`}>
-                            {a.title} ({a.urduTitle})
+                          <option key={a.title} value={a.title}>
+                            {a.title}
                           </option>
                         ))}
                       </select>
@@ -336,7 +325,7 @@ export default function ConsultationPage() {
 
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        {isUrdu ? "مرض کی مدت (Duration of Illness)" : "Duration of Symptoms"} <span className="text-red-500">*</span>
+                        How long have you felt this way? <span className="text-red-500">*</span>
                       </label>
                       <select
                         name="duration"
@@ -344,16 +333,16 @@ export default function ConsultationPage() {
                         onChange={handleChange}
                         className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
                       >
-                        <option value="Less than 2 weeks">{isUrdu ? "دو ہفتے سے کم" : "Less than 2 weeks"}</option>
-                        <option value="1 to 3 months">{isUrdu ? "ایک سے تین ماہ" : "1 to 3 months"}</option>
-                        <option value="6 months to 1 year">{isUrdu ? "چھ ماہ سے ایک سال" : "6 months to 1 year"}</option>
-                        <option value="More than 1 year (Chronic)">{isUrdu ? "ایک سال سے زائد (پرانا مرض)" : "More than 1 year (Chronic)"}</option>
+                        <option value="Less than 2 weeks">Less than 2 weeks</option>
+                        <option value="1 to 3 months">1 to 3 months</option>
+                        <option value="6 months to 1 year">6 months to 1 year</option>
+                        <option value="More than 1 year (Chronic)">More than 1 year</option>
                       </select>
                     </div>
 
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        {isUrdu ? "اپنی تمام علامات تفصیل سے تحریر کریں" : "Describe Symptoms & Discomfort in Detail"} <span className="text-red-500">*</span>
+                        Describe your symptoms in detail <span className="text-red-500">*</span>
                       </label>
                       <textarea
                         required
@@ -361,25 +350,21 @@ export default function ConsultationPage() {
                         name="symptomsDescription"
                         value={formData.symptomsDescription}
                         onChange={handleChange}
-                        placeholder={
-                          isUrdu
-                            ? "مثلاً: کھانے کے بعد تیزابیت اور جلن رہتی ہے، رات کو نیند نہیں آتی، جوڑوں میں درد ہوتا ہے وغیرہ..."
-                            : "Describe pain location, triggers, burning sensations, digestion issues, energy fluctuations..."
-                        }
+                        placeholder="Tell us what you feel — such as stomach burning, gas, joint pain, fatigue, sleep trouble, or skin issues..."
                         className="w-full text-xs p-3.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
                       />
                     </div>
 
                     <div className="space-y-1.5">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        {isUrdu ? "سابقہ ادویات یا دیگر ڈاکٹروں کا علاج (اگر کوئی ہو)" : "Prior Medications or Allopathic Therapies (Optional)"}
+                        Current or Past Medicines You Take (Optional)
                       </label>
                       <input
                         type="text"
                         name="priorTreatments"
                         value={formData.priorTreatments}
                         onChange={handleChange}
-                        placeholder="e.g. Taking antacids daily, painkillers for back pain"
+                        placeholder="e.g. Taking antacids daily, pain tablets for back pain"
                         className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
                       />
                     </div>
@@ -395,12 +380,12 @@ export default function ConsultationPage() {
                     {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>{isUrdu ? "فارم محفوظ ہو رہا ہے..." : "Saving Diagnostic Dossier..."}</span>
+                        <span>Sending to Hakim...</span>
                       </>
                     ) : (
                       <>
                         <Send className="w-4 h-4" />
-                        <span>{isUrdu ? "طبی معائنہ فارم جمع کرائیں" : "Submit Consultation Dossier to Hakim"}</span>
+                        <span>Submit Health Details to Hakim</span>
                       </>
                     )}
                   </button>
@@ -408,20 +393,18 @@ export default function ConsultationPage() {
               </form>
             </div>
 
-            {/* Right Column: Direct Hotlines & Hakim Ethics */}
+            {/* Right Column: Direct WhatsApp & Clinic Details */}
             <div className="lg:col-span-4 space-y-6">
               {/* WhatsApp Fast Track Card */}
               <div className="bg-[#123824] text-white p-6 rounded-2xl border border-[#1a4d33] shadow-lg space-y-4">
                 <div className="flex items-center gap-2 text-[#c59b27]">
                   <MessageCircle className="w-5 h-5" />
                   <h3 className="font-serif text-sm font-bold">
-                    {isUrdu ? "براہِ راست واٹس ایپ رابطہ" : "Instant WhatsApp Desk"}
+                    Prefer WhatsApp Directly?
                   </h3>
                 </div>
                 <p className="text-xs text-[#f4eee5]/80 leading-relaxed">
-                  {isUrdu
-                    ? "اگر آپ فارم پر نہیں کرنا چاہتے تو براہِ راست واٹس ایپ پر صوتی پیغام (Voice Note) یا میسج بھیج کر فوری رہنمائی لے سکتے ہیں۔"
-                    : "Prefer sending an immediate voice note or prescription image? Connect directly to Hakim Sahib's clinical desk."}
+                  Want to send a voice note or share your prescription image? Connect directly with Hakim Sahib on WhatsApp.
                 </p>
                 <a
                   href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
@@ -430,26 +413,24 @@ export default function ConsultationPage() {
                   className="w-full flex items-center justify-center gap-2 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold rounded-md transition-colors shadow-xs"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>{isUrdu ? "واٹس ایپ چیٹ شروع کریں" : "Chat on WhatsApp (0318-2311310)"}</span>
+                  <span>Chat on WhatsApp ({CLINIC_INFO.phoneFormatted})</span>
                 </a>
               </div>
 
               {/* Clinic Timings & Physical Consultations */}
               <div className="bg-white p-6 rounded-2xl border border-[#e6dfd5] shadow-xs space-y-3">
                 <h3 className="font-serif text-sm font-bold text-[#123824]">
-                  {isUrdu ? "مطب میں بالمشافہ معائنہ" : "In-Person Clinic Visit (Karachi)"}
+                  In-Person Clinic Visit (Karachi)
                 </h3>
                 <p className="text-xs text-[#6a6660] leading-relaxed">
-                  {isUrdu
-                    ? "کراچی میں مقیم مریض مطب میں تشریف لا کر نبض، مزاج اور طبعی معائنہ کروا سکتے ہیں۔"
-                    : "Karachi residents are welcome to visit our physical dispensary for traditional pulse diagnosis (Nabz) and constitutional checkups."}
+                  Karachi residents are warmly welcome to visit our physical clinic for traditional pulse diagnosis and personal checkups.
                 </p>
                 <div className="pt-2 text-xs space-y-1.5 text-[#59534b] border-t border-[#f4eee5]">
                   <p>
-                    <strong>{isUrdu ? "پتہ:" : "Address:"}</strong> {CLINIC_INFO.address}
+                    <strong>Address:</strong> {CLINIC_INFO.address}
                   </p>
                   <p>
-                    <strong>{isUrdu ? "اوقات:" : "Timings:"}</strong> {CLINIC_INFO.timings}
+                    <strong>Timings:</strong> {CLINIC_INFO.timings}
                   </p>
                   <p className="text-[#c59b27] font-medium">
                     {CLINIC_INFO.fridayTimings}

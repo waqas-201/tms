@@ -1,25 +1,20 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
-import { useLanguage } from "@/app/context/LanguageContext";
+import { CLINIC_INFO } from "@/app/data/products";
 import {
   Search,
   Truck,
   Package,
-  CheckCircle2,
-  Clock,
   MapPin,
   AlertCircle,
   Loader2,
-  Sparkles,
   ArrowRight,
   Phone,
   ShieldCheck,
 } from "lucide-react";
 
 export default function TrackOrderPage() {
-  const { isUrdu } = useLanguage();
   const [orderQuery, setOrderQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [orderData, setOrderData] = useState<any | null>(null);
@@ -41,10 +36,7 @@ export default function TrackOrderPage() {
 
       if (!res.ok || !data.success) {
         throw new Error(
-          data.error ||
-            (isUrdu
-              ? "اس حوالہ نمبر کے ساتھ کوئی آرڈر نہیں ملا۔ براہ کرم اپنا درست آرڈر نمبر درج کریں۔"
-              : "No order found with this reference number. Please verify your order number.")
+          data.error || "No order found with this reference number. Please check your order number."
         );
       }
 
@@ -78,15 +70,13 @@ export default function TrackOrderPage() {
         <div className="text-center space-y-3">
           <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
             <Truck className="w-4 h-4" />
-            <span>{isUrdu ? "ملک گیر ترسیل ٹریکنگ" : "Live Pakistan Dispatch Tracking"}</span>
+            <span>Order Tracking</span>
           </span>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#123824]">
-            {isUrdu ? "اپنے پارسل اور ادویات کا سراغ لگائیں" : "Track Your Apothecary Order"}
+            Track Your Order
           </h1>
           <p className="text-xs sm:text-sm text-[#6a6660] max-w-lg mx-auto">
-            {isUrdu
-              ? "اپنے آرڈر کی تصدیق، تیاری، اور کوریئر کے ذریعے ترسیل کی تازہ ترین صورتحال جانیں۔"
-              : "Enter your order reference number (e.g. TMS-2026-XXXX) to view dispensary preparation and courier status."}
+            Enter your order reference number (e.g. TMS-2026-1001) to check your package status.
           </p>
         </div>
 
@@ -100,7 +90,7 @@ export default function TrackOrderPage() {
                 required
                 value={orderQuery}
                 onChange={(e) => setOrderQuery(e.target.value)}
-                placeholder={isUrdu ? "مثال کے طور پر: TMS-2026-1001" : "e.g. TMS-2026-1001"}
+                placeholder="e.g. TMS-2026-1001"
                 className="w-full pl-10 pr-3.5 py-3 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs sm:text-sm text-[#1a1816] uppercase focus:outline-none focus:border-[#123824] focus:bg-white font-mono transition-colors"
               />
             </div>
@@ -112,12 +102,12 @@ export default function TrackOrderPage() {
               {loading ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>{isUrdu ? "تلاش جاری ہے..." : "Locating..."}</span>
+                  <span>Searching...</span>
                 </>
               ) : (
                 <>
-                  <span>{isUrdu ? "آرڈر تلاش کریں" : "Track Order"}</span>
-                  <ArrowRight className={`w-4 h-4 ${isUrdu ? "rotate-180" : ""}`} />
+                  <span>Track Order</span>
+                  <ArrowRight className="w-4 h-4" />
                 </>
               )}
             </button>
@@ -138,11 +128,11 @@ export default function TrackOrderPage() {
             <div className="bg-[#123824] text-white p-6 sm:p-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
               <div>
                 <span className="text-[11px] font-mono text-[#c59b27] uppercase font-bold tracking-widest">
-                  {isUrdu ? "آرڈر نمبر" : "Order Reference"}
+                  Order Number
                 </span>
                 <h2 className="font-serif text-2xl font-bold">{orderData.orderNumber}</h2>
                 <p className="text-xs text-[#f4eee5]/80 mt-0.5">
-                  {isUrdu ? "آرڈر کی تاریخ: " : "Placed on: "}
+                  Placed on:{" "}
                   {new Date(orderData.createdAt).toLocaleDateString("en-PK", {
                     day: "numeric",
                     month: "long",
@@ -153,7 +143,7 @@ export default function TrackOrderPage() {
 
               <div className="text-left sm:text-right">
                 <span className="text-xs text-[#f4eee5]/80 block">
-                  {isUrdu ? "کل رقم (ادائیگی کیش آن ڈیلیوری)" : "Total (Cash on Delivery)"}
+                  Total (Cash on Delivery)
                 </span>
                 <span className="font-serif text-2xl font-bold text-[#c59b27]">
                   ₨ {orderData.total.toLocaleString()}
@@ -164,7 +154,7 @@ export default function TrackOrderPage() {
             {/* Stepper Progress Bar */}
             <div className="px-6 sm:px-8 py-4">
               <h3 className="text-xs font-bold text-[#123824] uppercase tracking-wider mb-6">
-                {isUrdu ? "ترسیل کی موجودہ صورتحال" : "Fulfillment Timeline"}
+                Delivery Timeline
               </h3>
 
               <div className="grid grid-cols-4 gap-2 relative">
@@ -180,7 +170,7 @@ export default function TrackOrderPage() {
                     1
                   </div>
                   <span className="text-[11px] font-semibold text-[#123824] block">
-                    {isUrdu ? "موصول شدہ" : "Received"}
+                    Received
                   </span>
                 </div>
 
@@ -196,7 +186,7 @@ export default function TrackOrderPage() {
                     2
                   </div>
                   <span className="text-[11px] font-semibold text-[#123824] block">
-                    {isUrdu ? "تیار شدہ" : "Prepared"}
+                    Packed
                   </span>
                 </div>
 
@@ -212,7 +202,7 @@ export default function TrackOrderPage() {
                     3
                   </div>
                   <span className="text-[11px] font-semibold text-[#123824] block">
-                    {isUrdu ? "روانہ شدہ" : "Dispatched"}
+                    Dispatched
                   </span>
                 </div>
 
@@ -228,7 +218,7 @@ export default function TrackOrderPage() {
                     4
                   </div>
                   <span className="text-[11px] font-semibold text-[#123824] block">
-                    {isUrdu ? "پہنچا دیا گیا" : "Delivered"}
+                    Delivered
                   </span>
                 </div>
               </div>
@@ -238,7 +228,7 @@ export default function TrackOrderPage() {
                   <Truck className="w-5 h-5 text-[#256644] shrink-0" />
                   <div className="text-xs text-[#123824]">
                     <span className="font-bold block">
-                      {isUrdu ? "کوریئر ٹریکنگ تفصیلات:" : "Courier Tracking Details:"}
+                      Courier Tracking Details:
                     </span>
                     <span className="font-mono text-sm">{orderData.trackingNote}</span>
                   </div>
@@ -251,7 +241,7 @@ export default function TrackOrderPage() {
               <div className="space-y-2">
                 <h4 className="font-bold text-[#123824] flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 text-[#c59b27]" />
-                  <span>{isUrdu ? "ترسیل کا پتہ" : "Destination & Patient Info"}</span>
+                  <span>Delivery Address</span>
                 </h4>
                 <div className="text-[#59534b] space-y-1">
                   <p className="font-semibold text-[#123824]">{orderData.customerName}</p>
@@ -264,7 +254,7 @@ export default function TrackOrderPage() {
               <div className="space-y-2">
                 <h4 className="font-bold text-[#123824] flex items-center gap-1.5">
                   <Package className="w-4 h-4 text-[#123824]" />
-                  <span>{isUrdu ? "آرڈر میں شامل ادویات" : "Prescribed & Packed Items"}</span>
+                  <span>Ordered Items</span>
                 </h4>
                 <div className="space-y-1.5 divide-y divide-[#e6dfd5]">
                   {orderData.items?.map((item: any) => (
@@ -283,16 +273,16 @@ export default function TrackOrderPage() {
             <div className="p-6 bg-white border-t border-[#e6dfd5] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
               <div className="flex items-center gap-2 text-[#59534b]">
                 <ShieldCheck className="w-4 h-4 text-[#256644]" />
-                <span>{isUrdu ? "کسی بھی رہنمائی کے لیے ہماری ہیلپ لائن سے رابطہ کریں۔" : "Need help with your parcel delivery?"}</span>
+                <span>Need help with your order delivery?</span>
               </div>
               <a
-                href="https://wa.me/923001234567"
+                href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white font-semibold rounded-lg flex items-center gap-1.5 shadow-xs"
               >
                 <Phone className="w-3.5 h-3.5" />
-                <span>{isUrdu ? "ہیلپ لائن واٹس ایپ" : "WhatsApp Support"}</span>
+                <span>WhatsApp Help</span>
               </a>
             </div>
           </div>

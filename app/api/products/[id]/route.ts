@@ -23,7 +23,7 @@ export async function GET(
 
     if (!product) {
       return NextResponse.json(
-        { success: false, error: "Formulation not found." },
+        { success: false, error: "Product not found." },
         { status: 404 }
       );
     }
@@ -37,9 +37,9 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: formatted });
   } catch (error) {
-    console.error("Error fetching formulation detail:", error);
+    console.error("Error fetching product detail:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to fetch formulation detail." },
+      { success: false, error: "Failed to fetch product detail." },
       { status: 500 }
     );
   }
@@ -66,10 +66,8 @@ export async function PUT(
     const body = await request.json();
     const {
       name,
-      urduName,
       categoryId,
       categoryLabel,
-      categoryUrdu,
       shortDescription,
       fullDescription,
       traditionalPurpose,
@@ -97,7 +95,7 @@ export async function PUT(
 
     if (!existing) {
       return NextResponse.json(
-        { success: false, error: "Formulation not found." },
+        { success: false, error: "Product not found." },
         { status: 404 }
       );
     }
@@ -105,34 +103,38 @@ export async function PUT(
     // Update sizes if provided
     if (sizes && Array.isArray(sizes)) {
       await prisma.productSize.deleteMany({ where: { productId: existing.id } });
-      await prisma.productSize.createMany({
-        data: sizes.map((s: { name: string; weight: string; price: number; originalPrice?: number }) => ({
-          productId: existing.id,
-          name: s.name,
-          weight: s.weight,
-          price: Number(s.price),
-          originalPrice: s.originalPrice ? Number(s.originalPrice) : null,
-        })),
-      });
+      if (sizes.length > 0) {
+        await prisma.productSize.createMany({
+          data: sizes.map((s: { name: string; weight: string; price: number; originalPrice?: number }) => ({
+            productId: existing.id,
+            name: s.name,
+            weight: s.weight,
+            price: Number(s.price),
+            originalPrice: s.originalPrice ? Number(s.originalPrice) : null,
+          })),
+        });
+      }
     }
+
+    const parsedBenefits = benefits !== undefined ? (Array.isArray(benefits) ? JSON.stringify(benefits) : String(benefits)) : undefined;
+    const parsedIngredients = ingredients !== undefined ? (Array.isArray(ingredients) ? JSON.stringify(ingredients) : String(ingredients)) : undefined;
+    const parsedWarnings = warnings !== undefined ? (Array.isArray(warnings) ? JSON.stringify(warnings) : String(warnings)) : undefined;
 
     const updated = await prisma.product.update({
       where: { id: existing.id },
       data: {
         ...(name && { name }),
-        ...(urduName && { urduName }),
         ...(categoryId && { categoryId }),
         ...(categoryLabel && { categoryLabel }),
-        ...(categoryUrdu && { categoryUrdu }),
         ...(shortDescription !== undefined && { shortDescription }),
         ...(fullDescription !== undefined && { fullDescription }),
         ...(traditionalPurpose !== undefined && { traditionalPurpose }),
-        ...(benefits && { benefits: JSON.stringify(benefits) }),
-        ...(ingredients && { ingredients: JSON.stringify(ingredients) }),
+        ...(parsedBenefits !== undefined && { benefits: parsedBenefits }),
+        ...(parsedIngredients !== undefined && { ingredients: parsedIngredients }),
         ...(howToUse !== undefined && { howToUse }),
         ...(dosage !== undefined && { dosage }),
         ...(hakimAdvice !== undefined && { hakimAdvice }),
-        ...(warnings && { warnings: JSON.stringify(warnings) }),
+        ...(parsedWarnings !== undefined && { warnings: parsedWarnings }),
         ...(price !== undefined && { price: Number(price) }),
         ...(originalPrice !== undefined && { originalPrice: originalPrice ? Number(originalPrice) : null }),
         ...(discountPercentage !== undefined && { discountPercentage: discountPercentage ? Number(discountPercentage) : null }),
@@ -149,10 +151,10 @@ export async function PUT(
     });
 
     return NextResponse.json({ success: true, data: updated });
-  } catch (error) {
-    console.error("Error updating formulation:", error);
+  } catch (error: any) {
+    console.error("Error updating product:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to update formulation." },
+      { success: false, error: error?.message || "Failed to update product." },
       { status: 500 }
     );
   }
@@ -182,7 +184,7 @@ export async function DELETE(
 
     if (!existing) {
       return NextResponse.json(
-        { success: false, error: "Formulation not found." },
+        { success: false, error: "Product not found." },
         { status: 404 }
       );
     }
@@ -191,11 +193,11 @@ export async function DELETE(
       where: { id: existing.id },
     });
 
-    return NextResponse.json({ success: true, message: "Formulation removed successfully." });
+    return NextResponse.json({ success: true, message: "Product deleted successfully." });
   } catch (error) {
-    console.error("Error deleting formulation:", error);
+    console.error("Error deleting product:", error);
     return NextResponse.json(
-      { success: false, error: "Failed to delete formulation." },
+      { success: false, error: "Failed to delete product." },
       { status: 500 }
     );
   }

@@ -10,28 +10,31 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "^7.10.0",
+    "@tailwindcss/postcss": "^4.3.3",
     "better-auth": "^1.7.4",
+    "dotenv": "^16.6.1",
     "framer-motion": "^13.2.0",
     "lucide-react": "^1.45.0",
     "next": "16.3.5",
+    "pg": "^8.23.0",
+    "postcss": "^8.5.28",
     "prisma": "^7.10.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "tailwindcss": "^4.3.3"
   },
   "prisma": {
-    "seed": "npx tsx prisma/seed.ts"
+    "seed": "node prisma/seed.js"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "dotenv": "^16.4.5",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
-    "postcss": "^8.5.28",
-    "tailwindcss": "^4.3.3",
     "typescript": "^5"
   }
 }

@@ -1,5 +1,41 @@
-import prisma from "../lib/prisma";
+import { PrismaClient } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
+import path from "path";
+import fs from "fs";
 import { PRODUCTS, CATEGORIES } from "../app/data/products";
+
+// Read DATABASE_URL from .env
+let connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  const envPath = path.resolve(process.cwd(), ".env");
+  if (fs.existsSync(envPath)) {
+    const content = fs.readFileSync(envPath, "utf-8");
+    for (const line of content.split("\n")) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("DATABASE_URL=")) {
+        let val = trimmed.replace("DATABASE_URL=", "").trim();
+        if (
+          (val.startsWith('"') && val.endsWith('"')) ||
+          (val.startsWith("'") && val.endsWith("'"))
+        ) {
+          val = val.slice(1, -1);
+        }
+        connectionString = val;
+        break;
+      }
+    }
+  }
+}
+
+if (!connectionString) {
+  console.error("❌ DATABASE_URL not found!");
+  process.exit(1);
+}
+
+const pool = new Pool({ connectionString });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log("🌱 Starting Tameer-e-Sehat database seeding...");
@@ -26,203 +62,194 @@ async function main() {
       },
     });
   }
-  console.log(`✓ Seeded ${CATEGORIES.length} categories.`);
+  console.log(`✅ Seeded ${CATEGORIES.length} categories.`);
 
   // 2. Seed Products and their sizes
-  console.log("Seeding products and variants...");
-  for (const p of PRODUCTS) {
+  console.log("Seeding products...");
+  for (const prod of PRODUCTS) {
     const createdProduct = await prisma.product.upsert({
-      where: { slug: p.slug },
+      where: { slug: prod.slug },
       update: {
-        name: p.name,
-        urduName: p.urduName,
-        categoryId: p.category,
-        categoryLabel: p.categoryLabel,
-        categoryUrdu: p.categoryUrdu,
-        shortDescription: p.shortDescription,
-        fullDescription: p.fullDescription,
-        traditionalPurpose: p.traditionalPurpose,
-        benefits: JSON.stringify(p.benefits),
-        ingredients: JSON.stringify(p.ingredients),
-        howToUse: p.howToUse,
-        dosage: p.dosage,
-        hakimAdvice: p.hakimAdvice,
-        warnings: JSON.stringify(p.warnings || []),
-        price: p.price,
-        originalPrice: p.originalPrice || null,
-        discountPercentage: p.discountPercentage || null,
-        image: p.image,
-        inStock: p.inStock,
-        featured: p.featured,
-        rating: p.rating,
-        reviewCount: p.reviewCount,
-        badge: p.badge || null,
-        mizaj: p.mizaj || null,
+        name: prod.name,
+        urduName: prod.urduName,
+        categoryId: prod.category,
+        categoryLabel: prod.categoryLabel,
+        categoryUrdu: prod.categoryUrdu,
+        shortDescription: prod.shortDescription,
+        fullDescription: prod.fullDescription,
+        traditionalPurpose: prod.traditionalPurpose,
+        benefits: JSON.stringify(prod.benefits),
+        ingredients: JSON.stringify(prod.ingredients),
+        howToUse: prod.howToUse,
+        dosage: prod.dosage,
+        hakimAdvice: prod.hakimAdvice,
+        warnings: JSON.stringify(prod.warnings || []),
+        price: prod.price,
+        originalPrice: prod.originalPrice || null,
+        discountPercentage: prod.discountPercentage || null,
+        image: prod.image,
+        inStock: prod.inStock,
+        featured: prod.featured || false,
+        rating: prod.rating || 5.0,
+        reviewCount: prod.reviewCount || 0,
+        badge: prod.badge || null,
+        mizaj: prod.mizaj || null,
       },
       create: {
-        id: p.id,
-        slug: p.slug,
-        name: p.name,
-        urduName: p.urduName,
-        categoryId: p.category,
-        categoryLabel: p.categoryLabel,
-        categoryUrdu: p.categoryUrdu,
-        shortDescription: p.shortDescription,
-        fullDescription: p.fullDescription,
-        traditionalPurpose: p.traditionalPurpose,
-        benefits: JSON.stringify(p.benefits),
-        ingredients: JSON.stringify(p.ingredients),
-        howToUse: p.howToUse,
-        dosage: p.dosage,
-        hakimAdvice: p.hakimAdvice,
-        warnings: JSON.stringify(p.warnings || []),
-        price: p.price,
-        originalPrice: p.originalPrice || null,
-        discountPercentage: p.discountPercentage || null,
-        image: p.image,
-        inStock: p.inStock,
-        featured: p.featured,
-        rating: p.rating,
-        reviewCount: p.reviewCount,
-        badge: p.badge || null,
-        mizaj: p.mizaj || null,
+        id: prod.id,
+        slug: prod.slug,
+        name: prod.name,
+        urduName: prod.urduName,
+        categoryId: prod.category,
+        categoryLabel: prod.categoryLabel,
+        categoryUrdu: prod.categoryUrdu,
+        shortDescription: prod.shortDescription,
+        fullDescription: prod.fullDescription,
+        traditionalPurpose: prod.traditionalPurpose,
+        benefits: JSON.stringify(prod.benefits),
+        ingredients: JSON.stringify(prod.ingredients),
+        howToUse: prod.howToUse,
+        dosage: prod.dosage,
+        hakimAdvice: prod.hakimAdvice,
+        warnings: JSON.stringify(prod.warnings || []),
+        price: prod.price,
+        originalPrice: prod.originalPrice || null,
+        discountPercentage: prod.discountPercentage || null,
+        image: prod.image,
+        inStock: prod.inStock,
+        featured: prod.featured || false,
+        rating: prod.rating || 5.0,
+        reviewCount: prod.reviewCount || 0,
+        badge: prod.badge || null,
+        mizaj: prod.mizaj || null,
       },
     });
 
-    // Delete existing sizes and re-create to ensure exact sync
-    await prisma.productSize.deleteMany({
-      where: { productId: createdProduct.id },
-    });
-
-    for (const size of p.sizes) {
-      await prisma.productSize.create({
-        data: {
-          productId: createdProduct.id,
-          name: size.name,
-          weight: size.weight,
-          price: size.price,
-          originalPrice: size.originalPrice || null,
-        },
+    // Seed sizes for this product
+    if (prod.sizes && prod.sizes.length > 0) {
+      await prisma.productSize.deleteMany({
+        where: { productId: createdProduct.id },
       });
+
+      for (const size of prod.sizes) {
+        await prisma.productSize.create({
+          data: {
+            productId: createdProduct.id,
+            name: size.name,
+            weight: size.weight,
+            price: size.price,
+            originalPrice: size.originalPrice || null,
+          },
+        });
+      }
     }
   }
-  console.log(`✓ Seeded ${PRODUCTS.length} products and all associated packaging sizes.`);
+  console.log(`✅ Seeded ${PRODUCTS.length} products with sizes.`);
 
   // 3. Seed Default Admin User
-  console.log("Seeding administrative & clinical accounts...");
+  console.log("Seeding admin user...");
   const adminUser = await prisma.user.upsert({
     where: { email: "admin@tameeresehat.com" },
     update: {
-      name: "Hakim Sahib (Chief Physician)",
       role: "admin",
-      phone: "03182311310",
+      name: "Hakim Tariq Mehmood",
+      phone: "0318-2311310",
       city: "Karachi",
     },
     create: {
-      name: "Hakim Sahib (Chief Physician)",
       email: "admin@tameeresehat.com",
+      name: "Hakim Tariq Mehmood",
       role: "admin",
-      phone: "03182311310",
+      phone: "0318-2311310",
       city: "Karachi",
-      emailVerified: true,
     },
   });
+  console.log(`✅ Admin user seeded: ${adminUser.email}`);
 
-  // 4. Seed Sample Consultation Request
+  // 4. Seed a Sample Consultation Request
+  console.log("Seeding sample consultation ticket...");
   await prisma.consultationRequest.upsert({
-    where: { ticketNumber: "CON-2026-101" },
+    where: { ticketNumber: "CON-2026-8921" },
     update: {},
     create: {
-      ticketNumber: "CON-2026-101",
-      fullName: "Muhammad Usman",
+      ticketNumber: "CON-2026-8921",
+      fullName: "Muhammad Rizwan",
       age: 42,
       gender: "Male",
-      phone: "03001234567",
-      email: "usman.khi@gmail.com",
-      city: "Karachi",
-      primarySymptoms: "Chronic gastric acidity, bloating after meals, and occasional heart palpitations.",
-      duration: "6 months",
-      digestiveState: "Irregular bowel movements with frequent burning in stomach.",
-      sleepEnergyState: "Disturbed sleep due to acid reflux; morning fatigue.",
+      phone: "0300-8765432",
+      email: "rizwan@example.com",
+      city: "Lahore",
+      primarySymptoms: "Digestive weakness, post-meal acidity, mild fatigue",
+      duration: "3 to 6 months",
+      previousTreatments: "Allopathic antacids (Omeprazole) with temporary relief",
+      digestiveState: "Gas, bloating after heavy meals",
       preferredContact: "WHATSAPP",
       status: "IN_REVIEW",
-      hakimNotes: "Prescribed Amla Murabba (1 piece empty stomach) + Arq-e-Gulab with warm water before sleep.",
-      prescribedTreatment: "Amla Murabba + Arq Badiyan course for 21 days.",
-      userId: adminUser.id,
+      hakimNotes: "Prescribed Jawarish Kamuni with Arq Mako before meals.",
     },
   });
+  console.log("✅ Sample consultation request seeded.");
 
-  // 5. Seed Sample Orders
+  // 5. Seed a Sample Order
+  console.log("Seeding sample order...");
   const sampleOrder = await prisma.order.upsert({
-    where: { orderNumber: "TMS-2026-8091" },
+    where: { orderNumber: "TMS-2026-1001" },
     update: {},
     create: {
-      orderNumber: "TMS-2026-8091",
-      customerName: "Tariq Mahmood",
-      phone: "03339876543",
-      email: "tariq.mahmood@yahoo.com",
-      city: "Lahore",
-      address: "House 45, Street 12, Gulberg III, Lahore",
-      deliveryNotes: "Please call before delivering.",
+      orderNumber: "TMS-2026-1001",
+      customerName: "Zahid Hussain",
+      phone: "0321-4567890",
+      email: "zahid@example.com",
+      city: "Rawalpindi",
+      address: "House 14-B, Street 5, Satellite Town",
       paymentMethod: "COD",
       paymentStatus: "PENDING",
-      orderStatus: "DISPATCHED",
-      subtotal: 2150,
+      orderStatus: "CONFIRMED",
+      subtotal: 2450,
       shippingFee: 0,
-      total: 2150,
-      trackingNote: "Leopard Courier Tracking #LCS-998231",
-      userId: adminUser.id,
+      total: 2450,
+      items: {
+        create: [
+          {
+            productName: "Jawarish Shahi",
+            productUrduName: "جوارش شاہی",
+            sizeName: "Standard Jar",
+            sizeWeight: "250g",
+            price: 850,
+            quantity: 2,
+            total: 1700,
+          },
+          {
+            productName: "Arq-e-Gulab Khas",
+            productUrduName: "عرق گلاب خاص",
+            sizeName: "Glass Bottle",
+            sizeWeight: "800ml",
+            price: 750,
+            quantity: 1,
+            total: 750,
+          },
+        ],
+      },
     },
   });
+  console.log(`✅ Sample order seeded: ${sampleOrder.orderNumber}`);
 
-  const existingItem = await prisma.orderItem.findFirst({
-    where: { orderId: sampleOrder.id },
-  });
-
-  if (!existingItem) {
-    await prisma.orderItem.create({
-      data: {
-        orderId: sampleOrder.id,
-        productName: "Amla Murabba – Traditional Vitamin C Preserve",
-        productUrduName: "آملہ کا مربہ",
-        sizeName: "Value Pack",
-        sizeWeight: "1kg",
-        price: 950,
-        quantity: 1,
-        total: 950,
-        productImage: "/images/ff8c7b8b-c34c-47db-a7aa-058f5e6b64e2-1769545152.png",
-      },
-    });
-
-    await prisma.orderItem.create({
-      data: {
-        orderId: sampleOrder.id,
-        productName: "Roghan Surkh – Pain & Muscle Ease Oil",
-        productUrduName: "روغن سرخ درد کشا",
-        sizeName: "Medium Bottle",
-        sizeWeight: "120ml",
-        price: 600,
-        quantity: 2,
-        total: 1200,
-        productImage: "/images/72dc0d5f-2347-42f4-aef4-5052295325f4-1769544982.png",
-      },
-    });
-  }
-
-  // 6. Seed Sample Contact Inquiries
+  // 6. Seed a Sample Contact Inquiry
+  console.log("Seeding sample contact inquiry...");
   await prisma.contactInquiry.create({
     data: {
-      name: "Fatima Noor",
-      phone: "03214567890",
-      email: "fatima.noor@outlook.com",
+      name: "Dr. Farooq Siddiqui",
+      phone: "0333-1122334",
+      email: "farooq.s@gmail.com",
       city: "Islamabad",
-      subject: "Query regarding Harar Murabba for elderly patient",
-      message: "Can my 70-year-old mother with mild hypertension consume Harar Murabba daily? Are there any contraindications?",
+      subject: "Prescription consultation for chronic joint stiffness",
+      message: "Looking for traditional Roghan Surkh and Majoon Suranjan dosage for an elderly patient.",
       status: "UNREAD",
     },
   });
+  console.log("✅ Sample contact inquiry seeded.");
 
-  console.log("✅ Tameer-e-Sehat Database seeded successfully!");
+  console.log("🎉 Database seeding completed successfully!");
 }
 
 main()
@@ -232,4 +259,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
+    await pool.end();
   });

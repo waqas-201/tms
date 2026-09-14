@@ -813,32 +813,38 @@ export const TESTIMONIALS = [
 
 export const CONSULTATION_AREAS = [
   {
-    title: "Digestive & Hepatic Health (معدہ و جگر)",
+    title: "Digestive & Hepatic Health",
+    urduTitle: "معدہ و جگر",
     description: "Holistic evaluation for chronic indigestion, acid reflux, sluggish liver, fatty liver concerns, and bowel regularity through time-tested Unani herbal therapies.",
     icon: "Activity"
   },
   {
-    title: "Joint, Muscle & Spine Mobility (مفاصل و کمر درد)",
+    title: "Joint, Muscle & Spine Mobility",
+    urduTitle: "مفاصل و کمر درد",
     description: "Specialized traditional protocols to relieve chronic joint stiffness, muscular fatigue, lumbar tightness, and promote cartilage lubrication naturally.",
     icon: "Shield"
   },
   {
-    title: "Vitality, Stamina & Mental Alertness (مقویات و اعصاب)",
+    title: "Vitality, Stamina & Mental Alertness",
+    urduTitle: "مقویات و اعصاب",
     description: "Natural restorative compounds formulated to combat chronic fatigue, brain fog, nervous exhaustion, and restore sustained vitality.",
     icon: "Sun"
   },
   {
-    title: "Skin, Hair & Dermal Health (جلد و بال)",
+    title: "Skin, Hair & Dermal Health",
+    urduTitle: "جلد و بال",
     description: "Internal blood purification (Musaffi-e-Khoon) and external botanical formulations for stubborn acne, hair thinning, dandruff, and skin irritation.",
     icon: "Sparkles"
   },
   {
-    title: "Seasonal Allergies & Respiratory Ease (نزلہ و سانس)",
+    title: "Seasonal Allergies & Respiratory Ease",
+    urduTitle: "نزلہ و سانس",
     description: "Clearing accumulated phlegm (Balgham), soothing dry bronchial coughs, and bolstering baseline respiratory immunity across Pakistani seasons.",
     icon: "Wind"
   },
   {
-    title: "Women's & Men's Holistic Wellness (خاندانی صحت)",
+    title: "Women's & Men's Holistic Wellness",
+    urduTitle: "خاندانی صحت",
     description: "Completely private, confidential consultations addressing hormonal equilibrium, metabolic health, and stage-of-life vitality.",
     icon: "Heart"
   }

@@ -1,35 +1,30 @@
-import { PrismaClient } from "@prisma/client";
-import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool } from "pg";
-import path from "path";
-import fs from "fs";
-import { PRODUCTS, CATEGORIES } from "../app/data/products";
+const fs = require("fs");
+const path = require("path");
+const { PrismaClient } = require("@prisma/client");
+const { PrismaPg } = require("@prisma/adapter-pg");
+const { Pool } = require("pg");
 
-// Read DATABASE_URL from .env
-let connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
-  const envPath = path.resolve(process.cwd(), ".env");
-  if (fs.existsSync(envPath)) {
-    const content = fs.readFileSync(envPath, "utf-8");
-    for (const line of content.split("\n")) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith("DATABASE_URL=")) {
-        let val = trimmed.replace("DATABASE_URL=", "").trim();
-        if (
-          (val.startsWith('"') && val.endsWith('"')) ||
-          (val.startsWith("'") && val.endsWith("'"))
-        ) {
-          val = val.slice(1, -1);
-        }
-        connectionString = val;
-        break;
-      }
+const envPath = path.resolve(__dirname, "../.env");
+const content = fs.readFileSync(envPath, "utf-8");
+let connectionString = "";
+
+for (const line of content.split("\n")) {
+  const trimmed = line.trim();
+  if (trimmed.startsWith("DATABASE_URL=")) {
+    let val = trimmed.replace("DATABASE_URL=", "").trim();
+    if (
+      (val.startsWith('"') && val.endsWith('"')) ||
+      (val.startsWith("'") && val.endsWith("'"))
+    ) {
+      val = val.slice(1, -1);
     }
+    connectionString = val;
+    break;
   }
 }
 
 if (!connectionString) {
-  console.error("❌ DATABASE_URL not found!");
+  console.error("❌ DATABASE_URL missing from .env");
   process.exit(1);
 }
 
@@ -37,11 +32,12 @@ const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-async function main() {
-  console.log("🌱 Starting Tameer-e-Sehat database seeding...");
+const { PRODUCTS, CATEGORIES } = require("../app/data/products.ts");
 
-  // 1. Seed Categories
-  console.log("Seeding categories...");
+async function run() {
+  console.log("🌱 Seeding Neon PostgreSQL Database...");
+
+  // 1. Categories
   for (const cat of CATEGORIES) {
     await prisma.category.upsert({
       where: { id: cat.id },
@@ -62,10 +58,9 @@ async function main() {
       },
     });
   }
-  console.log(`✅ Seeded ${CATEGORIES.length} categories.`);
+  console.log(`✅ ${CATEGORIES.length} Categories seeded.`);
 
-  // 2. Seed Products and their sizes
-  console.log("Seeding products...");
+  // 2. Products
   for (const prod of PRODUCTS) {
     const createdProduct = await prisma.product.upsert({
       where: { slug: prod.slug },
@@ -91,7 +86,7 @@ async function main() {
         inStock: prod.inStock,
         featured: prod.featured || false,
         rating: prod.rating || 5.0,
-        reviewCount: prod.reviewCount || 0,
+        reviewCount: prod.reviews || 0,
         badge: prod.badge || null,
         mizaj: prod.mizaj || null,
       },
@@ -119,13 +114,12 @@ async function main() {
         inStock: prod.inStock,
         featured: prod.featured || false,
         rating: prod.rating || 5.0,
-        reviewCount: prod.reviewCount || 0,
+        reviewCount: prod.reviews || 0,
         badge: prod.badge || null,
         mizaj: prod.mizaj || null,
       },
     });
 
-    // Seed sizes for this product
     if (prod.sizes && prod.sizes.length > 0) {
       await prisma.productSize.deleteMany({
         where: { productId: createdProduct.id },
@@ -144,11 +138,10 @@ async function main() {
       }
     }
   }
-  console.log(`✅ Seeded ${PRODUCTS.length} products with sizes.`);
+  console.log(`✅ ${PRODUCTS.length} Products seeded.`);
 
-  // 3. Seed Default Admin User
-  console.log("Seeding admin user...");
-  const adminUser = await prisma.user.upsert({
+  // 3. Admin User
+  await prisma.user.upsert({
     where: { email: "admin@tameeresehat.com" },
     update: {
       role: "admin",
@@ -164,10 +157,9 @@ async function main() {
       city: "Karachi",
     },
   });
-  console.log(`✅ Admin user seeded: ${adminUser.email}`);
+  console.log("✅ Admin user seeded.");
 
-  // 4. Seed a Sample Consultation Request
-  console.log("Seeding sample consultation ticket...");
+  // 4. Sample Consultation Request
   await prisma.consultationRequest.upsert({
     where: { ticketNumber: "CON-2026-8921" },
     update: {},
@@ -190,9 +182,8 @@ async function main() {
   });
   console.log("✅ Sample consultation request seeded.");
 
-  // 5. Seed a Sample Order
-  console.log("Seeding sample order...");
-  const sampleOrder = await prisma.order.upsert({
+  // 5. Sample Order
+  await prisma.order.upsert({
     where: { orderNumber: "TMS-2026-1001" },
     update: {},
     create: {
@@ -232,10 +223,9 @@ async function main() {
       },
     },
   });
-  console.log(`✅ Sample order seeded: ${sampleOrder.orderNumber}`);
+  console.log("✅ Sample order seeded.");
 
-  // 6. Seed a Sample Contact Inquiry
-  console.log("Seeding sample contact inquiry...");
+  // 6. Sample Contact Inquiry
   await prisma.contactInquiry.create({
     data: {
       name: "Dr. Farooq Siddiqui",
@@ -249,10 +239,10 @@ async function main() {
   });
   console.log("✅ Sample contact inquiry seeded.");
 
-  console.log("🎉 Database seeding completed successfully!");
+  console.log("🎉 Seeding complete!");
 }
 
-main()
+run()
   .catch((e) => {
     console.error("❌ Error seeding database:", e);
     process.exit(1);

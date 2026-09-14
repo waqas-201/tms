@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// -------------------------------------------------------------
+// Better Auth Core Models (lowercase mapped table names)
+// -------------------------------------------------------------
+
+model User {
+  id            String                @id @default(cuid())
+  name          String
+  email         String                @unique
+  emailVerified Boolean               @default(false)
+  image         String?
+  role          String                @default("user") // "admin" | "hakim" | "user"
+  phone         String?
+  city          String?
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  orders        Order[]
+  consultations ConsultationRequest[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+// -------------------------------------------------------------
+// Apothecary & E-Commerce Models
+// -------------------------------------------------------------
+
+model Category {
+  id          String    @id
+  slug        String    @unique
+  name        String
+  urduName    String
+  description String
+  heroImage   String
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id                 String        @id @default(cuid())
+  slug               String        @unique
+  name               String
+  urduName           String
+  categoryId         String
+  category           Category      @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  categoryLabel      String
+  categoryUrdu       String
+  shortDescription   String
+  fullDescription    String
+  traditionalPurpose String
+  benefits           String // Stored as JSON string
+  ingredients        String // Stored as JSON string [{ name, urdu, role }]
+  howToUse           String
+  dosage             String
+  hakimAdvice        String
+  warnings           String? // Stored as JSON string
+  price              Float
+  originalPrice      Float?
+  discountPercentage Int?
+  image              String
+  inStock            Boolean       @default(true)
+  featured           Boolean       @default(false)
+  rating             Float         @default(5.0)
+  reviewCount        Int           @default(0)
+  badge              String?
+  mizaj              String? // Temperament (e.g. Barid Ratab, Haar Yabis, Mo'tadil)
+  sizes              ProductSize[]
+  orderItems         OrderItem[]
+  reviews            Review[]
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+}
+
+model ProductSize {
+  id            String   @id @default(cuid())
+  productId     String
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name          String // e.g. "Small Jar", "500ml Bottle"
+  weight        String // e.g. "250g", "800ml"
+  price         Float
+  originalPrice Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Order {
+  id            String      @id @default(cuid())
+  orderNumber   String      @unique // e.g. TMS-2026-1001
+  customerName  String
+  phone         String
+  email         String?
+  city          String
+  address       String
+  deliveryNotes String?
+  paymentMethod String      @default("COD") // "COD" | "WHATSAPP" | "ONLINE"
+  paymentStatus String      @default("PENDING") // "PENDING" | "PAID" | "REFUNDED"
+  orderStatus   String      @default("PENDING") // "PENDING" | "CONFIRMED" | "DISPATCHED" | "DELIVERED" | "CANCELLED"
+  subtotal      Float
+  shippingFee   Float       @default(0)
+  total         Float
+  trackingNote  String?
+  userId        String?
+  user          User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items         OrderItem[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model OrderItem {
+  id              String   @id @default(cuid())
+  orderId         String
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       String?
+  product         Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productName     String
+  productUrduName String?
+  sizeName        String
+  sizeWeight      String
+  price           Float
+  quantity        Int
+  total           Float
+  productImage    String?
+  createdAt       DateTime @default(now())
+}
+
+// -------------------------------------------------------------
+// Clinical Consultation & Patient Inquiries
+// -------------------------------------------------------------
+
+model ConsultationRequest {
+  id                  String   @id @default(cuid())
+  ticketNumber        String   @unique // e.g. CON-2026-8921
+  fullName            String
+  age                 Int
+  gender              String // "Male" | "Female" | "Other"
+  phone               String
+  email               String?
+  city                String
+  primarySymptoms     String
+  duration            String
+  previousTreatments  String?
+  currentMedications  String?
+  digestiveState      String?
+  sleepEnergyState    String?
+  preferredContact    String   @default("WHATSAPP") // "WHATSAPP" | "PHONE" | "CLINIC"
+  status              String   @default("NEW") // "NEW" | "IN_REVIEW" | "CONTACTED" | "PRESCRIBED" | "COMPLETED"
+  hakimNotes          String?
+  prescribedTreatment String?
+  userId              String?
+  user                User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model ContactInquiry {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  city      String?
+  subject   String
+  message   String
+  status    String   @default("UNREAD") // "UNREAD" | "READ" | "RESPONDED"
+  reply     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String
+  rating    Int      @default(5)
+  comment   String
+  city      String?
+  verified  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}

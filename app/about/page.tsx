@@ -1,0 +1,331 @@
+import React from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { CLINIC_INFO } from "@/app/data/products";
+import {
+  Sparkles,
+  Award,
+  Leaf,
+  ShieldCheck,
+  Clock,
+  Heart,
+  Activity,
+  ArrowRight,
+  MessageCircle,
+} from "lucide-react";
+
+export const metadata = {
+  title: "The Hakim & Heritage · 35+ Years of Classical Tibb",
+  description:
+    "Learn about the history, clinical philosophy, and botanical standards of Tameer-e-Sehat, serving families across Pakistan since 1990 in Karachi.",
+};
+
+export default function AboutPage() {
+  return (
+    <div className="bg-[#faf8f5]">
+      {/* Hero Header */}
+      <section className="relative py-16 sm:py-24 border-b border-[#e6dfd5] overflow-hidden bg-[#123824] text-white">
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#1a4d33]/50 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#c59b27]/10 blur-3xl pointer-events-none" />
+
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 relative z-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1a4d33] border border-[#256644] text-[#c59b27] text-xs font-medium tracking-wide">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Legacy & Lineage · Established 1990</span>
+          </div>
+
+          <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
+            The Hakim, The Heritage, <br />
+            <span className="italic font-normal text-[#c59b27]">and The Purity of Eastern Healing</span>
+          </h1>
+
+          <p className="font-urdu text-xl text-[#f4eee5]/90 font-medium pt-2" dir="rtl">
+            35 سالہ طبیب کا اعتماد، خالص حکمت اور قدرتی شفا
+          </p>
+
+          <p className="text-sm sm:text-base text-[#f4eee5]/80 max-w-2xl mx-auto leading-relaxed pt-2">
+            For more than three decades, Tameer-e-Sehat has preserved the authentic principles of Greco-Arab Unani medicine (Tibb) in Karachi, helping thousands of patients restore vitality naturally.
+          </p>
+        </div>
+      </section>
+
+      {/* Main Narrative Section */}
+      <section className="py-20 border-b border-[#e6dfd5] bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            {/* Left Imagery Grid */}
+            <div className="lg:col-span-5 space-y-6">
+              <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-xl bg-[#f4eee5] border border-[#e6dfd5]">
+                <Image
+                  src="/images/1-scaled.png"
+                  alt="Tameer-e-Sehat Botanical Heritage and Consultation"
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+
+              <div className="bg-[#faf8f5] p-6 rounded-xl border border-[#e6dfd5] space-y-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#123824] text-[#c59b27] flex items-center justify-center">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-serif text-sm font-bold text-[#123824]">
+                      Registered Clinical Practice
+                    </h4>
+                    <p className="text-xs text-[#6a6660]">Karachi, Sindh, Pakistan</p>
+                  </div>
+                </div>
+                <p className="text-xs text-[#59534b] leading-relaxed">
+                  Located at Plot no L, 41 Korangi Crossing Rd, Karachi. We maintain strict hygienic standards for raw herb storage, steam distillation, and patient record confidentiality.
+                </p>
+              </div>
+            </div>
+
+            {/* Right Editorial Story */}
+            <div className="lg:col-span-7 space-y-6">
+              <div className="space-y-2">
+                <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
+                  The Founder&apos;s Mission
+                </span>
+                <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#123824] leading-tight">
+                  Honoring the Sacred Bond Between the Healer, the Patient, and the Earth
+                </h2>
+              </div>
+
+              <div className="prose prose-stone text-sm text-[#59534b] space-y-4 leading-relaxed">
+                <p>
+                  In a world dominated by hurried consultations and symptom-suppressing pharmaceuticals, <strong>Tameer-e-Sehat</strong> was founded with a singular conviction: genuine health requires understanding the individual constitution (*Mizaj*) and restoring the body&apos;s natural equilibrium (*Itidal*).
+                </p>
+
+                <p>
+                  Our clinic began over 35 years ago in Karachi. Through thousands of in-person pulse diagnoses, tongue evaluations, and in-depth patient dialogues, our Hakims observed that chronic modern complaints—digestive sluggishness, liver congestion, joint fatigue, skin inflammation, and nervous exhaustion—stem from internal thermal and metabolic imbalances.
+                </p>
+
+                <p>
+                  Rather than selling generic mass-produced supplements, we formulate classical small-batch remedies: pure steam-distilled floral waters (*Arqiyat*), whole-fruit preserves simmered in raw cane infusions (*Murabbajaat*), and deep-penetrating herbal oils (*Roghan*).
+                </p>
+              </div>
+
+              {/* Quote callout */}
+              <div className="p-5 rounded-xl bg-[#faf8f5] border-l-4 border-[#c59b27] space-y-2 my-4">
+                <p className="font-serif italic text-base text-[#123824]">
+                  &ldquo;A true Hakim does not heal the illness; he restores the patient&apos;s innate vital defense (*Tabiat-e-Mudabbira*) so the body may heal itself.&rdquo;
+                </p>
+                <span className="text-xs text-[#6a6660] font-medium block">
+                  — Hakim Sahib, Founder of Tameer-e-Sehat
+                </span>
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row items-center gap-4">
+                <Link
+                  href="/consultation"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#123824] hover:bg-[#0c2719] text-white text-xs font-semibold tracking-wider uppercase rounded-md transition-colors shadow-xs"
+                >
+                  <Sparkles className="w-4 h-4 text-[#c59b27]" />
+                  <span>Request Online Consultation</span>
+                </Link>
+
+                <a
+                  href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white hover:bg-[#faf8f5] text-[#123824] text-xs font-semibold rounded-md border border-[#e6dfd5] transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                  <span>WhatsApp Health Desk</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* The 4 Principles of Tibb-e-Unani */}
+      <section className="py-20 border-b border-[#e6dfd5] bg-[#faf8f5]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
+              Philosophical Foundation
+            </span>
+            <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#123824]">
+              The Classical Foundations of Eastern Medicine
+            </h2>
+            <p className="text-xs sm:text-sm text-[#59534b]">
+              Derived from centuries of accumulated clinical insight from Ibn Sina (Avicenna), Al-Razi, and legendary Unani Masters.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="bg-white rounded-xl p-6 border border-[#e6dfd5] shadow-xs space-y-3">
+              <div className="w-12 h-12 rounded-lg bg-[#123824] text-[#c59b27] flex items-center justify-center">
+                <Activity className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-base font-bold text-[#123824]">
+                Mizaj (Temperament)
+              </h3>
+              <p className="font-urdu text-xs text-[#2a5a3d] font-semibold text-right" dir="rtl">
+                مزاج اور طبعی اعتدال
+              </p>
+              <p className="text-xs text-[#59534b] leading-relaxed">
+                Every human constitution is governed by an individual equilibrium of primary qualities: Hot, Cold, Moist, and Dry. Treatments are custom-matched to counteract constitutional excess.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 border border-[#e6dfd5] shadow-xs space-y-3">
+              <div className="w-12 h-12 rounded-lg bg-[#123824] text-[#c59b27] flex items-center justify-center">
+                <Heart className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-base font-bold text-[#123824]">
+                Akhlat (The Four Humors)
+              </h3>
+              <p className="font-urdu text-xs text-[#2a5a3d] font-semibold text-right" dir="rtl">
+                اخلاطِ اربعہ: دم، بلغم، صفرا، سودا
+              </p>
+              <p className="text-xs text-[#59534b] leading-relaxed">
+                Optimal health relies on pure, balanced humors (Blood, Phlegm, Yellow Bile, Black Bile). Stagnant or toxic humors are gently cleansed through hepatic and renal herbs.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 border border-[#e6dfd5] shadow-xs space-y-3">
+              <div className="w-12 h-12 rounded-lg bg-[#123824] text-[#c59b27] flex items-center justify-center">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-base font-bold text-[#123824]">
+                Tabiat-e-Mudabbira
+              </h3>
+              <p className="font-urdu text-xs text-[#2a5a3d] font-semibold text-right" dir="rtl">
+                طبیعتِ مدبرۂ بدن
+              </p>
+              <p className="text-xs text-[#59534b] leading-relaxed">
+                The innate supreme biological intelligence within every body. Pure herbs act as catalysts to fortify this innate resistance without overriding natural organ functions.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl p-6 border border-[#e6dfd5] shadow-xs space-y-3">
+              <div className="w-12 h-12 rounded-lg bg-[#123824] text-[#c59b27] flex items-center justify-center">
+                <Leaf className="w-6 h-6" />
+              </div>
+              <h3 className="font-serif text-base font-bold text-[#123824]">
+                Ilaj-bil-Ghiza & Dawa
+              </h3>
+              <p className="font-urdu text-xs text-[#2a5a3d] font-semibold text-right" dir="rtl">
+                علاج بالغذاء و پرہیز
+              </p>
+              <p className="text-xs text-[#59534b] leading-relaxed">
+                Medicine without dietary harmony (*Parhez*) is incomplete. We provide tailored food guidance alongside herbal formulations for enduring systemic wellness.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Apothecary Craftsmanship */}
+      <section className="py-20 bg-white border-b border-[#e6dfd5]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-6 space-y-6">
+              <div className="space-y-2">
+                <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
+                  The Apothecary Standards
+                </span>
+                <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#123824] leading-tight">
+                  Small-Batch Preparation & Classical Steam Distillation
+                </h2>
+              </div>
+
+              <div className="space-y-4 text-xs sm:text-sm text-[#59534b] leading-relaxed">
+                <p>
+                  Most modern commercial herbs are processed through high-heat industrial presses with artificial flavoring agents and preservatives. At Tameer-e-Sehat, we deliberately retain the slower, artisanal methods of the traditional master apothecary.
+                </p>
+
+                <div className="space-y-3 pt-2">
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-[#123824]/10 text-[#123824] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+                      ✓
+                    </div>
+                    <div>
+                      <strong className="text-[#123824] font-semibold block text-sm">
+                        Deg-Bhabka Steam Distillation (کشیدات)
+                      </strong>
+                      <span className="text-xs text-[#6a6660]">
+                        Fresh botanicals (such as Makoh and Kasni) are distilled slowly in copper condensators to capture pure volatile plant essences without alcohol.
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-[#123824]/10 text-[#123824] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+                      ✓
+                    </div>
+                    <div>
+                      <strong className="text-[#123824] font-semibold block text-sm">
+                        Triple-Filtered Raw Honey & Cane Base (مربہ جات)
+                      </strong>
+                      <span className="text-xs text-[#6a6660]">
+                        Fresh Amla, Kashmiri apples, carrots, and Harar berries are slowly steeped to preserve enzymatic vitality and bio-available Vitamin C.
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-full bg-[#123824]/10 text-[#123824] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+                      ✓
+                    </div>
+                    <div>
+                      <strong className="text-[#123824] font-semibold block text-sm">
+                        Cold Maceration for Pain & Skin Oils (روغنیات)
+                      </strong>
+                      <span className="text-xs text-[#6a6660]">
+                        Therapeutic herbs are cold-macerated for 72 hours in pure olive and sesame oils, allowing natural warming alkaloids to penetrate deep tissues.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 relative">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl bg-[#f4eee5] border-4 border-white">
+                <Image
+                  src="/images/3-scaled.png"
+                  alt="Tameer-e-Sehat Herbal Preparation Process"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Clinic Details & CTA */}
+      <section className="py-16 bg-[#123824] text-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
+          <h2 className="font-serif text-2xl sm:text-4xl font-bold text-white">
+            Experience Time-Honored Healing Today
+          </h2>
+          <p className="text-xs sm:text-sm text-[#f4eee5]/80 max-w-xl mx-auto leading-relaxed">
+            Whether you visit our physical clinic in Karachi or consult online from anywhere in Pakistan, you receive the same dedicated care and genuine herbal purity.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+            <Link
+              href="/consultation"
+              className="w-full sm:w-auto px-7 py-3.5 bg-[#c59b27] hover:bg-[#aa821c] text-[#123824] font-semibold text-xs uppercase tracking-wider rounded-md transition-colors shadow-md"
+            >
+              Book Online Consultation
+            </Link>
+            <Link
+              href="/products"
+              className="w-full sm:w-auto px-7 py-3.5 bg-[#1a4d33] hover:bg-[#256644] text-white font-semibold text-xs uppercase tracking-wider rounded-md border border-[#256644] transition-colors"
+            >
+              Explore Apothecary
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

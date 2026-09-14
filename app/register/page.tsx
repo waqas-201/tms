@@ -4,12 +4,10 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/auth-client";
-import { useLanguage } from "@/app/context/LanguageContext";
-import { Sparkles, Lock, Mail, User, Phone, MapPin, ArrowRight, Loader2, AlertCircle } from "lucide-react";
+import { Sparkles, Lock, Mail, User, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { isUrdu } = useLanguage();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -54,15 +52,13 @@ export default function RegisterPage() {
         <div className="text-center space-y-2">
           <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>{isUrdu ? "طبی رجسٹریشن" : "Patient & Client Registration"}</span>
+            <span>New Account Registration</span>
           </span>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#123824]">
-            {isUrdu ? "نیا اکاؤنٹ بنائیں" : "Create an Account"}
+            Create an Account
           </h1>
           <p className="text-xs text-[#6a6660]">
-            {isUrdu
-              ? "اپنے تمام آرڈرز اور طبی مشاورت کی تفصیلات محفوظ رکھیں۔"
-              : "Keep track of your health consultations, orders, and customized prescriptions."}
+            Track your orders and online consultation history.
           </p>
         </div>
 
@@ -76,7 +72,7 @@ export default function RegisterPage() {
         <form onSubmit={handleRegister} className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-[#1a1816]">
-              {isUrdu ? "مکمل نام" : "Full Name"} <span className="text-red-500">*</span>
+              Full Name <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <User className="w-4 h-4 text-[#6a6660] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -93,7 +89,7 @@ export default function RegisterPage() {
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-[#1a1816]">
-              {isUrdu ? "ای میل ایڈریس" : "Email Address"} <span className="text-red-500">*</span>
+              Email Address <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-[#6a6660] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -111,7 +107,7 @@ export default function RegisterPage() {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-[#1a1816]">
-                {isUrdu ? "فون نمبر" : "Phone / WhatsApp"}
+                Phone / WhatsApp
               </label>
               <input
                 type="tel"
@@ -124,7 +120,7 @@ export default function RegisterPage() {
 
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-[#1a1816]">
-                {isUrdu ? "شہر" : "City"}
+                City
               </label>
               <input
                 type="text"
@@ -138,7 +134,7 @@ export default function RegisterPage() {
 
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-[#1a1816]">
-              {isUrdu ? "پاس ورڈ (کم از کم 8 حروف)" : "Password (Min 8 characters)"} <span className="text-red-500">*</span>
+              Password (Min 8 characters) <span className="text-red-500">*</span>
             </label>
             <div className="relative">
               <Lock className="w-4 h-4 text-[#6a6660] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -162,12 +158,12 @@ export default function RegisterPage() {
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>{isUrdu ? "اکاؤنٹ بن رہا ہے..." : "Creating Account..."}</span>
+                <span>Creating Account...</span>
               </>
             ) : (
               <>
-                <span>{isUrdu ? "رجسٹر ہوں" : "Create Account"}</span>
-                <ArrowRight className={`w-4 h-4 ${isUrdu ? "rotate-180" : ""}`} />
+                <span>Create Account</span>
+                <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>
@@ -175,9 +171,9 @@ export default function RegisterPage() {
 
         <div className="pt-2 text-center text-xs text-[#6a6660]">
           <p>
-            {isUrdu ? "پہلے سے اکاؤنٹ موجود ہے؟" : "Already registered?"}{" "}
+            Already registered?{" "}
             <Link href="/login" className="text-[#123824] font-semibold hover:underline">
-              {isUrdu ? "یہاں لاگ ان کریں" : "Sign In"}
+              Sign In
             </Link>
           </p>
         </div>

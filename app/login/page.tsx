@@ -4,12 +4,10 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/auth-client";
-import { useLanguage } from "@/app/context/LanguageContext";
-import { Sparkles, Lock, Mail, ArrowRight, Loader2, AlertCircle, ShieldCheck } from "lucide-react";
+import { Sparkles, Lock, Mail, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { isUrdu } = useLanguage();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +29,6 @@ export default function LoginPage() {
         throw new Error(res.error.message || "Invalid email or password.");
       }
 
-      // Check if admin or regular user
       router.push("/admin");
     } catch (err: any) {
       setError(err.message || "Failed to sign in. Please check your credentials.");
@@ -46,15 +43,13 @@ export default function LoginPage() {
         <div className="text-center space-y-2">
           <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>{isUrdu ? "مرکزِ صحت لاگ ان" : "Apothecary & Clinic Access"}</span>
+            <span>Clinic & Account Access</span>
           </span>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#123824]">
-            {isUrdu ? "اپنے اکاؤنٹ میں داخل ہوں" : "Sign In to Tameer-e-Sehat"}
+            Sign In to Tameer-e-Sehat
           </h1>
           <p className="text-xs text-[#6a6660]">
-            {isUrdu
-              ? "حکیم و ایڈمن پورٹل یا مریض کا طبی ریکارڈ دیکھنے کے لیے لاگ ان کریں۔"
-              : "Access your clinical consultation history, tracked orders, and Hakim desk."}
+            Access your consultations, order history, and account settings.
           </p>
         </div>
 
@@ -68,7 +63,7 @@ export default function LoginPage() {
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-[#1a1816]">
-              {isUrdu ? "ای میل ایڈریس" : "Email Address"}
+              Email Address
             </label>
             <div className="relative">
               <Mail className="w-4 h-4 text-[#6a6660] absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -86,7 +81,7 @@ export default function LoginPage() {
           <div className="space-y-1.5">
             <div className="flex justify-between items-center">
               <label className="text-xs font-semibold text-[#1a1816]">
-                {isUrdu ? "پاس ورڈ" : "Password"}
+                Password
               </label>
             </div>
             <div className="relative">
@@ -110,12 +105,12 @@ export default function LoginPage() {
             {loading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>{isUrdu ? "تصدیق ہو رہی ہے..." : "Authenticating..."}</span>
+                <span>Authenticating...</span>
               </>
             ) : (
               <>
-                <span>{isUrdu ? "داخل ہوں" : "Sign In"}</span>
-                <ArrowRight className={`w-4 h-4 ${isUrdu ? "rotate-180" : ""}`} />
+                <span>Sign In</span>
+                <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>
@@ -123,14 +118,14 @@ export default function LoginPage() {
 
         <div className="pt-2 text-center text-xs text-[#6a6660] space-y-3">
           <p>
-            {isUrdu ? "نیا اکاؤنٹ بنانا چاہتے ہیں؟" : "Don't have an account?"}{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/register" className="text-[#123824] font-semibold hover:underline">
-              {isUrdu ? "یہاں رجسٹر ہوں" : "Create an Account"}
+              Create an Account
             </Link>
           </p>
 
           <div className="p-3 bg-[#f4eee5]/60 rounded-lg text-[11px] text-[#59534b] text-left">
-            <p className="font-semibold text-[#123824]">Hakim & Admin Demo Access:</p>
+            <p className="font-semibold text-[#123824]">Hakim & Admin Access:</p>
             <p>Admin Email: <code className="text-[#123824]">admin@tameeresehat.com</code></p>
             <p>Admin Portal gives live control over all orders, patient consultations, stock & analytics.</p>
           </div>

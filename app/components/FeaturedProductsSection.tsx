@@ -3,13 +3,11 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { PRODUCTS, CATEGORIES } from "@/app/data/products";
-import { useLanguage } from "@/app/context/LanguageContext";
 import ProductCard from "./ProductCard";
 import Reveal from "./motion/Reveal";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 export default function FeaturedProductsSection() {
-  const { t, isUrdu } = useLanguage();
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
   const filteredProducts =
@@ -26,13 +24,13 @@ export default function FeaturedProductsSection() {
           <div className="space-y-2 max-w-xl">
             <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27] flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>{t("featuredBadge")}</span>
+              <span>Pure Natural Recipes</span>
             </span>
             <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#123824]">
-              {t("featuredHeading")}
+              Featured Herbal Remedies
             </h2>
             <p className="text-xs sm:text-sm text-[#59534b]">
-              {t("featuredSubtitle")}
+              Handcrafted fruit preserves, pure herbal waters, soothing pain oils, and daily wellness tonics.
             </p>
           </div>
 
@@ -40,8 +38,8 @@ export default function FeaturedProductsSection() {
             href="/products"
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#123824] hover:text-[#c59b27] transition-colors self-start md:self-auto group"
           >
-            <span>{isUrdu ? "تمام ادویات دیکھیں (16+)" : "View Full Apothecary (16+)"}</span>
-            <ArrowRight className={`w-4 h-4 group-hover:translate-x-1 transition-transform ${isUrdu ? "rotate-180 group-hover:-translate-x-1" : ""}`} />
+            <span>View All Products (16+)</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </Reveal>
 
@@ -55,7 +53,7 @@ export default function FeaturedProductsSection() {
                 : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#123824]"
             }`}
           >
-            {isUrdu ? "تمام ادویات" : "All Formulations"}
+            All Products
           </button>
           {CATEGORIES.map((cat) => (
             <button
@@ -67,8 +65,7 @@ export default function FeaturedProductsSection() {
                   : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#123824]"
               }`}
             >
-              <span>{isUrdu ? cat.urduName : cat.name.split(" ")[0]}</span>{" "}
-              {!isUrdu && <span className="font-urdu opacity-80 text-[11px]">({cat.urduName})</span>}
+              <span>{cat.name}</span>
             </button>
           ))}
         </div>

@@ -3,14 +3,12 @@
 import React, { useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { PRODUCTS, CATEGORIES } from "@/app/data/products";
-import { useLanguage } from "@/app/context/LanguageContext";
 import ProductCard from "@/app/components/ProductCard";
 import { Search, Sparkles, SlidersHorizontal, Truck, ShieldCheck } from "lucide-react";
 
 function ProductsContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || "all";
-  const { t, isUrdu } = useLanguage();
 
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -30,7 +28,6 @@ function ProductsContent() {
       list = list.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
-          p.urduName.includes(q) ||
           p.shortDescription.toLowerCase().includes(q) ||
           p.benefits.some((b) => b.toLowerCase().includes(q))
       );
@@ -63,18 +60,16 @@ function ProductsContent() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-4 text-center">
           <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>{isUrdu ? "مستند قرابادین و ادویہ سازی" : "Classical Botanical Pharmacopeia"}</span>
+            <span>Natural Herbal Remedies</span>
           </span>
           <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
-            {isUrdu ? "یونانی دواخانہ و قرابادین" : "The Herbal Apothecary"}
+            All Herbal Products
           </h1>
-          <p className="font-urdu text-lg sm:text-xl text-[#f4eee5]/90 font-medium" dir="rtl">
-            مستند قرابادین و قدیم نسخہ جات · خالص یونانی ادویات و مربہ جات
+          <p className="text-sm sm:text-base text-[#f4eee5]/90 font-serif italic max-w-xl mx-auto">
+            Pure fruit preserves, herbal waters, pain relief oils, and daily wellness teas.
           </p>
           <p className="text-xs sm:text-sm text-[#f4eee5]/80 max-w-xl mx-auto leading-relaxed">
-            {isUrdu
-              ? "ہمارے تمام مربہ جات، عرقات اور دردنوار روغنیات خالص جڑی بوٹیوں سے محدود دستکاری مقدار میں بغیر کیمیکل تیار کیے جاتے ہیں۔"
-              : "Every preserve, distillate, and therapeutic oil is handcrafted in small batches using whole, unadulterated botanicals without synthetic chemicals."}
+            Every remedy is made fresh in small batches using clean, natural herbs without artificial colors or chemicals.
           </p>
         </div>
       </section>
@@ -91,7 +86,7 @@ function ProductsContent() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t("searchRemedies")}
+              placeholder="Search remedies, preserves, herbs..."
               className="w-full pl-10 pr-4 py-2 text-xs bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] placeholder-[#6a6660] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
             />
           </div>
@@ -100,17 +95,17 @@ function ProductsContent() {
           <div className="flex items-center gap-3">
             <span className="text-xs text-[#6a6660] flex items-center gap-1 shrink-0 font-medium">
               <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>{isUrdu ? "ترتیب:" : "Sort:"}</span>
+              <span>Sort:</span>
             </span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
               className="text-xs px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#123824] font-medium focus:outline-none focus:border-[#123824]"
             >
-              <option value="featured">{isUrdu ? "نمایاں و مقبول ادویات" : "Featured & Best Sellers"}</option>
-              <option value="rating">{isUrdu ? "اعلیٰ ترین درجہ بندی" : "Highest Rated"}</option>
-              <option value="price-low">{isUrdu ? "قیمت: کم سے زیادہ" : "Price: Low to High"}</option>
-              <option value="price-high">{isUrdu ? "قیمت: زیادہ سے کم" : "Price: High to Low"}</option>
+              <option value="featured">Featured & Best Sellers</option>
+              <option value="rating">Highest Rated</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
             </select>
           </div>
         </div>
@@ -125,7 +120,7 @@ function ProductsContent() {
                 : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#123824]"
             }`}
           >
-            {isUrdu ? `تمام ادویات (${PRODUCTS.length})` : `All Formulations (${PRODUCTS.length})`}
+            All Products ({PRODUCTS.length})
           </button>
           {CATEGORIES.map((cat) => (
             <button
@@ -137,8 +132,7 @@ function ProductsContent() {
                   : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#123824]"
               }`}
             >
-              <span>{isUrdu ? cat.urduName : cat.name.split(" ")[0]}</span>{" "}
-              {!isUrdu && <span className="font-urdu text-[11px] opacity-80">({cat.urduName})</span>}
+              <span>{cat.name}</span>
             </button>
           ))}
         </div>
@@ -147,20 +141,15 @@ function ProductsContent() {
         {activeCategoryInfo && (
           <div className="p-4 sm:p-5 bg-white rounded-xl border border-[#e6dfd5] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <h2 className="font-serif text-base font-bold text-[#123824]">
-                  {activeCategoryInfo.name}
-                </h2>
-                <span className="font-urdu text-sm font-semibold text-[#c59b27]">
-                  {activeCategoryInfo.urduName}
-                </span>
-              </div>
+              <h2 className="font-serif text-base font-bold text-[#123824]">
+                {activeCategoryInfo.name}
+              </h2>
               <p className="text-xs text-[#59534b] max-w-2xl leading-relaxed">
                 {activeCategoryInfo.description}
               </p>
             </div>
             <span className="text-xs font-semibold text-[#123824] bg-[#faf8f5] px-3 py-1.5 rounded border border-[#e6dfd5] self-start sm:self-auto shrink-0">
-              {filteredProducts.length} {isUrdu ? "دستیاب" : "Available"}
+              {filteredProducts.length} Available
             </span>
           </div>
         )}
@@ -169,10 +158,10 @@ function ProductsContent() {
         {filteredProducts.length === 0 ? (
           <div className="py-20 text-center bg-white rounded-xl border border-[#e6dfd5] p-8 space-y-3">
             <p className="text-sm font-medium text-[#123824]">
-              {isUrdu ? "آپ کی تلاش کے مطابق کوئی دوا نہیں ملی۔" : "No formulations found matching your criteria."}
+              No products found matching your search.
             </p>
             <p className="text-xs text-[#6a6660]">
-              {isUrdu ? "براہِ کرم نیا لفظ تلاش کریں یا کوئی اور زمرہ منتخب کریں۔" : "Try resetting your search query or selecting another category."}
+              Try resetting your search query or selecting another category.
             </p>
             <button
               onClick={() => {
@@ -181,7 +170,7 @@ function ProductsContent() {
               }}
               className="mt-2 inline-block px-4 py-2 bg-[#123824] text-white text-xs font-medium rounded-md"
             >
-              {isUrdu ? "فلٹرز صاف کریں" : "Clear Filters"}
+              Clear Filters
             </button>
           </div>
         ) : (
@@ -200,10 +189,10 @@ function ProductsContent() {
             </div>
             <div>
               <h4 className="font-serif text-sm font-bold text-[#123824]">
-                {isUrdu ? "2,000 روپے سے زائد کے آرڈر پر مفت ترسیل" : "Free Shipping on Orders Above ₨ 2,000"}
+                Free Shipping on Orders Above ₨ 2,000
               </h4>
               <p className="text-xs text-[#6a6660] mt-0.5">
-                {isUrdu ? "پورے پاکستان میں تیز رفتار کیش آن ڈیلیوری سہولت۔" : "Pakistan-wide courier delivery with Cash on Delivery (COD) service."}
+                Pakistan-wide courier delivery with Cash on Delivery (COD) service.
               </p>
             </div>
           </div>
@@ -214,10 +203,10 @@ function ProductsContent() {
             </div>
             <div>
               <h4 className="font-serif text-sm font-bold text-[#123824]">
-                {isUrdu ? "100% خالص نباتاتی و کیمیکل سے پاک" : "100% Herbal Purity & Authenticity"}
+                100% Herbal Purity & Authenticity
               </h4>
               <p className="text-xs text-[#6a6660] mt-0.5">
-                {isUrdu ? "سٹیرائیڈ اور مصنوعی کیمیکلز سے مکمل پاک، روایتی طبی اصولوں پر تیار۔" : "Guaranteed chemical-free, steroid-free, and prepared under traditional Tibbi oversight."}
+                Guaranteed chemical-free, pure, and prepared under careful Hakim supervision.
               </p>
             </div>
           </div>
@@ -230,7 +219,7 @@ function ProductsContent() {
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-xs text-[#6a6660]">Loading apothecary...</div>}>
+    <Suspense fallback={<div className="p-12 text-center text-xs text-[#6a6660]">Loading products...</div>}>
       <ProductsContent />
     </Suspense>
   );

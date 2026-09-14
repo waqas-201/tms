@@ -4,7 +4,6 @@ import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/app/context/CartContext";
-import { useLanguage } from "@/app/context/LanguageContext";
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, Truck, MessageSquare } from "lucide-react";
 
 export default function CartDrawer() {
@@ -21,8 +20,6 @@ export default function CartDrawer() {
     remainingForFreeShipping,
     generateWhatsAppOrderUrl,
   } = useCart();
-
-  const { t, isUrdu } = useLanguage();
 
   // Close on Escape key
   useEffect(() => {
@@ -60,7 +57,7 @@ export default function CartDrawer() {
       />
 
       {/* Drawer */}
-      <div className={`absolute inset-y-0 ${isUrdu ? "left-0 pr-10" : "right-0 pl-10"} max-w-full flex`}>
+      <div className="absolute inset-y-0 right-0 pl-10 max-w-full flex">
         <div className="w-screen max-w-md bg-[#faf8f5] shadow-2xl flex flex-col h-full border-l border-[#e6dfd5]">
           {/* Header */}
           <div className="p-5 border-b border-[#e6dfd5] bg-white flex items-center justify-between">
@@ -70,12 +67,14 @@ export default function CartDrawer() {
               </div>
               <div>
                 <h2 className="text-lg font-serif font-semibold text-[#123824]">
-                  {t("apothecaryBag")}
+                  Shopping Bag
                 </h2>
                 <p className="text-xs text-[#6a6660]">
                   {cart.length === 0
-                    ? isUrdu ? "تھیلا خالی ہے" : "Cart is empty"
-                    : `${cart.reduce((s, i) => s + i.quantity, 0)} ${isUrdu ? "اشیاء" : "formulations"}`}
+                    ? "Cart is empty"
+                    : `${cart.reduce((s, i) => s + i.quantity, 0)} ${
+                        cart.reduce((s, i) => s + i.quantity, 0) === 1 ? "item" : "items"
+                      }`}
                 </p>
               </div>
             </div>
@@ -96,8 +95,8 @@ export default function CartDrawer() {
                   <Truck className="w-3.5 h-3.5 text-[#256644]" />
                   <span>
                     {remainingForFreeShipping > 0
-                      ? t("addMoreForFreeDelivery", { amount: remainingForFreeShipping.toLocaleString() })
-                      : isUrdu ? "مبارک ہو! آپ کا آرڈر مفت ڈلیوری کے لیے اہل ہے" : "🎉 Qualified for FREE Pakistan Shipping!"}
+                      ? `Add ₨ ${remainingForFreeShipping.toLocaleString()} more for FREE Delivery`
+                      : "🎉 You have earned FREE Delivery across Pakistan!"}
                   </span>
                 </div>
                 <span>{Math.round(progressPercent)}%</span>
@@ -120,10 +119,10 @@ export default function CartDrawer() {
                 </div>
                 <div className="space-y-1">
                   <h3 className="text-base font-medium text-[#1a1816]">
-                    {t("cartEmpty")}
+                    Your bag is empty
                   </h3>
                   <p className="text-xs text-[#6a6660] max-w-xs">
-                    {t("cartEmptyDesc")}
+                    Explore our pure natural remedies, fruit preserves, and herbal waters.
                   </p>
                 </div>
                 <button
@@ -131,7 +130,7 @@ export default function CartDrawer() {
                   className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 bg-[#123824] hover:bg-[#0c2719] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-colors"
                 >
                   <Link href="/products" onClick={() => setIsCartOpen(false)}>
-                    {isUrdu ? "ادویات براؤز کریں" : "Browse Formulations"}
+                    Browse Products
                   </Link>
                 </button>
               </div>
@@ -158,7 +157,7 @@ export default function CartDrawer() {
                           onClick={() => setIsCartOpen(false)}
                           className="text-sm font-medium text-[#123824] hover:text-[#c59b27] line-clamp-1 transition-colors"
                         >
-                          {isUrdu ? item.product.urduName : item.product.name}
+                          {item.product.name}
                         </Link>
                         <button
                           onClick={() =>
@@ -171,7 +170,7 @@ export default function CartDrawer() {
                         </button>
                       </div>
                       <p className="text-[11px] text-[#6a6660]">
-                        {isUrdu ? "پیکنگ" : "Size"}: <span className="font-medium text-[#1a1816]">{item.selectedSize.weight}</span>
+                        Size: <span className="font-medium text-[#1a1816]">{item.selectedSize.weight}</span>
                       </p>
                     </div>
 
@@ -225,23 +224,23 @@ export default function CartDrawer() {
             <div className="p-5 bg-white border-t border-[#e6dfd5] space-y-3">
               <div className="space-y-1.5 text-xs">
                 <div className="flex justify-between text-[#6a6660]">
-                  <span>{t("subtotal")}</span>
+                  <span>Subtotal</span>
                   <span className="font-medium text-[#1a1816]">
                     ₨ {subtotal.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between text-[#6a6660]">
-                  <span>{t("deliveryCharges")}</span>
+                  <span>Courier Delivery</span>
                   <span className="font-medium text-[#1a1816]">
                     {shippingFee === 0 ? (
-                      <span className="text-[#256644] font-semibold uppercase">{t("free")}</span>
+                      <span className="text-[#256644] font-semibold uppercase">Free</span>
                     ) : (
                       `₨ ${shippingFee}`
                     )}
                   </span>
                 </div>
                 <div className="flex justify-between text-base font-semibold text-[#123824] pt-2 border-t border-[#e6dfd5]">
-                  <span>{t("totalPayable")}</span>
+                  <span>Total (Cash on Delivery)</span>
                   <span>₨ {total.toLocaleString()}</span>
                 </div>
               </div>
@@ -249,10 +248,10 @@ export default function CartDrawer() {
               {/* Trust badges */}
               <div className="flex items-center justify-center gap-4 py-2 border-y border-[#f4eee5] text-[11px] text-[#6a6660]">
                 <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#c59b27]" /> {isUrdu ? "خالص جڑی بوٹیاں" : "100% Herbal Purity"}
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#c59b27]" /> 100% Pure Herbs
                 </span>
                 <span className="flex items-center gap-1">
-                  <Truck className="w-3.5 h-3.5 text-[#256644]" /> {isUrdu ? "کیش آن ڈیلیوری" : "Cash on Delivery (COD)"}
+                  <Truck className="w-3.5 h-3.5 text-[#256644]" /> Cash on Delivery (COD)
                 </span>
               </div>
 
@@ -263,8 +262,8 @@ export default function CartDrawer() {
                   onClick={() => setIsCartOpen(false)}
                   className="w-full flex items-center justify-center gap-2 py-3 bg-[#123824] hover:bg-[#0c2719] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md hover:shadow-lg"
                 >
-                  <span>{t("checkoutCod")}</span>
-                  <ArrowRight className={`w-4 h-4 ${isUrdu ? "rotate-180" : ""}`} />
+                  <span>Proceed to Checkout (COD)</span>
+                  <ArrowRight className="w-4 h-4" />
                 </Link>
 
                 <a
@@ -274,7 +273,7 @@ export default function CartDrawer() {
                   className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold tracking-wide rounded-md transition-all shadow-xs"
                 >
                   <MessageSquare className="w-4 h-4" />
-                  <span>{t("orderOnWhatsApp")}</span>
+                  <span>Order via WhatsApp</span>
                 </a>
               </div>
             </div>

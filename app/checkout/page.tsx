@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
-import { useLanguage } from "@/app/context/LanguageContext";
 import { useSession } from "@/lib/auth-client";
 import {
   Truck,
@@ -14,7 +13,6 @@ import {
   MessageSquare,
   ShoppingBag,
   Clock,
-  Phone,
   Loader2,
   AlertCircle,
 } from "lucide-react";
@@ -53,7 +51,6 @@ export default function CheckoutPage() {
     generateWhatsAppOrderUrl,
   } = useCart();
 
-  const { t, isUrdu } = useLanguage();
   const { data: sessionData } = useSession();
 
   const [formData, setFormData] = useState({
@@ -95,7 +92,7 @@ export default function CheckoutPage() {
         items: cart.map((item) => ({
           productId: item.product.id,
           productName: item.product.name,
-          productUrduName: item.product.urduName,
+          productUrduName: "",
           sizeName: item.selectedSize.name,
           sizeWeight: item.selectedSize.weight,
           price: item.selectedSize.price,
@@ -144,13 +141,13 @@ export default function CheckoutPage() {
 
           <div className="space-y-2">
             <span className="text-xs uppercase font-semibold text-[#c59b27] tracking-widest">
-              {isUrdu ? "آرڈر موصول ہو گیا · شکریہ" : "Order Received · Saved to Dispensary DB"}
+              Order Received Successfully
             </span>
             <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#123824]">
-              {isUrdu ? "جزاک اللہ! آپ کا آرڈر درج ہو گیا ہے" : "JazakAllah, Your Order is Confirmed!"}
+              Your Order is Confirmed!
             </h1>
             <p className="text-xs sm:text-sm text-[#59534b]">
-              {isUrdu ? "آپ کا آرڈر نمبر:" : "Your official order tracking number is:"}{" "}
+              Your order reference number is:{" "}
               <strong className="text-[#123824] font-mono text-sm sm:text-base px-2 py-0.5 bg-[#faf8f5] rounded border border-[#e6dfd5]">
                 {createdOrder.orderNumber}
               </strong>
@@ -159,18 +156,16 @@ export default function CheckoutPage() {
 
           <div className="p-4 bg-[#faf8f5] rounded-xl border border-[#e6dfd5] text-left text-xs space-y-2 text-[#59534b]">
             <p>
-              <strong>{isUrdu ? "گاہک کا نام:" : "Recipient:"}</strong> {createdOrder.customerName} ({createdOrder.phone})
+              <strong>Name:</strong> {createdOrder.customerName} ({createdOrder.phone})
             </p>
             <p>
-              <strong>{isUrdu ? "شہر:" : "Delivery City:"}</strong> {createdOrder.city} — {createdOrder.address}
+              <strong>Delivery Address:</strong> {createdOrder.city} — {createdOrder.address}
             </p>
             <p>
-              <strong>{isUrdu ? "طریقہ ادائیگی:" : "Payment:"}</strong> Cash on Delivery (COD) · ₨ {createdOrder.total.toLocaleString()}
+              <strong>Payment:</strong> Cash on Delivery (COD) · ₨ {createdOrder.total.toLocaleString()}
             </p>
             <p className="text-[11px] text-[#6a6660] pt-1 border-t border-[#e6dfd5]">
-              {isUrdu
-                ? "ہمارا طبی دواخانہ آپ کی ادویات سیل بند پیک کر کے فوری بذریعہ کورئیر روانہ کرے گا۔"
-                : "Our Karachi apothecary dispensary will prepare and dispatch your sealed formulations via tracked Pakistan courier service."}
+              Our Karachi clinic will pack and dispatch your sealed remedies via tracked courier delivery.
             </p>
           </div>
 
@@ -182,7 +177,7 @@ export default function CheckoutPage() {
               className="w-full inline-flex items-center justify-center gap-2 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold rounded-md shadow-xs transition-colors"
             >
               <MessageSquare className="w-4 h-4" />
-              <span>{isUrdu ? "واٹس ایپ پر رسید شیئر کریں" : "Send Order Copy to WhatsApp Hotline"}</span>
+              <span>Send Order Copy on WhatsApp</span>
             </a>
 
             <div className="flex gap-3">
@@ -190,7 +185,7 @@ export default function CheckoutPage() {
                 href="/products"
                 className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 bg-[#123824] hover:bg-[#0c2719] text-white text-xs font-semibold rounded-md transition-colors"
               >
-                <span>{isUrdu ? "مزید ادویات دیکھیں" : "Browse Apothecary"}</span>
+                <span>Browse More Products</span>
               </Link>
             </div>
           </div>
@@ -207,17 +202,17 @@ export default function CheckoutPage() {
             <ShoppingBag className="w-8 h-8 opacity-40" />
           </div>
           <h1 className="font-serif text-2xl font-bold text-[#123824]">
-            {t("cartEmpty")}
+            Your Cart is Empty
           </h1>
           <p className="text-xs text-[#59534b]">
-            {t("cartEmptyDesc")}
+            You have not added any natural remedies to your cart yet.
           </p>
           <div className="pt-2">
             <Link
               href="/products"
               className="inline-flex items-center gap-2 px-6 py-3 bg-[#123824] text-white text-xs font-semibold uppercase tracking-wider rounded-md"
             >
-              <span>{isUrdu ? "ادویات کا انتخاب کریں" : "Explore Formulations"}</span>
+              <span>Explore Products</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -232,15 +227,13 @@ export default function CheckoutPage() {
         {/* Page Title */}
         <div className="space-y-1">
           <span className="text-xs uppercase font-semibold text-[#c59b27] tracking-widest">
-            {isUrdu ? "محفوظ ترسیل پاکستان" : "Secure Pakistan Courier Dispatch"}
+            Courier Delivery Across Pakistan
           </span>
           <h1 className="font-serif text-2xl sm:text-4xl font-bold text-[#123824]">
-            {t("checkoutCod")}
+            Cash on Delivery Checkout
           </h1>
           <p className="text-xs text-[#6a6660]">
-            {isUrdu
-              ? "اپنے منتخب کردہ نسخہ جات کی تصدیق کریں اور مکمل پتہ درج فرمائیں۔"
-              : "Review your apothecary selections and enter your delivery address across Pakistan."}
+            Review your order and enter your delivery address in Pakistan.
           </p>
         </div>
 
@@ -256,13 +249,13 @@ export default function CheckoutPage() {
           <div className="lg:col-span-7 space-y-6">
             <div className="bg-white p-6 sm:p-8 rounded-xl border border-[#e6dfd5] shadow-xs space-y-5">
               <h2 className="font-serif text-lg font-bold text-[#123824] border-b border-[#f4eee5] pb-3">
-                {t("deliveryAddress")}
+                Delivery Address & Contact Details
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5 sm:col-span-2">
                   <label className="text-xs font-semibold text-[#1a1816]">
-                    {t("fullName")} <span className="text-red-500">*</span>
+                    Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -277,7 +270,7 @@ export default function CheckoutPage() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-[#1a1816]">
-                    {t("phone")} <span className="text-red-500">*</span>
+                    Phone Number <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="tel"
@@ -292,7 +285,7 @@ export default function CheckoutPage() {
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-[#1a1816]">
-                    {t("city")} <span className="text-red-500">*</span>
+                    City <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="city"
@@ -310,7 +303,7 @@ export default function CheckoutPage() {
 
                 <div className="space-y-1.5 sm:col-span-2">
                   <label className="text-xs font-semibold text-[#1a1816]">
-                    {t("completeStreetAddress")} <span className="text-red-500">*</span>
+                    Complete Street Address <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     required
@@ -325,14 +318,14 @@ export default function CheckoutPage() {
 
                 <div className="space-y-1.5 sm:col-span-2">
                   <label className="text-xs font-semibold text-[#1a1816]">
-                    {isUrdu ? "خصوصی ہدایات برائے کورئیر (اختیاری)" : "Special Delivery Notes (Optional)"}
+                    Delivery Instructions (Optional)
                   </label>
                   <input
                     type="text"
                     name="specialNotes"
                     value={formData.specialNotes}
                     onChange={handleChange}
-                    placeholder="e.g. Please deliver after 3pm, landmark near Masjid"
+                    placeholder="e.g. Please call before delivering, near landmark..."
                     className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
                   />
                 </div>
@@ -342,7 +335,7 @@ export default function CheckoutPage() {
             {/* Payment Method Selector */}
             <div className="bg-white p-6 sm:p-8 rounded-xl border border-[#e6dfd5] shadow-xs space-y-4">
               <h2 className="font-serif text-lg font-bold text-[#123824] border-b border-[#f4eee5] pb-3">
-                {t("paymentMethod")}
+                Payment Method
               </h2>
 
               <div className="p-4 border-2 border-[#123824] bg-[#faf8f5] rounded-lg flex items-center justify-between">
@@ -350,12 +343,10 @@ export default function CheckoutPage() {
                   <div className="w-5 h-5 rounded-full border-4 border-[#123824] bg-white flex items-center justify-center" />
                   <div>
                     <h4 className="text-xs font-bold text-[#123824]">
-                      {isUrdu ? "کیش آن ڈیلیوری (سی او ڈی)" : "Cash on Delivery (COD)"}
+                      Cash on Delivery (COD)
                     </h4>
                     <p className="text-[11px] text-[#6a6660]">
-                      {isUrdu
-                        ? "پارسل موصول ہونے پر کورئیر رائیڈر کو نقد رقم ادا کریں۔"
-                        : "Pay cash in PKR directly to the courier rider upon package inspection."}
+                      Pay cash in PKR directly to the courier rider when your parcel arrives.
                     </p>
                   </div>
                 </div>
@@ -368,7 +359,7 @@ export default function CheckoutPage() {
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-white p-6 sm:p-8 rounded-xl border border-[#e6dfd5] shadow-xs space-y-5 sticky top-24">
               <h2 className="font-serif text-lg font-bold text-[#123824] border-b border-[#f4eee5] pb-3">
-                {t("orderSummary")}
+                Order Summary
               </h2>
 
               {/* Items List */}
@@ -388,7 +379,7 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[#123824] truncate">
-                        {isUrdu ? item.product.urduName : item.product.name}
+                        {item.product.name}
                       </p>
                       <p className="text-[11px] text-[#6a6660]">
                         {item.selectedSize.weight} × {item.quantity}
@@ -404,23 +395,23 @@ export default function CheckoutPage() {
               {/* Price Calculations */}
               <div className="space-y-2 text-xs pt-2 border-t border-[#f4eee5]">
                 <div className="flex justify-between text-[#6a6660]">
-                  <span>{t("subtotal")}</span>
+                  <span>Subtotal</span>
                   <span className="font-medium text-[#1a1816]">
                     ₨ {subtotal.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between text-[#6a6660]">
-                  <span>{t("deliveryCharges")}</span>
+                  <span>Delivery Charges</span>
                   <span className="font-medium text-[#1a1816]">
                     {shippingFee === 0 ? (
-                      <span className="text-[#256644] font-semibold">{t("free")}</span>
+                      <span className="text-[#256644] font-semibold">FREE</span>
                     ) : (
                       `₨ ${shippingFee}`
                     )}
                   </span>
                 </div>
                 <div className="flex justify-between text-base font-bold text-[#123824] pt-2 border-t border-[#e6dfd5]">
-                  <span>{t("totalPayable")}</span>
+                  <span>Total (Cash on Delivery)</span>
                   <span>₨ {total.toLocaleString()}</span>
                 </div>
               </div>
@@ -434,12 +425,12 @@ export default function CheckoutPage() {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>{isUrdu ? "آرڈر درج ہو رہا ہے..." : "Recording Order in Database..."}</span>
+                    <span>Placing Order...</span>
                   </>
                 ) : (
                   <>
-                    <span>{t("confirmCodOrder")}</span>
-                    <ArrowRight className={`w-4 h-4 ${isUrdu ? "rotate-180" : ""}`} />
+                    <span>Confirm Cash on Delivery Order</span>
+                    <ArrowRight className="w-4 h-4" />
                   </>
                 )}
               </button>
@@ -448,11 +439,11 @@ export default function CheckoutPage() {
               <div className="pt-2 text-[11px] text-[#6a6660] space-y-1 text-center">
                 <p className="flex items-center justify-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-[#c59b27]" />
-                  <span>{isUrdu ? "100% خالص نباتاتی اجزاء کی ضمانت" : "100% Authentic Tibbi Botanical Purity"}</span>
+                  <span>100% Pure Natural Remedies</span>
                 </p>
                 <p className="flex items-center justify-center gap-1">
                   <Clock className="w-3.5 h-3.5 text-[#256644]" />
-                  <span>{isUrdu ? "2 تا 4 دن میں ملک گیر ترسیل" : "Dispatched within 24 hours from Karachi Clinic"}</span>
+                  <span>Dispatched within 24 hours from Karachi Clinic</span>
                 </p>
               </div>
             </div>

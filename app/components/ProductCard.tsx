@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product, ProductSize } from "@/app/data/products";
 import { useCart } from "@/app/context/CartContext";
-import { useLanguage } from "@/app/context/LanguageContext";
 import { ShoppingBag, Star, ArrowUpRight, Check } from "lucide-react";
 
 interface ProductCardProps {
@@ -14,7 +13,6 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
-  const { t, isUrdu } = useLanguage();
   const [selectedSize, setSelectedSize] = useState<ProductSize>(product.sizes[0]);
   const [isAdded, setIsAdded] = useState(false);
 
@@ -71,7 +69,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           {/* Category & Rating */}
           <div className="flex items-center justify-between gap-2 text-xs">
             <span className="text-[11px] font-semibold text-[#c59b27] uppercase tracking-wider">
-              {isUrdu ? product.categoryLabel : product.categoryLabel}
+              {product.categoryLabel}
             </span>
             <div className="flex items-center gap-1 text-[#c59b27]">
               <Star className="w-3.5 h-3.5 fill-[#c59b27]" />
@@ -84,11 +82,8 @@ export default function ProductCard({ product }: ProductCardProps) {
           {/* Product Title */}
           <Link href={`/products/${product.slug}`} className="block">
             <h3 className="font-serif text-base font-semibold text-[#123824] group-hover:text-[#c59b27] transition-colors line-clamp-1 leading-snug">
-              {isUrdu ? product.urduName : product.name}
+              {product.name}
             </h3>
-            <p className="text-xs text-[#2a5a3d] font-urdu font-medium text-right mt-0.5" dir="rtl">
-              {isUrdu ? product.name : product.urduName}
-            </p>
           </Link>
 
           {/* Short traditional purpose */}
@@ -153,12 +148,12 @@ export default function ProductCard({ product }: ProductCardProps) {
             {isAdded ? (
               <>
                 <Check className="w-3.5 h-3.5" />
-                <span>{t("addedToBag")}</span>
+                <span>Added</span>
               </>
             ) : (
               <>
                 <ShoppingBag className="w-3.5 h-3.5 text-[#c59b27]" />
-                <span>{t("addToBag")}</span>
+                <span>Add to Bag</span>
               </>
             )}
           </button>

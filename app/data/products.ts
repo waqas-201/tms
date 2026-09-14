@@ -33,7 +33,7 @@ export interface Product {
   rating: number;
   reviewCount: number;
   badge?: string;
-  mizaj?: string; // Temperament in Unani medicine (e.g., Mo'tadil, Haar Yabis, Barid Ratab)
+  mizaj?: string;
 }
 
 export interface CategoryInfo {
@@ -50,54 +50,54 @@ export const CATEGORIES: CategoryInfo[] = [
   {
     id: "murabbajaat",
     slug: "murabbajaat",
-    name: "Murabbajaat (Herbal Preserves)",
-    urduName: "مربہ جات",
-    description: "Classical fruit & botanical preserves simmered slowly in organic honey or raw cane syrup for daily cardiac, hepatic, and digestive tonification.",
+    name: "Herbal Preserves (Murabba)",
+    urduName: "",
+    description: "Fresh fruit and herb preserves slowly cooked in pure honey or cane syrup for heart, stomach, and daily energy.",
     heroImage: "/images/Gemini_Generated_Image_353xgp353xgp353x-1.png",
     productCount: 7,
   },
   {
     id: "arqiyat",
     slug: "arqiyat",
-    name: "Arqiyat & Distillates",
-    urduName: "عرق و کشیدات",
-    description: "Pure steam-distilled floral and botanical essences providing rapid bioavailability and systemic detoxification without chemical preservatives.",
+    name: "Pure Herbal Distillates (Arq)",
+    urduName: "",
+    description: "Pure plant waters made through gentle steam distillation to cool the body, soothe the stomach, and support liver health.",
     heroImage: "/images/01aa3b4e-d943-4b9a-8c64-1fa2355d0f70-1769544818.png",
     productCount: 2,
   },
   {
     id: "oils-marham",
     slug: "oils-marham",
-    name: "Herbal Oils & Marham",
-    urduName: "روغنیات و مرہم",
-    description: "Cold-pressed therapeutic botanical oils and time-honored herbal ointments for localized pain relief, joint ease, and dermal repair.",
+    name: "Pain Relief Oils & Balms",
+    urduName: "",
+    description: "Natural herbal oils and soothing balms for joint pain, backache, knee stiffness, and skin repair.",
     heroImage: "/images/72dc0d5f-2347-42f4-aef4-5052295325f4-1769544982.png",
     productCount: 2,
   },
   {
     id: "herbs-seeds",
     slug: "herbs-seeds",
-    name: "Single Herbs & Pure Mufradat",
-    urduName: "جڑی بوٹیاں و مفردات",
-    description: "Carefully sourced, sun-dried pure herbs, medicinal seeds, and botanical treasures selected directly from verified organic harvests.",
+    name: "Whole Herbs & Seeds",
+    urduName: "",
+    description: "Sun-dried natural herbs, clean seeds, and raw botanicals sourced fresh from trusted organic farms.",
     heroImage: "/images/Juniper-Berries-002.jpg.webp",
     productCount: 2,
   },
   {
     id: "teas-vitality",
     slug: "teas-vitality",
-    name: "Teas & Vitality Blends",
-    urduName: "قہوہ و شاہی مقویات",
-    description: "Traditional herbal infusions, caffeine-free wellness teas, and invigorating nutrient-dense nuts and seed formulations.",
+    name: "Wellness Teas & Energy Mixes",
+    urduName: "",
+    description: "Caffeine-free herbal teas and nutrient-rich dry fruit mixes for focus, memory, and everyday strength.",
     heroImage: "/images/Curry-Leaf-Tea_-A-Caffeine-Free-Herbal-Treasure.jpg",
     productCount: 2,
   },
   {
     id: "hair-skin",
     slug: "hair-skin",
-    name: "Hair & Dermal Care",
-    urduName: "حفاظت بال و جلد",
-    description: "Pure botanical formulations free from sulfates and parabens, restoring natural luster, root strength, and skin clarity.",
+    name: "Hair & Skin Care",
+    urduName: "",
+    description: "Gentle herbal shampoos and oils made without harmful chemicals, sulfates, or artificial fragrances.",
     heroImage: "/images/Herbalista-Viral-Herbal-Hair-Care-Bundle-E2-80-93-Shampoo-Conditioner-Set-1000ml-33_8-fl-oz-Each-E2-.jpg",
     productCount: 1,
   },
@@ -107,189 +107,189 @@ export const PRODUCTS: Product[] = [
   {
     id: "tahiri-marham",
     slug: "tahiri-marham",
-    name: "Tahiri Marham – Herbal Healing Ointment",
-    urduName: "طاہری مرہم – دافع سوزش و جلدی مرہم",
+    name: "Tahiri Marham – Herbal Healing Balm",
+    urduName: "",
     category: "oils-marham",
-    categoryLabel: "Herbal Oils & Marham",
-    categoryUrdu: "روغنیات و مرہم",
-    shortDescription: "A revered classical herbal ointment for soothing skin irritations, minor burns, cuts, insect stings, and cracked heels.",
-    fullDescription: "Tahiri Marham is one of Tameer-e-Sehat's signature legacy formulations. Hand-crafted according to time-honored Tibbi principles using natural camphor (Kafoor), beeswax (Mom Zard), and anti-inflammatory herbal oils. It forms a protective barrier over compromised skin while stimulating natural cellular regeneration.",
-    traditionalPurpose: "Traditionally applied to soothe acute dermal inflammation, burns, cracked heels, dry eczema patches, and minor cuts.",
+    categoryLabel: "Pain Relief Oils & Balms",
+    categoryUrdu: "",
+    shortDescription: "A trusted home balm for cracked heels, minor kitchen burns, small cuts, dry skin, and insect bites.",
+    fullDescription: "Tahiri Marham is our most popular healing balm. Hand-made using pure beeswax, natural camphor, and healing neem oil. It creates a gentle protective layer over broken skin to speed up natural healing without any burning sensation.",
+    traditionalPurpose: "Used for generations to soothe cracked heels, everyday kitchen burns, cuts, and dry skin patches.",
     benefits: [
-      "Provides rapid soothing relief for minor kitchen burns & abrasions",
-      "Softens severely cracked heels and rough dry elbows",
-      "Natural antiseptic barrier without synthetic antibiotics",
-      "Free from steroids, artificial scents, and petro-chemicals"
+      "Quick, soothing relief for minor burns, scratches, and scrapes",
+      "Softens deep, painful cracked heels and rough elbows",
+      "Natural herbal protection without harsh chemicals or steroids",
+      "Safe for the whole family to use daily"
     ],
     ingredients: [
-      { name: "Kafoor (Camphor)", urdu: "کافور", role: "Cooling & natural antimicrobial" },
-      { name: "Mom Zard (Natural Beeswax)", urdu: "موم زرد", role: "Protective lipid moisture barrier" },
-      { name: "Roghan-e-Neem (Neem Seed Oil)", urdu: "روغنِ نیم", role: "Classical antiseptic & dermal purifier" },
-      { name: "Roghan-e-Kunjad (Sesame Base)", urdu: "روغنِ کنجد", role: "Deep tissue nourishing carrier" }
+      { name: "Camphor (Kafoor)", role: "Cooling & germ protection" },
+      { name: "Pure Beeswax (Mom)", role: "Locks in moisture and protects skin" },
+      { name: "Neem Seed Oil", role: "Natural skin purifier and soother" },
+      { name: "Sesame Oil Base", role: "Nourishes dry skin deeply" }
     ],
-    howToUse: "Clean the affected area gently with warm water. Apply a thin layer of Tahiri Marham 2 to 3 times daily. Can be lightly covered with clean gauze if needed.",
-    dosage: "Apply a small pea-sized amount directly onto the target skin area.",
-    hakimAdvice: "For severe heel cracks in winter, soak feet in lukewarm salt water for 10 minutes, dry thoroughly, apply Tahiri Marham generously, and wear cotton socks overnight.",
+    howToUse: "Wash the skin gently with warm water and pat dry. Apply a thin layer 2 to 3 times a day.",
+    dosage: "Use a small pea-sized amount on the affected skin.",
+    hakimAdvice: "For painful cracked heels in winter: soak feet in warm water with a pinch of salt for 10 minutes, dry well, rub Tahiri Marham generously, and wear soft cotton socks overnight.",
     price: 150,
     originalPrice: 200,
     discountPercentage: 25,
     image: "/images/44268fa2-979f-4ff2-9182-a54e785340d0-1769545022.png",
     sizes: [
-      { name: "Standard Jar", weight: "50g", price: 150, originalPrice: 200 },
+      { name: "Small Jar", weight: "50g", price: 150, originalPrice: 200 },
       { name: "Family Pack", weight: "100g", price: 280, originalPrice: 350 }
     ],
     inStock: true,
     featured: true,
     rating: 4.9,
     reviewCount: 48,
-    badge: "Hakim Signature",
-    mizaj: "Mo'tadil (Balanced)"
+    badge: "Best Seller",
+    mizaj: "Balanced & Gentle"
   },
   {
     id: "jointzen-oil",
     slug: "jointzen-oil",
     name: "JointZen Herbal Pain Relief Oil",
-    urduName: "جوائنٹ زن ہربل تیل – مسکن درد مفاصل",
+    urduName: "",
     category: "oils-marham",
-    categoryLabel: "Herbal Oils & Marham",
-    categoryUrdu: "روغنیات و مرہم",
-    shortDescription: "Therapeutic botanical massage oil infused with Wintergreen and Eucalyptus for joint comfort, back fatigue, and muscular ease.",
-    fullDescription: "JointZen is formulated through an artisanal decoction process where warming herbs are slowly infused into pure cold-pressed botanical oils over 72 hours. Designed for fast absorption into deep connective tissues to reduce stiffness in knees, shoulders, and lower back.",
-    traditionalPurpose: "Used in classical Unani practice to treat Waja-ul-Mafasil (joint pain), Niqras (gout discomfort), and seasonal muscular aches.",
+    categoryLabel: "Pain Relief Oils & Balms",
+    categoryUrdu: "",
+    shortDescription: "A soothing herbal massage oil made with wintergreen and eucalyptus for knee pain, stiff joints, and backache.",
+    fullDescription: "JointZen is made by slowly steeping warming herbs in pure olive oil for 3 full days. It absorbs quickly into the skin to bring fast warmth and comfort to sore knees, tight shoulders, and tired back muscles.",
+    traditionalPurpose: "Relieves knee pain, morning joint stiffness, muscle strain from long sitting, and everyday body aches.",
     benefits: [
-      "Warming relief for stiff knee joints and morning rigidity",
-      "Alleviates lumbar back strain and neck tightness from desk work",
-      "Improves local micro-circulation around joints",
-      "Pleasant natural botanical aroma without lingering synthetic odors"
+      "Provides comforting warmth to stiff knees and joints",
+      "Eases lower back pain and tight neck muscles from office work",
+      "Helps improve blood flow around sore joints",
+      "Pleasant herbal aroma without lingering strong smell"
     ],
     ingredients: [
-      { name: "Roghan-e-Gandhapura (Wintergreen)", urdu: "روغن گندھ پورہ", role: "Natural salicylate for pain relief" },
-      { name: "Roghan-e-Zaitoon (Extra Virgin Olive Oil)", urdu: "روغن زیتون", role: "Deep penetrating base oil" },
-      { name: "Sat-e-Podina (Menthol Crystals)", urdu: "ست پودینہ", role: "Instant cooling then warming action" },
-      { name: "Roghan-e-Darcheeni (Cinnamon Bark Oil)", urdu: "روغن دارچینی", role: "Thermal circulatory stimulant" }
+      { name: "Wintergreen Oil", role: "Natural pain-relieving warmth" },
+      { name: "Pure Olive Oil", role: "Deeply penetrating carrier oil" },
+      { name: "Menthol Crystals (Sat Podina)", role: "Cooling then soothing warm action" },
+      { name: "Cinnamon Oil", role: "Improves blood circulation" }
     ],
-    howToUse: "Pour 5 to 10 drops onto palms. Gently massage clockwise over affected joints for 5 minutes until fully absorbed. Wrap in a warm cloth for enhanced benefit.",
-    dosage: "Use twice daily, especially before bedtime and in the morning.",
-    hakimAdvice: "Avoid direct exposure to cold air or icy water for at least 30 minutes following the massage to allow the herbal warmth to penetrate the joints.",
+    howToUse: "Pour 5 to 10 drops on your palms. Gently massage in circles over painful joints for 5 minutes until absorbed. Covering with a warm cloth feels great.",
+    dosage: "Use twice a day, especially in the morning and before bed.",
+    hakimAdvice: "Avoid direct cold air from AC or fans for 30 minutes after massage so the gentle warmth can work deeply.",
     price: 500,
     originalPrice: 580,
     discountPercentage: 14,
     image: "/images/72dc0d5f-2347-42f4-aef4-5052295325f4-1769544982.png",
     sizes: [
-      { name: "Travel Bottle", weight: "60ml", price: 500, originalPrice: 580 },
-      { name: "Clinical Bottle", weight: "120ml", price: 900, originalPrice: 1050 }
+      { name: "Regular Bottle", weight: "60ml", price: 500, originalPrice: 580 },
+      { name: "Value Bottle", weight: "120ml", price: 900, originalPrice: 1050 }
     ],
     inStock: true,
     featured: true,
     rating: 4.8,
     reviewCount: 39,
     badge: "Fast Relief",
-    mizaj: "Haar Yabis (Warming)"
+    mizaj: "Warm & Soothing"
   },
   {
     id: "arq-makoh",
     slug: "arq-makoh",
-    name: "Arq Makoh – Pure Distilled Black Nightshade",
-    urduName: "عرق مکوہ – دافع ورم جگر و معدہ",
+    name: "Arq Makoh – Pure Herbal Distillate for Liver & Stomach",
+    urduName: "",
     category: "arqiyat",
-    categoryLabel: "Arqiyat & Distillates",
-    categoryUrdu: "عرق و کشیدات",
-    shortDescription: "Traditional steam-distilled extract of Solanum Nigrum (Mako) for supporting liver function and calming internal visceral inflammation.",
-    fullDescription: "Arq Makoh is prepared via classical deg-bhabka steam distillation using freshly harvested Solanum Nigrum herbs. In eastern medicine, Makoh is regarded as one of the preeminent agents for resolving visceral swelling (Warm-e-Ahsha) and supporting healthy hepatic detoxification.",
-    traditionalPurpose: "Prescribed by Hakims to reduce liver and spleen congestion, soothe stomach inflammation, and support healthy urine output.",
+    categoryLabel: "Pure Herbal Distillates (Arq)",
+    categoryUrdu: "",
+    shortDescription: "A gentle plant water made from fresh Makoh to support liver health, calm stomach burning, and reduce swelling.",
+    fullDescription: "Arq Makoh is prepared by carefully distilling fresh Makoh herbs with pure water. It is one of the most reliable traditional drinks in Pakistan to help soothe internal heat, reduce abdominal swelling, and keep the liver working smoothly.",
+    traditionalPurpose: "Used to calm stomach irritation, support the liver, and reduce internal heat and heaviness after meals.",
     benefits: [
-      "Natural hepatic tonic supporting liver function enzymes",
-      "Helps calm internal inflammation and gastric burning",
-      "Supports healthy fluid balance and reduces abdominal fullness",
-      "Pure aqueous extract with 0% alcohol and 0% artificial flavors"
+      "Natural liver tonic that supports healthy digestion",
+      "Helps calm burning in the stomach and chest",
+      "Reduces belly bloating and water heaviness",
+      "100% natural water with 0% alcohol and no artificial flavors"
     ],
     ingredients: [
-      { name: "Barg-e-Makoh Khushk & Taza (Solanum Nigrum)", urdu: "برگ مکوہ", role: "Active anti-inflammatory botanical" },
-      { name: "Aab-e-Muqattar (Purified Distilled Water)", urdu: "آبِ مقطر", role: "Pure steam vehicle" }
+      { name: "Fresh Makoh Herb (Solanum Nigrum)", role: "Natural soothing botanical" },
+      { name: "Pure Distilled Water", role: "Clean steam vehicle" }
     ],
-    howToUse: "Take half a cup (60ml to 75ml) morning and evening, either on an empty stomach or as advised by your Hakim.",
-    dosage: "60ml – 120ml daily. Often taken in equal proportion with Arq Kasni.",
-    hakimAdvice: "For maximum liver detoxification and digestive harmony, combine half a cup of Arq Makoh with half a cup of Arq Kasni every morning before breakfast.",
+    howToUse: "Drink half a cup (around 75ml) morning and evening, either on an empty stomach or as advised.",
+    dosage: "Half a cup (75ml) once or twice daily.",
+    hakimAdvice: "For the best liver and digestive care, mix half a cup of Arq Makoh with half a cup of Arq Kasni every morning before breakfast.",
     price: 200,
     originalPrice: 250,
     discountPercentage: 20,
     image: "/images/01aa3b4e-d943-4b9a-8c64-1fa2355d0f70-1769544818.png",
     sizes: [
       { name: "Single Bottle", weight: "800ml", price: 200, originalPrice: 250 },
-      { name: "Trio Bundle (3 Bottles)", weight: "3 x 800ml", price: 550, originalPrice: 750 }
+      { name: "Pack of 3 Bottles", weight: "3 x 800ml", price: 550, originalPrice: 750 }
     ],
     inStock: true,
     featured: true,
     rating: 4.9,
     reviewCount: 52,
-    badge: "Classical Distillate",
-    mizaj: "Barid Yabis (Cooling)"
+    badge: "Traditional Distillate",
+    mizaj: "Cooling & Gentle"
   },
   {
     id: "arq-kasni",
     slug: "arq-kasni",
-    name: "Arq Kasni – Pure Chicory Distillate & Liver Tonic",
-    urduName: "عرق کاسنی – مقوی جگر، معدہ و مسکن حرارت",
+    name: "Arq Kasni – Cooling Herbal Distillate for Liver & Kidneys",
+    urduName: "",
     category: "arqiyat",
-    categoryLabel: "Arqiyat & Distillates",
-    categoryUrdu: "عرق و کشیدات",
-    shortDescription: "Pure floral and seed distillate of Cichorium Intybus (Kasni) for balancing internal body heat, bilious disorders, and kidneys.",
-    fullDescription: "Kasni (Chicory) is celebrated in Tibb-e-Nabawi and classical Greco-Arab medicine as a blessed cooling herb. Tameer-e-Sehat distills prime Kasni seeds and leaves to produce a crystal-clear distillate that cools excessive systemic heat (Hiddat-e-Khoon) and supports healthy urinary elimination.",
-    traditionalPurpose: "Balances excessive bile, soothes jaundice-related sluggishness, cleanses the renal tract, and calms inner body heat.",
+    categoryLabel: "Pure Herbal Distillates (Arq)",
+    categoryUrdu: "",
+    shortDescription: "Pure chicory water that naturally clears body heat, cools the liver, and supports healthy kidneys.",
+    fullDescription: "Kasni (Chicory) is famous in Pakistani tradition as a natural cooling herb. We distill clean Kasni seeds and leaves to produce a crystal-clear herbal water that flushes out excess body heat and helps you feel refreshed throughout hot summer months.",
+    traditionalPurpose: "Cools internal heat, supports normal liver function, and relieves burning during urination.",
     benefits: [
-      "Naturally clears excessive metabolic heat and acidity",
-      "Supports liver cell rejuvenation and optimal bile secretion",
-      "Assists in clearing toxins through healthy kidney filtration",
-      "Gentle and suitable for all adult age groups"
+      "Naturally cools down excessive body heat and acidity",
+      "Helps keep liver and kidney functions clean and clear",
+      "Great for hot summer days to stay refreshed",
+      "Mild, safe, and suitable for all adults"
     ],
     ingredients: [
-      { name: "Tukhm-o-Barg Kasni (Cichorium Intybus)", urdu: "تخم و برگ کاسنی", role: "Primary cooling & hepatoprotective agent" },
-      { name: "Aab-e-Muqattar (Purified Distilled Water)", urdu: "آبِ مقطر", role: "Pure steam vehicle" }
+      { name: "Kasni Herb & Seeds (Chicory)", role: "Natural cooling & liver support" },
+      { name: "Pure Distilled Water", role: "Clean steam carrier" }
     ],
-    howToUse: "Consume half a cup (75ml) early morning on an empty stomach. Can be sweetened with a teaspoon of pure Sharbat-e-Bazoori if desired.",
-    dosage: "75ml to 120ml once or twice daily.",
-    hakimAdvice: "Excellent in warm Pakistani summers to prevent heat exhaustion and dark, concentrated urine.",
+    howToUse: "Drink half a cup (around 75ml) in the morning on an empty stomach. You can add a spoonful of honey or sweet syrup if you like.",
+    dosage: "Half a cup once or twice a day.",
+    hakimAdvice: "Very helpful in hot Pakistani weather to beat the heat, stay hydrated, and protect your liver.",
     price: 200,
     originalPrice: 250,
     discountPercentage: 20,
     image: "/images/27bb50c8-4947-4c53-b6d1-74d791108619-1769545086.png",
     sizes: [
       { name: "Single Bottle", weight: "800ml", price: 200, originalPrice: 250 },
-      { name: "Trio Bundle (3 Bottles)", weight: "3 x 800ml", price: 550, originalPrice: 750 }
+      { name: "Pack of 3 Bottles", weight: "3 x 800ml", price: 550, originalPrice: 750 }
     ],
     inStock: true,
     featured: true,
     rating: 4.9,
     reviewCount: 64,
     badge: "Best Seller",
-    mizaj: "Barid Ratab (Cool & Moist)"
+    mizaj: "Cooling & Hydrating"
   },
   {
     id: "amla-murabba",
     slug: "amla-murabba",
-    name: "Amla Murabba – Traditional Vitamin C Preserve",
-    urduName: "آملہ کا مربہ – مقوی دماغ، نظر و مدافعت",
+    name: "Amla Murabba – Vitamin C & Immunity Preserve",
+    urduName: "",
     category: "murabbajaat",
-    categoryLabel: "Murabbajaat (Herbal Preserves)",
-    categoryUrdu: "مربہ جات",
-    shortDescription: "Handcrafted fresh Indian Gooseberries steeped in herbal syrup. Revered for eyesight clarity, hair strength, and immune vigor.",
-    fullDescription: "Our Amla Murabba is prepared from large, tender, unblemished Amla (Emblica officinalis) fruits simmered slowly with cardamom and saffron. It preserves the potent natural bioflavonoids and Vitamin C of the fresh fruit, creating a nourishing tonic for daily mental stamina and digestive vitality.",
-    traditionalPurpose: "Classical tonic for Muqawwi-e-Dimagh (brain), Muqawwi-e-Chashm (vision), and reducing hyperacidity.",
+    categoryLabel: "Herbal Preserves (Murabba)",
+    categoryUrdu: "",
+    shortDescription: "Plump, juicy Indian gooseberries in sweet syrup with cardamom. Great for eyesight, hair strength, and everyday immunity.",
+    fullDescription: "Our Amla Murabba is prepared from large, tender, fresh Amla fruits slowly cooked with sweet cardamom and saffron. It preserves all the natural Vitamin C of fresh amla, making it an easy, tasty morning treat for the whole family.",
+    traditionalPurpose: "A time-tested daily sweet tonic for memory, eyesight clarity, strong hair roots, and reducing stomach acidity.",
     benefits: [
-      "Concentrated natural Vitamin C for high immune resilience",
-      "Traditional support for memory retention and ocular brightness",
-      "Helps prevent premature graying and root weakness of hair",
-      "Soothes hyperacidity and stomach lining irritation"
+      "Full of natural Vitamin C to boost your daily immune defense",
+      "Traditional food for sharp memory and bright eyesight",
+      "Helps nourish hair roots and reduce hair fall",
+      "Soothes stomach burning and indigestion"
     ],
     ingredients: [
-      { name: "Taaza Amla (Fresh Emblica Officinalis)", urdu: "تازہ آملہ", role: "Potent natural antioxidant fruit" },
-      { name: "Sheera-e-Khaas (Pure Cane Infusion)", urdu: "شیرہ خاص", role: "Natural preservative matrix" },
-      { name: "Ilaichi Sabz (Green Cardamom)", urdu: "الائچی سبز", role: "Digestive aroma & cardiac tonic" },
-      { name: "Zafran (Pure Saffron strands)", urdu: "زعفران", role: "Vitality enhancer" }
+      { name: "Fresh Amla Fruits", role: "Rich in natural Vitamin C & antioxidants" },
+      { name: "Pure Cane Syrup", role: "Natural sweetness and preservation" },
+      { name: "Green Cardamom (Ilaichi)", role: "Pleasant aroma and easy digestion" },
+      { name: "Saffron (Zafran)", role: "Natural vitality touch" }
     ],
-    howToUse: "Eat 1 to 2 whole pieces in the morning with breakfast. Gently rinse excess syrup with a splash of water if preferred.",
-    dosage: "1 – 2 pieces daily.",
-    hakimAdvice: "Washing the fruit gently with water before eating reduces sweetness while retaining 100% of the active herbal alkaloids.",
+    howToUse: "Eat 1 to 2 pieces in the morning with breakfast. You can rinse off extra syrup with plain water if you prefer less sweetness.",
+    dosage: "1 to 2 pieces daily.",
+    hakimAdvice: "Lightly washing the fruit in water before eating reduces sweetness without losing any of its healthy herbal benefits.",
     price: 250,
     originalPrice: 320,
     discountPercentage: 22,
@@ -297,40 +297,40 @@ export const PRODUCTS: Product[] = [
     sizes: [
       { name: "Small Jar", weight: "250g", price: 250, originalPrice: 320 },
       { name: "Medium Jar", weight: "500g", price: 480, originalPrice: 600 },
-      { name: "Value Pack", weight: "1kg", price: 950, originalPrice: 1150 }
+      { name: "Family Pack", weight: "1kg", price: 950, originalPrice: 1150 }
     ],
     inStock: true,
     featured: true,
     rating: 5.0,
     reviewCount: 71,
-    badge: "Heritage Recipe",
-    mizaj: "Barid Yabis (Cool & Tonic)"
+    badge: "Family Favorite",
+    mizaj: "Cooling & Nutritious"
   },
   {
     id: "carrot-murabba",
     slug: "carrot-murabba",
     name: "Carrot Murabba – Gajar ka Murabba",
-    urduName: "گاجر کا مربہ – مقوی قلب، جگر و بینائی",
+    urduName: "",
     category: "murabbajaat",
-    categoryLabel: "Murabbajaat (Herbal Preserves)",
-    categoryUrdu: "مربہ جات",
-    shortDescription: "Sweet winter red carrots simmered with cardamom and saffron. Highly valued for heart vigor, eye fatigue, and stamina.",
-    fullDescription: "Gajar ka Murabba is prepared from handpicked deep-red winter carrots, prized in Eastern herbal medicine for tonifying the heart muscle (Muqawwi-e-Qalb) and rejuvenating blood vitality. Its rich natural beta-carotene content nourishes ocular tissues and counters digital eye strain.",
-    traditionalPurpose: "Prescribed in Tibb for heart palpitations (Khafqan), nervous debility, and sharpening cognitive alertness.",
+    categoryLabel: "Herbal Preserves (Murabba)",
+    categoryUrdu: "",
+    shortDescription: "Sweet winter red carrots simmered with cardamom. Highly recommended for heart energy, tired eyes, and daily vitality.",
+    fullDescription: "Gajar ka Murabba is made from fresh deep-red winter carrots cooked slowly until soft and juicy. Carrots are packed with natural Vitamin A and nutrients that ease eye strain from phone screens and give natural energy to the heart.",
+    traditionalPurpose: "Supports heart wellness, eases eye tiredness, and gives natural stamina for study and work.",
     benefits: [
-      "Tonifies heart energy and helps soothe nervousness",
-      "Nourishes optic nerves and relieves dry, tired eyes",
-      "Promotes radiant, clear complexion and natural blood production",
-      "Delightful, tender texture and aromatic saffron finish"
+      "Naturally supports heart energy and eases nervous restlessness",
+      "Nourishes tired, dry eyes from screen time and reading",
+      "Helps give skin a healthy, fresh glow",
+      "Soft, delicious, and loved by kids and elders alike"
     ],
     ingredients: [
-      { name: "Surkh Gajar (Deep Red Winter Carrots)", urdu: "سرخ گاجر", role: "Rich source of carotenoids & cardiac energy" },
-      { name: "Kewra Water (Pandanus Distillate)", urdu: "عرق کیوڑا", role: "Cardiac exhilarant" },
-      { name: "Ilaichi (Cardamom)", urdu: "چھوٹی الائچی", role: "Cardiotonic" }
+      { name: "Fresh Red Winter Carrots", role: "Rich in natural beta-carotene" },
+      { name: "Pure Cane Syrup", role: "Natural preservation" },
+      { name: "Green Cardamom", role: "Aromatic and stomach friendly" }
     ],
-    howToUse: "Take 25g to 50g (2-3 pieces) in the morning with a cup of warm milk for best nutritional absorption.",
-    dosage: "25g – 50g daily.",
-    hakimAdvice: "Taking Carrot Murabba with a glass of lukewarm milk in the morning creates a potent revitalizing breakfast ritual for students and professionals.",
+    howToUse: "Enjoy 2 to 3 pieces in the morning, ideally with a glass of warm milk.",
+    dosage: "25g to 50g (2-3 pieces) every morning.",
+    hakimAdvice: "Eating Carrot Murabba with a glass of warm milk makes an easy, energizing breakfast for students and busy professionals.",
     price: 250,
     originalPrice: 320,
     discountPercentage: 22,
@@ -338,40 +338,40 @@ export const PRODUCTS: Product[] = [
     sizes: [
       { name: "Small Jar", weight: "250g", price: 250, originalPrice: 320 },
       { name: "Medium Jar", weight: "500g", price: 470, originalPrice: 580 },
-      { name: "Value Pack", weight: "1kg", price: 900, originalPrice: 1100 }
+      { name: "Family Pack", weight: "1kg", price: 900, originalPrice: 1100 }
     ],
     inStock: true,
     featured: true,
     rating: 4.8,
     reviewCount: 33,
-    badge: "Heart Tonic",
-    mizaj: "Mo'tadil (Balanced)"
+    badge: "Heart & Eye Care",
+    mizaj: "Balanced & Energizing"
   },
   {
     id: "murabba-harr",
     slug: "murabba-harr",
-    name: "Murabba Harr – Harar Fruit Digestive Preserve",
-    urduName: "مربہ ہڑ – شاہِ ادویہ معدہ و آنت",
+    name: "Harar Murabba – Natural Digestion & Constipation Relief",
+    urduName: "",
     category: "murabbajaat",
-    categoryLabel: "Murabbajaat (Herbal Preserves)",
-    categoryUrdu: "مربہ جات",
-    shortDescription: "Selected yellow Harar (Terminalia Chebula) fruits preserved in herbal syrup. The premier classical remedy for digestive sluggishness.",
-    fullDescription: "Terminalia Chebula is hailed in classical Eastern pharmacopeia as 'King of Medicines'. Our Murabba Harr uses hand-selected mature yellow berries processed through multi-step soaking to remove astringency while unlocking deep digestive motility and colon cleansing virtues.",
-    traditionalPurpose: "Regarded as the gold standard for chronic constipation, sluggish stomach, gas accumulation, and longevity.",
+    categoryLabel: "Herbal Preserves (Murabba)",
+    categoryUrdu: "",
+    shortDescription: "Hand-picked yellow Harar fruits in sweet herbal syrup. Pakistan's most famous natural remedy for chronic constipation and gas.",
+    fullDescription: "Harar is known across Eastern medicine as the king of digestive herbs. Our Harar Murabba is prepared from tender yellow fruits that gently clear the stomach, relieve constipation without pain, and stop uncomfortable gas.",
+    traditionalPurpose: "Relieves chronic constipation, stops bloating and gas, and keeps bowel movements easy and regular.",
     benefits: [
-      "Natural and gentle bowel regularity without habit-forming laxatives",
-      "Eliminates trapped abdominal gas and flatulence",
-      "Cleanses intestinal toxins and aids nutrient assimilation",
-      "Supports cognitive longevity according to ancient Tibbi texts"
+      "Gentle, natural relief for constipation without habit-forming drugs",
+      "Clears out trapped gas and uncomfortable stomach heaviness",
+      "Cleanses the intestines naturally for better appetite",
+      "Safe and gentle for long-term everyday health"
     ],
     ingredients: [
-      { name: "Harar Zard (Yellow Chebulic Myrobalan)", urdu: "ہڑ زرد", role: "Premier digestive harmonizer" },
-      { name: "Gulab Jal (Pure Rose Distillate)", urdu: "عرق گلاب", role: "Gentle intestinal relaxant" },
-      { name: "Pure Herbal Cane Base", urdu: "شیرہ", role: "Preservation medium" }
+      { name: "Yellow Harar (Chebulic Myrobalan)", role: "Natural digestive cleaner" },
+      { name: "Rose Water Infusion", role: "Gentle intestinal soother" },
+      { name: "Pure Cane Syrup", role: "Sweet base" }
     ],
-    howToUse: "Consume 1 piece before bedtime with lukewarm water. Chew slowly.",
-    dosage: "1 piece daily at night.",
-    hakimAdvice: "Always chew the fruit flesh thoroughly and discard the inner hard stone seed before swallowing.",
+    howToUse: "Eat 1 piece at night before sleeping, with a cup of warm water. Chew the fruit flesh well and discard the hard inner seed.",
+    dosage: "1 piece every night.",
+    hakimAdvice: "Always chew the soft outer fruit well and throw away the inner hard seed before swallowing.",
     price: 300,
     originalPrice: 380,
     discountPercentage: 21,
@@ -379,39 +379,39 @@ export const PRODUCTS: Product[] = [
     sizes: [
       { name: "Small Jar", weight: "250g", price: 300, originalPrice: 380 },
       { name: "Medium Jar", weight: "500g", price: 580, originalPrice: 700 },
-      { name: "Value Pack", weight: "1kg", price: 1100, originalPrice: 1350 }
+      { name: "Family Pack", weight: "1kg", price: 1100, originalPrice: 1350 }
     ],
     inStock: true,
     featured: true,
     rating: 4.9,
     reviewCount: 57,
-    badge: "Digestive King",
-    mizaj: "Mo'tadil (Digestive Tonic)"
+    badge: "Digestion King",
+    mizaj: "Balanced & Cleansing"
   },
   {
     id: "murabba-belgiri",
     slug: "murabba-belgiri",
-    name: "Murabba Belgiri – Aegle Marmelos (Bael) Gut Tonic",
-    urduName: "مربہ بیل گری – مقوی امعاء و دافع پیچش",
+    name: "Belgiri Murabba – Bael Fruit for Loose Motions & Sensitive Gut",
+    urduName: "",
     category: "murabbajaat",
-    categoryLabel: "Murabbajaat (Herbal Preserves)",
-    categoryUrdu: "مربہ جات",
-    shortDescription: "Traditional Bael fruit preserve specifically prepared for irritable bowel discomfort, sensitive intestines, and chronic diarrhea.",
-    fullDescription: "Belgiri (Aegle marmelos / Wood Apple) holds a revered status in traditional Ayurvedic and Unani disciplines for toning the intestinal lining. It possesses unique natural mucilage and tannins that firm loose stools, soothe colitis irritation, and restore harmonious digestive cadence.",
-    traditionalPurpose: "Specifically indicated for chronic IBS symptoms, loose bowels, summer stomach upsets, and weak intestinal absorption.",
+    categoryLabel: "Herbal Preserves (Murabba)",
+    categoryUrdu: "",
+    shortDescription: "Traditional Bael fruit slices in syrup, specially made for sensitive stomachs, loose motions, and gut cramps.",
+    fullDescription: "Belgiri (Bael / Wood Apple) is celebrated for its soothing effect on an upset stomach. It naturally calms loose motions, soothes intestinal inflammation, and helps sensitive stomachs handle food comfortably.",
+    traditionalPurpose: "Calms loose motions, soothes irritable bowel discomfort, and restores normal gut comfort.",
     benefits: [
-      "Rapidly firms loose bowel movements and calms gut cramping",
-      "Restores beneficial mucosal lining in irritated intestines",
-      "Helps manage summer gastrointestinal sensitivities",
-      "Rich in natural prebiotic fibers"
+      "Quickly calms loose motions and stomach cramping",
+      "Soothes the delicate stomach lining naturally",
+      "Great for summer stomach upsets and sensitive digestion",
+      "Full of natural plant fibers"
     ],
     ingredients: [
-      { name: "Giri Belgiri (Fresh Bael Fruit Slices)", urdu: "بیل گری", role: "Digestive astringent & mucilage source" },
-      { name: "Cardamom & Herbal Cane Medium", urdu: "شیرہ الائچی", role: "Cooling soothing medium" }
+      { name: "Fresh Belgiri Slices (Bael Fruit)", role: "Stomach soother & natural binder" },
+      { name: "Cardamom & Pure Cane Syrup", role: "Cooling sweet base" }
     ],
-    howToUse: "Take 1 to 2 pieces twice daily between meals.",
-    dosage: "30g to 50g daily.",
-    hakimAdvice: "Particularly beneficial for individuals struggling with chronic post-meal intestinal urgency or amoebic bowel sensitivities.",
+    howToUse: "Eat 1 to 2 pieces twice a day between meals.",
+    dosage: "1 to 2 slices daily.",
+    hakimAdvice: "Very helpful for anyone who gets sudden stomach urgency or loose motions after eating oily food.",
     price: 250,
     originalPrice: 320,
     discountPercentage: 22,
@@ -419,40 +419,40 @@ export const PRODUCTS: Product[] = [
     sizes: [
       { name: "Small Jar", weight: "250g", price: 250, originalPrice: 320 },
       { name: "Medium Jar", weight: "500g", price: 480, originalPrice: 600 },
-      { name: "Value Pack", weight: "1kg", price: 950, originalPrice: 1150 }
+      { name: "Family Pack", weight: "1kg", price: 950, originalPrice: 1150 }
     ],
     inStock: true,
     featured: false,
     rating: 4.8,
     reviewCount: 29,
     badge: "Gut Health",
-    mizaj: "Barid Yabis (Astringent Cooling)"
+    mizaj: "Cooling & Soothing"
   },
   {
     id: "apple-murabba",
     slug: "apple-murabba",
-    name: "Apple Murabba – Kashmiri Apple Vitality Preserve",
-    urduName: "سیب کا مربہ – مفرّح قلب و مقوی اعصاب",
+    name: "Apple Murabba – Kashmiri Apple Heart & Mood Tonic",
+    urduName: "",
     category: "murabbajaat",
-    categoryLabel: "Murabbajaat (Herbal Preserves)",
-    categoryUrdu: "مربہ جات",
-    shortDescription: "Whole Kashmiri crisp apples infused with silver leaf and cardamom for heart palpitations, vitality, and nervous calmness.",
-    fullDescription: "Prepared from selected mountain apples, Apple Murabba is one of the classic 'Mufarrih' (mood exhilarants) of Unani medicine. It acts directly upon the heart and central nervous system to reduce anxiety, alleviate mental fatigue, and provide sustained natural energy.",
-    traditionalPurpose: "Combats nervous exhaustion, cardiac palpitations, weakness after illness, and low appetite.",
+    categoryLabel: "Herbal Preserves (Murabba)",
+    categoryUrdu: "",
+    shortDescription: "Whole crisp Kashmiri mountain apples cooked with cardamom and silver foil for heart freshness, calm nerves, and natural energy.",
+    fullDescription: "Made from fresh mountain apples, Apple Murabba is one of the classic mood-lifting foods of traditional medicine. It comforts the heart, eases tension and worry, and restores natural energy after tiredness or fever.",
+    traditionalPurpose: "Helps calm fast heartbeats (palpitations), relieves mental stress, and builds energy back after illness.",
     benefits: [
-      "Natural exhilarant relieving palpitations and restlessness",
-      "Provides rapid recovery after viral or seasonal exhaustion",
-      "Rich in natural pectin and bio-available minerals",
-      "Gentle and delicious for elderly individuals and children"
+      "Naturally lifts your mood and comforts a racing heart",
+      "Helps you bounce back quickly after feeling weak or sick",
+      "Rich in natural fruit pectin and minerals",
+      "Delicious and gentle for both children and elders"
     ],
     ingredients: [
-      { name: "Kashmiri Saib (Crisp Mountain Apples)", urdu: "کشمیری سیب", role: "Primary cardiotonic fruit" },
-      { name: "Warq-e-Nuqra (Pure Edible Silver Foil)", urdu: "ورق نقرہ", role: "Nerve & cardiac rejuvenator" },
-      { name: "Ilaichi & Rose Infusion", urdu: "الائچی و گلاب", role: "Aromatic exhilarants" }
+      { name: "Crisp Kashmiri Apples", role: "Fresh heart tonic fruit" },
+      { name: "Pure Edible Silver Foil (Warq)", role: "Traditional nerve support" },
+      { name: "Cardamom & Rose Water", role: "Pleasant scent & digestion" }
     ],
-    howToUse: "Consume 1 whole apple in the morning with breakfast.",
-    dosage: "1 apple piece daily.",
-    hakimAdvice: "Take on an empty stomach followed by fresh pomegranate juice or lukewarm water for maximum heart revitalization.",
+    howToUse: "Eat 1 whole apple piece in the morning with your breakfast.",
+    dosage: "1 piece daily.",
+    hakimAdvice: "Taking Apple Murabba in the morning on an empty stomach gives wonderful freshness to both heart and mind.",
     price: 250,
     originalPrice: 320,
     discountPercentage: 22,
@@ -460,39 +460,39 @@ export const PRODUCTS: Product[] = [
     sizes: [
       { name: "Small Jar", weight: "250g", price: 250, originalPrice: 320 },
       { name: "Medium Jar", weight: "500g", price: 480, originalPrice: 600 },
-      { name: "Value Pack", weight: "1kg", price: 900, originalPrice: 1100 }
+      { name: "Family Pack", weight: "1kg", price: 900, originalPrice: 1100 }
     ],
     inStock: true,
     featured: true,
     rating: 4.9,
     reviewCount: 42,
-    badge: "Exhilarant Tonic",
-    mizaj: "Mo'tadil (Balanced Refreshing)"
+    badge: "Heart & Mood",
+    mizaj: "Refreshing & Balanced"
   },
   {
     id: "behi-murabba",
     slug: "behi-murabba",
-    name: "Behi Murabba – Quince Fruit Cardiac & Gastric Preserve",
-    urduName: "سفرجل / بہی کا مربہ – مسکن معدہ و مصلح قلب",
+    name: "Behi Murabba – Quince Fruit Heart & Acidity Preserve",
+    urduName: "",
     category: "murabbajaat",
-    categoryLabel: "Murabbajaat (Herbal Preserves)",
-    categoryUrdu: "مربہ جات",
-    shortDescription: "Treasured Quince fruit preserve celebrated in Prophetic and classical traditions for chest comfort, cardiac vigor, and stomach soothing.",
-    fullDescription: "Safarjal (Quince) holds a distinctive honor across traditional medical literature for imparting tranquility to the heart and halting gastric reflux. Our Behi Murabba retains the fruit's dense pectin and fragrant astringency, creating an exceptional preserve for chest lightness and gastric comfort.",
-    traditionalPurpose: "Strengthening cardiac valves, reducing gastro-esophageal burning, and supporting maternal health.",
+    categoryLabel: "Herbal Preserves (Murabba)",
+    categoryUrdu: "",
+    shortDescription: "A revered Quince fruit preserve (Safarjal) known for soothing chest heaviness, heart weakness, and stomach acid reflux.",
+    fullDescription: "Quince (Behi / Safarjal) is praised across Eastern history as a special fruit for the heart. Our Behi Murabba forms a gentle coating over an irritated stomach to stop acid reflux and ease that uncomfortable burning feeling in your chest.",
+    traditionalPurpose: "Supports heart strength, stops acid reflux and chest burning, and promotes gentle digestion.",
     benefits: [
-      "Eases chest heaviness and strengthens heart vitality",
-      "Forms a soothing coating over an acidic stomach lining",
-      "A blessed traditional preserve with deep historical reverence",
-      "Free from artificial colorants and chemical additives"
+      "Eases chest heaviness and gives natural comfort to the heart",
+      "Creates a soothing shield over an acidic stomach lining",
+      "A blessed traditional preserve with centuries of trust",
+      "100% natural with no artificial food colors"
     ],
     ingredients: [
-      { name: "Safarjal / Behi Fruit (Cydonia Oblonga)", urdu: "سفرجل / بہی دانہ", role: "Cardiac & gastric strengthening fruit" },
-      { name: "Zafran (Saffron Infusion)", urdu: "زعفران", role: "Cardioprotective essence" }
+      { name: "Fresh Behi Fruit (Quince)", role: "Heart & stomach strengthening fruit" },
+      { name: "Pure Saffron & Cardamom", role: "Gentle aromatic comfort" }
     ],
-    howToUse: "Eat 1 to 2 slices 30 minutes before breakfast.",
-    dosage: "30g – 50g daily.",
-    hakimAdvice: "Outstanding for individuals who experience acid reflux or chest tightness during periods of mental stress.",
+    howToUse: "Eat 1 to 2 slices 30 minutes before your morning breakfast.",
+    dosage: "1 to 2 slices daily.",
+    hakimAdvice: "Great for anyone who suffers from acid reflux or chest tightness during busy, stressful days.",
     price: 250,
     originalPrice: 340,
     discountPercentage: 26,
@@ -500,39 +500,39 @@ export const PRODUCTS: Product[] = [
     sizes: [
       { name: "Small Jar", weight: "250g", price: 250, originalPrice: 340 },
       { name: "Medium Jar", weight: "500g", price: 490, originalPrice: 620 },
-      { name: "Value Pack", weight: "1kg", price: 950, originalPrice: 1200 }
+      { name: "Family Pack", weight: "1kg", price: 950, originalPrice: 1200 }
     ],
     inStock: true,
     featured: true,
     rating: 5.0,
     reviewCount: 38,
-    badge: "Prophetic Heritage",
-    mizaj: "Barid Yabis (Soothing Astringent)"
+    badge: "Trusted Tradition",
+    mizaj: "Soothing & Cooling"
   },
   {
     id: "murabba-baans",
     slug: "murabba-baans",
     name: "Murabba Baans – Bamboo Shoot Bone & Growth Preserve",
-    urduName: "مربہ بانس – مقوی عظام و قامت",
+    urduName: "",
     category: "murabbajaat",
-    categoryLabel: "Murabbajaat (Herbal Preserves)",
-    categoryUrdu: "مربہ جات",
-    shortDescription: "Tender edible young bamboo shoots rich in organic silica, supporting bone density, adolescent growth, and posture strength.",
-    fullDescription: "Bamboo shoots (Banslochan source plant) are exceptionally concentrated in natural bio-available silica, calcium, and plant fibers. Prepared through an elaborate traditional desiccation and simmering technique that softens the shoots into tender, mildly crisp, nutrient-dense morsels.",
-    traditionalPurpose: "Traditionally recommended for growing adolescents, bone strength, spine alignment support, and flexibility.",
+    categoryLabel: "Herbal Preserves (Murabba)",
+    categoryUrdu: "",
+    shortDescription: "Tender edible bamboo shoots rich in natural minerals, supporting bone strength, growing children, and joint flexibility.",
+    fullDescription: "Bamboo shoots are naturally packed with silica, calcium, and plant fibers. We cook fresh young shoots until soft and sweet, creating a unique nutritional preserve for growing youngsters, strong bones, and healthy joints.",
+    traditionalPurpose: "Recommended for growing teenagers, strong posture, bone density, and flexible joints.",
     benefits: [
-      "Natural organic silica for cartilage, joints, and skeletal density",
-      "Traditional dietary support for youth height and healthy posture",
-      "High fiber content aiding gentle colon motility",
-      "Handcrafted in small hygienic seasonal batches"
+      "Packed with natural silica and calcium for bones and joints",
+      "Traditional nutrition for children and teenagers during growth spurts",
+      "High natural fiber for smooth digestion",
+      "Prepared in small, fresh hygienic batches"
     ],
     ingredients: [
-      { name: "Taza Konpal Baans (Tender Bamboo Shoots)", urdu: "بانس کی کونپلیں", role: "Rich source of natural bio-silica" },
-      { name: "Natural Herbal Medium", urdu: "شیرہ مقوی", role: "Preservation medium" }
+      { name: "Tender Bamboo Shoots (Konpal Baans)", role: "Natural source of plant silica & minerals" },
+      { name: "Pure Sweet Medium", role: "Clean preservation" }
     ],
-    howToUse: "Take 1 to 2 pieces in the morning with a cup of warm milk.",
-    dosage: "30g daily.",
-    hakimAdvice: "Combine with 15 minutes of morning stretching or light physical exercise for adolescents seeking optimal posture support.",
+    howToUse: "Eat 1 to 2 pieces in the morning with a cup of warm milk.",
+    dosage: "1 to 2 pieces daily.",
+    hakimAdvice: "Pairs wonderfully with light morning stretching and active play for growing children and teenagers.",
     price: 450,
     originalPrice: 500,
     discountPercentage: 11,
@@ -540,198 +540,198 @@ export const PRODUCTS: Product[] = [
     sizes: [
       { name: "Small Jar", weight: "250g", price: 450, originalPrice: 500 },
       { name: "Medium Jar", weight: "500g", price: 880, originalPrice: 980 },
-      { name: "Value Pack", weight: "1kg", price: 1700, originalPrice: 1900 }
+      { name: "Family Pack", weight: "1kg", price: 1700, originalPrice: 1900 }
     ],
     inStock: true,
     featured: false,
     rating: 4.7,
     reviewCount: 24,
     badge: "Bone & Growth",
-    mizaj: "Mo'tadil (Balanced)"
+    mizaj: "Balanced & Nutritious"
   },
   {
     id: "herbo-silk-shampoo",
     slug: "herbo-silk-shampoo",
     name: "Herbo Silk Shampoo – Pure Herbal Hair Cleanser",
-    urduName: "ہربو سلک شیمپو – خالص جڑی بوٹیوں کا نکھار",
+    urduName: "",
     category: "hair-skin",
-    categoryLabel: "Hair & Dermal Care",
-    categoryUrdu: "حفاظت بال و جلد",
-    shortDescription: "Sulfate-free botanical hair cleanser formulated with Shikakai, Amla, Reetha, and Methi extracts for root strength and silky luster.",
-    fullDescription: "Herbo Silk Shampoo combines ancient Ayurvedic and Tibbi hair cleansers in a modern, gentle foaming formulation. Free from harsh sulfates (SLS/SLES), silicones, and synthetic dyes, it cleanses without stripping natural scalp sebum, preventing breakage and premature shedding.",
-    traditionalPurpose: "Root nourishment, clearing dry scalp dandruff, preventing breakage, and enhancing natural dark sheen.",
+    categoryLabel: "Hair & Skin Care",
+    categoryUrdu: "",
+    shortDescription: "Chemical-free herbal hair wash made with Shikakai, Amla, Reetha, and Methi for strong roots, less hair fall, and natural shine.",
+    fullDescription: "Herbo Silk Shampoo combines ancient herbal hair cleansers into a gentle everyday wash. Made without harsh sulfates (SLS/SLES), parabens, or artificial dyes, it cleans your scalp gently without drying it out, leaving hair soft, shiny, and strong.",
+    traditionalPurpose: "Cleans the scalp, reduces dandruff, strengthens weak roots, and adds natural softness and shine.",
     benefits: [
-      "100% Sulfate-free, Paraben-free, and Silicone-free formula",
-      "Shikakai and Reetha create gentle, natural botanical lather",
-      "Amla and Methi strengthen follicles to minimize hair fall",
-      "Leaves hair conditioned, bouncy, and manageable"
+      "100% Sulfate-free, Paraben-free, and Silicone-free",
+      "Shikakai and Reetha create a gentle, natural herbal lather",
+      "Amla and Methi nourish roots to reduce everyday hair fall",
+      "Leaves hair bouncy, soft, and easy to comb"
     ],
     ingredients: [
-      { name: "Amla Extract (Emblica Officinalis)", urdu: "عرق آملہ", role: "Follicle strengthening Vitamin C" },
-      { name: "Shikakai (Acacia Concinna)", urdu: "شیکاکائی", role: "Natural gentle surfactant & pH balancer" },
-      { name: "Reetha (Soapnut)", urdu: "ریٹھہ", role: "Herbal foam builder" },
-      { name: "Tukhm Methi (Fenugreek Extract)", urdu: "میتھی دانہ", role: "Moisture & protein conditioning" }
+      { name: "Amla Extract", role: "Nourishes roots with Vitamin C" },
+      { name: "Shikakai", role: "Natural gentle cleanser and softener" },
+      { name: "Reetha (Soapnut)", role: "Creates natural herbal foam" },
+      { name: "Fenugreek Seeds (Methi)", role: "Locks in moisture and shines hair" }
     ],
-    howToUse: "Wet hair thoroughly. Dispense a generous amount onto palms, massage into scalp for 2 minutes to allow botanicals to absorb, then rinse with cool water.",
-    dosage: "Use 2 to 3 times weekly.",
-    hakimAdvice: "For best results on brittle hair, apply pure Roghan-e-Badam (Sweet Almond Oil) to hair tips 1 hour before washing.",
+    howToUse: "Wet hair thoroughly. Massage a small amount into scalp for 2 minutes, then rinse well with clean water.",
+    dosage: "Use 2 to 3 times a week.",
+    hakimAdvice: "For dry or frizzy hair, apply a few drops of pure almond or mustard oil to hair ends 1 hour before washing.",
     price: 300,
     originalPrice: 400,
     discountPercentage: 25,
     image: "/images/Herbalista-Viral-Herbal-Hair-Care-Bundle-E2-80-93-Shampoo-Conditioner-Set-1000ml-33_8-fl-oz-Each-E2-.jpg",
     sizes: [
       { name: "Standard Bottle", weight: "200ml", price: 300, originalPrice: 400 },
-      { name: "Salon Economy", weight: "500ml", price: 650, originalPrice: 850 }
+      { name: "Family Bottle", weight: "500ml", price: 650, originalPrice: 850 }
     ],
     inStock: true,
     featured: true,
     rating: 4.9,
     reviewCount: 55,
     badge: "Chemical Free",
-    mizaj: "Mo'tadil (Gentle)"
+    mizaj: "Gentle & Nourishing"
   },
   {
     id: "juniper-berries",
     slug: "juniper-berries",
-    name: "Juniper Berries – Whole European Grade (ہوبر)",
-    urduName: "ہوبر / جونیپر بیریز – مقوی گرود و مسالکِ بول",
+    name: "Juniper Berries – Whole Natural Berries (Hab-ul-Ar'ar)",
+    urduName: "",
     category: "herbs-seeds",
-    categoryLabel: "Single Herbs & Pure Mufradat",
-    categoryUrdu: "جڑی بوٹیاں و مفردات",
-    shortDescription: "Aromatic wild-harvested whole European Juniper berries for urinary comfort, clearing respiratory congestion, and herbal teas.",
-    fullDescription: "Known in classical Unani literature as Hab-ul-Ar'ar or Hoober. Sourced from pristine high-altitude European harvests, these whole berries are carefully dried to preserve their concentrated volatile pinene and juniperic oils.",
-    traditionalPurpose: "Supports renal flushing, eliminates fluid retention, clears chest phlegm, and adds piney aroma to herbal infusions.",
+    categoryLabel: "Whole Herbs & Seeds",
+    categoryUrdu: "",
+    shortDescription: "Aromatic whole dried Juniper berries for urinary comfort, clearing chest congestion, and making wellness teas.",
+    fullDescription: "Known traditionally as Hab-ul-Ar'ar. Sourced from clean mountain harvests, these dried berries are rich in aromatic natural oils that help flush the urinary tract and bring soothing warmth to the chest.",
+    traditionalPurpose: "Supports smooth urinary flow, reduces water retention, and eases chest tightness when brewed as tea.",
     benefits: [
-      "Natural botanical support for healthy urinary tract flow",
-      "Rich in volatile terpene oils for respiratory ease",
-      "Can be brewed into a stimulating aromatic herbal tea",
-      "100% raw, unadulterated whole botanicals"
+      "Natural herbal support for healthy urine flow and kidney cleansing",
+      "Aromatic oils help clear phlegm and chest tightness",
+      "Can easily be brewed into a warm, pleasant herbal tea",
+      "100% clean, pure, unadulterated whole berries"
     ],
     ingredients: [
-      { name: "Whole Juniper Berries (Juniperus Communis)", urdu: "ثمر العرعر / ہوبر", role: "Pure single botanical" }
+      { name: "Whole Juniper Berries", role: "Pure single botanical" }
     ],
-    howToUse: "Crush 5 to 7 berries lightly and steep in 1 cup of boiling water for 10 minutes. Strain and sip warm.",
-    dosage: "1 cup of infusion once daily.",
-    hakimAdvice: "Consult with our Hakim before use if you have severe acute kidney inflammation or are pregnant.",
+    howToUse: "Crush 5 to 7 berries lightly and steep in 1 cup of hot boiling water for 10 minutes. Strain and sip warm.",
+    dosage: "1 cup of tea once daily.",
+    hakimAdvice: "Consult with our Hakim before taking if you are pregnant or have severe kidney problems.",
     price: 250,
     originalPrice: 500,
     discountPercentage: 50,
     image: "/images/Juniper-Berries-002.jpg.webp",
     sizes: [
-      { name: "Pouch", weight: "100g", price: 250, originalPrice: 500 },
+      { name: "Trial Pouch", weight: "100g", price: 250, originalPrice: 500 },
       { name: "Standard Pouch", weight: "250g", price: 550, originalPrice: 900 },
-      { name: "Apothecary Bag", weight: "500g", price: 1000, originalPrice: 1600 }
+      { name: "Large Bag", weight: "500g", price: 1000, originalPrice: 1600 }
     ],
     inStock: true,
     featured: false,
     rating: 4.8,
     reviewCount: 22,
     badge: "50% Off",
-    mizaj: "Haar Yabis (Warm & Dry)"
+    mizaj: "Warm & Clearing"
   },
   {
     id: "absinthe-herb",
     slug: "absinthe-herb",
-    name: "Absinthe Herb / Afsanteen – Artemisia absinthium",
-    urduName: "افسنتین – مصفی جگر و محرکِ ہاضمہ",
+    name: "Afsanteen Herb – Whole Artemisia Leaf",
+    urduName: "",
     category: "herbs-seeds",
-    categoryLabel: "Single Herbs & Pure Mufradat",
-    categoryUrdu: "جڑی بوٹیاں و مفردات",
-    shortDescription: "High-grade wild Artemisia absinthium (Afsanteen) for liver cleansing, gallbladder bile stimulation, and clearing intestinal parasites.",
-    fullDescription: "Afsanteen is one of the most revered bitter botanicals in Unani Tibb. Its intensely bitter sesquiterpene lactones trigger immediate digestive enzyme release, clear sluggish bile ducts, and assist in expelling internal parasites.",
-    traditionalPurpose: "Prescribed for liver enlargement, jaundice convalescence, chronic loss of appetite, and intestinal detox.",
+    categoryLabel: "Whole Herbs & Seeds",
+    categoryUrdu: "",
+    shortDescription: "Pure dried Afsanteen herb for liver cleansing, better digestion, and expelling stomach worms.",
+    fullDescription: "Afsanteen is famous for its bitter taste that naturally stimulates digestion. It triggers healthy digestive juices, supports a sluggish liver, and helps clear stomach parasites.",
+    traditionalPurpose: "Traditional bitter herb for liver care, poor appetite, and intestinal detox.",
     benefits: [
-      "Potent classical bitter tonic for sluggish liver & gallbladder",
-      "Stimulates natural gastric digestive enzymes",
-      "Traditional herbal support against intestinal worms",
-      "Triple-sorted and sun-dried to preserve essential bioactives"
+      "Powerful bitter tonic for sluggish digestion and liver support",
+      "Helps improve low appetite and food digestion",
+      "Traditional help against stomach worms",
+      "Cleaned and sun-dried carefully to retain potency"
     ],
     ingredients: [
-      { name: "Afsanteen Rumi (Artemisia Absinthium Herb)", urdu: "افسنتین رومی", role: "Pure organic bitter herb" }
+      { name: "Afsanteen Herb (Artemisia)", role: "Pure organic bitter herb" }
     ],
-    howToUse: "Boil 3g to 5g in 1.5 cups of water until 1 cup remains. Strain and drink once daily before breakfast.",
-    dosage: "3g – 5g in decoction form.",
-    hakimAdvice: "Because of its intense bitterness, it can be combined with a few drops of Arq Gulab or honey to ease consumption.",
+    howToUse: "Boil 1 teaspoon in 1.5 cups of water until 1 cup remains. Strain and drink in the morning.",
+    dosage: "1 small cup daily.",
+    hakimAdvice: "Because of its strong bitter taste, you can add a spoon of honey or a splash of rose water before drinking.",
     price: 500,
     originalPrice: 1000,
     discountPercentage: 50,
     image: "/images/Gemini_Generated_Image_oeeza4oeeza4oeez.jpg",
     sizes: [
-      { name: "Herbal Pouch", weight: "100g", price: 500, originalPrice: 1000 },
-      { name: "Pouch", weight: "250g", price: 1000, originalPrice: 1800 }
+      { name: "Small Pouch", weight: "100g", price: 500, originalPrice: 1000 },
+      { name: "Standard Pouch", weight: "250g", price: 1000, originalPrice: 1800 }
     ],
     inStock: true,
     featured: false,
     rating: 4.9,
     reviewCount: 19,
-    badge: "Raw Herb",
-    mizaj: "Haar Yabis (Warm Bitter)"
+    badge: "Pure Raw Herb",
+    mizaj: "Warm & Bitter"
   },
   {
     id: "curry-leaf-tea",
     slug: "curry-leaf-tea",
     name: "Curry Leaf Herbal Tea – Caffeine-Free Infusion",
-    urduName: "قہوہ کڑی پتہ – متوازن شکر و خون",
+    urduName: "",
     category: "teas-vitality",
-    categoryLabel: "Teas & Vitality Blends",
-    categoryUrdu: "قہوہ و شاہی مقویات",
-    shortDescription: "Aromatic caffeine-free whole leaf infusion rich in iron and antioxidants, supporting blood sugar equilibrium and healthy lipid metabolism.",
-    fullDescription: "Harvested from organically nurtured Murraya koenigii shrubs. Sun-cured gently to preserve delicate essential oils, chlorophyll, and trace minerals. An uplifting after-meal beverage for metabolic balance and digestive comfort.",
-    traditionalPurpose: "Supports healthy glucose balance, aids lipid metabolism, and promotes healthy hemoglobin levels.",
+    categoryLabel: "Wellness Teas & Energy Mixes",
+    categoryUrdu: "",
+    shortDescription: "A fresh, caffeine-free herbal tea rich in iron and antioxidants, supporting healthy sugar levels and light digestion.",
+    fullDescription: "Hand-picked from organic curry leaf plants and dried gently to keep all the natural aroma and nutrients intact. A wonderful, soothing hot drink after heavy meals to ease digestion and stay light.",
+    traditionalPurpose: "Helps maintain healthy blood sugar, aids easy digestion, and supports hemoglobin.",
     benefits: [
-      "100% Caffeine-free natural tea suitable for any hour",
-      "Rich in natural iron, folic acid, and antioxidant polyphenols",
-      "Supports balanced post-meal sugar spikes and digestion",
-      "Refreshing herbal aroma with a subtle spicy note"
+      "100% Caffeine-free – enjoy anytime day or night",
+      "Rich in natural iron and healthy plant antioxidants",
+      "Helps you feel light and comfortable after heavy meals",
+      "Pleasant herbal aroma with a warm, mild taste"
     ],
     ingredients: [
-      { name: "Kari Patta (Pure Dried Curry Leaves)", urdu: "خشک کڑی پتہ", role: "Primary antioxidant leaf" },
-      { name: "Darchini (Cinnamon bark hints)", urdu: "دارچینی", role: "Metabolic warmth & aroma" }
+      { name: "Dried Curry Leaves", role: "Natural antioxidant leaf" },
+      { name: "Cinnamon Touch", role: "Gentle warmth and flavor" }
     ],
-    howToUse: "Steep 1 tablespoon in boiling water for 5 to 7 minutes. Sip slowly after heavy meals.",
-    dosage: "1 to 2 cups daily.",
-    hakimAdvice: "Drink warm 20 minutes after lunch or dinner to prevent heaviness and assist natural carbohydrate digestion.",
+    howToUse: "Steep 1 tablespoon in a cup of boiling water for 5 minutes. Strain and sip warm.",
+    dosage: "1 to 2 cups daily after meals.",
+    hakimAdvice: "Drinking a warm cup 20 minutes after lunch or dinner helps avoid that heavy, sleepy feeling.",
     price: 350,
     originalPrice: 450,
     discountPercentage: 22,
     image: "/images/Curry-Leaf-Tea_-A-Caffeine-Free-Herbal-Treasure.jpg",
     sizes: [
-      { name: "Pouch", weight: "100g", price: 350, originalPrice: 450 },
-      { name: "Apothecary Pouch", weight: "200g", price: 650, originalPrice: 850 }
+      { name: "Small Pouch", weight: "100g", price: 350, originalPrice: 450 },
+      { name: "Large Pouch", weight: "200g", price: 650, originalPrice: 850 }
     ],
     inStock: true,
     featured: false,
     rating: 4.8,
     reviewCount: 28,
     badge: "Caffeine Free",
-    mizaj: "Mo'tadil (Balanced)"
+    mizaj: "Balanced & Refreshing"
   },
   {
     id: "shahi-maghaz-mix",
     slug: "shahi-maghaz-mix",
-    name: "Shahi Muqawwi Dry Fruit & Super Seeds Mix",
-    urduName: "شاہی مقوی بیج، مغزیات و گوند",
+    name: "Shahi Dry Fruit & Super Seeds Vitality Mix",
+    urduName: "",
     category: "teas-vitality",
-    categoryLabel: "Teas & Vitality Blends",
-    categoryUrdu: "قہوہ و شاہی مقویات",
-    shortDescription: "Curated blend of premium almonds, walnuts, pumpkin seeds, chia, flaxseed, and Gond Kateera for physical stamina and brain vitality.",
-    fullDescription: "A premier royal formulation uniting the finest organic nuts and vitality seeds. Hand-sorted to remove all impurities and packaged airtight to maintain freshness. Ideal for students, working professionals, nursing mothers, and seniors seeking wholesome vitality.",
-    traditionalPurpose: "Muqawwi-e-Aaza-e-Raeesa (vital organ strengthening), mental concentration, and joint lubrication.",
+    categoryLabel: "Wellness Teas & Energy Mixes",
+    categoryUrdu: "",
+    shortDescription: "A premium mix of almonds, walnuts, pumpkin seeds, chia, flaxseed, and Gond Kateera for brain power, stamina, and joints.",
+    fullDescription: "A nutritious royal blend of the finest nuts and vitality seeds. Cleaned by hand and sealed airtight to keep every bite crisp and fresh. Perfect for students, working professionals, mothers, and elders looking for healthy daily energy.",
+    traditionalPurpose: "Builds physical stamina, sharpens mental focus, and supports strong, well-lubricated joints.",
     benefits: [
-      "Concentrated plant proteins, Omega-3 fatty acids, and zinc",
-      "Enhances memory focus, cognitive endurance, and stamina",
-      "Gond Kateera and Chia support joint flexibility and digestive ease",
-      "Zero added sugars, artificial preservatives, or frying oils"
+      "Packed with natural plant protein, Omega-3s, and zinc",
+      "Helps improve memory, mental alertness, and daily energy",
+      "Gond Kateera and Chia help keep joints flexible and comfortable",
+      "Zero added sugar, zero artificial preservatives, never fried"
     ],
     ingredients: [
-      { name: "Maghaz-e-Badam (Kashmiri Sweet Almonds)", urdu: "مغز بادام", role: "Brain & nerve nourishment" },
-      { name: "Maghaz-e-Akhrot (Walnut Kernels)", urdu: "مغز اخروٹ", role: "Omega-3 cardiotonic" },
-      { name: "Tukhm-e-Kadu & Alsi (Pumpkin & Flaxseeds)", urdu: "تخم کدو و السی", role: "Zinc & mineral support" },
-      { name: "Gond Kateera (Tragacanth Gum)", urdu: "گوند کتیرا", role: "Deep cellular hydration & stamina" }
+      { name: "Sweet Kashmiri Almonds", role: "Brain and nerve nutrition" },
+      { name: "Walnuts (Akhrot)", role: "Omega-3 for heart and brain" },
+      { name: "Pumpkin & Flax Seeds", role: "Natural minerals & zinc" },
+      { name: "Gond Kateera", role: "Hydration and stamina" }
     ],
-    howToUse: "Consume 1 to 2 tablespoons in the morning with warm milk, or sprinkle over fresh yogurt or oatmeal.",
-    dosage: "30g daily.",
-    hakimAdvice: "Soak 2 tablespoons in half a glass of water or milk overnight for maximum enzymatic absorption in the morning.",
+    howToUse: "Eat 1 to 2 tablespoons in the morning with warm milk, or sprinkle over yogurt or oatmeal.",
+    dosage: "2 tablespoons (around 30g) daily.",
+    hakimAdvice: "Soaking 2 tablespoons in half a glass of milk or water overnight makes it super soft and easy to digest in the morning.",
     price: 650,
     originalPrice: 750,
     discountPercentage: 13,
@@ -744,16 +744,16 @@ export const PRODUCTS: Product[] = [
     featured: true,
     rating: 5.0,
     reviewCount: 68,
-    badge: "Royal Vitality",
-    mizaj: "Mo'tadil (Nutrient Dense)"
+    badge: "Super Energy",
+    mizaj: "Nutrient Rich"
   }
 ];
 
 export const CLINIC_INFO = {
   brandName: "Tameer-e-Sehat",
-  brandUrdu: "تعمیرِ صحت",
-  tagline: "Bridging 35+ Years of Classical Tibbi Wisdom with Modern Purity",
-  taglineUrdu: "طبیب کا اعتماد، خالص قدرتی شفا",
+  brandUrdu: "",
+  tagline: "35+ Years of Honest Herbal Care in Pakistan",
+  taglineUrdu: "",
   establishedYear: 1990,
   experienceYears: 35,
   botanicalsCount: "500+",
@@ -777,8 +777,8 @@ export const TESTIMONIALS = [
     id: 1,
     name: "Tariq Mahmood",
     city: "Lahore",
-    text: "I consulted for persistent digestive sluggishness and was prescribed Arq Makoh and Murabba Harr. Within three weeks, my bloating and heaviness vanished. The quality and purity are unlike anything bought from commercial stores.",
-    concern: "Digestive Care",
+    text: "I reached out because of chronic stomach gas and bloating. After taking Arq Makoh and Harar Murabba for three weeks, the heaviness completely went away. The purity is unmatched.",
+    concern: "Stomach & Digestion",
     rating: 5,
     verifiedPurchase: true
   },
@@ -786,7 +786,7 @@ export const TESTIMONIALS = [
     id: 2,
     name: "Dr. Samina Rizvi",
     city: "Karachi",
-    text: "As a practicing physician, I respect authentic botanical medicine. Tameer-e-Sehat's steam distillates (Arqiyat) and Amla Murabba adhere to true pharmaceutical purity without artificial colors. Highly recommended.",
+    text: "As a doctor myself, I appreciate clean, genuine herbal products. Tameer-e-Sehat's distillates and Amla Murabba are completely free from synthetic colors or chemicals. Truly genuine.",
     concern: "Liver & Immunity",
     rating: 5,
     verifiedPurchase: true
@@ -795,8 +795,8 @@ export const TESTIMONIALS = [
     id: 3,
     name: "Muhammad Usman",
     city: "Islamabad",
-    text: "JointZen oil has given my mother tremendous relief in her knees. The delivery to Islamabad arrived in 48 hours with cash on delivery. Excellent service and authentic herbal wisdom.",
-    concern: "Joint & Mobility",
+    text: "JointZen oil has given my mother huge relief from her knee pain. The parcel arrived in Islamabad in 2 days with Cash on Delivery. Great service.",
+    concern: "Joint & Knee Pain",
     rating: 5,
     verifiedPurchase: true
   },
@@ -804,8 +804,8 @@ export const TESTIMONIALS = [
     id: 4,
     name: "Fatima Zehra",
     city: "Rawalpindi",
-    text: "The consultation via WhatsApp was extremely thorough, respectful, and private. The Hakim listened patiently to my concerns and formulated a customized routine that genuinely worked.",
-    concern: "Personalized Consultation",
+    text: "The WhatsApp consultation with Hakim Sahib was so respectful, private, and helpful. He listened to my health problems patiently and suggested simple natural remedies that worked.",
+    concern: "Online Health Advice",
     rating: 5,
     verifiedPurchase: true
   }
@@ -813,39 +813,39 @@ export const TESTIMONIALS = [
 
 export const CONSULTATION_AREAS = [
   {
-    title: "Digestive & Hepatic Health",
-    urduTitle: "معدہ و جگر",
-    description: "Holistic evaluation for chronic indigestion, acid reflux, sluggish liver, fatty liver concerns, and bowel regularity through time-tested Unani herbal therapies.",
+    title: "Stomach, Gas & Liver Health",
+    urduTitle: "",
+    description: "Personal advice for indigestion, acid burning, fatty liver, bloating, and regular bowel movements through gentle herbal solutions.",
     icon: "Activity"
   },
   {
-    title: "Joint, Muscle & Spine Mobility",
-    urduTitle: "مفاصل و کمر درد",
-    description: "Specialized traditional protocols to relieve chronic joint stiffness, muscular fatigue, lumbar tightness, and promote cartilage lubrication naturally.",
+    title: "Joint, Knee & Back Pain",
+    urduTitle: "",
+    description: "Natural remedies and herbal oils to ease stiff knees, backache, morning joint stiffness, and muscle tiredness.",
     icon: "Shield"
   },
   {
-    title: "Vitality, Stamina & Mental Alertness",
-    urduTitle: "مقویات و اعصاب",
-    description: "Natural restorative compounds formulated to combat chronic fatigue, brain fog, nervous exhaustion, and restore sustained vitality.",
+    title: "Everyday Energy & Stamina",
+    urduTitle: "",
+    description: "Nutritious dry fruit blends and herbal tonics to beat tiredness, brain fog, and low energy naturally.",
     icon: "Sun"
   },
   {
-    title: "Skin, Hair & Dermal Health",
-    urduTitle: "جلد و بال",
-    description: "Internal blood purification (Musaffi-e-Khoon) and external botanical formulations for stubborn acne, hair thinning, dandruff, and skin irritation.",
+    title: "Skin, Hair & Scalp Care",
+    urduTitle: "",
+    description: "Natural herbal care for hair fall, dandruff, dry skin, and stubborn acne without harsh chemicals.",
     icon: "Sparkles"
   },
   {
-    title: "Seasonal Allergies & Respiratory Ease",
-    urduTitle: "نزلہ و سانس",
-    description: "Clearing accumulated phlegm (Balgham), soothing dry bronchial coughs, and bolstering baseline respiratory immunity across Pakistani seasons.",
+    title: "Cough, Chest & Seasonal Allergies",
+    urduTitle: "",
+    description: "Soothing herbal teas and natural extracts to clear chest phlegm, ease seasonal coughs, and stay healthy.",
     icon: "Wind"
   },
   {
-    title: "Women's & Men's Holistic Wellness",
-    urduTitle: "خاندانی صحت",
-    description: "Completely private, confidential consultations addressing hormonal equilibrium, metabolic health, and stage-of-life vitality.",
+    title: "Private Men's & Women's Health",
+    urduTitle: "",
+    description: "Completely private, confidential consultations with our experienced Hakim regarding your personal wellness.",
     icon: "Heart"
   }
 ];

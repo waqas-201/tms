@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useCart } from "@/app/context/CartContext";
-import { useLanguage } from "@/app/context/LanguageContext";
 import { useSession, signOut } from "@/lib/auth-client";
 import { CLINIC_INFO } from "@/app/data/products";
 import SearchModal from "./SearchModal";
@@ -25,7 +24,6 @@ import {
 export default function Header() {
   const pathname = usePathname();
   const { totalItems, setIsCartOpen } = useCart();
-  const { language, setLanguage, isUrdu } = useLanguage();
   const { data: session } = useSession();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -56,12 +54,11 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Focused, high-priority navigation links
   const navLinks = [
-    { name: isUrdu ? "ادویات و قرابادین" : "Apothecary", href: "/products" },
-    { name: isUrdu ? "طبی معائنہ" : "Consultation", href: "/consultation" },
-    { name: isUrdu ? "حکیم و تاریخ" : "Heritage", href: "/about" },
-    { name: isUrdu ? "مطب و رابطہ" : "Clinic & Contact", href: "/contact" },
+    { name: "Products", href: "/products" },
+    { name: "Consultation", href: "/consultation" },
+    { name: "About Us", href: "/about" },
+    { name: "Contact & Clinic", href: "/contact" },
   ];
 
   return (
@@ -72,12 +69,10 @@ export default function Header() {
           <div className="flex items-center gap-1.5 text-[#e3ded6]">
             <span className="text-[#c59b27] font-semibold flex items-center gap-1">
               <Sparkles className="w-3 h-3" />
-              <span>{isUrdu ? "مفت ترسیل" : "Free Delivery"}</span>
+              <span>Free Delivery</span>
             </span>
             <span className="hidden sm:inline opacity-80">
-              {isUrdu
-                ? "· پورے پاکستان میں 2,000 روپے سے زائد کے آرڈر پر"
-                : "· Nationwide on orders above ₨ 2,000"}
+              · Across Pakistan on orders above ₨ 2,000
             </span>
           </div>
 
@@ -87,7 +82,7 @@ export default function Header() {
               className="flex items-center gap-1 hover:text-[#c59b27] transition-colors"
             >
               <Truck className="w-3 h-3 text-[#c59b27]" />
-              <span>{isUrdu ? "آرڈر ٹریکنگ" : "Track Order"}</span>
+              <span>Track Order</span>
             </Link>
 
             <span className="opacity-40">|</span>
@@ -99,7 +94,7 @@ export default function Header() {
               className="hover:text-[#25D366] transition-colors flex items-center gap-1"
             >
               <MessageCircle className="w-3 h-3 text-[#25D366]" />
-              <span className="hidden md:inline">WhatsApp</span>
+              <span className="hidden md:inline">WhatsApp Help</span>
             </a>
           </div>
         </div>
@@ -133,7 +128,7 @@ export default function Header() {
                   Tameer-e-Sehat
                 </span>
                 <span className="text-[10px] tracking-widest text-[#857f76] flex items-center gap-1 font-medium -mt-0.5">
-                  <span className="text-[#c59b27] font-serif font-bold">تعمیرِ صحت</span>
+                  <span>Herbal Clinic & Care</span>
                   <span className="opacity-30">·</span>
                   <span>Est. 1990</span>
                 </span>
@@ -163,42 +158,14 @@ export default function Header() {
               })}
             </nav>
 
-            {/* Right Action Suite (Clean & Uncluttered) */}
+            {/* Right Action Suite */}
             <div className="flex items-center gap-1.5 sm:gap-2">
-
-              {/* Language Switcher (Minimalist Text Toggle) */}
-              <div className="flex items-center bg-[#f0eae1] rounded-md p-0.5 border border-[#e6dfd5] text-[11px] font-semibold">
-                <button
-                  type="button"
-                  onClick={() => setLanguage("en")}
-                  className={`px-2 py-0.5 rounded transition-colors ${
-                    language === "en"
-                      ? "bg-[#123824] text-white shadow-2xs"
-                      : "text-[#635d54] hover:text-[#123824]"
-                  }`}
-                  aria-label="English"
-                >
-                  EN
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setLanguage("ur")}
-                  className={`px-2 py-0.5 rounded font-urdu text-[11px] transition-colors ${
-                    language === "ur"
-                      ? "bg-[#123824] text-[#c59b27] shadow-2xs"
-                      : "text-[#635d54] hover:text-[#123824]"
-                  }`}
-                  aria-label="Urdu"
-                >
-                  اردو
-                </button>
-              </div>
 
               {/* Search Modal Trigger */}
               <button
                 onClick={() => setIsSearchOpen(true)}
                 className="p-2 text-[#59534b] hover:text-[#123824] hover:bg-black/5 rounded-full transition-colors"
-                title={isUrdu ? "ادویات تلاش کریں" : "Search Formulations"}
+                title="Search Products"
                 aria-label="Search"
               >
                 <Search className="w-4 h-4" />
@@ -213,7 +180,7 @@ export default function Header() {
                       ? "text-[#123824] bg-[#f0eae1] hover:bg-[#e6dfd5]"
                       : "text-[#59534b] hover:text-[#123824] hover:bg-black/5"
                   }`}
-                  title={session ? session.user.name : "Account & Portal"}
+                  title={session ? session.user.name : "Account & Orders"}
                   aria-label="Account"
                 >
                   <User className="w-4 h-4" />
@@ -237,7 +204,7 @@ export default function Header() {
                           className="w-full px-3.5 py-2 text-left text-[#123824] hover:bg-[#faf8f5] flex items-center gap-2 font-medium"
                         >
                           <Shield className="w-3.5 h-3.5 text-[#c59b27]" />
-                          <span>Hakim & Admin Desk</span>
+                          <span>Admin Portal</span>
                         </Link>
                         <Link
                           href="/track-order"
@@ -265,14 +232,14 @@ export default function Header() {
                           onClick={() => setIsUserMenuOpen(false)}
                           className="w-full px-3.5 py-2 text-left text-[#123824] hover:bg-[#faf8f5] flex items-center gap-2 font-semibold"
                         >
-                          <span>Sign In / Hakim Portal</span>
+                          <span>Sign In</span>
                         </Link>
                         <Link
                           href="/register"
                           onClick={() => setIsUserMenuOpen(false)}
                           className="w-full px-3.5 py-2 text-left text-[#59534b] hover:bg-[#faf8f5] flex items-center gap-2"
                         >
-                          <span>Create Patient Account</span>
+                          <span>Create Account</span>
                         </Link>
                         <Link
                           href="/track-order"
@@ -292,7 +259,7 @@ export default function Header() {
               <button
                 onClick={() => setIsCartOpen(true)}
                 className="relative p-2 text-[#123824] hover:bg-white rounded-full transition-colors border border-[#e6dfd5] bg-white shadow-2xs hover:shadow-xs"
-                aria-label="Shopping Bag"
+                aria-label="Shopping Cart"
               >
                 <ShoppingBag
                   key={totalItems}
@@ -334,7 +301,7 @@ export default function Header() {
                   pathname === "/" ? "bg-[#f4eee5] text-[#123824] font-bold" : "text-[#59534b]"
                 }`}
               >
-                {isUrdu ? "صفحۂ اول" : "Home"}
+                Home
               </Link>
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;
@@ -356,7 +323,7 @@ export default function Header() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block py-2 px-3 text-sm font-medium text-[#59534b]"
               >
-                {isUrdu ? "آرڈر ٹریکنگ (کیش آن ڈیلیوری)" : "Track Order (COD)"}
+                Track Order (COD)
               </Link>
             </div>
 
@@ -367,7 +334,7 @@ export default function Header() {
                 className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#123824] text-white text-xs font-semibold uppercase tracking-wider rounded-md shadow-xs"
               >
                 <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
-                <span>{isUrdu ? "طبی معائنہ شروع کریں" : "Consult Hakim Online"}</span>
+                <span>Talk to Hakim Online</span>
               </Link>
 
               <Link
@@ -376,7 +343,7 @@ export default function Header() {
                 className="w-full flex items-center justify-center gap-2 py-2 bg-[#faf8f5] text-[#123824] border border-[#e6dfd5] text-xs font-medium rounded-md"
               >
                 <User className="w-3.5 h-3.5 text-[#c59b27]" />
-                <span>{isUrdu ? "حکیم و ایڈمن پورٹل لاگ ان" : "Hakim & Admin Sign In"}</span>
+                <span>Sign In</span>
               </Link>
             </div>
           </div>

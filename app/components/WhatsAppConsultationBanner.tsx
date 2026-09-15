@@ -11,13 +11,13 @@ export default function WhatsAppConsultationBanner() {
   )}`;
 
   return (
-    <section className="py-16 bg-[#123824] text-white relative overflow-hidden">
+    <section className="py-16 bg-[#138833] text-white relative overflow-hidden">
       {/* Subtle background decorative shapes */}
-      <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#1a4d33]/40 blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#0d5e23]/40 blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#c59b27]/10 blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="bg-[#0b1f14] rounded-2xl p-8 sm:p-12 border border-[#1a4d33] shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div className="bg-[#0b1f14] rounded-2xl p-8 sm:p-12 border border-[#0d5e23] shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8">
 
           {/* Left Content */}
           <div className="space-y-3 text-center lg:text-left max-w-2xl">
@@ -62,7 +62,7 @@ export default function WhatsAppConsultationBanner() {
 
             <Link
               href="/consultation"
-              className="flex items-center justify-center gap-2 px-6 py-3.5 bg-[#1a4d33] hover:bg-[#256644] text-white text-xs sm:text-sm font-semibold uppercase tracking-wider rounded-md border border-[#256644] transition-all text-center"
+              className="flex items-center justify-center gap-2 px-6 py-3.5 bg-[#0d5e23] hover:bg-[#1b993e] text-white text-xs sm:text-sm font-semibold uppercase tracking-wider rounded-md border border-[#1b993e] transition-all text-center"
             >
               <span>Fill Consultation Form</span>
             </Link>

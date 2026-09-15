@@ -8,17 +8,27 @@ import { useCart } from "@/app/context/CartContext";
 import { useSession, signOut } from "@/lib/auth-client";
 import { CLINIC_INFO } from "@/app/data/products";
 import SearchModal from "./SearchModal";
+import ConsultationModal from "./ConsultationModal";
 import {
   Search,
   ShoppingBag,
   Menu,
   X,
-  Sparkles,
   User,
   Shield,
   LogOut,
   Truck,
   MessageCircle,
+  Calendar,
+  Phone,
+  Stethoscope,
+  Activity,
+  Package,
+  Building2,
+  ChevronDown,
+  Sparkles,
+  MapPin,
+  Clock,
 } from "lucide-react";
 
 export default function Header() {
@@ -27,6 +37,7 @@ export default function Header() {
   const { data: session } = useSession();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isConsultModalOpen, setIsConsultModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -46,142 +57,160 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Handle scroll shadow & glass effect
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 15);
+      setIsScrolled(window.scrollY > 10);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const navLinks = [
-    { name: "Products", href: "/products" },
-    { name: "Consultation", href: "/consultation" },
-    { name: "About Us", href: "/about" },
-    { name: "Contact & Clinic", href: "/contact" },
+    { name: "Consultation", href: "/consultation", icon: Stethoscope },
+    { name: "Specialties", href: "/#specialties", icon: Activity },
+    { name: "Herbal Remedies", href: "/products", icon: Package },
+    { name: "About Clinic", href: "/about", icon: Sparkles },
   ];
 
   return (
     <>
-      {/* 1. Sleek Announcement Bar */}
-      <div className="bg-[#0f2e1e] text-[#f4eee5] text-[11px] py-1.5 px-4 border-b border-[#1a4d33]/60">
+      {/* ─── 1. TOP UTILITY STRIP ─── */}
+      <div className="bg-[#0a4a1c] text-[#f4eee5] text-[11px] py-1.5 px-4 border-b border-[#0d5e23]/60 hidden sm:block">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-[#e3ded6]">
-            <span className="text-[#c59b27] font-semibold flex items-center gap-1">
-              <Sparkles className="w-3 h-3" />
-              <span>Free Delivery</span>
+          {/* Left: Authority & Scope */}
+          <div className="flex items-center gap-2 text-[#e3ded6]">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#c59b27]" />
+            <span className="font-medium">
+              Classical Unani Herbal Clinic &amp; Online Telehealth
             </span>
-            <span className="hidden sm:inline opacity-80">
-              · Across Pakistan on orders above ₨ 2,000
+            <span className="text-[#a59f95] opacity-60">|</span>
+            <span className="text-[#c59b27] font-semibold">
+              Karachi, Pakistan (Est. 1990)
             </span>
           </div>
 
-          <div className="flex items-center gap-3 text-[11px] text-[#ded8ce]">
+          {/* Right: Essential Contact & Order Tracking */}
+          <div className="flex items-center gap-4 text-[#ded8ce]">
+            <a
+              href={`tel:${CLINIC_INFO.phone}`}
+              className="flex items-center gap-1.5 hover:text-[#c59b27] transition-colors"
+            >
+              <Phone className="w-3 h-3 text-[#c59b27]" />
+              <span>{CLINIC_INFO.phoneFormatted}</span>
+            </a>
+
+            <span className="opacity-30">|</span>
+
             <Link
               href="/track-order"
-              className="flex items-center gap-1 hover:text-[#c59b27] transition-colors"
+              className="flex items-center gap-1.5 hover:text-[#c59b27] transition-colors"
             >
               <Truck className="w-3 h-3 text-[#c59b27]" />
               <span>Track Order</span>
             </Link>
 
-            <span className="opacity-40">|</span>
+            <span className="opacity-30">|</span>
 
             <a
               href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-[#25D366] transition-colors flex items-center gap-1"
+              className="flex items-center gap-1.5 hover:text-[#25D366] transition-colors font-medium text-[#25D366]"
             >
-              <MessageCircle className="w-3 h-3 text-[#25D366]" />
-              <span className="hidden md:inline">WhatsApp Help</span>
+              <MessageCircle className="w-3 h-3 fill-current" />
+              <span>WhatsApp Helpline</span>
             </a>
           </div>
         </div>
       </div>
 
-      {/* 2. Main Luxury Header */}
+      {/* ─── 2. MAIN NAVIGATION HEADER ─── */}
       <header
-        className={`sticky top-0 z-40 transition-all duration-250 ${
+        className={`sticky top-0 z-40 transition-all duration-200 ${
           isScrolled
             ? "bg-white/95 backdrop-blur-md border-b border-[#e6dfd5] shadow-xs py-2.5"
-            : "bg-[#faf8f5] border-b border-[#e6dfd5]/80 py-3.5"
+            : "bg-[#faf8f5] border-b border-[#e6dfd5] py-3.5"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between gap-6">
+          <div className="flex items-center justify-between gap-4 lg:gap-8">
 
-            {/* Brand Logo & Signature */}
+            {/* ── Left: Brand Signature ── */}
             <Link href="/" className="flex items-center gap-3 group shrink-0">
-              <div className="relative h-9 sm:h-10 w-auto shrink-0 overflow-hidden rounded-md border border-[#e6dfd5]/60 group-hover:border-[#c59b27]/50 transition-colors">
+              <div className="relative h-9 sm:h-10 w-auto shrink-0 overflow-hidden rounded-md border border-[#e6dfd5]/80 bg-white p-0.5 group-hover:border-[#138833]/50 transition-colors shadow-2xs">
                 <Image
                   src="/images/cropped-logo.png"
-                  alt="Tameer-e-Sehat"
-                  width={160}
-                  height={40}
+                  alt="Tameer-e-Sehat Herbal Healthcare"
+                  width={150}
+                  height={38}
                   className="h-full w-auto object-contain"
                   priority
                 />
               </div>
-              <div className="hidden sm:flex flex-col">
-                <span className="font-serif text-lg font-bold tracking-tight text-[#123824] leading-tight group-hover:text-[#1a4d33] transition-colors">
+              <div className="flex flex-col">
+                <span className="font-serif text-base sm:text-lg font-bold tracking-tight text-[#138833] leading-tight group-hover:text-[#0f7229] transition-colors">
                   Tameer-e-Sehat
                 </span>
-                <span className="text-[10px] tracking-widest text-[#857f76] flex items-center gap-1 font-medium -mt-0.5">
-                  <span>Herbal Clinic & Care</span>
-                  <span className="opacity-30">·</span>
-                  <span>Est. 1990</span>
+                <span className="text-[9px] sm:text-[10px] tracking-widest text-[#7a7268] uppercase font-semibold -mt-0.5">
+                  Herbal Clinic &amp; Care
                 </span>
               </div>
             </Link>
 
-            {/* Desktop Center Navigation */}
-            <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+            {/* ── Center: Primary Navigation Links ── */}
+            <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
               {navLinks.map((link) => {
-                const isActive = pathname === link.href;
+                const isActive =
+                  link.href === "/"
+                    ? pathname === "/"
+                    : link.href.startsWith("/#")
+                    ? pathname === "/"
+                    : pathname.startsWith(link.href);
+
                 return (
                   <Link
-                    key={link.href}
+                    key={link.name}
                     href={link.href}
-                    className={`text-xs uppercase tracking-wider font-semibold transition-all duration-200 relative py-1 ${
+                    className={`text-xs uppercase tracking-wider font-semibold transition-all duration-150 relative py-1 flex items-center gap-1.5 ${
                       isActive
-                        ? "text-[#123824] font-bold"
-                        : "text-[#635d54] hover:text-[#123824]"
+                        ? "text-[#138833] font-bold"
+                        : "text-[#59534b] hover:text-[#138833]"
                     }`}
                   >
                     <span>{link.name}</span>
                     {isActive && (
-                      <span className="absolute -bottom-1 left-0 w-full h-[2px] bg-[#123824] rounded-full" />
+                      <span className="absolute -bottom-1 left-0 w-full h-[2px] bg-[#138833] rounded-full" />
                     )}
                   </Link>
                 );
               })}
             </nav>
 
-            {/* Right Action Suite */}
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* ── Right: Utilities & Primary Appointment CTA ── */}
+            <div className="flex items-center gap-2 sm:gap-3">
 
               {/* Search Modal Trigger */}
               <button
                 onClick={() => setIsSearchOpen(true)}
-                className="p-2 text-[#59534b] hover:text-[#123824] hover:bg-black/5 rounded-full transition-colors"
-                title="Search Products"
+                className="p-2 text-[#59534b] hover:text-[#138833] hover:bg-black/5 rounded-full transition-colors"
+                title="Search Remedies & Symptoms"
                 aria-label="Search"
               >
                 <Search className="w-4 h-4" />
               </button>
 
-              {/* User Account / Portal Menu */}
+              {/* User Account Menu */}
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className={`p-2 rounded-full transition-colors ${
                     session
-                      ? "text-[#123824] bg-[#f0eae1] hover:bg-[#e6dfd5]"
-                      : "text-[#59534b] hover:text-[#123824] hover:bg-black/5"
+                      ? "text-[#138833] bg-[#f0eae1] hover:bg-[#e6dfd5]"
+                      : "text-[#59534b] hover:text-[#138833] hover:bg-black/5"
                   }`}
                   title={session ? session.user.name : "Account & Orders"}
-                  aria-label="Account"
+                  aria-label="User Account"
                 >
                   <User className="w-4 h-4" />
                 </button>
@@ -191,7 +220,7 @@ export default function Header() {
                     {session ? (
                       <>
                         <div className="px-3.5 py-2 border-b border-[#f4eee5]">
-                          <p className="font-bold text-[#123824] truncate">
+                          <p className="font-bold text-[#138833] truncate">
                             {session.user.name}
                           </p>
                           <p className="text-[10px] text-[#6a6660] truncate">
@@ -201,7 +230,7 @@ export default function Header() {
                         <Link
                           href="/admin"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="w-full px-3.5 py-2 text-left text-[#123824] hover:bg-[#faf8f5] flex items-center gap-2 font-medium"
+                          className="w-full px-3.5 py-2 text-left text-[#138833] hover:bg-[#faf8f5] flex items-center gap-2 font-medium"
                         >
                           <Shield className="w-3.5 h-3.5 text-[#c59b27]" />
                           <span>Admin Portal</span>
@@ -230,7 +259,7 @@ export default function Header() {
                         <Link
                           href="/login"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="w-full px-3.5 py-2 text-left text-[#123824] hover:bg-[#faf8f5] flex items-center gap-2 font-semibold"
+                          className="w-full px-3.5 py-2 text-left text-[#138833] hover:bg-[#faf8f5] flex items-center gap-2 font-semibold"
                         >
                           <span>Sign In</span>
                         </Link>
@@ -258,27 +287,39 @@ export default function Header() {
               {/* Shopping Bag Drawer Button */}
               <button
                 onClick={() => setIsCartOpen(true)}
-                className="relative p-2 text-[#123824] hover:bg-white rounded-full transition-colors border border-[#e6dfd5] bg-white shadow-2xs hover:shadow-xs"
+                className="relative p-2 text-[#138833] hover:bg-white rounded-full transition-colors border border-[#e6dfd5] bg-white shadow-2xs hover:shadow-xs"
                 aria-label="Shopping Cart"
               >
                 <ShoppingBag
                   key={totalItems}
-                  className={`w-4 h-4 text-[#123824] ${
+                  className={`w-4 h-4 text-[#138833] ${
                     totalItems > 0 ? "animate-pop" : ""
                   }`}
                 />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#c59b27] text-[#123824] font-bold text-[9px] rounded-full flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#c59b27] text-[#138833] font-bold text-[9px] rounded-full flex items-center justify-center shadow-xs">
                     {totalItems}
                   </span>
                 )}
               </button>
 
-              {/* Mobile Menu Hamburger */}
+              {/* Divider on Desktop */}
+              <div className="hidden sm:block h-6 w-[1px] bg-[#e6dfd5] mx-0.5" />
+
+              {/* Primary "Book Appointment" High-Converting CTA Button */}
+              <button
+                onClick={() => setIsConsultModalOpen(true)}
+                className="hidden sm:inline-flex items-center gap-2 px-4 py-2.5 bg-[#138833] hover:bg-[#0f7229] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs hover:shadow-md active:scale-98"
+              >
+                <Calendar className="w-3.5 h-3.5 text-[#c59b27]" />
+                <span>Book Appointment</span>
+              </button>
+
+              {/* Mobile Hamburger Menu */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="md:hidden p-1.5 text-[#123824] hover:bg-black/5 rounded-md transition-colors"
-                aria-label="Toggle Navigation"
+                className="lg:hidden p-2 text-[#138833] hover:bg-black/5 rounded-lg transition-colors"
+                aria-label="Toggle Navigation Menu"
               >
                 {isMobileMenuOpen ? (
                   <X className="w-5 h-5" />
@@ -290,61 +331,133 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Mobile Flyout Menu */}
+        {/* ─── 3. MOBILE SLIDE-DOWN DRAWER ─── */}
         {isMobileMenuOpen && (
-          <div className="md:hidden bg-white border-b border-[#e6dfd5] px-5 py-5 space-y-4 animate-fade-in shadow-xl">
+          <div className="lg:hidden bg-white border-b border-[#e6dfd5] px-4 py-5 space-y-5 animate-fade-in shadow-xl">
+            {/* Primary Action Button */}
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                setIsConsultModalOpen(true);
+              }}
+              className="w-full flex items-center justify-center gap-2 py-3 bg-[#138833] hover:bg-[#0f7229] text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md"
+            >
+              <Calendar className="w-4 h-4 text-[#c59b27]" />
+              <span>Book Appointment / Consult Hakim</span>
+            </button>
+
+            {/* Navigation Links with Icons */}
             <div className="space-y-1">
               <Link
                 href="/"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`block py-2 px-3 text-sm font-medium rounded-md ${
-                  pathname === "/" ? "bg-[#f4eee5] text-[#123824] font-bold" : "text-[#59534b]"
+                className={`flex items-center gap-3 py-2.5 px-3 text-xs font-semibold rounded-xl transition-colors ${
+                  pathname === "/"
+                    ? "bg-[#f0f7f3] text-[#138833] font-bold"
+                    : "text-[#59534b] hover:bg-[#faf8f5]"
                 }`}
               >
-                Home
+                <Sparkles className="w-4 h-4 text-[#c59b27]" />
+                <span>Home</span>
               </Link>
+
               {navLinks.map((link) => {
+                const Icon = link.icon;
                 const isActive = pathname === link.href;
                 return (
                   <Link
-                    key={link.href}
+                    key={link.name}
                     href={link.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`block py-2 px-3 text-sm font-medium rounded-md ${
-                      isActive ? "bg-[#f4eee5] text-[#123824] font-bold" : "text-[#59534b]"
+                    className={`flex items-center gap-3 py-2.5 px-3 text-xs font-semibold rounded-xl transition-colors ${
+                      isActive
+                        ? "bg-[#f0f7f3] text-[#138833] font-bold"
+                        : "text-[#59534b] hover:bg-[#faf8f5]"
                     }`}
                   >
-                    {link.name}
+                    <Icon className="w-4 h-4 text-[#138833]" />
+                    <span>{link.name}</span>
                   </Link>
                 );
               })}
+
               <Link
                 href="/track-order"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="block py-2 px-3 text-sm font-medium text-[#59534b]"
+                className="flex items-center gap-3 py-2.5 px-3 text-xs font-semibold text-[#59534b] hover:bg-[#faf8f5] rounded-xl transition-colors"
               >
-                Track Order (COD)
+                <Truck className="w-4 h-4 text-[#8c6a15]" />
+                <span>Track Order (Cash on Delivery)</span>
               </Link>
             </div>
 
-            <div className="pt-3 border-t border-[#e6dfd5] space-y-2">
-              <Link
-                href="/consultation"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#123824] text-white text-xs font-semibold uppercase tracking-wider rounded-md shadow-xs"
-              >
-                <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
-                <span>Talk to Hakim Online</span>
-              </Link>
+            {/* Clinic Info Box on Mobile */}
+            <div className="p-3.5 bg-[#faf8f5] rounded-xl border border-[#e6dfd5] text-xs space-y-2">
+              <div className="flex items-center justify-between text-[#138833] font-bold">
+                <span className="flex items-center gap-1.5">
+                  <Building2 className="w-3.5 h-3.5 text-[#c59b27]" />
+                  Karachi Clinic &amp; Dispensary
+                </span>
+                <span className="text-[10px] text-[#8c6a15]">Est. 1990</span>
+              </div>
+              <p className="text-[11px] text-[#6a6660]">
+                {CLINIC_INFO.address}
+              </p>
+              <div className="flex items-center gap-2 pt-1">
+                <a
+                  href={`tel:${CLINIC_INFO.phone}`}
+                  className="flex-1 text-center py-2 bg-white border border-[#e6dfd5] rounded-lg text-[#138833] font-semibold text-[11px]"
+                >
+                  Call: {CLINIC_INFO.phoneFormatted}
+                </a>
+                <a
+                  href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 text-center py-2 bg-[#25D366] text-white rounded-lg font-semibold text-[11px] flex items-center justify-center gap-1"
+                >
+                  <MessageCircle className="w-3 h-3 fill-current" />
+                  WhatsApp
+                </a>
+              </div>
+            </div>
 
-              <Link
-                href="/login"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full flex items-center justify-center gap-2 py-2 bg-[#faf8f5] text-[#123824] border border-[#e6dfd5] text-xs font-medium rounded-md"
-              >
-                <User className="w-3.5 h-3.5 text-[#c59b27]" />
-                <span>Sign In</span>
-              </Link>
+            {/* Auth Link */}
+            <div className="pt-2 border-t border-[#f4eee5]">
+              {session ? (
+                <div className="flex items-center justify-between">
+                  <div className="text-xs">
+                    <span className="text-[#6a6660] block">Signed in as:</span>
+                    <strong className="text-[#138833]">{session.user.name}</strong>
+                  </div>
+                  <button
+                    onClick={() => {
+                      signOut();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="text-xs text-red-600 font-semibold px-3 py-1.5 bg-red-50 rounded-lg"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex-1 text-center py-2 bg-white border border-[#e6dfd5] text-[#138833] font-semibold text-xs rounded-lg"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex-1 text-center py-2 bg-[#faf8f5] border border-[#e6dfd5] text-[#59534b] font-semibold text-xs rounded-lg"
+                  >
+                    Register
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -354,6 +467,12 @@ export default function Header() {
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
+      />
+
+      {/* Global Consultation Modal */}
+      <ConsultationModal
+        isOpen={isConsultModalOpen}
+        onClose={() => setIsConsultModalOpen(false)}
       />
     </>
   );

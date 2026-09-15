@@ -21,7 +21,7 @@ export default function HakimIntroSection() {
                 fill
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#123824]/60 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#138833]/60 via-transparent to-transparent" />
 
               <div className="absolute bottom-6 left-6 right-6 text-white">
                 <span className="text-[10px] tracking-widest uppercase font-semibold text-[#c59b27] block mb-1">
@@ -35,11 +35,11 @@ export default function HakimIntroSection() {
 
             {/* Accent Floating Card */}
             <div className="absolute -bottom-6 -right-6 hidden sm:flex items-center gap-3 bg-[#faf8f5] p-4 rounded-xl border border-[#e6dfd5] shadow-lg max-w-xs">
-              <div className="w-10 h-10 rounded-full bg-[#123824]/10 text-[#123824] flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-[#138833]/10 text-[#138833] flex items-center justify-center shrink-0">
                 <Activity className="w-5 h-5" />
               </div>
               <div className="text-xs">
-                <span className="font-bold text-[#123824] block">Personalized Care</span>
+                <span className="font-bold text-[#138833] block">Personalized Care</span>
                 <span className="text-[#6a6660] text-[11px]">Matched to your personal symptoms and lifestyle</span>
               </div>
             </div>
@@ -52,7 +52,7 @@ export default function HakimIntroSection() {
                 <BookOpen className="w-3.5 h-3.5" />
                 <span>Our Healing Approach</span>
               </span>
-              <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#123824] leading-tight">
+              <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#138833] leading-tight">
                 Helping Your Body Heal with Nature
               </h2>
             </div>
@@ -68,10 +68,10 @@ export default function HakimIntroSection() {
             {/* 3 Core Philosophical Pillars */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
               <div className="p-4 rounded-lg bg-[#faf8f5] border border-[#e6dfd5] space-y-1.5">
-                <div className="w-8 h-8 rounded-md bg-[#123824]/10 text-[#123824] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-md bg-[#138833]/10 text-[#138833] flex items-center justify-center">
                   <Activity className="w-4 h-4" />
                 </div>
-                <h4 className="font-serif text-sm font-semibold text-[#123824]">
+                <h4 className="font-serif text-sm font-semibold text-[#138833]">
                   Personal Attention
                 </h4>
                 <p className="text-[11px] text-[#6a6660] leading-normal">
@@ -80,10 +80,10 @@ export default function HakimIntroSection() {
               </div>
 
               <div className="p-4 rounded-lg bg-[#faf8f5] border border-[#e6dfd5] space-y-1.5">
-                <div className="w-8 h-8 rounded-md bg-[#123824]/10 text-[#123824] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-md bg-[#138833]/10 text-[#138833] flex items-center justify-center">
                   <Sparkles className="w-4 h-4" />
                 </div>
-                <h4 className="font-serif text-sm font-semibold text-[#123824]">
+                <h4 className="font-serif text-sm font-semibold text-[#138833]">
                   100% Pure Herbs
                 </h4>
                 <p className="text-[11px] text-[#6a6660] leading-normal">
@@ -92,10 +92,10 @@ export default function HakimIntroSection() {
               </div>
 
               <div className="p-4 rounded-lg bg-[#faf8f5] border border-[#e6dfd5] space-y-1.5">
-                <div className="w-8 h-8 rounded-md bg-[#123824]/10 text-[#123824] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-md bg-[#138833]/10 text-[#138833] flex items-center justify-center">
                   <Heart className="w-4 h-4" />
                 </div>
-                <h4 className="font-serif text-sm font-semibold text-[#123824]">
+                <h4 className="font-serif text-sm font-semibold text-[#138833]">
                   Root Cause Relief
                 </h4>
                 <p className="text-[11px] text-[#6a6660] leading-normal">
@@ -108,7 +108,7 @@ export default function HakimIntroSection() {
             <div className="pt-4 flex items-center gap-4">
               <Link
                 href="/about"
-                className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#123824] hover:text-[#c59b27] transition-colors group"
+                className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#138833] hover:text-[#c59b27] transition-colors group"
               >
                 <span>Read Our Full Story & Heritage</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

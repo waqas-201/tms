@@ -35,7 +35,7 @@ export default function TrustPillarsSection() {
           <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
             Why Choose Us
           </span>
-          <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#123824]">
+          <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#138833]">
             Why Families Across Pakistan Trust Us
           </h2>
           <p className="text-xs sm:text-sm text-[#59534b]">
@@ -55,11 +55,11 @@ export default function TrustPillarsSection() {
                 <div
                   className="h-full p-6 rounded-xl bg-[#faf8f5] border border-[#e6dfd5] space-y-3 flex flex-col justify-between"
                 >
-                  <div className="w-12 h-12 rounded-lg bg-[#123824] text-[#c59b27] flex items-center justify-center shadow-xs">
+                  <div className="w-12 h-12 rounded-lg bg-[#138833] text-[#c59b27] flex items-center justify-center shadow-xs">
                     <Icon className="w-6 h-6" />
                   </div>
                   <div className="space-y-1.5">
-                    <h3 className="font-serif text-base font-bold text-[#123824]">
+                    <h3 className="font-serif text-base font-bold text-[#138833]">
                       {pillar.title}
                     </h3>
                     <p className="text-xs text-[#59534b] leading-relaxed pt-1">

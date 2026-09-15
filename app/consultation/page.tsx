@@ -99,12 +99,12 @@ export default function ConsultationPage() {
   return (
     <div className="bg-[#faf8f5]">
       {/* Hero Header */}
-      <section className="relative py-16 sm:py-20 border-b border-[#e6dfd5] overflow-hidden bg-[#123824] text-white">
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#1a4d33]/50 blur-3xl pointer-events-none" />
+      <section className="relative py-16 sm:py-20 border-b border-[#e6dfd5] overflow-hidden bg-[#138833] text-white">
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#0d5e23]/50 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#c59b27]/10 blur-3xl pointer-events-none" />
 
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1a4d33] border border-[#256644] text-[#c59b27] text-xs font-medium tracking-wide">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0d5e23] border border-[#1b993e] text-[#c59b27] text-xs font-medium tracking-wide">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Free Online Health Consultation</span>
           </div>
@@ -139,7 +139,7 @@ export default function ConsultationPage() {
       <section className="py-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {submittedDossier ? (
           <div className="bg-white rounded-2xl p-8 sm:p-12 border border-[#e6dfd5] shadow-xl text-center space-y-6">
-            <div className="w-16 h-16 rounded-full bg-[#256644] text-white flex items-center justify-center mx-auto">
+            <div className="w-16 h-16 rounded-full bg-[#1b993e] text-white flex items-center justify-center mx-auto">
               <CheckCircle className="w-10 h-10" />
             </div>
 
@@ -147,12 +147,12 @@ export default function ConsultationPage() {
               <span className="text-xs uppercase font-semibold text-[#c59b27] tracking-widest">
                 Form Saved Successfully
               </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#123824]">
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#138833]">
                 Consultation Request Received!
               </h2>
               <p className="text-xs sm:text-sm text-[#59534b]">
                 Your reference ticket number is:{" "}
-                <strong className="text-[#123824] font-mono text-sm sm:text-base px-2.5 py-1 bg-[#faf8f5] rounded border border-[#e6dfd5]">
+                <strong className="text-[#138833] font-mono text-sm sm:text-base px-2.5 py-1 bg-[#faf8f5] rounded border border-[#e6dfd5]">
                   {submittedDossier.ticketNumber}
                 </strong>
               </p>
@@ -186,7 +186,7 @@ export default function ConsultationPage() {
 
               <button
                 onClick={() => setSubmittedDossier(null)}
-                className="w-full sm:w-auto px-6 py-3 bg-[#123824] text-white text-xs font-semibold rounded-md"
+                className="w-full sm:w-auto px-6 py-3 bg-[#138833] text-white text-xs font-semibold rounded-md"
               >
                 Submit Another Request
               </button>
@@ -197,7 +197,7 @@ export default function ConsultationPage() {
             {/* Left Col: The Medical Intake Form */}
             <div className="lg:col-span-8 bg-white p-6 sm:p-10 rounded-2xl border border-[#e6dfd5] shadow-xs space-y-6">
               <div className="space-y-1 border-b border-[#f4eee5] pb-4">
-                <h2 className="font-serif text-xl font-bold text-[#123824]">
+                <h2 className="font-serif text-xl font-bold text-[#138833]">
                   Health & Symptoms Form
                 </h2>
                 <p className="text-xs text-[#6a6660]">
@@ -230,7 +230,7 @@ export default function ConsultationPage() {
                         value={formData.fullName}
                         onChange={handleChange}
                         placeholder="e.g. Tariq Mehmood"
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                       />
                     </div>
 
@@ -246,7 +246,7 @@ export default function ConsultationPage() {
                         name="age"
                         value={formData.age}
                         onChange={handleChange}
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                       />
                     </div>
 
@@ -258,7 +258,7 @@ export default function ConsultationPage() {
                         name="gender"
                         value={formData.gender}
                         onChange={handleChange}
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                       >
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
@@ -277,7 +277,7 @@ export default function ConsultationPage() {
                         value={formData.phone}
                         onChange={handleChange}
                         placeholder="0300-1234567"
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                       />
                     </div>
 
@@ -292,7 +292,7 @@ export default function ConsultationPage() {
                         value={formData.city}
                         onChange={handleChange}
                         placeholder="Karachi, Lahore, Islamabad, etc."
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                       />
                     </div>
                   </div>
@@ -313,7 +313,7 @@ export default function ConsultationPage() {
                         name="primaryConcern"
                         value={formData.primaryConcern}
                         onChange={handleChange}
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                       >
                         {CONSULTATION_AREAS.map((a) => (
                           <option key={a.title} value={a.title}>
@@ -331,7 +331,7 @@ export default function ConsultationPage() {
                         name="duration"
                         value={formData.duration}
                         onChange={handleChange}
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                       >
                         <option value="Less than 2 weeks">Less than 2 weeks</option>
                         <option value="1 to 3 months">1 to 3 months</option>
@@ -351,7 +351,7 @@ export default function ConsultationPage() {
                         value={formData.symptomsDescription}
                         onChange={handleChange}
                         placeholder="Tell us what you feel — such as stomach burning, gas, joint pain, fatigue, sleep trouble, or skin issues..."
-                        className="w-full text-xs p-3.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                        className="w-full text-xs p-3.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                       />
                     </div>
 
@@ -365,7 +365,7 @@ export default function ConsultationPage() {
                         value={formData.priorTreatments}
                         onChange={handleChange}
                         placeholder="e.g. Taking antacids daily, pain tablets for back pain"
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                       />
                     </div>
                   </div>
@@ -375,7 +375,7 @@ export default function ConsultationPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#123824] hover:bg-[#0c2719] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md hover:shadow-lg disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#138833] hover:bg-[#0f7229] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md hover:shadow-lg disabled:opacity-50"
                   >
                     {loading ? (
                       <>
@@ -396,7 +396,7 @@ export default function ConsultationPage() {
             {/* Right Column: Direct WhatsApp & Clinic Details */}
             <div className="lg:col-span-4 space-y-6">
               {/* WhatsApp Fast Track Card */}
-              <div className="bg-[#123824] text-white p-6 rounded-2xl border border-[#1a4d33] shadow-lg space-y-4">
+              <div className="bg-[#138833] text-white p-6 rounded-2xl border border-[#0d5e23] shadow-lg space-y-4">
                 <div className="flex items-center gap-2 text-[#c59b27]">
                   <MessageCircle className="w-5 h-5" />
                   <h3 className="font-serif text-sm font-bold">
@@ -419,7 +419,7 @@ export default function ConsultationPage() {
 
               {/* Clinic Timings & Physical Consultations */}
               <div className="bg-white p-6 rounded-2xl border border-[#e6dfd5] shadow-xs space-y-3">
-                <h3 className="font-serif text-sm font-bold text-[#123824]">
+                <h3 className="font-serif text-sm font-bold text-[#138833]">
                   In-Person Clinic Visit (Karachi)
                 </h3>
                 <p className="text-xs text-[#6a6660] leading-relaxed">

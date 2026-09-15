@@ -85,12 +85,12 @@ export default function ContactPage() {
   return (
     <div className="bg-[#faf8f5]">
       {/* Hero Header */}
-      <section className="relative py-16 sm:py-20 bg-[#123824] text-white border-b border-[#1a4d33] overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#1a4d33]/50 blur-3xl pointer-events-none" />
+      <section className="relative py-16 sm:py-20 bg-[#138833] text-white border-b border-[#0d5e23] overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#0d5e23]/50 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#c59b27]/10 blur-3xl pointer-events-none" />
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1a4d33] border border-[#256644] text-[#c59b27] text-xs font-medium tracking-wide">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0d5e23] border border-[#1b993e] text-[#c59b27] text-xs font-medium tracking-wide">
             <Building2 className="w-3.5 h-3.5" />
             <span>Clinic & Support</span>
           </div>
@@ -117,7 +117,7 @@ export default function ContactPage() {
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#e6dfd5] shadow-xs space-y-6">
               <div className="space-y-1 border-b border-[#f4eee5] pb-4">
-                <h3 className="font-serif text-lg font-bold text-[#123824]">
+                <h3 className="font-serif text-lg font-bold text-[#138833]">
                   Karachi Clinic & Store
                 </h3>
                 <p className="text-xs text-[#6a6660]">
@@ -146,7 +146,7 @@ export default function ContactPage() {
                     <h4 className="font-bold text-[#1a1816]">Phone & WhatsApp</h4>
                     <a
                       href={`tel:${CLINIC_INFO.phone}`}
-                      className="text-[#123824] hover:text-[#c59b27] font-medium block mt-0.5"
+                      className="text-[#138833] hover:text-[#c59b27] font-medium block mt-0.5"
                       dir="ltr"
                     >
                       {CLINIC_INFO.phoneFormatted}
@@ -184,7 +184,7 @@ export default function ContactPage() {
           {/* Right: Message Form (7 cols) */}
           <div className="lg:col-span-7 bg-white p-6 sm:p-10 rounded-2xl border border-[#e6dfd5] shadow-xs space-y-6">
             <div className="space-y-1 border-b border-[#f4eee5] pb-4">
-              <h3 className="font-serif text-lg font-bold text-[#123824]">
+              <h3 className="font-serif text-lg font-bold text-[#138833]">
                 Send Us a Message
               </h3>
               <p className="text-xs text-[#6a6660]">
@@ -194,10 +194,10 @@ export default function ContactPage() {
 
             {submitted ? (
               <div className="py-8 text-center space-y-4">
-                <div className="w-14 h-14 rounded-full bg-[#256644] text-white flex items-center justify-center mx-auto">
+                <div className="w-14 h-14 rounded-full bg-[#1b993e] text-white flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h4 className="font-serif text-lg font-bold text-[#123824]">
+                <h4 className="font-serif text-lg font-bold text-[#138833]">
                   Thank You! Your message has been received.
                 </h4>
                 <p className="text-xs text-[#59534b] max-w-sm mx-auto">
@@ -205,7 +205,7 @@ export default function ContactPage() {
                 </p>
                 <button
                   onClick={() => setSubmitted(false)}
-                  className="px-5 py-2 bg-[#123824] text-white text-xs font-semibold rounded-md"
+                  className="px-5 py-2 bg-[#138833] text-white text-xs font-semibold rounded-md"
                 >
                   Send Another Message
                 </button>
@@ -230,7 +230,7 @@ export default function ContactPage() {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="e.g. Asad Ali"
-                      className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                      className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                     />
                   </div>
 
@@ -244,7 +244,7 @@ export default function ContactPage() {
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       placeholder="0300-1234567"
-                      className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                      className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                     />
                   </div>
                 </div>
@@ -259,7 +259,7 @@ export default function ContactPage() {
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     placeholder="e.g. Question about Arq Kasni dosage, Delivery timing"
-                    className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                    className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                   />
                 </div>
 
@@ -273,7 +273,7 @@ export default function ContactPage() {
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     placeholder="Write your health question or order inquiry here..."
-                    className="w-full text-xs p-3.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                    className="w-full text-xs p-3.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                   />
                 </div>
 
@@ -281,7 +281,7 @@ export default function ContactPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#123824] hover:bg-[#0c2719] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-xs disabled:opacity-50"
+                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#138833] hover:bg-[#0f7229] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-xs disabled:opacity-50"
                   >
                     {loading ? (
                       <>
@@ -316,7 +316,7 @@ export default function ContactPage() {
             <span className="text-xs font-semibold text-[#c59b27] uppercase tracking-widest">
               Common Questions
             </span>
-            <h3 className="font-serif text-2xl font-bold text-[#123824]">
+            <h3 className="font-serif text-2xl font-bold text-[#138833]">
               Frequently Asked Questions
             </h3>
           </div>
@@ -329,12 +329,12 @@ export default function ContactPage() {
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  className="w-full p-4 text-left flex items-center justify-between gap-4 font-serif text-xs sm:text-sm font-semibold text-[#123824] hover:text-[#c59b27] transition-colors"
+                  className="w-full p-4 text-left flex items-center justify-between gap-4 font-serif text-xs sm:text-sm font-semibold text-[#138833] hover:text-[#c59b27] transition-colors"
                 >
                   <span>{faq.q}</span>
                   <ChevronDown
                     className={`w-4 h-4 text-[#6a6660] transition-transform duration-200 shrink-0 ${
-                      openFaq === idx ? "rotate-180 text-[#123824]" : ""
+                      openFaq === idx ? "rotate-180 text-[#138833]" : ""
                     }`}
                   />
                 </button>

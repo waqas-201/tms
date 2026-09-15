@@ -11,7 +11,7 @@ export default function Toast() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50 animate-fade-in transition-all duration-300">
-      <div className="flex items-center gap-3 bg-[#123824] text-white px-5 py-3.5 rounded-lg shadow-xl border border-[#256644]/40 max-w-md">
+      <div className="flex items-center gap-3 bg-[#138833] text-white px-5 py-3.5 rounded-lg shadow-xl border border-[#1b993e]/40 max-w-md">
         <CheckCircle2 className="w-5 h-5 text-[#c59b27] shrink-0" />
         <span className="text-sm font-medium tracking-wide">{toastMessage}</span>
       </div>

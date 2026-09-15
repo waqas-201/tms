@@ -59,22 +59,22 @@ export default function ProductDetailPage({
       {/* Breadcrumbs Navigation */}
       <div className="bg-white border-b border-[#e6dfd5] py-3 text-xs text-[#6a6660]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-2 overflow-x-auto whitespace-nowrap">
-          <Link href="/" className="hover:text-[#123824]">
+          <Link href="/" className="hover:text-[#138833]">
             Home
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-[#d7c9b8]" />
-          <Link href="/products" className="hover:text-[#123824]">
+          <Link href="/products" className="hover:text-[#138833]">
             Products
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-[#d7c9b8]" />
           <Link
             href={`/products?category=${product.category}`}
-            className="hover:text-[#123824]"
+            className="hover:text-[#138833]"
           >
             {product.categoryLabel}
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-[#d7c9b8]" />
-          <span className="text-[#123824] font-medium truncate">
+          <span className="text-[#138833] font-medium truncate">
             {product.name}
           </span>
         </div>
@@ -97,7 +97,7 @@ export default function ProductDetailPage({
                 />
 
                 {product.badge && (
-                  <span className="absolute top-4 left-4 bg-[#123824] text-white text-[11px] font-semibold tracking-wider uppercase px-3 py-1 rounded shadow-xs">
+                  <span className="absolute top-4 left-4 bg-[#138833] text-white text-[11px] font-semibold tracking-wider uppercase px-3 py-1 rounded shadow-xs">
                     {product.badge}
                   </span>
                 )}
@@ -106,7 +106,7 @@ export default function ProductDetailPage({
               {/* Quality & Origin Banner below image */}
               <div className="p-3.5 bg-white rounded-xl border border-[#e6dfd5] shadow-xs flex items-center justify-between text-xs text-[#59534b]">
                 <div className="flex items-center gap-2">
-                  <Leaf className="w-4 h-4 text-[#256644]" />
+                  <Leaf className="w-4 h-4 text-[#1b993e]" />
                   <span>100% Pure Natural Herbs</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -123,13 +123,13 @@ export default function ProductDetailPage({
                 <span className="text-xs uppercase font-semibold text-[#c59b27] tracking-wider">
                   {product.categoryLabel}
                 </span>
-                <span className="text-[#256644] font-medium bg-[#f2f9f5] px-2.5 py-0.5 rounded text-xs flex items-center gap-1">
+                <span className="text-[#1b993e] font-medium bg-[#f1fbf3] px-2.5 py-0.5 rounded text-xs flex items-center gap-1">
                   <CheckCircle2 className="w-3.5 h-3.5" /> Ready to Dispatch
                 </span>
               </div>
 
               {/* Title */}
-              <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#123824] leading-tight">
+              <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#138833] leading-tight">
                 {product.name}
               </h1>
 
@@ -157,7 +157,7 @@ export default function ProductDetailPage({
 
               {/* Price & Discounts */}
               <div className="p-4 bg-white rounded-xl border border-[#e6dfd5] shadow-xs flex items-baseline gap-3">
-                <span className="text-2xl sm:text-3xl font-bold text-[#123824]">
+                <span className="text-2xl sm:text-3xl font-bold text-[#138833]">
                   ₨ {selectedSize.price.toLocaleString()}
                 </span>
                 {selectedSize.originalPrice && selectedSize.originalPrice > selectedSize.price && (
@@ -182,7 +182,7 @@ export default function ProductDetailPage({
 
               {/* Size Selector */}
               <div className="space-y-2 pt-1">
-                <label className="block text-xs font-semibold text-[#123824] uppercase tracking-wider">
+                <label className="block text-xs font-semibold text-[#138833] uppercase tracking-wider">
                   Select Size:
                 </label>
                 <div className="flex flex-wrap gap-2.5">
@@ -194,8 +194,8 @@ export default function ProductDetailPage({
                         onClick={() => setSelectedSize(size)}
                         className={`px-4 py-2 rounded-lg border text-xs transition-all text-left ${
                           isSelected
-                            ? "bg-[#123824] text-white border-[#123824] shadow-xs"
-                            : "bg-white text-[#1a1816] border-[#e6dfd5] hover:border-[#123824]"
+                            ? "bg-[#138833] text-white border-[#138833] shadow-xs"
+                            : "bg-white text-[#1a1816] border-[#e6dfd5] hover:border-[#138833]"
                         }`}
                       >
                         <div className="font-semibold">{size.weight}</div>
@@ -215,7 +215,7 @@ export default function ProductDetailPage({
                   <div className="flex items-center border border-[#e6dfd5] rounded-lg bg-white overflow-hidden shrink-0">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-3.5 py-3 text-sm text-[#6a6660] hover:text-[#123824] hover:bg-[#faf8f5] transition-colors"
+                      className="px-3.5 py-3 text-sm text-[#6a6660] hover:text-[#138833] hover:bg-[#faf8f5] transition-colors"
                       aria-label="Decrease quantity"
                     >
                       -
@@ -225,7 +225,7 @@ export default function ProductDetailPage({
                     </span>
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="px-3.5 py-3 text-sm text-[#6a6660] hover:text-[#123824] hover:bg-[#faf8f5] transition-colors"
+                      className="px-3.5 py-3 text-sm text-[#6a6660] hover:text-[#138833] hover:bg-[#faf8f5] transition-colors"
                       aria-label="Increase quantity"
                     >
                       +
@@ -237,8 +237,8 @@ export default function ProductDetailPage({
                     onClick={handleAddToCart}
                     className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-lg text-xs font-semibold tracking-wider uppercase transition-all duration-200 shadow-md hover:shadow-lg active:scale-98 ${
                       isAdded
-                        ? "bg-[#256644] text-white"
-                        : "bg-[#123824] hover:bg-[#0c2719] text-white"
+                        ? "bg-[#1b993e] text-white"
+                        : "bg-[#138833] hover:bg-[#0f7229] text-white"
                     }`}
                   >
                     {isAdded ? (
@@ -270,7 +270,7 @@ export default function ProductDetailPage({
               {/* Delivery Info Box */}
               <div className="pt-4 border-t border-[#e6dfd5] space-y-2 text-xs text-[#6a6660]">
                 <div className="flex items-center gap-2">
-                  <Truck className="w-4 h-4 text-[#256644]" />
+                  <Truck className="w-4 h-4 text-[#1b993e]" />
                   <span>
                     <strong>Free Delivery</strong> across Pakistan on orders above ₨ 2,000 (Flat ₨ 200 otherwise).
                   </span>
@@ -295,7 +295,7 @@ export default function ProductDetailPage({
             <div className="p-6 sm:p-8 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] space-y-3">
               <div className="flex items-center gap-2 text-[#c59b27]">
                 <Sparkles className="w-4 h-4" />
-                <h2 className="font-serif text-base font-bold text-[#123824] uppercase tracking-wider">
+                <h2 className="font-serif text-base font-bold text-[#138833] uppercase tracking-wider">
                   How This Remedy Helps
                 </h2>
               </div>
@@ -308,9 +308,9 @@ export default function ProductDetailPage({
             </div>
 
             <div className="p-6 sm:p-8 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] space-y-3">
-              <div className="flex items-center gap-2 text-[#256644]">
+              <div className="flex items-center gap-2 text-[#1b993e]">
                 <HeartHandshake className="w-4 h-4" />
-                <h2 className="font-serif text-base font-bold text-[#123824] uppercase tracking-wider">
+                <h2 className="font-serif text-base font-bold text-[#138833] uppercase tracking-wider">
                   Hakim&apos;s Advice & How to Use
                 </h2>
               </div>
@@ -328,7 +328,7 @@ export default function ProductDetailPage({
 
           {/* Key Benefits Checklist */}
           <div className="space-y-4">
-            <h2 className="font-serif text-xl font-bold text-[#123824]">
+            <h2 className="font-serif text-xl font-bold text-[#138833]">
               Key Health Benefits
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -337,7 +337,7 @@ export default function ProductDetailPage({
                   key={i}
                   className="flex items-start gap-3 p-4 bg-[#faf8f5] rounded-xl border border-[#e6dfd5]"
                 >
-                  <div className="w-5 h-5 rounded-full bg-[#123824] text-[#c59b27] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+                  <div className="w-5 h-5 rounded-full bg-[#138833] text-[#c59b27] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
                     ✓
                   </div>
                   <span className="text-xs sm:text-sm text-[#1e1c19] font-medium">
@@ -350,12 +350,12 @@ export default function ProductDetailPage({
 
           {/* Ingredients Table */}
           <div className="space-y-4">
-            <h2 className="font-serif text-xl font-bold text-[#123824]">
+            <h2 className="font-serif text-xl font-bold text-[#138833]">
               Natural Herbal Ingredients
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left bg-white border border-[#e6dfd5] rounded-xl overflow-hidden">
-                <thead className="bg-[#faf8f5] text-[#123824] font-semibold border-b border-[#e6dfd5]">
+                <thead className="bg-[#faf8f5] text-[#138833] font-semibold border-b border-[#e6dfd5]">
                   <tr>
                     <th className="p-3.5">Natural Ingredient</th>
                     <th className="p-3.5">How It Works in This Remedy</th>
@@ -380,12 +380,12 @@ export default function ProductDetailPage({
       {relatedProducts.length > 0 && (
         <section className="py-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="flex items-center justify-between">
-            <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#123824]">
+            <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#138833]">
               More Remedies in {product.categoryLabel}
             </h2>
             <Link
               href={`/products?category=${product.category}`}
-              className="text-xs font-semibold uppercase tracking-wider text-[#123824] hover:text-[#c59b27] transition-colors"
+              className="text-xs font-semibold uppercase tracking-wider text-[#138833] hover:text-[#c59b27] transition-colors"
             >
               View Category &rarr;
             </Link>

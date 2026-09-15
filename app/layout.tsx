@@ -58,7 +58,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#123824",
+  themeColor: "#138833",
 };
 
 export default function RootLayout({
@@ -71,7 +71,7 @@ export default function RootLayout({
       lang="en"
       className={`${outfit.variable} ${playfair.variable} h-full antialiased scroll-smooth`}
     >
-      <body className="min-h-full flex flex-col bg-[#faf8f5] text-[#1e1c19] font-sans selection:bg-[#c59b27]/20 selection:text-[#123824]">
+      <body className="min-h-full flex flex-col bg-[#faf8f5] text-[#1e1c19] font-sans selection:bg-[#c59b27]/20 selection:text-[#138833]">
         <CartProvider>
           <Header />
           <main className="flex-1">{children}</main>

@@ -135,7 +135,7 @@ export default function CheckoutPage() {
     return (
       <div className="bg-[#faf8f5] py-20 min-h-[70vh] flex items-center">
         <div className="max-w-xl mx-auto px-4 sm:px-6 w-full text-center space-y-6 bg-white p-8 sm:p-12 rounded-2xl border border-[#e6dfd5] shadow-xl">
-          <div className="w-16 h-16 rounded-full bg-[#256644] text-white mx-auto flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-[#1b993e] text-white mx-auto flex items-center justify-center">
             <CheckCircle2 className="w-10 h-10" />
           </div>
 
@@ -143,12 +143,12 @@ export default function CheckoutPage() {
             <span className="text-xs uppercase font-semibold text-[#c59b27] tracking-widest">
               Order Received Successfully
             </span>
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#123824]">
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#138833]">
               Your Order is Confirmed!
             </h1>
             <p className="text-xs sm:text-sm text-[#59534b]">
               Your order reference number is:{" "}
-              <strong className="text-[#123824] font-mono text-sm sm:text-base px-2 py-0.5 bg-[#faf8f5] rounded border border-[#e6dfd5]">
+              <strong className="text-[#138833] font-mono text-sm sm:text-base px-2 py-0.5 bg-[#faf8f5] rounded border border-[#e6dfd5]">
                 {createdOrder.orderNumber}
               </strong>
             </p>
@@ -183,7 +183,7 @@ export default function CheckoutPage() {
             <div className="flex gap-3">
               <Link
                 href="/products"
-                className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 bg-[#123824] hover:bg-[#0c2719] text-white text-xs font-semibold rounded-md transition-colors"
+                className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 bg-[#138833] hover:bg-[#0f7229] text-white text-xs font-semibold rounded-md transition-colors"
               >
                 <span>Browse More Products</span>
               </Link>
@@ -201,7 +201,7 @@ export default function CheckoutPage() {
           <div className="w-16 h-16 rounded-full bg-[#f4eee5] text-[#6a6660] mx-auto flex items-center justify-center">
             <ShoppingBag className="w-8 h-8 opacity-40" />
           </div>
-          <h1 className="font-serif text-2xl font-bold text-[#123824]">
+          <h1 className="font-serif text-2xl font-bold text-[#138833]">
             Your Cart is Empty
           </h1>
           <p className="text-xs text-[#59534b]">
@@ -210,7 +210,7 @@ export default function CheckoutPage() {
           <div className="pt-2">
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#123824] text-white text-xs font-semibold uppercase tracking-wider rounded-md"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#138833] text-white text-xs font-semibold uppercase tracking-wider rounded-md"
             >
               <span>Explore Products</span>
               <ArrowRight className="w-4 h-4" />
@@ -229,7 +229,7 @@ export default function CheckoutPage() {
           <span className="text-xs uppercase font-semibold text-[#c59b27] tracking-widest">
             Courier Delivery Across Pakistan
           </span>
-          <h1 className="font-serif text-2xl sm:text-4xl font-bold text-[#123824]">
+          <h1 className="font-serif text-2xl sm:text-4xl font-bold text-[#138833]">
             Cash on Delivery Checkout
           </h1>
           <p className="text-xs text-[#6a6660]">
@@ -248,7 +248,7 @@ export default function CheckoutPage() {
           {/* Left Form: Delivery Details */}
           <div className="lg:col-span-7 space-y-6">
             <div className="bg-white p-6 sm:p-8 rounded-xl border border-[#e6dfd5] shadow-xs space-y-5">
-              <h2 className="font-serif text-lg font-bold text-[#123824] border-b border-[#f4eee5] pb-3">
+              <h2 className="font-serif text-lg font-bold text-[#138833] border-b border-[#f4eee5] pb-3">
                 Delivery Address & Contact Details
               </h2>
 
@@ -264,7 +264,7 @@ export default function CheckoutPage() {
                     value={formData.fullName}
                     onChange={handleChange}
                     placeholder="e.g. Muhammad Bilal"
-                    className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                    className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                   />
                 </div>
 
@@ -279,7 +279,7 @@ export default function CheckoutPage() {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="0300-1234567"
-                    className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                    className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                   />
                 </div>
 
@@ -291,7 +291,7 @@ export default function CheckoutPage() {
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                    className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                   >
                     {PAKISTAN_CITIES.map((c) => (
                       <option key={c} value={c}>
@@ -312,7 +312,7 @@ export default function CheckoutPage() {
                     value={formData.address}
                     onChange={handleChange}
                     placeholder="House/Apartment #, Street, Sector / Area, Landmark"
-                    className="w-full text-xs p-3 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                    className="w-full text-xs p-3 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                   />
                 </div>
 
@@ -326,7 +326,7 @@ export default function CheckoutPage() {
                     value={formData.specialNotes}
                     onChange={handleChange}
                     placeholder="e.g. Please call before delivering, near landmark..."
-                    className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+                    className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
                   />
                 </div>
               </div>
@@ -334,15 +334,15 @@ export default function CheckoutPage() {
 
             {/* Payment Method Selector */}
             <div className="bg-white p-6 sm:p-8 rounded-xl border border-[#e6dfd5] shadow-xs space-y-4">
-              <h2 className="font-serif text-lg font-bold text-[#123824] border-b border-[#f4eee5] pb-3">
+              <h2 className="font-serif text-lg font-bold text-[#138833] border-b border-[#f4eee5] pb-3">
                 Payment Method
               </h2>
 
-              <div className="p-4 border-2 border-[#123824] bg-[#faf8f5] rounded-lg flex items-center justify-between">
+              <div className="p-4 border-2 border-[#138833] bg-[#faf8f5] rounded-lg flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full border-4 border-[#123824] bg-white flex items-center justify-center" />
+                  <div className="w-5 h-5 rounded-full border-4 border-[#138833] bg-white flex items-center justify-center" />
                   <div>
-                    <h4 className="text-xs font-bold text-[#123824]">
+                    <h4 className="text-xs font-bold text-[#138833]">
                       Cash on Delivery (COD)
                     </h4>
                     <p className="text-[11px] text-[#6a6660]">
@@ -350,7 +350,7 @@ export default function CheckoutPage() {
                     </p>
                   </div>
                 </div>
-                <Truck className="w-5 h-5 text-[#256644]" />
+                <Truck className="w-5 h-5 text-[#1b993e]" />
               </div>
             </div>
           </div>
@@ -358,7 +358,7 @@ export default function CheckoutPage() {
           {/* Right Column: Order Summary */}
           <div className="lg:col-span-5 space-y-6">
             <div className="bg-white p-6 sm:p-8 rounded-xl border border-[#e6dfd5] shadow-xs space-y-5 sticky top-24">
-              <h2 className="font-serif text-lg font-bold text-[#123824] border-b border-[#f4eee5] pb-3">
+              <h2 className="font-serif text-lg font-bold text-[#138833] border-b border-[#f4eee5] pb-3">
                 Order Summary
               </h2>
 
@@ -378,7 +378,7 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[#123824] truncate">
+                      <p className="font-medium text-[#138833] truncate">
                         {item.product.name}
                       </p>
                       <p className="text-[11px] text-[#6a6660]">
@@ -404,13 +404,13 @@ export default function CheckoutPage() {
                   <span>Delivery Charges</span>
                   <span className="font-medium text-[#1a1816]">
                     {shippingFee === 0 ? (
-                      <span className="text-[#256644] font-semibold">FREE</span>
+                      <span className="text-[#1b993e] font-semibold">FREE</span>
                     ) : (
                       `₨ ${shippingFee}`
                     )}
                   </span>
                 </div>
-                <div className="flex justify-between text-base font-bold text-[#123824] pt-2 border-t border-[#e6dfd5]">
+                <div className="flex justify-between text-base font-bold text-[#138833] pt-2 border-t border-[#e6dfd5]">
                   <span>Total (Cash on Delivery)</span>
                   <span>₨ {total.toLocaleString()}</span>
                 </div>
@@ -420,7 +420,7 @@ export default function CheckoutPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#123824] hover:bg-[#0c2719] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md hover:shadow-lg disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#138833] hover:bg-[#0f7229] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md hover:shadow-lg disabled:opacity-50"
               >
                 {loading ? (
                   <>
@@ -442,7 +442,7 @@ export default function CheckoutPage() {
                   <span>100% Pure Natural Remedies</span>
                 </p>
                 <p className="flex items-center justify-center gap-1">
-                  <Clock className="w-3.5 h-3.5 text-[#256644]" />
+                  <Clock className="w-3.5 h-3.5 text-[#1b993e]" />
                   <span>Dispatched within 24 hours from Karachi Clinic</span>
                 </p>
               </div>

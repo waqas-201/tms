@@ -3,9 +3,9 @@
 :root {
   --background: #faf8f5;
   --foreground: #1e1c19;
-  --primary: #123824;
-  --primary-hover: #0c2719;
-  --secondary: #2a5a3d;
+  --primary: #138833;
+  --primary-hover: #0f7229;
+  --secondary: #1b993e;
   --accent: #c59b27;
   --accent-light: #fcf6e6;
   --muted: #6a6660;
@@ -18,14 +18,13 @@
   --font-sans: var(--font-outfit), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-serif: var(--font-playfair), Georgia, Cambria, "Times New Roman", Times, serif;
 
-  --color-brand-emerald-950: #0a1f14;
-  --color-brand-emerald-900: #123824;
-  --color-brand-emerald-800: #1a4d33;
-  --color-brand-emerald-700: #256644;
-  --color-brand-emerald-600: #318258;
-  --color-brand-emerald-500: #42a36f;
-  --color-brand-emerald-100: #e5f4eb;
-  --color-brand-emerald-50: #f2f9f5;
+  --color-brand-green-900: #0a5c20;
+  --color-brand-green-800: #0d5e23;
+  --color-brand-green-700: #138833;
+  --color-brand-green-600: #1b993e;
+  --color-brand-green-500: #27a34e;
+  --color-brand-green-100: #dff5e3;
+  --color-brand-green-50: #f1fbf3;
 
   --color-brand-gold-700: #8c6a15;
   --color-brand-gold-600: #aa821c;
@@ -50,7 +49,6 @@
 
 html {
   scroll-behavior: smooth;
-  /* Offset sticky header + announcement bar when jumping to in-page anchors */
   scroll-padding-top: 120px;
 }
 
@@ -84,24 +82,24 @@ h1, h2, h3, .font-editorial {
   background: #f4eee5;
 }
 ::-webkit-scrollbar-thumb {
-  background: #c59b27;
+  background: #138833;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #123824;
+  background: #0f7229;
 }
 
 /* Subtle editorial shadow */
 .shadow-luxury {
-  box-shadow: 0 4px 20px -2px rgba(18, 56, 36, 0.05), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 4px 20px -2px rgba(19, 136, 51, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
 }
 
 .shadow-luxury-hover {
-  box-shadow: 0 12px 30px -4px rgba(18, 56, 36, 0.1), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 12px 30px -4px rgba(19, 136, 51, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
 }
 
 .shadow-drawer {
-  box-shadow: -10px 0 35px -5px rgba(18, 56, 36, 0.15);
+  box-shadow: -10px 0 35px -5px rgba(19, 136, 51, 0.15);
 }
 
 /* Glass & translucent headers */

@@ -53,8 +53,8 @@ function ProductsContent() {
   return (
     <div className="bg-[#faf8f5]">
       {/* Header Banner */}
-      <section className="relative py-14 sm:py-18 bg-[#123824] text-white border-b border-[#1a4d33] overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#1a4d33]/50 blur-3xl pointer-events-none" />
+      <section className="relative py-14 sm:py-18 bg-[#138833] text-white border-b border-[#0d5e23] overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#0d5e23]/50 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#c59b27]/10 blur-3xl pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 space-y-4 text-center">
@@ -87,7 +87,7 @@ function ProductsContent() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search remedies, preserves, herbs..."
-              className="w-full pl-10 pr-4 py-2 text-xs bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] placeholder-[#6a6660] focus:outline-none focus:border-[#123824] focus:bg-white transition-colors"
+              className="w-full pl-10 pr-4 py-2 text-xs bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] placeholder-[#6a6660] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
             />
           </div>
 
@@ -100,7 +100,7 @@ function ProductsContent() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="text-xs px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#123824] font-medium focus:outline-none focus:border-[#123824]"
+              className="text-xs px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#138833] font-medium focus:outline-none focus:border-[#138833]"
             >
               <option value="featured">Featured & Best Sellers</option>
               <option value="rating">Highest Rated</option>
@@ -116,8 +116,8 @@ function ProductsContent() {
             onClick={() => setSelectedCategory("all")}
             className={`text-xs px-4 py-2 rounded-full font-medium transition-all shrink-0 ${
               selectedCategory === "all"
-                ? "bg-[#123824] text-white shadow-xs"
-                : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#123824]"
+                ? "bg-[#138833] text-white shadow-xs"
+                : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#138833]"
             }`}
           >
             All Products ({PRODUCTS.length})
@@ -128,8 +128,8 @@ function ProductsContent() {
               onClick={() => setSelectedCategory(cat.id)}
               className={`text-xs px-4 py-2 rounded-full font-medium transition-all shrink-0 ${
                 selectedCategory === cat.id
-                  ? "bg-[#123824] text-white shadow-xs"
-                  : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#123824]"
+                  ? "bg-[#138833] text-white shadow-xs"
+                  : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#138833]"
               }`}
             >
               <span>{cat.name}</span>
@@ -141,14 +141,14 @@ function ProductsContent() {
         {activeCategoryInfo && (
           <div className="p-4 sm:p-5 bg-white rounded-xl border border-[#e6dfd5] shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
-              <h2 className="font-serif text-base font-bold text-[#123824]">
+              <h2 className="font-serif text-base font-bold text-[#138833]">
                 {activeCategoryInfo.name}
               </h2>
               <p className="text-xs text-[#59534b] max-w-2xl leading-relaxed">
                 {activeCategoryInfo.description}
               </p>
             </div>
-            <span className="text-xs font-semibold text-[#123824] bg-[#faf8f5] px-3 py-1.5 rounded border border-[#e6dfd5] self-start sm:self-auto shrink-0">
+            <span className="text-xs font-semibold text-[#138833] bg-[#faf8f5] px-3 py-1.5 rounded border border-[#e6dfd5] self-start sm:self-auto shrink-0">
               {filteredProducts.length} Available
             </span>
           </div>
@@ -157,7 +157,7 @@ function ProductsContent() {
         {/* Products Grid */}
         {filteredProducts.length === 0 ? (
           <div className="py-20 text-center bg-white rounded-xl border border-[#e6dfd5] p-8 space-y-3">
-            <p className="text-sm font-medium text-[#123824]">
+            <p className="text-sm font-medium text-[#138833]">
               No products found matching your search.
             </p>
             <p className="text-xs text-[#6a6660]">
@@ -168,7 +168,7 @@ function ProductsContent() {
                 setSelectedCategory("all");
                 setSearchQuery("");
               }}
-              className="mt-2 inline-block px-4 py-2 bg-[#123824] text-white text-xs font-medium rounded-md"
+              className="mt-2 inline-block px-4 py-2 bg-[#138833] text-white text-xs font-medium rounded-md"
             >
               Clear Filters
             </button>
@@ -184,11 +184,11 @@ function ProductsContent() {
         {/* Bottom Trust & Delivery Guarantee Bar */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8">
           <div className="p-6 bg-white rounded-xl border border-[#e6dfd5] shadow-xs flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg bg-[#123824] text-[#c59b27] flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-lg bg-[#138833] text-[#c59b27] flex items-center justify-center shrink-0">
               <Truck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-serif text-sm font-bold text-[#123824]">
+              <h4 className="font-serif text-sm font-bold text-[#138833]">
                 Free Shipping on Orders Above ₨ 2,000
               </h4>
               <p className="text-xs text-[#6a6660] mt-0.5">
@@ -198,11 +198,11 @@ function ProductsContent() {
           </div>
 
           <div className="p-6 bg-white rounded-xl border border-[#e6dfd5] shadow-xs flex items-center gap-4">
-            <div className="w-12 h-12 rounded-lg bg-[#123824] text-[#c59b27] flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-lg bg-[#138833] text-[#c59b27] flex items-center justify-center shrink-0">
               <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-serif text-sm font-bold text-[#123824]">
+              <h4 className="font-serif text-sm font-bold text-[#138833]">
                 100% Herbal Purity & Authenticity
               </h4>
               <p className="text-xs text-[#6a6660] mt-0.5">

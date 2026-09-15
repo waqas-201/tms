@@ -13,7 +13,7 @@ export default function TestimonialsSection() {
           <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
             Customer Reviews
           </span>
-          <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#123824]">
+          <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#138833]">
             Real Stories from Real People
           </h2>
           <p className="text-xs sm:text-sm text-[#59534b]">
@@ -48,13 +48,13 @@ export default function TestimonialsSection() {
 
                 <div className="pt-3 border-t border-[#f4eee5] flex items-center justify-between">
                   <div>
-                    <h4 className="text-xs font-bold text-[#123824]">{item.name}</h4>
+                    <h4 className="text-xs font-bold text-[#138833]">{item.name}</h4>
                     <p className="text-[11px] text-[#6a6660]">
                       {item.city}, Pakistan · <span className="text-[#c59b27] font-medium">{item.concern}</span>
                     </p>
                   </div>
                   {item.verifiedPurchase && (
-                    <span className="text-[10px] text-[#256644] flex items-center gap-1 font-medium bg-[#f2f9f5] px-1.5 py-0.5 rounded">
+                    <span className="text-[10px] text-[#1b993e] flex items-center gap-1 font-medium bg-[#f1fbf3] px-1.5 py-0.5 rounded">
                       <CheckCircle className="w-3 h-3" /> Verified Order
                     </span>
                   )}

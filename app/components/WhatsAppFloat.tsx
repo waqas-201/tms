@@ -15,7 +15,7 @@ export default function WhatsAppFloat() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with Hakim / Tameer-e-Sehat on WhatsApp"
-      className="fixed bottom-6 left-6 z-40 group flex items-center gap-2.5 bg-[#123824] hover:bg-[#0d281a] text-white px-4 py-2.5 rounded-full shadow-lg border border-[#2a5a3d]/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
+      className="fixed bottom-6 left-6 z-40 group flex items-center gap-2.5 bg-[#138833] hover:bg-[#0d281a] text-white px-4 py-2.5 rounded-full shadow-lg border border-[#1b993e]/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-0.5"
     >
       <span className="relative flex h-2.5 w-2.5">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#25D366] opacity-75"></span>

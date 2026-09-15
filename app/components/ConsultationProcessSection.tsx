@@ -42,7 +42,7 @@ export default function ConsultationProcessSection() {
           <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
             Simple Process
           </span>
-          <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#123824]">
+          <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#138833]">
             How Online Herbal Consultation Works
           </h2>
           <p className="text-xs sm:text-sm text-[#59534b]">
@@ -65,7 +65,7 @@ export default function ConsultationProcessSection() {
                 >
                   {/* Step indicator */}
                   <div className="flex items-center justify-between mb-5">
-                    <div className="w-11 h-11 rounded-lg bg-[#123824] text-[#c59b27] flex items-center justify-center shadow-xs">
+                    <div className="w-11 h-11 rounded-lg bg-[#138833] text-[#c59b27] flex items-center justify-center shadow-xs">
                       <Icon className="w-5 h-5" />
                     </div>
                     <span className="font-serif text-xl font-bold text-[#d7c9b8]">
@@ -74,7 +74,7 @@ export default function ConsultationProcessSection() {
                   </div>
 
                   <div className="space-y-1.5">
-                    <h3 className="font-serif text-base font-bold text-[#123824]">
+                    <h3 className="font-serif text-base font-bold text-[#138833]">
                       {step.title}
                     </h3>
                     <p className="text-xs text-[#59534b] leading-relaxed pt-1">
@@ -90,7 +90,7 @@ export default function ConsultationProcessSection() {
         {/* Action Callout Bar */}
         <Reveal className="mt-12 bg-white rounded-xl p-6 sm:p-8 border border-[#e6dfd5] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="space-y-1 text-center sm:text-left">
-            <h4 className="font-serif text-base sm:text-lg font-bold text-[#123824]">
+            <h4 className="font-serif text-base sm:text-lg font-bold text-[#138833]">
               Want to speak with an experienced Hakim?
             </h4>
             <p className="text-xs text-[#6a6660]">
@@ -101,7 +101,7 @@ export default function ConsultationProcessSection() {
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
             <Link
               href="/consultation"
-              className="w-full sm:w-auto text-center px-6 py-3 bg-[#123824] hover:bg-[#0c2719] text-white text-xs font-semibold tracking-wider uppercase rounded-md transition-colors shadow-xs"
+              className="w-full sm:w-auto text-center px-6 py-3 bg-[#138833] hover:bg-[#0f7229] text-white text-xs font-semibold tracking-wider uppercase rounded-md transition-colors shadow-xs"
             >
               Start Free Consultation
             </Link>

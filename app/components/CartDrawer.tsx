@@ -53,7 +53,7 @@ export default function CartDrawer() {
       {/* Backdrop */}
       <div
         onClick={() => setIsCartOpen(false)}
-        className="absolute inset-0 bg-[#123824]/40 backdrop-blur-xs transition-opacity animate-fade-in"
+        className="absolute inset-0 bg-[#138833]/40 backdrop-blur-xs transition-opacity animate-fade-in"
       />
 
       {/* Drawer */}
@@ -62,11 +62,11 @@ export default function CartDrawer() {
           {/* Header */}
           <div className="p-5 border-b border-[#e6dfd5] bg-white flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#123824]/5 flex items-center justify-center text-[#123824]">
+              <div className="w-9 h-9 rounded-full bg-[#138833]/5 flex items-center justify-center text-[#138833]">
                 <ShoppingBag className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-lg font-serif font-semibold text-[#123824]">
+                <h2 className="text-lg font-serif font-semibold text-[#138833]">
                   Shopping Bag
                 </h2>
                 <p className="text-xs text-[#6a6660]">
@@ -80,7 +80,7 @@ export default function CartDrawer() {
             </div>
             <button
               onClick={() => setIsCartOpen(false)}
-              className="p-2 rounded-full text-[#6a6660] hover:text-[#123824] hover:bg-[#faf8f5] transition-colors"
+              className="p-2 rounded-full text-[#6a6660] hover:text-[#138833] hover:bg-[#faf8f5] transition-colors"
               aria-label="Close cart"
             >
               <X className="w-5 h-5" />
@@ -89,10 +89,10 @@ export default function CartDrawer() {
 
           {/* Free Shipping Meter */}
           {cart.length > 0 && (
-            <div className="bg-[#f2f9f5] border-b border-[#e5f4eb] p-4 text-xs">
-              <div className="flex items-center justify-between mb-1.5 font-medium text-[#123824]">
+            <div className="bg-[#f1fbf3] border-b border-[#dff5e3] p-4 text-xs">
+              <div className="flex items-center justify-between mb-1.5 font-medium text-[#138833]">
                 <div className="flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-[#256644]" />
+                  <Truck className="w-3.5 h-3.5 text-[#1b993e]" />
                   <span>
                     {remainingForFreeShipping > 0
                       ? `Add ₨ ${remainingForFreeShipping.toLocaleString()} more for FREE Delivery`
@@ -101,9 +101,9 @@ export default function CartDrawer() {
                 </div>
                 <span>{Math.round(progressPercent)}%</span>
               </div>
-              <div className="w-full h-1.5 bg-[#e5f4eb] rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-[#dff5e3] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#256644] rounded-full transition-all duration-500 ease-out"
+                  className="h-full bg-[#1b993e] rounded-full transition-all duration-500 ease-out"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -127,7 +127,7 @@ export default function CartDrawer() {
                 </div>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 bg-[#123824] hover:bg-[#0c2719] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-colors"
+                  className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 bg-[#138833] hover:bg-[#0f7229] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-colors"
                 >
                   <Link href="/products" onClick={() => setIsCartOpen(false)}>
                     Browse Products
@@ -155,7 +155,7 @@ export default function CartDrawer() {
                         <Link
                           href={`/products/${item.product.slug}`}
                           onClick={() => setIsCartOpen(false)}
-                          className="text-sm font-medium text-[#123824] hover:text-[#c59b27] line-clamp-1 transition-colors"
+                          className="text-sm font-medium text-[#138833] hover:text-[#c59b27] line-clamp-1 transition-colors"
                         >
                           {item.product.name}
                         </Link>
@@ -184,7 +184,7 @@ export default function CartDrawer() {
                               item.quantity - 1
                             )
                           }
-                          className="p-1 text-[#6a6660] hover:text-[#123824] transition-colors"
+                          className="p-1 text-[#6a6660] hover:text-[#138833] transition-colors"
                           aria-label="Decrease quantity"
                         >
                           <Minus className="w-3.5 h-3.5" />
@@ -200,7 +200,7 @@ export default function CartDrawer() {
                               item.quantity + 1
                             )
                           }
-                          className="p-1 text-[#6a6660] hover:text-[#123824] transition-colors"
+                          className="p-1 text-[#6a6660] hover:text-[#138833] transition-colors"
                           aria-label="Increase quantity"
                         >
                           <Plus className="w-3.5 h-3.5" />
@@ -208,7 +208,7 @@ export default function CartDrawer() {
                       </div>
 
                       <div className="text-right">
-                        <span className="text-sm font-semibold text-[#123824]">
+                        <span className="text-sm font-semibold text-[#138833]">
                           ₨ {(item.selectedSize.price * item.quantity).toLocaleString()}
                         </span>
                       </div>
@@ -233,13 +233,13 @@ export default function CartDrawer() {
                   <span>Courier Delivery</span>
                   <span className="font-medium text-[#1a1816]">
                     {shippingFee === 0 ? (
-                      <span className="text-[#256644] font-semibold uppercase">Free</span>
+                      <span className="text-[#1b993e] font-semibold uppercase">Free</span>
                     ) : (
                       `₨ ${shippingFee}`
                     )}
                   </span>
                 </div>
-                <div className="flex justify-between text-base font-semibold text-[#123824] pt-2 border-t border-[#e6dfd5]">
+                <div className="flex justify-between text-base font-semibold text-[#138833] pt-2 border-t border-[#e6dfd5]">
                   <span>Total (Cash on Delivery)</span>
                   <span>₨ {total.toLocaleString()}</span>
                 </div>
@@ -251,7 +251,7 @@ export default function CartDrawer() {
                   <ShieldCheck className="w-3.5 h-3.5 text-[#c59b27]" /> 100% Pure Herbs
                 </span>
                 <span className="flex items-center gap-1">
-                  <Truck className="w-3.5 h-3.5 text-[#256644]" /> Cash on Delivery (COD)
+                  <Truck className="w-3.5 h-3.5 text-[#1b993e]" /> Cash on Delivery (COD)
                 </span>
               </div>
 
@@ -260,7 +260,7 @@ export default function CartDrawer() {
                 <Link
                   href="/checkout"
                   onClick={() => setIsCartOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-[#123824] hover:bg-[#0c2719] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md hover:shadow-lg"
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-[#138833] hover:bg-[#0f7229] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md hover:shadow-lg"
                 >
                   <span>Proceed to Checkout (COD)</span>
                   <ArrowRight className="w-4 h-4" />

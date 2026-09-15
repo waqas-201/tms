@@ -18,12 +18,12 @@ import {
 
 export default function Footer() {
   return (
-    <footer className="bg-[#123824] text-[#f4eee5] border-t border-[#1a4d33] pt-16 pb-12">
+    <footer className="bg-[#138833] text-[#f4eee5] border-t border-[#0d5e23] pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Top Feature Pillars Row */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pb-12 border-b border-[#1a4d33]/80">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 pb-12 border-b border-[#0d5e23]/80">
           <div className="flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-lg bg-[#1a4d33] flex items-center justify-center text-[#c59b27] shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[#0d5e23] flex items-center justify-center text-[#c59b27] shrink-0">
               <Leaf className="w-5 h-5" />
             </div>
             <div>
@@ -37,7 +37,7 @@ export default function Footer() {
           </div>
 
           <div className="flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-lg bg-[#1a4d33] flex items-center justify-center text-[#c59b27] shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[#0d5e23] flex items-center justify-center text-[#c59b27] shrink-0">
               <HeartHandshake className="w-5 h-5" />
             </div>
             <div>
@@ -51,7 +51,7 @@ export default function Footer() {
           </div>
 
           <div className="flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-lg bg-[#1a4d33] flex items-center justify-center text-[#c59b27] shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[#0d5e23] flex items-center justify-center text-[#c59b27] shrink-0">
               <Truck className="w-5 h-5" />
             </div>
             <div>
@@ -65,7 +65,7 @@ export default function Footer() {
           </div>
 
           <div className="flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-lg bg-[#1a4d33] flex items-center justify-center text-[#c59b27] shrink-0">
+            <div className="w-10 h-10 rounded-lg bg-[#0d5e23] flex items-center justify-center text-[#c59b27] shrink-0">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
@@ -118,7 +118,7 @@ export default function Footer() {
               </a>
               <Link
                 href="/consultation"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#1a4d33] hover:bg-[#256644] text-white text-xs font-semibold rounded-md transition-colors border border-[#256644]"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#0d5e23] hover:bg-[#1b993e] text-white text-xs font-semibold rounded-md transition-colors border border-[#1b993e]"
               >
                 <span>Free Consultation</span>
               </Link>
@@ -195,7 +195,7 @@ export default function Footer() {
                   Wellness Teas & Energy Mixes
                 </Link>
               </li>
-              <li className="pt-2 border-t border-[#1a4d33]/50">
+              <li className="pt-2 border-t border-[#0d5e23]/50">
                 <Link href="/admin" className="text-[#c59b27] hover:underline font-semibold">
                   Admin Portal
                 </Link>
@@ -225,7 +225,7 @@ export default function Footer() {
                   {CLINIC_INFO.email}
                 </a>
               </div>
-              <div className="flex items-start gap-2 pt-1 border-t border-[#1a4d33]/50">
+              <div className="flex items-start gap-2 pt-1 border-t border-[#0d5e23]/50">
                 <Clock className="w-4 h-4 text-[#c59b27] shrink-0 mt-0.5" />
                 <div>
                   <p>{CLINIC_INFO.timings}</p>
@@ -237,11 +237,11 @@ export default function Footer() {
         </div>
 
         {/* Safety & Legal Disclaimer */}
-        <div className="pt-8 border-t border-[#1a4d33]/60 space-y-3 text-[11px] text-[#f4eee5]/60 leading-relaxed">
+        <div className="pt-8 border-t border-[#0d5e23]/60 space-y-3 text-[11px] text-[#f4eee5]/60 leading-relaxed">
           <p>
             <strong className="text-[#c59b27]">Important Health Notice:</strong> Our natural remedies and advice are based on traditional herbal medicine. They are designed to support your daily wellness, digestion, and natural body strength. If you have a severe medical emergency or are pregnant, please consult your doctor. Keep all natural remedies in a cool, dry place away from direct sunlight.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#1a4d33]/40 text-xs">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#0d5e23]/40 text-xs">
             <p>
               &copy; {new Date().getFullYear()} {CLINIC_INFO.brandName}. All rights reserved. Registered Herbal Health Clinic, Karachi, Pakistan.
             </p>

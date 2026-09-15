@@ -27,7 +27,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group bg-white rounded-xl border border-[#e6dfd5] hover:border-[#123824]/40 transition-all duration-300 shadow-xs hover:shadow-luxury-hover hover:-translate-y-1 flex flex-col overflow-hidden">
+    <div className="group bg-white rounded-xl border border-[#e6dfd5] hover:border-[#138833]/40 transition-all duration-300 shadow-xs hover:shadow-luxury-hover hover:-translate-y-1 flex flex-col overflow-hidden">
       {/* Image Container */}
       <Link
         href={`/products/${product.slug}`}
@@ -44,7 +44,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Top Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10">
           {product.badge && (
-            <span className="bg-[#123824] text-white text-[10px] font-semibold tracking-wider uppercase px-2.5 py-1 rounded-sm shadow-xs">
+            <span className="bg-[#138833] text-white text-[10px] font-semibold tracking-wider uppercase px-2.5 py-1 rounded-sm shadow-xs">
               {product.badge}
             </span>
           )}
@@ -57,7 +57,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
         {/* Hover Action quick view icon */}
         <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-          <div className="w-8 h-8 rounded-full bg-white/90 text-[#123824] flex items-center justify-center shadow-md">
+          <div className="w-8 h-8 rounded-full bg-white/90 text-[#138833] flex items-center justify-center shadow-md">
             <ArrowUpRight className="w-4 h-4" />
           </div>
         </div>
@@ -81,7 +81,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           {/* Product Title */}
           <Link href={`/products/${product.slug}`} className="block">
-            <h3 className="font-serif text-base font-semibold text-[#123824] group-hover:text-[#c59b27] transition-colors line-clamp-1 leading-snug">
+            <h3 className="font-serif text-base font-semibold text-[#138833] group-hover:text-[#c59b27] transition-colors line-clamp-1 leading-snug">
               {product.name}
             </h3>
           </Link>
@@ -109,8 +109,8 @@ export default function ProductCard({ product }: ProductCardProps) {
                     }}
                     className={`text-[11px] px-2 py-0.8 rounded border transition-colors ${
                       isSelected
-                        ? "bg-[#123824] text-white border-[#123824] font-medium"
-                        : "bg-[#faf8f5] text-[#59534b] border-[#e6dfd5] hover:border-[#123824]"
+                        ? "bg-[#138833] text-white border-[#138833] font-medium"
+                        : "bg-[#faf8f5] text-[#59534b] border-[#e6dfd5] hover:border-[#138833]"
                     }`}
                   >
                     {sz.weight}
@@ -124,7 +124,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         {/* Price & Add to Cart Footer */}
         <div className="pt-2 border-t border-[#f4eee5] flex items-center justify-between gap-2">
           <div>
-            <div className="text-base font-bold text-[#123824]">
+            <div className="text-base font-bold text-[#138833]">
               ₨ {selectedSize.price.toLocaleString()}
             </div>
             {selectedSize.originalPrice && selectedSize.originalPrice > selectedSize.price && (
@@ -140,8 +140,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             disabled={!product.inStock}
             className={`flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-semibold tracking-wider uppercase transition-all duration-200 active:scale-95 ${
               isAdded
-                ? "bg-[#256644] text-white shadow-xs"
-                : "bg-[#123824] hover:bg-[#0c2719] text-white shadow-xs hover:shadow-md"
+                ? "bg-[#1b993e] text-white shadow-xs"
+                : "bg-[#138833] hover:bg-[#0f7229] text-white shadow-xs hover:shadow-md"
             }`}
             aria-label={`Add ${product.name} to cart`}
           >

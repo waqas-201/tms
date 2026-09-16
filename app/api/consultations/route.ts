@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { ROLES } from "@/lib/rbac";
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,15 +15,17 @@ export async function GET(request: NextRequest) {
 
     const where: Record<string, unknown> = {};
 
-    const isDev = process.env.NODE_ENV !== "production";
-    // Non-admins in production see only their own consultations
-    if (!isDev && (!session || (session.user.role !== "admin" && session.user.role !== "hakim"))) {
-      if (!session) {
-        return NextResponse.json(
-          { success: false, error: "Authentication required to view consultations." },
-          { status: 401 }
-        );
-      }
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Authentication required to view consultations." },
+        { status: 401 }
+      );
+    }
+
+    const userRole = (session.user as any)?.role;
+
+    // Admin sees all consultations; regular users only see their own
+    if (userRole !== ROLES.ADMIN) {
       where.userId = session.user.id;
     }
 
@@ -33,11 +36,11 @@ export async function GET(request: NextRequest) {
     if (search && search.trim()) {
       const q = search.trim();
       where.OR = [
-        { ticketNumber: { contains: q } },
-        { fullName: { contains: q } },
-        { phone: { contains: q } },
-        { city: { contains: q } },
-        { primarySymptoms: { contains: q } },
+        { ticketNumber: { contains: q, mode: "insensitive" } },
+        { fullName: { contains: q, mode: "insensitive" } },
+        { phone: { contains: q, mode: "insensitive" } },
+        { city: { contains: q, mode: "insensitive" } },
+        { primarySymptoms: { contains: q, mode: "insensitive" } },
       ];
     }
 
@@ -120,7 +123,7 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         data: consultation,
-        message: "Consultation dossier submitted to Hakim Sahib successfully.",
+        message: "Consultation dossier submitted successfully.",
       },
       { status: 201 }
     );

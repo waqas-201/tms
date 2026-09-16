@@ -1,20 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireRole, ROLES } from "@/lib/rbac";
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
-
-    const isDev = process.env.NODE_ENV !== "production";
-    if (!isDev && (!session || (session.user.role !== "admin" && session.user.role !== "hakim"))) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin or Hakim credentials required." },
-        { status: 403 }
-      );
-    }
+    const { errorResponse } = await requireRole(request, [ROLES.ADMIN]);
+    if (errorResponse) return errorResponse;
 
     const [
       totalOrders,
@@ -26,6 +17,7 @@ export async function GET(request: NextRequest) {
       newConsultations,
       totalProducts,
       unreadInquiries,
+      totalUsers,
       recentOrders,
       recentConsultations,
     ] = await Promise.all([
@@ -40,6 +32,7 @@ export async function GET(request: NextRequest) {
       prisma.consultationRequest.count({ where: { status: "NEW" } }),
       prisma.product.count(),
       prisma.contactInquiry.count({ where: { status: "UNREAD" } }),
+      prisma.user.count(),
       prisma.order.findMany({
         take: 6,
         orderBy: { createdAt: "desc" },
@@ -70,6 +63,9 @@ export async function GET(request: NextRequest) {
         },
         inquiries: {
           unread: unreadInquiries,
+        },
+        users: {
+          total: totalUsers,
         },
         recentOrders,
         recentConsultations,

@@ -26,9 +26,16 @@ export default function RegisterPage() {
     setError(null);
 
     try {
+      const lowerEmail = formData.email.toLowerCase().trim();
+
+      // Prevent direct registration of the admin account via public form
+      if (lowerEmail === "admin@tameeresehat.com") {
+        throw new Error("This email is reserved for administrative access. Please use a personal email.");
+      }
+
       const res = await signUp.email({
         name: formData.name,
-        email: formData.email,
+        email: lowerEmail,
         password: formData.password,
         phone: formData.phone,
         city: formData.city,
@@ -38,7 +45,7 @@ export default function RegisterPage() {
         throw new Error(res.error.message || "Failed to create account.");
       }
 
-      router.push("/admin");
+      router.push("/account");
     } catch (err: any) {
       setError(err.message || "An error occurred during registration.");
     } finally {
@@ -54,7 +61,7 @@ export default function RegisterPage() {
             <Sparkles className="w-3.5 h-3.5" />
             <span>New Account Registration</span>
           </span>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#138833]">
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#22623a]">
             Create an Account
           </h1>
           <p className="text-xs text-[#6a6660]">
@@ -82,7 +89,7 @@ export default function RegisterPage() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="e.g. Muhammad Bilal"
-                className="w-full pl-10 pr-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
+                className="w-full pl-10 pr-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
               />
             </div>
           </div>
@@ -99,7 +106,7 @@ export default function RegisterPage() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="bilal@example.com"
-                className="w-full pl-10 pr-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
+                className="w-full pl-10 pr-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
               />
             </div>
           </div>
@@ -114,7 +121,7 @@ export default function RegisterPage() {
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="0300-1234567"
-                className="w-full px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
+                className="w-full px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
               />
             </div>
 
@@ -127,7 +134,7 @@ export default function RegisterPage() {
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 placeholder="Karachi, Lahore..."
-                className="w-full px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
+                className="w-full px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
               />
             </div>
           </div>
@@ -145,7 +152,7 @@ export default function RegisterPage() {
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#138833] focus:bg-white transition-colors"
+                className="w-full pl-10 pr-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
               />
             </div>
           </div>
@@ -153,7 +160,7 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-[#138833] hover:bg-[#0f7229] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 py-3 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md disabled:opacity-50"
           >
             {loading ? (
               <>
@@ -172,7 +179,7 @@ export default function RegisterPage() {
         <div className="pt-2 text-center text-xs text-[#6a6660]">
           <p>
             Already registered?{" "}
-            <Link href="/login" className="text-[#138833] font-semibold hover:underline">
+            <Link href="/login" className="text-[#22623a] font-semibold hover:underline">
               Sign In
             </Link>
           </p>

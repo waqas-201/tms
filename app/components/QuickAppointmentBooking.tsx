@@ -94,52 +94,52 @@ export default function QuickAppointmentBooking() {
   };
 
   return (
-    <section id="book-appointment" className="py-16 sm:py-20 bg-white border-b border-[#e6dfd5]">
+    <section id="book-appointment" className="py-14 sm:py-16 bg-white border-b border-[#e6dfd5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
 
           {/* Left Column: Clinical Consultation Philosophy (5 cols) */}
-          <Reveal className="lg:col-span-5 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f0f7f3] border border-[#c5e4d1] text-[#138833] text-xs font-semibold">
+          <Reveal className="lg:col-span-5 space-y-5">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#eef7f1] border border-[#cde4d6] text-[#22623a] text-xs font-semibold">
               <Calendar className="w-3.5 h-3.5 text-[#c59b27]" />
               <span>Direct Hakim Consultation</span>
             </div>
 
-            <div className="space-y-3">
-              <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#138833] leading-tight">
-                Book Your Health Consultation in Under 2 Minutes
+            <div className="space-y-2">
+              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#22623a] leading-tight">
+                Book Your Health Consultation
               </h2>
-              <p className="text-xs sm:text-sm text-[#59534b] leading-relaxed">
-                Whether you prefer an online WhatsApp review from anywhere in Pakistan or an in-person physical pulse checkup at our Karachi clinic, our experienced Hakims are here to guide your recovery.
+              <p className="text-xs sm:text-sm text-[#59534b]">
+                Connect via online WhatsApp across Pakistan or visit our Karachi clinic for an in-person pulse diagnosis.
               </p>
             </div>
 
             {/* Dual Mode Feature Pills */}
-            <div className="space-y-3 pt-2">
-              <div className="p-4 rounded-xl bg-[#faf8f5] border border-[#e6dfd5] flex items-start gap-3.5">
-                <div className="w-9 h-9 rounded-lg bg-[#138833] text-white flex items-center justify-center shrink-0 mt-0.5">
+            <div className="space-y-2.5 pt-1">
+              <div className="p-3.5 rounded-xl bg-[#faf8f5] border border-[#e6dfd5] flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-[#22623a] text-white flex items-center justify-center shrink-0 mt-0.5">
                   <Video className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="font-serif text-sm font-bold text-[#138833]">
-                    1. Online Telehealth Consultation
+                  <h4 className="font-serif text-xs sm:text-sm font-bold text-[#22623a]">
+                    1. Online Telehealth Consult
                   </h4>
-                  <p className="text-xs text-[#6a6660] mt-0.5">
-                    Audio/Video & WhatsApp assessment for patients across all cities in Pakistan, GCC, and abroad.
+                  <p className="text-xs text-[#6a6660]">
+                    WhatsApp voice & symptom review for patients anywhere in Pakistan and overseas.
                   </p>
                 </div>
               </div>
 
-              <div className="p-4 rounded-xl bg-[#faf8f5] border border-[#e6dfd5] flex items-start gap-3.5">
-                <div className="w-9 h-9 rounded-lg bg-[#8c6a15] text-white flex items-center justify-center shrink-0 mt-0.5">
+              <div className="p-3.5 rounded-xl bg-[#faf8f5] border border-[#e6dfd5] flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-[#8c6a15] text-white flex items-center justify-center shrink-0 mt-0.5">
                   <Building2 className="w-4 h-4" />
                 </div>
                 <div>
-                  <h4 className="font-serif text-sm font-bold text-[#138833]">
+                  <h4 className="font-serif text-xs sm:text-sm font-bold text-[#22623a]">
                     2. In-Person Karachi Clinic Visit
                   </h4>
-                  <p className="text-xs text-[#6a6660] mt-0.5">
-                    Physical Nabz (Pulse) examination & clinical consultation at Korangi Crossing Clinic, Karachi.
+                  <p className="text-xs text-[#6a6660]">
+                    Pulse diagnosis (Nabz) and custom formulation at Korangi Crossing Clinic, Karachi.
                   </p>
                 </div>
               </div>
@@ -148,51 +148,51 @@ export default function QuickAppointmentBooking() {
             {/* Trust Points */}
             <div className="pt-2 border-t border-[#f4eee5] grid grid-cols-2 gap-3 text-xs text-[#59534b]">
               <div className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-[#138833] shrink-0" />
+                <ShieldCheck className="w-4 h-4 text-[#22623a] shrink-0" />
                 <span>100% Confidential</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-[#138833] shrink-0" />
-                <span>2-4 Hr Response</span>
+                <Clock className="w-4 h-4 text-[#22623a] shrink-0" />
+                <span>2–4 Hr Response</span>
               </div>
             </div>
           </Reveal>
 
           {/* Right Column: Interactive Booking Form (7 cols) */}
-          <Reveal delay={0.1} className="lg:col-span-7">
-            <div className="bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] p-6 sm:p-8 shadow-xs">
+          <Reveal delay={0.08} className="lg:col-span-7">
+            <div className="bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] p-5 sm:p-7 shadow-xs">
               {ticketResult ? (
                 /* Success Ticket View */
-                <div className="bg-white rounded-xl p-6 sm:p-8 border border-[#c5e4d1] text-center space-y-5">
-                  <div className="w-14 h-14 rounded-full bg-[#138833] text-white flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-8 h-8" />
+                <div className="bg-white rounded-xl p-5 sm:p-7 border border-[#cde4d6] text-center space-y-4">
+                  <div className="w-12 h-12 rounded-full bg-[#22623a] text-white flex items-center justify-center mx-auto">
+                    <CheckCircle2 className="w-7 h-7" />
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1">
                     <span className="text-xs uppercase font-bold tracking-wider text-[#8c6a15]">
-                      Appointment Slot Registered
+                      Slot Registered
                     </span>
-                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#138833]">
+                    <h3 className="font-serif text-lg sm:text-xl font-bold text-[#22623a]">
                       Consultation Request Confirmed
                     </h3>
                     <p className="text-xs text-[#59534b]">
-                      Your Reference Ticket Number:
+                      Reference Ticket Number:
                     </p>
-                    <div className="inline-block font-mono text-sm font-bold px-3 py-1 bg-[#f0f7f3] text-[#138833] rounded-md border border-[#c5e4d1]">
+                    <div className="inline-block font-mono text-sm font-bold px-3 py-1 bg-[#eef7f1] text-[#22623a] rounded-md border border-[#cde4d6]">
                       {ticketResult.ticketNumber}
                     </div>
                   </div>
 
-                  <p className="text-xs text-[#6a6660] max-w-md mx-auto leading-relaxed">
-                    Hakim Sahib has received your details. Click below to immediately open WhatsApp with your ticket for instant response.
+                  <p className="text-xs text-[#6a6660] max-w-md mx-auto">
+                    Click below to open WhatsApp with your ticket for instant response from Hakim Sahib.
                   </p>
 
-                  <div className="pt-2 flex flex-col sm:flex-row gap-3 justify-center">
+                  <div className="pt-2 flex flex-col sm:flex-row gap-2.5 justify-center">
                     <a
                       href={generateWhatsAppUrl(ticketResult.ticketNumber)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
                     >
                       <MessageCircle className="w-4 h-4" />
                       <span>Open WhatsApp with Ticket</span>
@@ -201,7 +201,7 @@ export default function QuickAppointmentBooking() {
                     <button
                       type="button"
                       onClick={() => setTicketResult(null)}
-                      className="w-full sm:w-auto px-5 py-3 bg-white border border-[#e6dfd5] hover:bg-[#faf8f5] text-[#1a1816] text-xs font-semibold rounded-xl"
+                      className="w-full sm:w-auto px-4 py-2.5 bg-white border border-[#e6dfd5] hover:bg-[#faf8f5] text-[#1a1816] text-xs font-semibold rounded-xl"
                     >
                       Book Another Slot
                     </button>
@@ -209,19 +209,19 @@ export default function QuickAppointmentBooking() {
                 </div>
               ) : (
                 /* Booking Form */
-                <form onSubmit={handleBookingSubmit} className="space-y-5">
+                <form onSubmit={handleBookingSubmit} className="space-y-4">
                   {/* Mode Selector Tabs */}
-                  <div className="space-y-2">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#138833] block">
-                      Select Consultation Mode:
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[#22623a] block">
+                      Consultation Mode:
                     </label>
                     <div className="grid grid-cols-2 gap-2 p-1 bg-white rounded-xl border border-[#e6dfd5]">
                       <button
                         type="button"
                         onClick={() => setBookingType("ONLINE")}
-                        className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-bold transition-all ${
+                        className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-all ${
                           bookingType === "ONLINE"
-                            ? "bg-[#138833] text-white shadow-xs"
+                            ? "bg-[#22623a] text-white shadow-xs"
                             : "text-[#59534b] hover:text-[#1a1816] hover:bg-[#faf8f5]"
                         }`}
                       >
@@ -232,30 +232,30 @@ export default function QuickAppointmentBooking() {
                       <button
                         type="button"
                         onClick={() => setBookingType("PHYSICAL")}
-                        className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-xs font-bold transition-all ${
+                        className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-bold transition-all ${
                           bookingType === "PHYSICAL"
-                            ? "bg-[#138833] text-white shadow-xs"
+                            ? "bg-[#22623a] text-white shadow-xs"
                             : "text-[#59534b] hover:text-[#1a1816] hover:bg-[#faf8f5]"
                         }`}
                       >
                         <Building2 className="w-3.5 h-3.5" />
-                        <span>Karachi Clinic Visit</span>
+                        <span>Karachi Clinic</span>
                       </button>
                     </div>
                   </div>
 
                   {error && (
-                    <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
                       <AlertCircle className="w-4 h-4 shrink-0" />
                       <span>{error}</span>
                     </div>
                   )}
 
                   {/* Form Inputs */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div className="space-y-1 sm:col-span-2">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        Patient Full Name <span className="text-red-500">*</span>
+                        Full Name <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
@@ -264,7 +264,7 @@ export default function QuickAppointmentBooking() {
                         value={formData.fullName}
                         onChange={handleChange}
                         placeholder="e.g. Muhammad Aslam"
-                        className="w-full text-xs px-3.5 py-2.5 bg-white border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#138833]"
+                        className="w-full text-xs px-3 py-2 bg-white border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
                       />
                     </div>
 
@@ -279,7 +279,7 @@ export default function QuickAppointmentBooking() {
                         value={formData.phone}
                         onChange={handleChange}
                         placeholder="0300-1234567"
-                        className="w-full text-xs px-3.5 py-2.5 bg-white border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#138833]"
+                        className="w-full text-xs px-3 py-2 bg-white border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
                       />
                     </div>
 
@@ -293,8 +293,8 @@ export default function QuickAppointmentBooking() {
                         name="city"
                         value={formData.city}
                         onChange={handleChange}
-                        placeholder="e.g. Karachi, Lahore, Rawalpindi"
-                        className="w-full text-xs px-3.5 py-2.5 bg-white border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#138833]"
+                        placeholder="e.g. Karachi, Lahore, Islamabad"
+                        className="w-full text-xs px-3 py-2 bg-white border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
                       />
                     </div>
 
@@ -306,7 +306,7 @@ export default function QuickAppointmentBooking() {
                         name="primaryConcern"
                         value={formData.primaryConcern}
                         onChange={handleChange}
-                        className="w-full text-xs px-3.5 py-2.5 bg-white border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#138833]"
+                        className="w-full text-xs px-3 py-2 bg-white border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
                       >
                         {CONSULTATION_AREAS.map((a) => (
                           <option key={a.title} value={a.title}>
@@ -318,13 +318,13 @@ export default function QuickAppointmentBooking() {
 
                     <div className="space-y-1 sm:col-span-2">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        Preferred Consultation Slot <span className="text-red-500">*</span>
+                        Preferred Slot <span className="text-red-500">*</span>
                       </label>
                       <select
                         name="preferredSlot"
                         value={formData.preferredSlot}
                         onChange={handleChange}
-                        className="w-full text-xs px-3.5 py-2.5 bg-white border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#138833]"
+                        className="w-full text-xs px-3 py-2 bg-white border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
                       >
                         <option value="Morning (10:00 AM - 02:00 PM)">Morning (10:00 AM – 02:00 PM)</option>
                         <option value="Afternoon (03:00 PM - 06:00 PM)">Afternoon (03:00 PM – 06:00 PM)</option>
@@ -334,15 +334,15 @@ export default function QuickAppointmentBooking() {
 
                     <div className="space-y-1 sm:col-span-2">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        Brief Symptoms Note (Optional)
+                        Brief Symptoms (Optional)
                       </label>
                       <textarea
                         rows={2}
                         name="symptomsNote"
                         value={formData.symptomsNote}
                         onChange={handleChange}
-                        placeholder="e.g. Acid burning after dinner for 2 months, bloating, fatigue..."
-                        className="w-full text-xs p-3 bg-white border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#138833]"
+                        placeholder="e.g. Acid burning after dinner, knee stiffness, fatigue..."
+                        className="w-full text-xs p-2.5 bg-white border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
                       />
                     </div>
                   </div>
@@ -350,18 +350,18 @@ export default function QuickAppointmentBooking() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3 px-5 bg-[#138833] hover:bg-[#0f7229] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full py-2.5 px-4 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {loading ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Registering Appointment...</span>
+                        <span>Registering...</span>
                       </>
                     ) : (
                       <>
-                        <Sparkles className="w-4 h-4 text-[#c59b27]" />
-                        <span>Confirm & Request Appointment Slot</span>
-                        <ArrowRight className="w-4 h-4 ml-1" />
+                        <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
+                        <span>Confirm Appointment Slot</span>
+                        <ArrowRight className="w-3.5 h-3.5 ml-1" />
                       </>
                     )}
                   </button>

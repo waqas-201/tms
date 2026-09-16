@@ -751,6 +751,7 @@ export const PRODUCTS: Product[] = [
 
 export const CLINIC_INFO = {
   brandName: "Tameer-e-Sehat",
+  clinicName: "Matab Tameer-e-sehat",
   brandUrdu: "",
   tagline: "35+ Years of Honest Herbal Care in Pakistan",
   taglineUrdu: "",
@@ -770,46 +771,21 @@ export const CLINIC_INFO = {
   fridayTimings: "Friday: 3:00 PM – 9:00 PM",
   freeShippingThreshold: 2000,
   flatShippingFee: 200,
+  googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Matab+Tameer-e-sehat+Plot+no+L+41+Korangi+Crossing+Rd+Karachi",
+  googleShareUrl: "https://www.google.com/maps/search/?api=1&query=Matab+Tameer-e-sehat+Karachi",
+  googleReviewUrl: "https://www.google.com/search?q=Matab+Tameer-e-sehat+Karachi#lrd=0x3eb33b7b6c5bb5d1:0x6d1a5cb55bed2dd2,1,,,",
+  googleSearchUrl: "https://www.google.com/search?q=Matab+Tameer-e-sehat+Karachi",
 };
 
-export const TESTIMONIALS = [
-  {
-    id: 1,
-    name: "Tariq Mahmood",
-    city: "Lahore",
-    text: "I reached out because of chronic stomach gas and bloating. After taking Arq Makoh and Harar Murabba for three weeks, the heaviness completely went away. The purity is unmatched.",
-    concern: "Stomach & Digestion",
-    rating: 5,
-    verifiedPurchase: true
-  },
-  {
-    id: 2,
-    name: "Dr. Samina Rizvi",
-    city: "Karachi",
-    text: "As a doctor myself, I appreciate clean, genuine herbal products. Tameer-e-Sehat's distillates and Amla Murabba are completely free from synthetic colors or chemicals. Truly genuine.",
-    concern: "Liver & Immunity",
-    rating: 5,
-    verifiedPurchase: true
-  },
-  {
-    id: 3,
-    name: "Muhammad Usman",
-    city: "Islamabad",
-    text: "JointZen oil has given my mother huge relief from her knee pain. The parcel arrived in Islamabad in 2 days with Cash on Delivery. Great service.",
-    concern: "Joint & Knee Pain",
-    rating: 5,
-    verifiedPurchase: true
-  },
-  {
-    id: 4,
-    name: "Fatima Zehra",
-    city: "Rawalpindi",
-    text: "The WhatsApp consultation with Hakim Sahib was so respectful, private, and helpful. He listened to my health problems patiently and suggested simple natural remedies that worked.",
-    concern: "Online Health Advice",
-    rating: 5,
-    verifiedPurchase: true
-  }
-];
+export const TESTIMONIALS: Array<{
+  id: number;
+  name: string;
+  city: string;
+  text: string;
+  concern: string;
+  rating: number;
+  verifiedPurchase: boolean;
+}> = [];
 
 export const CONSULTATION_AREAS = [
   {

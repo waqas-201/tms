@@ -22,12 +22,12 @@ export default function AboutPage() {
   return (
     <div className="bg-[#faf8f5]">
       {/* Hero Header */}
-      <section className="relative py-16 sm:py-24 border-b border-[#e6dfd5] overflow-hidden bg-[#138833] text-white">
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#0d5e23]/50 blur-3xl pointer-events-none" />
+      <section className="relative py-16 sm:py-24 border-b border-[#e6dfd5] overflow-hidden bg-[#22623a] text-white">
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#143e23]/50 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#c59b27]/10 blur-3xl pointer-events-none" />
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0d5e23] border border-[#1b993e] text-[#c59b27] text-xs font-medium tracking-wide">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#143e23] border border-[#2d7648] text-[#c59b27] text-xs font-medium tracking-wide">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Serving Families Since 1990</span>
           </div>
@@ -61,11 +61,11 @@ export default function AboutPage() {
 
               <div className="bg-[#faf8f5] p-6 rounded-xl border border-[#e6dfd5] space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#138833] text-[#c59b27] flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-[#22623a] text-[#c59b27] flex items-center justify-center">
                     <Award className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="font-serif text-sm font-bold text-[#138833]">
+                    <h4 className="font-serif text-sm font-bold text-[#22623a]">
                       Established Herbal Clinic
                     </h4>
                     <p className="text-xs text-[#6a6660]">Karachi, Sindh, Pakistan</p>
@@ -83,7 +83,7 @@ export default function AboutPage() {
                 <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
                   Our Philosophy
                 </span>
-                <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#138833] leading-tight">
+                <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#22623a] leading-tight">
                   Real Care, Pure Herbs, and Honest Advice
                 </h2>
               </div>
@@ -104,7 +104,7 @@ export default function AboutPage() {
 
               {/* Quote callout */}
               <div className="p-5 rounded-xl bg-[#faf8f5] border-l-4 border-[#c59b27] space-y-2 my-4">
-                <p className="font-serif italic text-base text-[#138833]">
+                <p className="font-serif italic text-base text-[#22623a]">
                   &ldquo;A good Hakim doesn&apos;t just cover up symptoms — he helps your body recover its own natural strength and vitality.&rdquo;
                 </p>
                 <span className="text-xs text-[#6a6660] font-medium block">
@@ -115,7 +115,7 @@ export default function AboutPage() {
               <div className="pt-2 flex flex-col sm:flex-row items-center gap-4">
                 <Link
                   href="/consultation"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#138833] hover:bg-[#0f7229] text-white text-xs font-semibold tracking-wider uppercase rounded-md transition-colors shadow-xs"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-semibold tracking-wider uppercase rounded-md transition-colors shadow-xs"
                 >
                   <Sparkles className="w-4 h-4 text-[#c59b27]" />
                   <span>Request Online Consultation</span>
@@ -125,9 +125,9 @@ export default function AboutPage() {
                   href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white hover:bg-[#faf8f5] text-[#138833] text-xs font-semibold rounded-md border border-[#e6dfd5] transition-colors"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-white hover:bg-[#faf8f5] text-[#22623a] text-xs font-semibold rounded-md border border-[#e6dfd5] transition-colors"
                 >
-                  <MessageCircle className="w-4 h-4 text-[#1b993e]" />
+                  <MessageCircle className="w-4 h-4 text-[#2d7648]" />
                   <span>Chat on WhatsApp</span>
                 </a>
               </div>
@@ -143,7 +143,7 @@ export default function AboutPage() {
             <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
               Our Method
             </span>
-            <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#138833]">
+            <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#22623a]">
               How Natural Herbal Medicine Works
             </h2>
             <p className="text-xs sm:text-sm text-[#59534b]">
@@ -153,10 +153,10 @@ export default function AboutPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="bg-white rounded-xl p-6 border border-[#e6dfd5] shadow-xs space-y-3">
-              <div className="w-12 h-12 rounded-lg bg-[#138833] text-[#c59b27] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-lg bg-[#22623a] text-[#c59b27] flex items-center justify-center">
                 <Activity className="w-6 h-6" />
               </div>
-              <h3 className="font-serif text-base font-bold text-[#138833]">
+              <h3 className="font-serif text-base font-bold text-[#22623a]">
                 Personalized Care
               </h3>
               <p className="text-xs text-[#59534b] leading-relaxed">
@@ -165,10 +165,10 @@ export default function AboutPage() {
             </div>
 
             <div className="bg-white rounded-xl p-6 border border-[#e6dfd5] shadow-xs space-y-3">
-              <div className="w-12 h-12 rounded-lg bg-[#138833] text-[#c59b27] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-lg bg-[#22623a] text-[#c59b27] flex items-center justify-center">
                 <Heart className="w-6 h-6" />
               </div>
-              <h3 className="font-serif text-base font-bold text-[#138833]">
+              <h3 className="font-serif text-base font-bold text-[#22623a]">
                 Natural Cleansing
               </h3>
               <p className="text-xs text-[#59534b] leading-relaxed">
@@ -177,10 +177,10 @@ export default function AboutPage() {
             </div>
 
             <div className="bg-white rounded-xl p-6 border border-[#e6dfd5] shadow-xs space-y-3">
-              <div className="w-12 h-12 rounded-lg bg-[#138833] text-[#c59b27] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-lg bg-[#22623a] text-[#c59b27] flex items-center justify-center">
                 <ShieldCheck className="w-6 h-6" />
               </div>
-              <h3 className="font-serif text-base font-bold text-[#138833]">
+              <h3 className="font-serif text-base font-bold text-[#22623a]">
                 Strengthening Immunity
               </h3>
               <p className="text-xs text-[#59534b] leading-relaxed">
@@ -189,10 +189,10 @@ export default function AboutPage() {
             </div>
 
             <div className="bg-white rounded-xl p-6 border border-[#e6dfd5] shadow-xs space-y-3">
-              <div className="w-12 h-12 rounded-lg bg-[#138833] text-[#c59b27] flex items-center justify-center">
+              <div className="w-12 h-12 rounded-lg bg-[#22623a] text-[#c59b27] flex items-center justify-center">
                 <Leaf className="w-6 h-6" />
               </div>
-              <h3 className="font-serif text-base font-bold text-[#138833]">
+              <h3 className="font-serif text-base font-bold text-[#22623a]">
                 Diet & Daily Habits
               </h3>
               <p className="text-xs text-[#59534b] leading-relaxed">
@@ -212,7 +212,7 @@ export default function AboutPage() {
                 <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
                   Quality Standards
                 </span>
-                <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#138833] leading-tight">
+                <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#22623a] leading-tight">
                   How We Prepare Our Natural Remedies
                 </h2>
               </div>
@@ -224,11 +224,11 @@ export default function AboutPage() {
 
                 <div className="space-y-3 pt-2">
                   <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-[#138833]/10 text-[#138833] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+                    <div className="w-6 h-6 rounded-full bg-[#22623a]/10 text-[#22623a] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
                       ✓
                     </div>
                     <div>
-                      <strong className="text-[#138833] font-semibold block text-sm">
+                      <strong className="text-[#22623a] font-semibold block text-sm">
                         Pure Steam Distilled Waters (Arq)
                       </strong>
                       <span className="text-xs text-[#6a6660]">
@@ -238,11 +238,11 @@ export default function AboutPage() {
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-[#138833]/10 text-[#138833] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+                    <div className="w-6 h-6 rounded-full bg-[#22623a]/10 text-[#22623a] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
                       ✓
                     </div>
                     <div>
-                      <strong className="text-[#138833] font-semibold block text-sm">
+                      <strong className="text-[#22623a] font-semibold block text-sm">
                         Slow Cooked Fruit Preserves (Murabba)
                       </strong>
                       <span className="text-xs text-[#6a6660]">
@@ -252,11 +252,11 @@ export default function AboutPage() {
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="w-6 h-6 rounded-full bg-[#138833]/10 text-[#138833] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
+                    <div className="w-6 h-6 rounded-full bg-[#22623a]/10 text-[#22623a] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
                       ✓
                     </div>
                     <div>
-                      <strong className="text-[#138833] font-semibold block text-sm">
+                      <strong className="text-[#22623a] font-semibold block text-sm">
                         Cold Steeped Joint & Skin Oils (Roghan)
                       </strong>
                       <span className="text-xs text-[#6a6660]">
@@ -283,7 +283,7 @@ export default function AboutPage() {
       </section>
 
       {/* Clinic Details & CTA */}
-      <section className="py-16 bg-[#138833] text-white">
+      <section className="py-16 bg-[#22623a] text-white">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
           <h2 className="font-serif text-2xl sm:text-4xl font-bold text-white">
             Experience Natural Healing Today
@@ -295,13 +295,13 @@ export default function AboutPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
             <Link
               href="/consultation"
-              className="w-full sm:w-auto px-7 py-3.5 bg-[#c59b27] hover:bg-[#aa821c] text-[#138833] font-semibold text-xs uppercase tracking-wider rounded-md transition-colors shadow-md"
+              className="w-full sm:w-auto px-7 py-3.5 bg-[#c59b27] hover:bg-[#aa821c] text-[#22623a] font-semibold text-xs uppercase tracking-wider rounded-md transition-colors shadow-md"
             >
               Start Free Consultation
             </Link>
             <Link
               href="/products"
-              className="w-full sm:w-auto px-7 py-3.5 bg-[#0d5e23] hover:bg-[#1b993e] text-white font-semibold text-xs uppercase tracking-wider rounded-md border border-[#1b993e] transition-colors"
+              className="w-full sm:w-auto px-7 py-3.5 bg-[#143e23] hover:bg-[#2d7648] text-white font-semibold text-xs uppercase tracking-wider rounded-md border border-[#2d7648] transition-colors"
             >
               Explore All Products
             </Link>

@@ -70,7 +70,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-[#138833]/60 backdrop-blur-xs transition-opacity animate-fade-in"
+        className="fixed inset-0 bg-[#22623a]/60 backdrop-blur-xs transition-opacity animate-fade-in"
       />
 
       {/* Modal Box */}
@@ -89,14 +89,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="p-1 text-[#6a6660] hover:text-[#138833] mr-1"
+              className="p-1 text-[#6a6660] hover:text-[#22623a] mr-1"
             >
               <X className="w-4 h-4" />
             </button>
           )}
           <button
             onClick={onClose}
-            className="text-xs font-semibold text-[#138833] bg-[#f4eee5] px-2.5 py-1 rounded hover:bg-[#e8ded2] transition-colors shrink-0"
+            className="text-xs font-semibold text-[#22623a] bg-[#f4eee5] px-2.5 py-1 rounded hover:bg-[#e8ded2] transition-colors shrink-0"
           >
             ESC
           </button>
@@ -124,7 +124,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <button
                   key={chip}
                   onClick={() => setQuery(chip)}
-                  className="text-xs px-3 py-1.5 bg-white border border-[#e6dfd5] rounded-full text-[#138833] hover:bg-[#138833] hover:text-white hover:border-[#138833] transition-all"
+                  className="text-xs px-3 py-1.5 bg-white border border-[#e6dfd5] rounded-full text-[#22623a] hover:bg-[#22623a] hover:text-white hover:border-[#22623a] transition-all"
                 >
                   {chip}
                 </button>
@@ -151,7 +151,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <Link
                   href="/consultation"
                   onClick={onClose}
-                  className="mt-3 inline-block text-xs text-[#138833] font-semibold underline decoration-[#c59b27]"
+                  className="mt-3 inline-block text-xs text-[#22623a] font-semibold underline decoration-[#c59b27]"
                 >
                   Talk to Hakim Online &rarr;
                 </Link>
@@ -178,12 +178,12 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                         {product.categoryLabel}
                       </span>
                       {product.badge && (
-                        <span className="text-[9px] px-1.5 py-0.5 bg-[#138833]/10 text-[#138833] rounded">
+                        <span className="text-[9px] px-1.5 py-0.5 bg-[#22623a]/10 text-[#22623a] rounded">
                           {product.badge}
                         </span>
                       )}
                     </div>
-                    <h4 className="text-sm font-medium text-[#138833] group-hover:text-[#c59b27] transition-colors truncate">
+                    <h4 className="text-sm font-medium text-[#22623a] group-hover:text-[#c59b27] transition-colors truncate">
                       {product.name}
                     </h4>
                     <p className="text-xs text-[#6a6660] truncate">
@@ -191,10 +191,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="text-sm font-semibold text-[#138833]">
+                    <div className="text-sm font-semibold text-[#22623a]">
                       ₨ {product.price.toLocaleString()}
                     </div>
-                    <div className="text-[11px] text-[#1b993e] font-medium flex items-center justify-end gap-1">
+                    <div className="text-[11px] text-[#2d7648] font-medium flex items-center justify-end gap-1">
                       <span>View</span>
                       <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                     </div>

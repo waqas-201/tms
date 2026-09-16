@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireRole, ROLES } from "@/lib/rbac";
 
 export async function GET(
   request: NextRequest,
@@ -50,17 +50,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
-
-    const isDev = process.env.NODE_ENV !== "production";
-    if (!isDev && (!session || session.user.role !== "admin")) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 403 }
-      );
-    }
+    // Both Admin and Editor can edit products in the catalog
+    const { errorResponse } = await requireRole(request, [ROLES.ADMIN, ROLES.EDITOR]);
+    if (errorResponse) return errorResponse;
 
     const { id } = await params;
     const body = await request.json();
@@ -165,17 +157,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
-
-    const isDev = process.env.NODE_ENV !== "production";
-    if (!isDev && (!session || session.user.role !== "admin")) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 403 }
-      );
-    }
+    // Only Admin can delete products
+    const { errorResponse } = await requireRole(request, [ROLES.ADMIN]);
+    if (errorResponse) return errorResponse;
 
     const { id } = await params;
     const existing = await prisma.product.findFirst({

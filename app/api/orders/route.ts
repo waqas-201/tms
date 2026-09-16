@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { ROLES } from "@/lib/rbac";
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,15 +15,17 @@ export async function GET(request: NextRequest) {
 
     const where: Record<string, unknown> = {};
 
-    const isDev = process.env.NODE_ENV !== "production";
-    // Non-admin users in production only see their own orders
-    if (!isDev && (!session || session.user.role !== "admin")) {
-      if (!session) {
-        return NextResponse.json(
-          { success: false, error: "Authentication required to view orders." },
-          { status: 401 }
-        );
-      }
+    const userRole = (session?.user as any)?.role;
+
+    // Only Admin can view all store orders. Regular customers and other staff only see their own placed orders.
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Authentication required to view orders." },
+        { status: 401 }
+      );
+    }
+
+    if (userRole !== ROLES.ADMIN) {
       where.userId = session.user.id;
     }
 
@@ -33,10 +36,10 @@ export async function GET(request: NextRequest) {
     if (search && search.trim()) {
       const q = search.trim();
       where.OR = [
-        { orderNumber: { contains: q } },
-        { customerName: { contains: q } },
-        { phone: { contains: q } },
-        { city: { contains: q } },
+        { orderNumber: { contains: q, mode: "insensitive" } },
+        { customerName: { contains: q, mode: "insensitive" } },
+        { phone: { contains: q, mode: "insensitive" } },
+        { city: { contains: q, mode: "insensitive" } },
       ];
     }
 
@@ -77,6 +80,8 @@ export async function POST(request: NextRequest) {
       deliveryNotes,
       paymentMethod = "COD",
       items,
+      discountAmount = 0,
+      couponCode = null,
     } = body;
 
     if (!customerName || !phone || !city || !address || !items || !Array.isArray(items) || items.length === 0) {
@@ -94,7 +99,12 @@ export async function POST(request: NextRequest) {
     );
 
     const shippingFee = subtotal >= 2000 ? 0 : 200;
-    const total = subtotal + shippingFee;
+    const total = Math.max(0, subtotal + shippingFee - discountAmount);
+
+    let finalDeliveryNotes = deliveryNotes || null;
+    if (couponCode) {
+      finalDeliveryNotes = `[COUPON APPLIED: ${couponCode} | DISCOUNT: ₨ ${discountAmount}] ` + (finalDeliveryNotes || "");
+    }
 
     // Generate readable order number: TMS-YYYY-XXXX
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
@@ -108,7 +118,7 @@ export async function POST(request: NextRequest) {
         email: email || null,
         city,
         address,
-        deliveryNotes: deliveryNotes || null,
+        deliveryNotes: finalDeliveryNotes,
         paymentMethod,
         paymentStatus: "PENDING",
         orderStatus: "PENDING",

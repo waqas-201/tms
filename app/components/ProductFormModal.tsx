@@ -362,7 +362,7 @@ export default function ProductFormModal({
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-[#138833]/60 backdrop-blur-xs transition-opacity animate-fade-in"
+        className="fixed inset-0 bg-[#22623a]/60 backdrop-blur-xs transition-opacity animate-fade-in"
       />
 
       {/* Modal Window */}
@@ -370,11 +370,11 @@ export default function ProductFormModal({
         {/* Header */}
         <div className="px-6 py-4 border-b border-[#e6dfd5] bg-[#faf8f5] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#138833] text-[#c59b27] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-[#22623a] text-[#c59b27] flex items-center justify-center">
               <Package className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-serif text-lg font-bold text-[#138833]">
+              <h2 className="font-serif text-lg font-bold text-[#22623a]">
                 {isEditing ? "Edit Product" : "Upload New Product"}
               </h2>
               <p className="text-[11px] text-[#6a6660]">
@@ -386,7 +386,7 @@ export default function ProductFormModal({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-md text-[#6a6660] hover:text-[#138833] hover:bg-[#e6dfd5]/50 transition-colors"
+            className="p-1.5 rounded-md text-[#6a6660] hover:text-[#22623a] hover:bg-[#e6dfd5]/50 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -404,7 +404,7 @@ export default function ProductFormModal({
           {/* Section 1: Image Upload & Showcase */}
           <div className="bg-[#faf8f5] p-5 rounded-xl border border-[#e6dfd5] space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-[#138833] flex items-center gap-1.5 text-sm">
+              <h3 className="font-bold text-[#22623a] flex items-center gap-1.5 text-sm">
                 <ImageIcon className="w-4 h-4 text-[#c59b27]" />
                 <span>Product Image</span>
               </h3>
@@ -414,8 +414,8 @@ export default function ProductFormModal({
                   onClick={() => setImageTab("upload")}
                   className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
                     imageTab === "upload"
-                      ? "bg-[#138833] text-white font-semibold"
-                      : "text-[#6a6660] hover:text-[#138833]"
+                      ? "bg-[#22623a] text-white font-semibold"
+                      : "text-[#6a6660] hover:text-[#22623a]"
                   }`}
                 >
                   Upload File
@@ -425,8 +425,8 @@ export default function ProductFormModal({
                   onClick={() => setImageTab("url")}
                   className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
                     imageTab === "url"
-                      ? "bg-[#138833] text-white font-semibold"
-                      : "text-[#6a6660] hover:text-[#138833]"
+                      ? "bg-[#22623a] text-white font-semibold"
+                      : "text-[#6a6660] hover:text-[#22623a]"
                   }`}
                 >
                   Image URL
@@ -471,14 +471,14 @@ export default function ProductFormModal({
                         setError(`Upload error: ${err.message}`);
                       }}
                       appearance={{
-                        button: "bg-[#138833] hover:bg-[#0f7229] text-xs font-semibold py-2 px-4 rounded-md",
+                        button: "bg-[#22623a] hover:bg-[#1b502e] text-xs font-semibold py-2 px-4 rounded-md",
                         container: "border-none p-2",
-                        label: "text-xs font-medium text-[#138833]",
+                        label: "text-xs font-medium text-[#22623a]",
                         allowedContent: "text-[10px] text-[#6a6660]",
                       }}
                     />
                     {uploadSuccess && (
-                      <p className="text-[#1b993e] font-semibold flex items-center justify-center gap-1">
+                      <p className="text-[#2d7648] font-semibold flex items-center justify-center gap-1">
                         <Check className="w-3.5 h-3.5" /> Image uploaded successfully!
                       </p>
                     )}
@@ -495,7 +495,7 @@ export default function ProductFormModal({
                         setFormData({ ...formData, image: e.target.value })
                       }
                       placeholder="/images/1-scaled.png or https://..."
-                      className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833]"
+                      className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a]"
                     />
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       <span className="text-[10px] text-[#6a6660]">Sample presets:</span>
@@ -510,7 +510,7 @@ export default function ProductFormModal({
                           key={sample}
                           type="button"
                           onClick={() => setFormData({ ...formData, image: sample })}
-                          className="text-[10px] px-2 py-0.5 bg-[#faf8f5] hover:bg-[#e6dfd5] rounded text-[#138833] border border-[#e6dfd5]"
+                          className="text-[10px] px-2 py-0.5 bg-[#faf8f5] hover:bg-[#e6dfd5] rounded text-[#22623a] border border-[#e6dfd5]"
                         >
                           {sample.split("/").pop()?.slice(0, 15)}...
                         </button>
@@ -524,8 +524,8 @@ export default function ProductFormModal({
 
           {/* Section 2: Core Details & Pricing */}
           <div className="bg-white p-5 rounded-xl border border-[#e6dfd5] space-y-4">
-            <h3 className="font-bold text-[#138833] flex items-center gap-1.5 text-sm border-b border-[#f4eee5] pb-2">
-              <Layers className="w-4 h-4 text-[#138833]" />
+            <h3 className="font-bold text-[#22623a] flex items-center gap-1.5 text-sm border-b border-[#f4eee5] pb-2">
+              <Layers className="w-4 h-4 text-[#22623a]" />
               <span>General Information & Category</span>
             </h3>
 
@@ -540,7 +540,7 @@ export default function ProductFormModal({
                   value={formData.name}
                   onChange={handleNameChange}
                   placeholder="e.g. Kashmiri Amla Murabba in Honey"
-                  className="w-full p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#138833] font-medium"
+                  className="w-full p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a] font-medium"
                 />
               </div>
 
@@ -649,7 +649,7 @@ export default function ProductFormModal({
 
           {/* Section 3: Descriptions & Hakim Advice */}
           <div className="bg-white p-5 rounded-xl border border-[#e6dfd5] space-y-4">
-            <h3 className="font-bold text-[#138833] flex items-center gap-1.5 text-sm border-b border-[#f4eee5] pb-2">
+            <h3 className="font-bold text-[#22623a] flex items-center gap-1.5 text-sm border-b border-[#f4eee5] pb-2">
               <Info className="w-4 h-4 text-[#c59b27]" />
               <span>Descriptions & Usage Guidance</span>
             </h3>
@@ -732,7 +732,7 @@ export default function ProductFormModal({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* Health Benefits */}
             <div className="bg-[#faf8f5] p-5 rounded-xl border border-[#e6dfd5] space-y-3">
-              <h3 className="font-bold text-[#138833] flex items-center gap-1.5 text-sm">
+              <h3 className="font-bold text-[#22623a] flex items-center gap-1.5 text-sm">
                 <Sparkles className="w-4 h-4 text-[#c59b27]" />
                 <span>Health Benefits</span>
               </h3>
@@ -754,7 +754,7 @@ export default function ProductFormModal({
                 <button
                   type="button"
                   onClick={() => addBenefit(newBenefitInput)}
-                  className="px-3 py-2 bg-[#138833] text-white rounded-lg font-semibold shrink-0"
+                  className="px-3 py-2 bg-[#22623a] text-white rounded-lg font-semibold shrink-0"
                 >
                   <Plus className="w-3.5 h-3.5" />
                 </button>
@@ -768,7 +768,7 @@ export default function ProductFormModal({
                     key={p}
                     type="button"
                     onClick={() => addBenefit(p)}
-                    className="text-[10px] px-2 py-0.5 bg-white border border-[#e6dfd5] rounded-full text-[#138833] hover:bg-[#138833] hover:text-white transition-colors"
+                    className="text-[10px] px-2 py-0.5 bg-white border border-[#e6dfd5] rounded-full text-[#22623a] hover:bg-[#22623a] hover:text-white transition-colors"
                   >
                     + {p.slice(0, 24)}...
                   </button>
@@ -782,7 +782,7 @@ export default function ProductFormModal({
                     key={i}
                     className="flex justify-between items-center p-2 bg-white rounded-lg border border-[#e6dfd5]"
                   >
-                    <span className="text-[#138833]">{b}</span>
+                    <span className="text-[#22623a]">{b}</span>
                     <button
                       type="button"
                       onClick={() => removeBenefit(i)}
@@ -797,8 +797,8 @@ export default function ProductFormModal({
 
             {/* Ingredients */}
             <div className="bg-[#faf8f5] p-5 rounded-xl border border-[#e6dfd5] space-y-3">
-              <h3 className="font-bold text-[#138833] flex items-center gap-1.5 text-sm">
-                <Leaf className="w-4 h-4 text-[#1b993e]" />
+              <h3 className="font-bold text-[#22623a] flex items-center gap-1.5 text-sm">
+                <Leaf className="w-4 h-4 text-[#2d7648]" />
                 <span>Ingredients & Botanicals</span>
               </h3>
 
@@ -821,7 +821,7 @@ export default function ProductFormModal({
                   <button
                     type="button"
                     onClick={addIngredient}
-                    className="px-3 py-2 bg-[#138833] text-white rounded-lg font-semibold shrink-0"
+                    className="px-3 py-2 bg-[#22623a] text-white rounded-lg font-semibold shrink-0"
                   >
                     <Plus className="w-3.5 h-3.5" />
                   </button>
@@ -836,7 +836,7 @@ export default function ProductFormModal({
                     className="flex justify-between items-center p-2 bg-white rounded-lg border border-[#e6dfd5]"
                   >
                     <div>
-                      <span className="font-bold text-[#138833]">{ing.name}</span>
+                      <span className="font-bold text-[#22623a]">{ing.name}</span>
                       <span className="text-[#6a6660] text-[11px] block">{ing.role}</span>
                     </div>
                     <button
@@ -854,8 +854,8 @@ export default function ProductFormModal({
 
           {/* Section 5: Sizes / Variants & Inventory Flags */}
           <div className="bg-white p-5 rounded-xl border border-[#e6dfd5] space-y-4">
-            <h3 className="font-bold text-[#138833] flex items-center gap-1.5 text-sm border-b border-[#f4eee5] pb-2">
-              <Package className="w-4 h-4 text-[#138833]" />
+            <h3 className="font-bold text-[#22623a] flex items-center gap-1.5 text-sm border-b border-[#f4eee5] pb-2">
+              <Package className="w-4 h-4 text-[#22623a]" />
               <span>Packaging Sizes & Inventory Flags</span>
             </h3>
 
@@ -885,7 +885,7 @@ export default function ProductFormModal({
               <button
                 type="button"
                 onClick={addSize}
-                className="py-2 px-3 bg-[#138833] hover:bg-[#0f7229] text-white rounded-lg font-semibold flex items-center justify-center gap-1"
+                className="py-2 px-3 bg-[#22623a] hover:bg-[#1b502e] text-white rounded-lg font-semibold flex items-center justify-center gap-1"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>Add Size</span>
@@ -900,9 +900,9 @@ export default function ProductFormModal({
                   className="flex justify-between items-center p-2.5 bg-[#faf8f5] rounded-lg border border-[#e6dfd5]"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="font-bold text-[#138833]">{s.name}</span>
+                    <span className="font-bold text-[#22623a]">{s.name}</span>
                     <span className="text-[#6a6660]">({s.weight})</span>
-                    <span className="font-bold text-[#1b993e]">₨ {Number(s.price).toLocaleString()}</span>
+                    <span className="font-bold text-[#2d7648]">₨ {Number(s.price).toLocaleString()}</span>
                   </div>
                   <button
                     type="button"
@@ -924,9 +924,9 @@ export default function ProductFormModal({
                   onChange={(e) =>
                     setFormData({ ...formData, inStock: e.target.checked })
                   }
-                  className="w-4 h-4 accent-[#138833] rounded"
+                  className="w-4 h-4 accent-[#22623a] rounded"
                 />
-                <span className="font-semibold text-[#138833]">Available in Stock</span>
+                <span className="font-semibold text-[#22623a]">Available in Stock</span>
               </label>
 
               <label className="flex items-center gap-2 cursor-pointer">
@@ -938,7 +938,7 @@ export default function ProductFormModal({
                   }
                   className="w-4 h-4 accent-[#c59b27] rounded"
                 />
-                <span className="font-semibold text-[#138833]">
+                <span className="font-semibold text-[#22623a]">
                   Feature on Homepage Showcase
                 </span>
               </label>
@@ -957,7 +957,7 @@ export default function ProductFormModal({
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2.5 bg-[#138833] hover:bg-[#0f7229] text-white font-semibold rounded-lg transition-colors shadow-md flex items-center gap-2 disabled:opacity-50"
+              className="px-6 py-2.5 bg-[#22623a] hover:bg-[#1b502e] text-white font-semibold rounded-lg transition-colors shadow-md flex items-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <>

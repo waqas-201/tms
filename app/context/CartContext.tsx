@@ -9,6 +9,36 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface AppliedCoupon {
+  code: string;
+  description: string;
+  discountType: "percentage" | "fixed" | "free_shipping";
+  discountValue: number; // e.g. 10 for 10%, 200 for 200 PKR
+  minSubtotal?: number;
+}
+
+export const AVAILABLE_COUPONS: Record<string, AppliedCoupon> = {
+  HAKIM10: {
+    code: "HAKIM10",
+    description: "10% Off Your Entire Order",
+    discountType: "percentage",
+    discountValue: 10,
+  },
+  FREESHIP: {
+    code: "FREESHIP",
+    description: "100% Free Nationwide Delivery",
+    discountType: "free_shipping",
+    discountValue: 0,
+  },
+  SEHAT200: {
+    code: "SEHAT200",
+    description: "₨ 200 Flat Off (Orders over ₨ 1,500)",
+    discountType: "fixed",
+    discountValue: 200,
+    minSubtotal: 1500,
+  },
+};
+
 interface CartContextType {
   cart: CartItem[];
   addToCart: (product: Product, selectedSize?: ProductSize, quantity?: number) => void;
@@ -20,9 +50,19 @@ interface CartContextType {
   totalItems: number;
   subtotal: number;
   shippingFee: number;
+  discountAmount: number;
   total: number;
+  appliedCoupon: AppliedCoupon | null;
+  applyCoupon: (code: string) => { success: boolean; message: string };
+  removeCoupon: () => void;
   freeShippingThreshold: number;
   remainingForFreeShipping: number;
+  // Wishlist
+  wishlist: string[]; // array of product IDs
+  toggleWishlist: (productId: string) => void;
+  removeFromWishlist: (productId: string) => void;
+  isInWishlist: (productId: string) => boolean;
+  // Toast & WhatsApp
   toastMessage: string | null;
   showToast: (msg: string) => void;
   generateWhatsAppOrderUrl: (customerDetails?: {
@@ -38,19 +78,34 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Load cart from localStorage
+  // Load cart, wishlist, and coupon from localStorage
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem("tms_cart_v1");
       if (savedCart) {
         setCart(JSON.parse(savedCart));
       }
+
+      const savedWishlist = localStorage.getItem("tms_wishlist_v1");
+      if (savedWishlist) {
+        setWishlist(JSON.parse(savedWishlist));
+      }
+
+      const savedCoupon = localStorage.getItem("tms_coupon_v1");
+      if (savedCoupon) {
+        const parsed = JSON.parse(savedCoupon);
+        if (AVAILABLE_COUPONS[parsed.code]) {
+          setAppliedCoupon(AVAILABLE_COUPONS[parsed.code]);
+        }
+      }
     } catch (e) {
-      console.error("Failed to load cart from localStorage", e);
+      console.error("Failed to load cart/wishlist from localStorage", e);
     } finally {
       setIsInitialized(true);
     }
@@ -66,6 +121,32 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
     }
   }, [cart, isInitialized]);
+
+  // Save wishlist to localStorage
+  useEffect(() => {
+    if (isInitialized) {
+      try {
+        localStorage.setItem("tms_wishlist_v1", JSON.stringify(wishlist));
+      } catch (e) {
+        console.error("Failed to save wishlist to localStorage", e);
+      }
+    }
+  }, [wishlist, isInitialized]);
+
+  // Save coupon to localStorage
+  useEffect(() => {
+    if (isInitialized) {
+      try {
+        if (appliedCoupon) {
+          localStorage.setItem("tms_coupon_v1", JSON.stringify(appliedCoupon));
+        } else {
+          localStorage.removeItem("tms_coupon_v1");
+        }
+      } catch (e) {
+        console.error("Failed to save coupon to localStorage", e);
+      }
+    }
+  }, [appliedCoupon, isInitialized]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -135,8 +216,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = () => {
     setCart([]);
+    setAppliedCoupon(null);
   };
 
+  // Wishlist actions
+  const toggleWishlist = (productId: string) => {
+    setWishlist((prev) => {
+      const exists = prev.includes(productId);
+      if (exists) {
+        showToast("Removed from your saved remedies.");
+        return prev.filter((id) => id !== productId);
+      } else {
+        showToast("Saved to your wishlist ❤️");
+        return [...prev, productId];
+      }
+    });
+  };
+
+  const removeFromWishlist = (productId: string) => {
+    setWishlist((prev) => prev.filter((id) => id !== productId));
+    showToast("Removed from your saved remedies.");
+  };
+
+  const isInWishlist = (productId: string) => {
+    return wishlist.includes(productId);
+  };
+
+  // Price calculations
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const subtotal = cart.reduce(
@@ -145,10 +251,58 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 
   const freeShippingThreshold = CLINIC_INFO.freeShippingThreshold; // 2000 PKR
-  const shippingFee =
-    cart.length === 0 ? 0 : subtotal >= freeShippingThreshold ? 0 : CLINIC_INFO.flatShippingFee; // 200 PKR
-  const total = subtotal + shippingFee;
+
+  // Calculate discount
+  let discountAmount = 0;
+  if (appliedCoupon && subtotal > 0) {
+    if (appliedCoupon.minSubtotal && subtotal < appliedCoupon.minSubtotal) {
+      // Coupon threshold not met
+      discountAmount = 0;
+    } else if (appliedCoupon.discountType === "percentage") {
+      discountAmount = Math.round((subtotal * appliedCoupon.discountValue) / 100);
+    } else if (appliedCoupon.discountType === "fixed") {
+      discountAmount = Math.min(subtotal, appliedCoupon.discountValue);
+    }
+  }
+
+  // Calculate shipping
+  let shippingFee = 0;
+  if (cart.length > 0) {
+    if (appliedCoupon?.discountType === "free_shipping" || subtotal >= freeShippingThreshold) {
+      shippingFee = 0;
+    } else {
+      shippingFee = CLINIC_INFO.flatShippingFee; // 200 PKR
+    }
+  }
+
+  const total = Math.max(0, subtotal - discountAmount + shippingFee);
   const remainingForFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
+
+  // Apply coupon
+  const applyCoupon = (code: string): { success: boolean; message: string } => {
+    const cleanCode = code.trim().toUpperCase();
+    const coupon = AVAILABLE_COUPONS[cleanCode];
+
+    if (!coupon) {
+      return { success: false, message: "Invalid coupon code. Try HAKIM10 or FREESHIP" };
+    }
+
+    if (coupon.minSubtotal && subtotal < coupon.minSubtotal) {
+      return {
+        success: false,
+        message: `Coupon requires minimum order of ₨ ${coupon.minSubtotal.toLocaleString()}`,
+      };
+    }
+
+    setAppliedCoupon(coupon);
+    showToast(`Coupon "${cleanCode}" applied: ${coupon.description}!`);
+    return { success: true, message: `Coupon "${cleanCode}" applied successfully!` };
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    showToast("Coupon removed.");
+  };
 
   const generateWhatsAppOrderUrl = (customerDetails?: {
     name?: string;
@@ -168,7 +322,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       )
       .join("\n\n");
 
-    let message = `*Assalam-o-Alaikum Tameer-e-Sehat,*\nI would like to place an order from your website:\n\n${itemList}\n\n*Subtotal:* ₨ ${subtotal.toLocaleString()}\n*Delivery Fee:* ${
+    let message = `*Assalam-o-Alaikum Tameer-e-Sehat,*\nI would like to place an order from your website:\n\n${itemList}\n\n*Subtotal:* ₨ ${subtotal.toLocaleString()}`;
+
+    if (discountAmount > 0 && appliedCoupon) {
+      message += `\n*Coupon Applied (${appliedCoupon.code}):* -₨ ${discountAmount.toLocaleString()}`;
+    }
+
+    message += `\n*Delivery Fee:* ${
       shippingFee === 0 ? "FREE" : `₨ ${shippingFee}`
     }\n*Total Payable (COD):* ₨ ${total.toLocaleString()}`;
 
@@ -202,9 +362,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         totalItems,
         subtotal,
         shippingFee,
+        discountAmount,
         total,
+        appliedCoupon,
+        applyCoupon,
+        removeCoupon,
         freeShippingThreshold,
         remainingForFreeShipping,
+        wishlist,
+        toggleWishlist,
+        removeFromWishlist,
+        isInWishlist,
         toastMessage,
         showToast,
         generateWhatsAppOrderUrl,

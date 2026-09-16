@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { requireRole, ROLES } from "@/lib/rbac";
 
 export async function GET(
   request: NextRequest,
@@ -28,8 +29,10 @@ export async function GET(
       );
     }
 
+    const userRole = (session?.user as any)?.role;
+
     // If order belongs to a user, ensure authorized viewer or admin or guest with order number
-    if (order.userId && session && session.user.role !== "admin" && session.user.id !== order.userId) {
+    if (order.userId && session && userRole !== ROLES.ADMIN && session.user.id !== order.userId) {
       return NextResponse.json(
         { success: false, error: "Access denied." },
         { status: 403 }
@@ -51,17 +54,8 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
-
-    const isDev = process.env.NODE_ENV !== "production";
-    if (!isDev && (!session || session.user.role !== "admin")) {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required to update orders." },
-        { status: 403 }
-      );
-    }
+    const { errorResponse } = await requireRole(request, [ROLES.ADMIN]);
+    if (errorResponse) return errorResponse;
 
     const { id } = await params;
     const body = await request.json();

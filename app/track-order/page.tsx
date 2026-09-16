@@ -72,7 +72,7 @@ export default function TrackOrderPage() {
             <Truck className="w-4 h-4" />
             <span>Order Tracking</span>
           </span>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#138833]">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#22623a]">
             Track Your Order
           </h1>
           <p className="text-xs sm:text-sm text-[#6a6660] max-w-lg mx-auto">
@@ -91,13 +91,13 @@ export default function TrackOrderPage() {
                 value={orderQuery}
                 onChange={(e) => setOrderQuery(e.target.value)}
                 placeholder="e.g. TMS-2026-1001"
-                className="w-full pl-10 pr-3.5 py-3 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs sm:text-sm text-[#1a1816] uppercase focus:outline-none focus:border-[#138833] focus:bg-white font-mono transition-colors"
+                className="w-full pl-10 pr-3.5 py-3 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs sm:text-sm text-[#1a1816] uppercase focus:outline-none focus:border-[#22623a] focus:bg-white font-mono transition-colors"
               />
             </div>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-3 bg-[#138833] hover:bg-[#0f7229] text-white text-xs sm:text-sm font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+              className="px-6 py-3 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs sm:text-sm font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <>
@@ -125,7 +125,7 @@ export default function TrackOrderPage() {
         {orderData && (
           <div className="bg-white rounded-2xl border border-[#e6dfd5] shadow-xl overflow-hidden space-y-6 animate-fade-in">
             {/* Top Bar */}
-            <div className="bg-[#138833] text-white p-6 sm:p-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+            <div className="bg-[#22623a] text-white p-6 sm:p-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
               <div>
                 <span className="text-[11px] font-mono text-[#c59b27] uppercase font-bold tracking-widest">
                   Order Number
@@ -153,7 +153,7 @@ export default function TrackOrderPage() {
 
             {/* Stepper Progress Bar */}
             <div className="px-6 sm:px-8 py-4">
-              <h3 className="text-xs font-bold text-[#138833] uppercase tracking-wider mb-6">
+              <h3 className="text-xs font-bold text-[#22623a] uppercase tracking-wider mb-6">
                 Delivery Timeline
               </h3>
 
@@ -163,13 +163,13 @@ export default function TrackOrderPage() {
                   <div
                     className={`w-9 h-9 mx-auto rounded-full flex items-center justify-center text-xs font-bold ${
                       getStatusStep(orderData.orderStatus) >= 1
-                        ? "bg-[#138833] text-white"
+                        ? "bg-[#22623a] text-white"
                         : "bg-[#e6dfd5] text-[#6a6660]"
                     }`}
                   >
                     1
                   </div>
-                  <span className="text-[11px] font-semibold text-[#138833] block">
+                  <span className="text-[11px] font-semibold text-[#22623a] block">
                     Received
                   </span>
                 </div>
@@ -179,13 +179,13 @@ export default function TrackOrderPage() {
                   <div
                     className={`w-9 h-9 mx-auto rounded-full flex items-center justify-center text-xs font-bold ${
                       getStatusStep(orderData.orderStatus) >= 2
-                        ? "bg-[#138833] text-white"
+                        ? "bg-[#22623a] text-white"
                         : "bg-[#e6dfd5] text-[#6a6660]"
                     }`}
                   >
                     2
                   </div>
-                  <span className="text-[11px] font-semibold text-[#138833] block">
+                  <span className="text-[11px] font-semibold text-[#22623a] block">
                     Packed
                   </span>
                 </div>
@@ -195,13 +195,13 @@ export default function TrackOrderPage() {
                   <div
                     className={`w-9 h-9 mx-auto rounded-full flex items-center justify-center text-xs font-bold ${
                       getStatusStep(orderData.orderStatus) >= 3
-                        ? "bg-[#138833] text-white"
+                        ? "bg-[#22623a] text-white"
                         : "bg-[#e6dfd5] text-[#6a6660]"
                     }`}
                   >
                     3
                   </div>
-                  <span className="text-[11px] font-semibold text-[#138833] block">
+                  <span className="text-[11px] font-semibold text-[#22623a] block">
                     Dispatched
                   </span>
                 </div>
@@ -211,22 +211,22 @@ export default function TrackOrderPage() {
                   <div
                     className={`w-9 h-9 mx-auto rounded-full flex items-center justify-center text-xs font-bold ${
                       getStatusStep(orderData.orderStatus) >= 4
-                        ? "bg-[#1b993e] text-white"
+                        ? "bg-[#2d7648] text-white"
                         : "bg-[#e6dfd5] text-[#6a6660]"
                     }`}
                   >
                     4
                   </div>
-                  <span className="text-[11px] font-semibold text-[#138833] block">
+                  <span className="text-[11px] font-semibold text-[#22623a] block">
                     Delivered
                   </span>
                 </div>
               </div>
 
               {orderData.trackingNote && (
-                <div className="mt-6 p-4 bg-[#f1fbf3] border border-[#bfeac7] rounded-xl flex items-center gap-3">
-                  <Truck className="w-5 h-5 text-[#1b993e] shrink-0" />
-                  <div className="text-xs text-[#138833]">
+                <div className="mt-6 p-4 bg-[#f4f9f5] border border-[#bfeac7] rounded-xl flex items-center gap-3">
+                  <Truck className="w-5 h-5 text-[#2d7648] shrink-0" />
+                  <div className="text-xs text-[#22623a]">
                     <span className="font-bold block">
                       Courier Tracking Details:
                     </span>
@@ -239,12 +239,12 @@ export default function TrackOrderPage() {
             {/* Delivery Details & Items */}
             <div className="p-6 sm:p-8 bg-[#faf8f5] border-t border-[#e6dfd5] grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
               <div className="space-y-2">
-                <h4 className="font-bold text-[#138833] flex items-center gap-1.5">
+                <h4 className="font-bold text-[#22623a] flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 text-[#c59b27]" />
                   <span>Delivery Address</span>
                 </h4>
                 <div className="text-[#59534b] space-y-1">
-                  <p className="font-semibold text-[#138833]">{orderData.customerName}</p>
+                  <p className="font-semibold text-[#22623a]">{orderData.customerName}</p>
                   <p>{orderData.phone}</p>
                   <p>{orderData.address}</p>
                   <p className="font-semibold">{orderData.city}, Pakistan</p>
@@ -252,17 +252,17 @@ export default function TrackOrderPage() {
               </div>
 
               <div className="space-y-2">
-                <h4 className="font-bold text-[#138833] flex items-center gap-1.5">
-                  <Package className="w-4 h-4 text-[#138833]" />
+                <h4 className="font-bold text-[#22623a] flex items-center gap-1.5">
+                  <Package className="w-4 h-4 text-[#22623a]" />
                   <span>Ordered Items</span>
                 </h4>
                 <div className="space-y-1.5 divide-y divide-[#e6dfd5]">
                   {orderData.items?.map((item: any) => (
                     <div key={item.id} className="pt-1.5 first:pt-0 flex justify-between">
-                      <span className="text-[#138833] font-medium">
+                      <span className="text-[#22623a] font-medium">
                         {item.productName} ({item.sizeWeight}) × {item.quantity}
                       </span>
-                      <span className="font-bold text-[#138833]">₨ {item.total.toLocaleString()}</span>
+                      <span className="font-bold text-[#22623a]">₨ {item.total.toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
@@ -272,7 +272,7 @@ export default function TrackOrderPage() {
             {/* Help Callout */}
             <div className="p-6 bg-white border-t border-[#e6dfd5] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
               <div className="flex items-center gap-2 text-[#59534b]">
-                <ShieldCheck className="w-4 h-4 text-[#1b993e]" />
+                <ShieldCheck className="w-4 h-4 text-[#2d7648]" />
                 <span>Need help with your order delivery?</span>
               </div>
               <a

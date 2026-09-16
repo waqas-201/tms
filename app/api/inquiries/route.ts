@@ -1,19 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireRole, ROLES } from "@/lib/rbac";
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
-
-    if (!session || session.user.role !== "admin") {
-      return NextResponse.json(
-        { success: false, error: "Unauthorized. Admin access required." },
-        { status: 403 }
-      );
-    }
+    const { errorResponse } = await requireRole(request, [ROLES.ADMIN, ROLES.CONTRIBUTOR]);
+    if (errorResponse) return errorResponse;
 
     const inquiries = await prisma.contactInquiry.findMany({
       orderBy: { createdAt: "desc" },

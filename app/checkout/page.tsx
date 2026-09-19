@@ -137,6 +137,7 @@ export default function CheckoutPage() {
         couponCode: appliedCoupon ? appliedCoupon.code : null,
         items: cart.map((item) => ({
           productId: item.product.id,
+          productSizeId: item.selectedSize.id || null,
           productName: item.product.name,
           productUrduName: "",
           sizeName: item.selectedSize.name,

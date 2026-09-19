@@ -1,8 +1,18 @@
 export interface ProductSize {
+  id?: string;
   name: string;
   weight: string;
   price: number;
   originalPrice?: number;
+  unitId?: string | null;
+  unit?: { id: string; code: string; name: string; kind: string } | null;
+  quantityValue?: number | null;
+  sku?: string | null;
+  stockOnHand?: number;
+  stockReserved?: number;
+  available?: number;
+  lowStockThreshold?: number;
+  isActive?: boolean;
 }
 
 export interface Product {

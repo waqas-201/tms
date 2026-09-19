@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, Suspense } from "react";
+import React, { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { PRODUCTS, CATEGORIES, Product } from "@/app/data/products";
 import ProductCard from "@/app/components/ProductCard";
@@ -66,6 +66,30 @@ function ProductsContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || "all";
 
+  // Products from API
+  const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    async function loadLiveProducts() {
+      setIsLoading(true);
+      try {
+        const res = await fetch("/api/products");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+            setProductsList(data.data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch live products catalog:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadLiveProducts();
+  }, []);
+
   // Filter States
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedConcern, setSelectedConcern] = useState<string>("all");
@@ -78,7 +102,7 @@ function ProductsContent() {
 
   // Compute filtered & sorted product list
   const filteredProducts = useMemo(() => {
-    let list = [...PRODUCTS];
+    let list = [...productsList];
 
     // Category filter
     if (selectedCategory !== "all") {
@@ -264,13 +288,13 @@ function ProductsContent() {
                   >
                     <span>All Formulations</span>
                     <span className={`text-[10px] ${selectedCategory === "all" ? "text-white/80" : "text-[#7a7268]"}`}>
-                      {PRODUCTS.length}
+                      {productsList.length}
                     </span>
                   </button>
 
                   {CATEGORIES.map((cat) => {
                     const isSelected = selectedCategory === cat.id;
-                    const count = PRODUCTS.filter((p) => p.category === cat.id).length;
+                    const count = productsList.filter((p) => p.category === cat.id).length;
                     return (
                       <button
                         key={cat.id}
@@ -635,7 +659,7 @@ function ProductsContent() {
                       }`}
                     >
                       <span>All Types</span>
-                      <span className="text-[10px] opacity-75">{PRODUCTS.length}</span>
+                      <span className="text-[10px] opacity-75">{productsList.length}</span>
                     </button>
                     {CATEGORIES.map((cat) => (
                       <button
@@ -649,7 +673,7 @@ function ProductsContent() {
                       >
                         <span>{cat.name}</span>
                         <span className="text-[10px] opacity-75">
-                          {PRODUCTS.filter((p) => p.category === cat.id).length}
+                          {productsList.filter((p) => p.category === cat.id).length}
                         </span>
                       </button>
                     ))}

@@ -162,19 +162,37 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   ) => {
     const size = selectedSize || product.sizes[0];
 
+    // Check available stock
+    if (size.available !== undefined && size.available <= 0) {
+      showToast(`Sorry, "${product.name} (${size.weight})" is currently out of stock.`);
+      return;
+    }
+
     setCart((prev) => {
       const existingIndex = prev.findIndex(
         (item) =>
-          item.product.id === product.id &&
-          item.selectedSize.name === size.name
+          (size.id && item.selectedSize.id ? item.selectedSize.id === size.id : false) ||
+          (item.product.id === product.id && item.selectedSize.name === size.name)
       );
 
       if (existingIndex > -1) {
+        const currentQty = prev[existingIndex].quantity;
+        let newQty = currentQty + quantity;
+
+        if (size.available !== undefined && newQty > size.available) {
+          newQty = size.available;
+          showToast(`Stock limit: Maximum ${size.available} available units added.`);
+        }
+
         const updated = [...prev];
-        updated[existingIndex].quantity += quantity;
+        updated[existingIndex].quantity = newQty;
         return updated;
       } else {
-        return [...prev, { product, selectedSize: size, quantity }];
+        let finalQty = quantity;
+        if (size.available !== undefined && finalQty > size.available) {
+          finalQty = Math.max(1, size.available);
+        }
+        return [...prev, { product, selectedSize: size, quantity: finalQty }];
       }
     });
 
@@ -186,7 +204,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCart((prev) =>
       prev.filter(
         (item) =>
-          !(item.product.id === productId && item.selectedSize.name === sizeName)
+          !(
+            item.product.id === productId &&
+            (item.selectedSize.id ? item.selectedSize.id === sizeName : item.selectedSize.name === sizeName)
+          )
       )
     );
   };
@@ -203,11 +224,17 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
     setCart((prev) =>
       prev.map((item) => {
-        if (
+        const isMatch =
           item.product.id === productId &&
-          item.selectedSize.name === sizeName
-        ) {
-          return { ...item, quantity };
+          (item.selectedSize.id ? item.selectedSize.id === sizeName : item.selectedSize.name === sizeName);
+
+        if (isMatch) {
+          let finalQty = quantity;
+          if (item.selectedSize.available !== undefined && finalQty > item.selectedSize.available) {
+            finalQty = Math.max(1, item.selectedSize.available);
+            showToast(`Maximum available stock reached (${item.selectedSize.available} units).`);
+          }
+          return { ...item, quantity: finalQty };
         }
         return item;
       })

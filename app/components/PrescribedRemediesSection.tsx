@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { PRODUCTS, CATEGORIES, Product } from "@/app/data/products";
 import ProductCard from "./ProductCard";
@@ -9,12 +9,30 @@ import { ArrowRight, Sparkles, Stethoscope, ShieldCheck, Flame } from "lucide-re
 
 export default function PrescribedRemediesSection() {
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
+
+  useEffect(() => {
+    async function loadRemedies() {
+      try {
+        const res = await fetch("/api/products");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+            setProductsList(json.data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load remedies live products:", err);
+      }
+    }
+    loadRemedies();
+  }, []);
 
   // Curate core remedies (max 6 to keep clean 30% ratio)
   const curatedProducts =
     activeCategory === "all"
-      ? PRODUCTS.slice(0, 6)
-      : PRODUCTS.filter((p) => p.category === activeCategory).slice(0, 6);
+      ? productsList.slice(0, 6)
+      : productsList.filter((p) => p.category === activeCategory).slice(0, 6);
 
   return (
     <section id="remedies" className="py-16 sm:py-20 lg:py-24 bg-white border-b border-[#e6dfd5]">

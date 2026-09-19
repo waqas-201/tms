@@ -125,16 +125,49 @@ model Product {
   updatedAt          DateTime      @updatedAt
 }
 
+model Unit {
+  id        String        @id @default(cuid())
+  code      String        @unique // "g", "ml", "jar", "bottle", "pcs", "tola"
+  name      String                // "Gram", "Millilitre", "Jar"
+  kind      String                // "WEIGHT" | "VOLUME" | "COUNT" | "PACK"
+  isActive  Boolean       @default(true)
+  sizes     ProductSize[]
+}
+
+model StockMovement {
+  id            String      @id @default(cuid())
+  productSizeId String
+  productSize   ProductSize @relation(fields: [productSizeId], references: [id], onDelete: Cascade)
+  type          String      // RECEIVE | ADJUST | RESERVE | RELEASE | SALE
+  quantity      Int         // signed: + receive, - sale
+  onHandAfter   Int
+  reservedAfter Int
+  reason        String?
+  orderId       String?
+  createdById   String?
+  createdAt     DateTime    @default(now())
+}
+
 model ProductSize {
-  id            String   @id @default(cuid())
-  productId     String
-  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  name          String // e.g. "Small Jar", "500ml Bottle"
-  weight        String // e.g. "250g", "800ml"
-  price         Float
-  originalPrice Float?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id                 String          @id @default(cuid())
+  productId          String
+  product            Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name               String          // e.g. "Small Jar", "500ml Bottle"
+  weight             String          // e.g. "250g", "800ml"
+  price              Float
+  originalPrice      Float?
+  unitId             String?
+  unit               Unit?           @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  quantityValue      Float?          // e.g. 500 for 500g
+  sku                String?         @unique
+  stockOnHand        Int             @default(0)
+  stockReserved      Int             @default(0)
+  lowStockThreshold  Int             @default(5)
+  isActive           Boolean         @default(true)
+  movements          StockMovement[]
+  orderItems         OrderItem[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 }
 
 model Order {
@@ -161,11 +194,13 @@ model Order {
 }
 
 model OrderItem {
-  id              String   @id @default(cuid())
+  id              String       @id @default(cuid())
   orderId         String
-  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order           Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
   productId       String?
-  product         Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  product         Product?     @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productSizeId   String?
+  productSize     ProductSize? @relation(fields: [productSizeId], references: [id], onDelete: SetNull)
   productName     String
   productUrduName String?
   sizeName        String
@@ -174,7 +209,8 @@ model OrderItem {
   quantity        Int
   total           Float
   productImage    String?
-  createdAt       DateTime @default(now())
+  stockState      String       @default("NONE") // NONE | RESERVED | COMMITTED | RELEASED
+  createdAt       DateTime     @default(now())
 }
 
 // -------------------------------------------------------------

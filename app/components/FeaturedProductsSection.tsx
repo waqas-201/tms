@@ -1,19 +1,37 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { PRODUCTS, CATEGORIES } from "@/app/data/products";
+import { PRODUCTS, CATEGORIES, Product } from "@/app/data/products";
 import ProductCard from "./ProductCard";
 import Reveal from "./motion/Reveal";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 export default function FeaturedProductsSection() {
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
+
+  useEffect(() => {
+    async function loadFeatured() {
+      try {
+        const res = await fetch("/api/products");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+            setProductsList(json.data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load featured live products:", err);
+      }
+    }
+    loadFeatured();
+  }, []);
 
   const filteredProducts =
     activeCategory === "all"
-      ? PRODUCTS.slice(0, 8)
-      : PRODUCTS.filter((p) => p.category === activeCategory);
+      ? productsList.slice(0, 8)
+      : productsList.filter((p) => p.category === activeCategory);
 
   return (
     <section className="py-16 bg-[#faf8f5] border-b border-[#e6dfd5]">
@@ -38,7 +56,7 @@ export default function FeaturedProductsSection() {
             href="/products"
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#22623a] hover:text-[#c59b27] transition-colors self-start md:self-auto group"
           >
-            <span>View All Products (16+)</span>
+            <span>View All Products ({productsList.length}+)</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </Reveal>

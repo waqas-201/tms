@@ -52,17 +52,42 @@ export default function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const resolvedParams = use(params);
-  const product = PRODUCTS.find((p) => p.slug === resolvedParams.slug);
+  const initialProduct = PRODUCTS.find((p) => p.slug === resolvedParams.slug) || null;
+  const [product, setProduct] = useState<Product | null>(initialProduct);
+  const [hasFetched, setHasFetched] = useState(false);
 
-  if (!product) {
-    notFound();
-  }
+  // Load live product from API
+  useEffect(() => {
+    async function loadLiveProduct() {
+      try {
+        const res = await fetch(`/api/products/${resolvedParams.slug}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data) {
+            setProduct(json.data);
+            setSelectedSize((prev) => {
+              if (!prev) return json.data.sizes[0];
+              const match = json.data.sizes.find((s: ProductSize) => s.id === prev.id || s.name === prev.name);
+              return match || json.data.sizes[0];
+            });
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load live product data:", err);
+      } finally {
+        setHasFetched(true);
+      }
+    }
+    loadLiveProduct();
+  }, [resolvedParams.slug]);
 
   const { addToCart, wishlist, toggleWishlist, isInWishlist } = useCart();
-  const isSaved = isInWishlist(product.id);
+  const isSaved = product ? isInWishlist(product.id) : false;
 
   // States
-  const [selectedSize, setSelectedSize] = useState<ProductSize>(product.sizes[0]);
+  const [selectedSize, setSelectedSize] = useState<ProductSize>(
+    initialProduct?.sizes[0] || { name: "Standard", weight: "250g", price: initialProduct?.price || 0 }
+  );
   const [quantity, setQuantity] = useState<number>(1);
   const [isAdded, setIsAdded] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "ingredients" | "dosage" | "shipping" | "reviews">("overview");
@@ -80,6 +105,22 @@ export default function ProductDetailPage({
   });
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewSuccessMsg, setReviewSuccessMsg] = useState<string | null>(null);
+
+  if (!product && hasFetched) {
+    notFound();
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-[#faf8f5] flex items-center justify-center">
+        <div className="animate-pulse text-[#22623a] font-serif text-lg">Loading Remedy Guide...</div>
+      </div>
+    );
+  }
+
+  const isAvailable =
+    selectedSize?.available !== undefined ? selectedSize.available > 0 : product.inStock;
+  const maxAvailable = selectedSize?.available !== undefined ? selectedSize.available : 99;
 
   // Compute dynamic ratings & review breakdown
   const totalReviews = reviewsList.length;
@@ -331,9 +372,21 @@ export default function ProductDetailPage({
                   <span className="text-xs uppercase font-bold text-[#c59b27] tracking-wider">
                     {product.categoryLabel}
                   </span>
-                  <span className="text-[#2d7648] font-semibold bg-[#f4f9f5] border border-[#d8ecde] px-2.5 py-0.5 rounded text-xs flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> In Stock · Freshly Packed
-                  </span>
+                  {isAvailable ? (
+                    selectedSize.available !== undefined && selectedSize.available <= 5 ? (
+                      <span className="text-amber-800 font-semibold bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded text-xs flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" /> Only {selectedSize.available} units left in stock
+                      </span>
+                    ) : (
+                      <span className="text-[#2d7648] font-semibold bg-[#f4f9f5] border border-[#d8ecde] px-2.5 py-0.5 rounded text-xs flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> In Stock · Freshly Packed
+                      </span>
+                    )
+                  ) : (
+                    <span className="text-red-700 font-semibold bg-red-50 border border-red-200 px-2.5 py-0.5 rounded text-xs flex items-center gap-1">
+                      <X className="w-3.5 h-3.5" /> Out of Stock · Restocking Soon
+                    </span>
+                  )}
                 </div>
 
                 {/* Title */}
@@ -409,17 +462,30 @@ export default function ProductDetailPage({
                 <div className="flex flex-wrap gap-2.5">
                   {product.sizes.map((size) => {
                     const isSelected = selectedSize.name === size.name;
+                    const sizeInStock = size.available !== undefined ? size.available > 0 : true;
                     return (
                       <button
                         key={size.name}
-                        onClick={() => setSelectedSize(size)}
-                        className={`px-4 py-2.5 rounded-xl border text-xs transition-all text-left ${
+                        onClick={() => {
+                          setSelectedSize(size);
+                          if (size.available !== undefined && quantity > size.available) {
+                            setQuantity(Math.max(1, size.available));
+                          }
+                        }}
+                        className={`px-4 py-2.5 rounded-xl border text-xs transition-all text-left relative ${
                           isSelected
                             ? "bg-[#22623a] text-white border-[#22623a] shadow-xs font-medium"
                             : "bg-white text-[#1a1816] border-[#e6dfd5] hover:border-[#22623a]"
-                        }`}
+                        } ${!sizeInStock ? "opacity-60 border-dashed" : ""}`}
                       >
-                        <div className="font-bold">{size.weight}</div>
+                        <div className="font-bold flex items-center gap-1.5">
+                          <span>{size.weight}</span>
+                          {!sizeInStock && (
+                            <span className="text-[10px] text-red-700 bg-red-100 px-1 rounded font-normal">
+                              Sold Out
+                            </span>
+                          )}
+                        </div>
                         <div
                           className={`text-[11px] ${
                             isSelected ? "text-[#c59b27]" : "text-[#7a7268]"
@@ -440,7 +506,8 @@ export default function ProductDetailPage({
                   <div className="flex items-center border border-[#e6dfd5] rounded-xl bg-white overflow-hidden shrink-0 shadow-2xs">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-3.5 py-3 text-sm text-[#6a6660] hover:text-[#22623a] hover:bg-[#faf8f5] transition-colors"
+                      disabled={!isAvailable || quantity <= 1}
+                      className="px-3.5 py-3 text-sm text-[#6a6660] hover:text-[#22623a] hover:bg-[#faf8f5] transition-colors disabled:opacity-40"
                       aria-label="Decrease quantity"
                     >
                       <Minus className="w-3.5 h-3.5" />
@@ -449,8 +516,9 @@ export default function ProductDetailPage({
                       {quantity}
                     </span>
                     <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="px-3.5 py-3 text-sm text-[#6a6660] hover:text-[#22623a] hover:bg-[#faf8f5] transition-colors"
+                      onClick={() => setQuantity(Math.min(maxAvailable, quantity + 1))}
+                      disabled={!isAvailable || quantity >= maxAvailable}
+                      className="px-3.5 py-3 text-sm text-[#6a6660] hover:text-[#22623a] hover:bg-[#faf8f5] transition-colors disabled:opacity-40"
                       aria-label="Increase quantity"
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -460,13 +528,18 @@ export default function ProductDetailPage({
                   {/* Primary Add to Cart Button */}
                   <button
                     onClick={handleAddToCart}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-xs font-bold tracking-wider uppercase transition-all duration-200 shadow-md hover:shadow-lg active:scale-98 ${
-                      isAdded
+                    disabled={!isAvailable}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-xs font-bold tracking-wider uppercase transition-all duration-200 shadow-md hover:shadow-lg active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed ${
+                      !isAvailable
+                        ? "bg-gray-200 text-gray-500"
+                        : isAdded
                         ? "bg-[#2d7648] text-white"
                         : "bg-[#22623a] hover:bg-[#1b502e] text-white"
                     }`}
                   >
-                    {isAdded ? (
+                    {!isAvailable ? (
+                      <span>Out of Stock</span>
+                    ) : isAdded ? (
                       <>
                         <Check className="w-4 h-4" />
                         <span>Added to Bag</span>

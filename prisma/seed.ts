@@ -37,10 +37,51 @@ const pool = new Pool({ connectionString });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-async function main() {
-  console.log("🌱 Starting Tameer-e-Sehat database seeding...");
+const DEFAULT_UNITS = [
+  { code: "g", name: "Gram", kind: "WEIGHT" },
+  { code: "kg", name: "Kilogram", kind: "WEIGHT" },
+  { code: "ml", name: "Millilitre", kind: "VOLUME" },
+  { code: "L", name: "Litre", kind: "VOLUME" },
+  { code: "jar", name: "Jar", kind: "PACK" },
+  { code: "bottle", name: "Bottle", kind: "PACK" },
+  { code: "tin", name: "Tin", kind: "PACK" },
+  { code: "pcs", name: "Pieces", kind: "COUNT" },
+  { code: "tola", name: "Tola", kind: "WEIGHT" },
+  { code: "sachet", name: "Sachet", kind: "PACK" },
+];
 
-  // 1. Seed Categories
+function parseWeightAndUnit(weightStr: string, unitMap: Map<string, string>) {
+  const clean = (weightStr || "").trim();
+  const match = clean.match(/^([0-9.]+)\s*([a-zA-Z]+)?$/);
+  if (match) {
+    const val = parseFloat(match[1]);
+    const uCode = (match[2] || "").toLowerCase();
+    const unitId = unitMap.get(uCode) || unitMap.get("g") || null;
+    return { quantityValue: isNaN(val) ? 1 : val, unitId };
+  }
+  // fallback if e.g. "Pack" or "Bottle"
+  const uCode = clean.toLowerCase();
+  const unitId = unitMap.get(uCode) || unitMap.get("jar") || null;
+  return { quantityValue: 1, unitId };
+}
+
+async function main() {
+  console.log("🌱 Starting Tameer-e-Sehat database seeding & inventory setup...");
+
+  // 1. Seed Units
+  console.log("Seeding units...");
+  const unitMap = new Map<string, string>();
+  for (const u of DEFAULT_UNITS) {
+    const unit = await prisma.unit.upsert({
+      where: { code: u.code },
+      update: { name: u.name, kind: u.kind, isActive: true },
+      create: { code: u.code, name: u.name, kind: u.kind, isActive: true },
+    });
+    unitMap.set(u.code.toLowerCase(), unit.id);
+  }
+  console.log(`✅ Seeded ${DEFAULT_UNITS.length} units.`);
+
+  // 2. Seed Categories
   console.log("Seeding categories...");
   for (const cat of CATEGORIES) {
     await prisma.category.upsert({
@@ -64,8 +105,8 @@ async function main() {
   }
   console.log(`✅ Seeded ${CATEGORIES.length} categories.`);
 
-  // 2. Seed Products and their sizes
-  console.log("Seeding products...");
+  // 3. Seed Products and their sizes with stock
+  console.log("Seeding products with inventory...");
   for (const prod of PRODUCTS) {
     const createdProduct = await prisma.product.upsert({
       where: { slug: prod.slug },
@@ -127,26 +168,71 @@ async function main() {
 
     // Seed sizes for this product
     if (prod.sizes && prod.sizes.length > 0) {
-      await prisma.productSize.deleteMany({
-        where: { productId: createdProduct.id },
-      });
-
       for (const size of prod.sizes) {
-        await prisma.productSize.create({
-          data: {
-            productId: createdProduct.id,
-            name: size.name,
-            weight: size.weight,
-            price: size.price,
-            originalPrice: size.originalPrice || null,
-          },
+        const { quantityValue, unitId } = parseWeightAndUnit(size.weight, unitMap);
+        const sku = `${prod.slug}-${(size.name || size.weight).toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+        const initialStock = prod.inStock ? 25 : 0;
+
+        const existingSize = await prisma.productSize.findFirst({
+          where: { productId: createdProduct.id, name: size.name },
         });
+
+        let savedSizeId = existingSize?.id;
+
+        if (existingSize) {
+          await prisma.productSize.update({
+            where: { id: existingSize.id },
+            data: {
+              weight: size.weight,
+              price: size.price,
+              originalPrice: size.originalPrice || null,
+              unitId,
+              quantityValue,
+              sku: existingSize.sku || sku,
+              stockOnHand: existingSize.stockOnHand > 0 ? existingSize.stockOnHand : initialStock,
+              stockReserved: 0,
+              lowStockThreshold: 5,
+              isActive: true,
+            },
+          });
+        } else {
+          const newSize = await prisma.productSize.create({
+            data: {
+              productId: createdProduct.id,
+              name: size.name,
+              weight: size.weight,
+              price: size.price,
+              originalPrice: size.originalPrice || null,
+              unitId,
+              quantityValue,
+              sku,
+              stockOnHand: initialStock,
+              stockReserved: 0,
+              lowStockThreshold: 5,
+              isActive: true,
+            },
+          });
+          savedSizeId = newSize.id;
+
+          if (initialStock > 0 && savedSizeId) {
+            await prisma.stockMovement.create({
+              data: {
+                productSizeId: savedSizeId,
+                type: "RECEIVE",
+                quantity: initialStock,
+                onHandAfter: initialStock,
+                reservedAfter: 0,
+                reason: "Initial catalog seed stock",
+              },
+            });
+          }
+        }
       }
     }
   }
-  console.log(`✅ Seeded ${PRODUCTS.length} products with sizes.`);
+  console.log(`✅ Seeded ${PRODUCTS.length} products with sizes and stock levels.`);
 
-  // 3. Seed Default Admin User
+  // 4. Seed Default Admin User
   console.log("Seeding admin user...");
   const adminUser = await prisma.user.upsert({
     where: { email: "admin@tameeresehat.com" },

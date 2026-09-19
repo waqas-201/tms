@@ -16,6 +16,7 @@ import {
   Layers,
   Leaf,
   Info,
+  Scale,
 } from "lucide-react";
 import { UploadDropzone } from "@/lib/uploadthing";
 
@@ -38,6 +39,26 @@ const PRESET_BENEFITS = [
   "100% pure herbal formulation without chemicals",
 ];
 
+interface UnitItem {
+  id: string;
+  code: string;
+  name: string;
+  kind: string;
+}
+
+interface FormSizeItem {
+  id?: string;
+  name: string;
+  weight: string;
+  price: string;
+  originalPrice?: string;
+  unitId?: string;
+  quantityValue?: string;
+  initialStock?: string;
+  lowStockThreshold?: string;
+  sku?: string;
+}
+
 interface ProductFormModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -53,6 +74,7 @@ export default function ProductFormModal({
 }: ProductFormModalProps) {
   const isEditing = Boolean(initialProduct);
 
+  const [units, setUnits] = useState<UnitItem[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
@@ -69,7 +91,6 @@ export default function ProductFormModal({
     dosage: "",
     hakimAdvice: "",
     image: "",
-    inStock: true,
     featured: false,
   });
 
@@ -82,17 +103,55 @@ export default function ProductFormModal({
   const [newIngredientName, setNewIngredientName] = useState("");
   const [newIngredientRole, setNewIngredientRole] = useState("");
 
-  const [sizesList, setSizesList] = useState<
-    { name: string; weight: string; price: string; originalPrice?: string }[]
-  >([]);
-  const [newSizeName, setNewSizeName] = useState("");
-  const [newSizeWeight, setNewSizeWeight] = useState("");
+  const [sizesList, setSizesList] = useState<FormSizeItem[]>([]);
+  const [newSizeName, setNewSizeName] = useState("Standard Pack");
+  const [newSizeUnitId, setNewSizeUnitId] = useState("");
+  const [newSizeQtyVal, setNewSizeQtyVal] = useState("500");
+  const [newSizeWeight, setNewSizeWeight] = useState("500g");
   const [newSizePrice, setNewSizePrice] = useState("");
+  const [newSizeOriginalPrice, setNewSizeOriginalPrice] = useState("");
+  const [newSizeInitialStock, setNewSizeInitialStock] = useState("20");
+  const [newSizeLowThreshold, setNewSizeLowThreshold] = useState("5");
 
   const [imageTab, setImageTab] = useState<"upload" | "url">("upload");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+
+  // Fetch available units catalog
+  useEffect(() => {
+    async function loadUnits() {
+      try {
+        const res = await fetch("/api/units");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.data)) {
+            setUnits(data.data);
+            if (data.data.length > 0 && !newSizeUnitId) {
+              const defaultUnit = data.data.find((u: UnitItem) => u.code === "g") || data.data[0];
+              setNewSizeUnitId(defaultUnit.id);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load units:", err);
+      }
+    }
+    if (isOpen) {
+      loadUnits();
+    }
+  }, [isOpen]);
+
+  // Sync weight text when unit or qty value changes
+  useEffect(() => {
+    if (newSizeUnitId && units.length > 0) {
+      const selectedUnit = units.find((u) => u.id === newSizeUnitId);
+      if (selectedUnit) {
+        const val = newSizeQtyVal.trim();
+        setNewSizeWeight(val ? `${val}${selectedUnit.code}` : selectedUnit.code);
+      }
+    }
+  }, [newSizeUnitId, newSizeQtyVal, units]);
 
   // Initialize or reset form
   useEffect(() => {
@@ -116,7 +175,6 @@ export default function ProductFormModal({
         dosage: initialProduct.dosage || "",
         hakimAdvice: initialProduct.hakimAdvice || "",
         image: initialProduct.image || "",
-        inStock: initialProduct.inStock ?? true,
         featured: initialProduct.featured ?? false,
       });
 
@@ -136,16 +194,24 @@ export default function ProductFormModal({
       setSizesList(
         Array.isArray(initialProduct.sizes) && initialProduct.sizes.length > 0
           ? initialProduct.sizes.map((s: any) => ({
+              id: s.id,
               name: s.name,
               weight: s.weight,
               price: String(s.price),
               originalPrice: s.originalPrice ? String(s.originalPrice) : "",
+              unitId: s.unitId || s.unit?.id || "",
+              quantityValue: s.quantityValue !== null && s.quantityValue !== undefined ? String(s.quantityValue) : "",
+              initialStock: String(s.stockOnHand ?? s.available ?? 0),
+              lowStockThreshold: String(s.lowStockThreshold || 5),
+              sku: s.sku || "",
             }))
           : [
               {
                 name: "Standard Pack",
                 weight: "500g",
                 price: initialProduct.price ? String(initialProduct.price) : "1200",
+                initialStock: "20",
+                lowStockThreshold: "5",
               },
             ]
       );
@@ -167,7 +233,6 @@ export default function ProductFormModal({
         dosage: "1-2 tablespoons once or twice daily after meals.",
         hakimAdvice: "Store in a cool, dry place. Keep container tightly sealed.",
         image: "/images/1-scaled.png",
-        inStock: true,
         featured: false,
       });
 
@@ -181,7 +246,14 @@ export default function ProductFormModal({
       ]);
 
       setSizesList([
-        { name: "Standard Pack", weight: "500g", price: "" },
+        {
+          name: "Standard Pack",
+          weight: "500g",
+          price: "",
+          quantityValue: "500",
+          initialStock: "25",
+          lowStockThreshold: "5",
+        },
       ]);
     }
 
@@ -245,22 +317,51 @@ export default function ProductFormModal({
   };
 
   const addSize = () => {
-    if (newSizeName.trim() && newSizePrice.trim()) {
-      setSizesList([
-        ...sizesList,
-        {
-          name: newSizeName.trim(),
-          weight: newSizeWeight.trim() || newSizeName.trim(),
-          price: newSizePrice.trim(),
-        },
-      ]);
-      setNewSizeName("");
-      setNewSizeWeight("");
-      setNewSizePrice("");
+    if (!newSizePrice.trim() || isNaN(Number(newSizePrice))) {
+      setError("Please specify a valid price for the packaging variant.");
+      return;
     }
+
+    const sizeName = newSizeName.trim() || "Standard Pack";
+    const selectedUnit = units.find((u) => u.id === newSizeUnitId);
+    const weightLabel =
+      newSizeWeight.trim() ||
+      (selectedUnit && newSizeQtyVal
+        ? `${newSizeQtyVal}${selectedUnit.code}`
+        : sizeName);
+
+    setSizesList([
+      ...sizesList,
+      {
+        name: sizeName,
+        weight: weightLabel,
+        price: newSizePrice.trim(),
+        originalPrice: newSizeOriginalPrice.trim() || undefined,
+        unitId: newSizeUnitId || undefined,
+        quantityValue: newSizeQtyVal.trim() || undefined,
+        initialStock: newSizeInitialStock.trim() || "20",
+        lowStockThreshold: newSizeLowThreshold.trim() || "5",
+      },
+    ]);
+
+    // If main price is empty, prefill from first size
+    if (!formData.price) {
+      setFormData((prev) => ({ ...prev, price: newSizePrice.trim() }));
+    }
+
+    setNewSizeName("Standard Pack");
+    setNewSizeQtyVal("500");
+    setNewSizePrice("");
+    setNewSizeOriginalPrice("");
+    setNewSizeInitialStock("20");
+    setError(null);
   };
 
   const removeSize = (index: number) => {
+    if (sizesList.length <= 1) {
+      setError("A product must have at least one packaging size/variant.");
+      return;
+    }
     setSizesList(sizesList.filter((_, i) => i !== index));
   };
 
@@ -272,14 +373,18 @@ export default function ProductFormModal({
       setError("Please enter the product name.");
       return;
     }
-    if (!formData.price || isNaN(Number(formData.price))) {
-      setError("Please enter a valid base price in PKR.");
+    if (sizesList.length === 0) {
+      setError("Please add at least one packaging size variant with pricing.");
       return;
     }
     if (!formData.image) {
       setError("Please upload an image or provide an image URL.");
       return;
     }
+
+    // Auto calculate lowest size price as base price
+    const minSizePrice = Math.min(...sizesList.map((s) => Number(s.price) || 999999));
+    const effectiveBasePrice = !isNaN(minSizePrice) && minSizePrice < 999999 ? minSizePrice : Number(formData.price) || 0;
 
     setLoading(true);
 
@@ -289,12 +394,12 @@ export default function ProductFormModal({
         slug: formData.slug.trim(),
         categoryId: formData.categoryId,
         categoryLabel: formData.categoryLabel,
-        price: Number(formData.price),
+        price: effectiveBasePrice,
         originalPrice: formData.originalPrice ? Number(formData.originalPrice) : null,
         discountPercentage:
-          formData.originalPrice && Number(formData.originalPrice) > Number(formData.price)
+          formData.originalPrice && Number(formData.originalPrice) > effectiveBasePrice
             ? Math.round(
-                ((Number(formData.originalPrice) - Number(formData.price)) /
+                ((Number(formData.originalPrice) - effectiveBasePrice) /
                   Number(formData.originalPrice)) *
                   100
               )
@@ -308,25 +413,21 @@ export default function ProductFormModal({
         dosage: formData.dosage.trim(),
         hakimAdvice: formData.hakimAdvice.trim(),
         image: formData.image,
-        inStock: formData.inStock,
         featured: formData.featured,
         benefits: benefitsList,
         ingredients: ingredientsList,
-        sizes:
-          sizesList.length > 0
-            ? sizesList.map((s) => ({
-                name: s.name,
-                weight: s.weight,
-                price: Number(s.price),
-                originalPrice: s.originalPrice ? Number(s.originalPrice) : null,
-              }))
-            : [
-                {
-                  name: "Standard Pack",
-                  weight: "500g",
-                  price: Number(formData.price),
-                },
-              ],
+        sizes: sizesList.map((s) => ({
+          ...(s.id && { id: s.id }),
+          name: s.name,
+          weight: s.weight,
+          price: Number(s.price),
+          originalPrice: s.originalPrice ? Number(s.originalPrice) : null,
+          unitId: s.unitId || null,
+          quantityValue: s.quantityValue ? Number(s.quantityValue) : null,
+          initialStock: s.initialStock ? Number(s.initialStock) : 20,
+          lowStockThreshold: s.lowStockThreshold ? Number(s.lowStockThreshold) : 5,
+          sku: s.sku || undefined,
+        })),
       };
 
       const url = isEditing
@@ -375,12 +476,12 @@ export default function ProductFormModal({
             </div>
             <div>
               <h2 className="font-serif text-lg font-bold text-[#22623a]">
-                {isEditing ? "Edit Product" : "Upload New Product"}
+                {isEditing ? "Edit Product & Stock Variants" : "Upload New Product & Inventory"}
               </h2>
               <p className="text-[11px] text-[#6a6660]">
                 {isEditing
-                  ? "Modify product details, pricing, stock, and descriptions."
-                  : "Add a new natural remedy with images, sizes, and benefits."}
+                  ? "Modify product details, packaging units, and live inventory variants."
+                  : "Add a new natural remedy with unit pricing, initial stock, and herbal benefits."}
               </p>
             </div>
           </div>
@@ -522,7 +623,7 @@ export default function ProductFormModal({
             </div>
           </div>
 
-          {/* Section 2: Core Details & Pricing */}
+          {/* Section 2: Core Details */}
           <div className="bg-white p-5 rounded-xl border border-[#e6dfd5] space-y-4">
             <h3 className="font-bold text-[#22623a] flex items-center gap-1.5 text-sm border-b border-[#f4eee5] pb-2">
               <Layers className="w-4 h-4 text-[#22623a]" />
@@ -577,35 +678,6 @@ export default function ProductFormModal({
 
               <div className="space-y-1">
                 <label className="font-semibold text-[#1a1816]">
-                  Base Price (PKR) <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  required
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                  placeholder="e.g. 1200"
-                  className="w-full p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] font-bold"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-semibold text-[#1a1816]">
-                  Original Price (PKR / Optional)
-                </label>
-                <input
-                  type="number"
-                  value={formData.originalPrice}
-                  onChange={(e) =>
-                    setFormData({ ...formData, originalPrice: e.target.value })
-                  }
-                  placeholder="e.g. 1500 (for discount)"
-                  className="w-full p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816]"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-semibold text-[#1a1816]">
                   Badge / Label
                 </label>
                 <input
@@ -613,21 +685,6 @@ export default function ProductFormModal({
                   value={formData.badge}
                   onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
                   placeholder="e.g. Best Seller, Seasonal Harvest"
-                  className="w-full p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816]"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="font-semibold text-[#1a1816]">
-                  Traditional Purpose
-                </label>
-                <input
-                  type="text"
-                  value={formData.traditionalPurpose}
-                  onChange={(e) =>
-                    setFormData({ ...formData, traditionalPurpose: e.target.value })
-                  }
-                  placeholder="e.g. Heart & Brain Tonic, Digestive Health"
                   className="w-full p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816]"
                 />
               </div>
@@ -644,14 +701,191 @@ export default function ProductFormModal({
                   className="w-full p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816]"
                 />
               </div>
+
+              <div className="space-y-1 sm:col-span-3">
+                <label className="font-semibold text-[#1a1816]">
+                  Traditional Purpose
+                </label>
+                <input
+                  type="text"
+                  value={formData.traditionalPurpose}
+                  onChange={(e) =>
+                    setFormData({ ...formData, traditionalPurpose: e.target.value })
+                  }
+                  placeholder="e.g. Heart & Brain Tonic, Digestive Health, Immune Support"
+                  className="w-full p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816]"
+                />
+              </div>
             </div>
           </div>
 
-          {/* Section 3: Descriptions & Hakim Advice */}
+          {/* Section 3: Dynamic Packaging Units & Inventory Variants */}
+          <div className="bg-white p-5 rounded-xl border border-[#c59b27]/40 shadow-xs space-y-4">
+            <div className="flex items-center justify-between border-b border-[#f4eee5] pb-2">
+              <h3 className="font-bold text-[#22623a] flex items-center gap-1.5 text-sm">
+                <Scale className="w-4 h-4 text-[#c59b27]" />
+                <span>Packaging Sizes, Units & Physical Stock</span>
+              </h3>
+              <span className="text-[11px] text-[#6a6660]">
+                Live on website immediately upon save
+              </span>
+            </div>
+
+            {/* Sizes Input Form */}
+            <div className="bg-[#faf8f5] p-4 rounded-xl border border-[#e6dfd5] space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-3">
+                <div className="md:col-span-2 space-y-1">
+                  <label className="font-semibold text-[11px] text-[#1a1816]">
+                    Pack Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newSizeName}
+                    onChange={(e) => setNewSizeName(e.target.value)}
+                    placeholder="e.g. Standard Jar / Small Pack"
+                    className="w-full p-2 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-semibold text-[11px] text-[#1a1816]">
+                    Unit Type
+                  </label>
+                  <select
+                    value={newSizeUnitId}
+                    onChange={(e) => setNewSizeUnitId(e.target.value)}
+                    className="w-full p-2 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816]"
+                  >
+                    {units.map((u) => (
+                      <option key={u.id} value={u.id}>
+                        {u.code} ({u.name})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-semibold text-[11px] text-[#1a1816]">
+                    Qty Value
+                  </label>
+                  <input
+                    type="number"
+                    value={newSizeQtyVal}
+                    onChange={(e) => setNewSizeQtyVal(e.target.value)}
+                    placeholder="e.g. 500"
+                    className="w-full p-2 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-semibold text-[11px] text-[#1a1816]">
+                    Pack Price (PKR) *
+                  </label>
+                  <input
+                    type="number"
+                    value={newSizePrice}
+                    onChange={(e) => setNewSizePrice(e.target.value)}
+                    placeholder="e.g. 1400"
+                    className="w-full p-2 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816] font-bold"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="font-semibold text-[11px] text-[#1a1816]">
+                    Initial Stock
+                  </label>
+                  <input
+                    type="number"
+                    value={newSizeInitialStock}
+                    onChange={(e) => setNewSizeInitialStock(e.target.value)}
+                    placeholder="e.g. 25"
+                    className="w-full p-2 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <span className="text-[11px] text-[#6a6660]">
+                  Calculated Label: <strong className="text-[#22623a]">{newSizeWeight}</strong>
+                </span>
+                <button
+                  type="button"
+                  onClick={addSize}
+                  className="py-1.5 px-4 bg-[#22623a] hover:bg-[#1b502e] text-white rounded-lg font-semibold flex items-center gap-1 text-xs shadow-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Pack Variant</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Sizes List Table */}
+            <div className="border border-[#e6dfd5] rounded-xl overflow-hidden">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="bg-[#faf8f5] border-b border-[#e6dfd5] text-[#6a6660] font-semibold">
+                    <th className="p-2.5">Variant Name</th>
+                    <th className="p-2.5">Weight / Unit</th>
+                    <th className="p-2.5">Price</th>
+                    <th className="p-2.5">Initial Stock</th>
+                    <th className="p-2.5 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#f4eee5]">
+                  {sizesList.map((s, i) => (
+                    <tr key={i} className="hover:bg-[#faf8f5]/60 transition-colors">
+                      <td className="p-2.5 font-bold text-[#22623a]">{s.name}</td>
+                      <td className="p-2.5">
+                        <span className="px-2 py-0.5 rounded bg-[#f4eee5] text-[#22623a] font-mono text-[11px]">
+                          {s.weight}
+                        </span>
+                      </td>
+                      <td className="p-2.5 font-bold text-[#2d7648]">
+                        ₨ {Number(s.price).toLocaleString()}
+                      </td>
+                      <td className="p-2.5">
+                        <span className="px-2 py-0.5 rounded bg-[#e8f5e9] text-[#2e7d32] font-semibold">
+                          {s.initialStock || 0} units
+                        </span>
+                      </td>
+                      <td className="p-2.5 text-right">
+                        <button
+                          type="button"
+                          onClick={() => removeSize(i)}
+                          className="text-[#6a6660] hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors"
+                          title="Remove size"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="pt-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.featured}
+                  onChange={(e) =>
+                    setFormData({ ...formData, featured: e.target.checked })
+                  }
+                  className="w-4 h-4 accent-[#c59b27] rounded"
+                />
+                <span className="font-semibold text-[#22623a]">
+                  Feature on Homepage Showcase
+                </span>
+              </label>
+            </div>
+          </div>
+
+          {/* Section 4: Descriptions & Usage Guidance */}
           <div className="bg-white p-5 rounded-xl border border-[#e6dfd5] space-y-4">
             <h3 className="font-bold text-[#22623a] flex items-center gap-1.5 text-sm border-b border-[#f4eee5] pb-2">
               <Info className="w-4 h-4 text-[#c59b27]" />
-              <span>Descriptions & Usage Guidance</span>
+              <span>Descriptions & Hakim Guidance</span>
             </h3>
 
             <div className="space-y-3">
@@ -728,7 +962,7 @@ export default function ProductFormModal({
             </div>
           </div>
 
-          {/* Section 4: Benefits & Ingredients List */}
+          {/* Section 5: Benefits & Ingredients List */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             {/* Health Benefits */}
             <div className="bg-[#faf8f5] p-5 rounded-xl border border-[#e6dfd5] space-y-3">
@@ -849,99 +1083,6 @@ export default function ProductFormModal({
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-
-          {/* Section 5: Sizes / Variants & Inventory Flags */}
-          <div className="bg-white p-5 rounded-xl border border-[#e6dfd5] space-y-4">
-            <h3 className="font-bold text-[#22623a] flex items-center gap-1.5 text-sm border-b border-[#f4eee5] pb-2">
-              <Package className="w-4 h-4 text-[#22623a]" />
-              <span>Packaging Sizes & Inventory Flags</span>
-            </h3>
-
-            {/* Sizes Input Row */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-center">
-              <input
-                type="text"
-                value={newSizeName}
-                onChange={(e) => setNewSizeName(e.target.value)}
-                placeholder="Size Name (e.g. Jar)"
-                className="p-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816]"
-              />
-              <input
-                type="text"
-                value={newSizeWeight}
-                onChange={(e) => setNewSizeWeight(e.target.value)}
-                placeholder="Weight (e.g. 500g)"
-                className="p-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816]"
-              />
-              <input
-                type="number"
-                value={newSizePrice}
-                onChange={(e) => setNewSizePrice(e.target.value)}
-                placeholder="Price (PKR)"
-                className="p-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816]"
-              />
-              <button
-                type="button"
-                onClick={addSize}
-                className="py-2 px-3 bg-[#22623a] hover:bg-[#1b502e] text-white rounded-lg font-semibold flex items-center justify-center gap-1"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add Size</span>
-              </button>
-            </div>
-
-            {/* Sizes Table */}
-            <div className="space-y-1.5">
-              {sizesList.map((s, i) => (
-                <div
-                  key={i}
-                  className="flex justify-between items-center p-2.5 bg-[#faf8f5] rounded-lg border border-[#e6dfd5]"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="font-bold text-[#22623a]">{s.name}</span>
-                    <span className="text-[#6a6660]">({s.weight})</span>
-                    <span className="font-bold text-[#2d7648]">₨ {Number(s.price).toLocaleString()}</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => removeSize(i)}
-                    className="text-[#6a6660] hover:text-red-600 p-0.5"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {/* Flags */}
-            <div className="flex flex-wrap gap-6 pt-3 border-t border-[#f4eee5]">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.inStock}
-                  onChange={(e) =>
-                    setFormData({ ...formData, inStock: e.target.checked })
-                  }
-                  className="w-4 h-4 accent-[#22623a] rounded"
-                />
-                <span className="font-semibold text-[#22623a]">Available in Stock</span>
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.featured}
-                  onChange={(e) =>
-                    setFormData({ ...formData, featured: e.target.checked })
-                  }
-                  className="w-4 h-4 accent-[#c59b27] rounded"
-                />
-                <span className="font-semibold text-[#22623a]">
-                  Feature on Homepage Showcase
-                </span>
-              </label>
             </div>
           </div>
 

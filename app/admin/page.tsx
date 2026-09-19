@@ -28,20 +28,16 @@ import {
   Check,
   AlertCircle,
   X,
-  Lock,
-<<<<<<< HEAD
   Sparkles,
   Leaf,
   Scale,
-=======
   Warehouse,
   SlidersHorizontal,
   History,
-  Scale,
   AlertTriangle,
   ArrowDownRight,
   TrendingDown,
->>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
+  Lock,
 } from "lucide-react";
 import ProductFormModal from "@/app/components/ProductFormModal";
 import NuskhaFormModal from "@/app/components/NuskhaFormModal";
@@ -64,11 +60,7 @@ export default function AdminDashboardPage() {
 
   // Tab State
   const [activeTab, setActiveTab] = useState<
-<<<<<<< HEAD
-    "overview" | "consultations" | "orders" | "products" | "nuskhajaat" | "inquiries" | "team"
-=======
-    "overview" | "consultations" | "orders" | "products" | "inventory" | "inquiries" | "team"
->>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
+    "overview" | "consultations" | "orders" | "products" | "inventory" | "nuskhajaat" | "accounts" | "vendors" | "finance" | "inquiries" | "team"
   >("overview");
 
   // Data State
@@ -76,12 +68,9 @@ export default function AdminDashboardPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
-<<<<<<< HEAD
   const [nuskhajaat, setNuskhajaat] = useState<any[]>([]);
-=======
   const [inventorySizes, setInventorySizes] = useState<any[]>([]);
   const [inventorySummary, setInventorySummary] = useState<any>(null);
->>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [usersList, setUsersList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -161,32 +150,17 @@ export default function AdminDashboardPage() {
     setLoading(true);
     try {
       if (isAdmin) {
-        const [statsRes, ordersRes, consultRes, prodRes, inqRes, usersRes, invRes] = await Promise.all([
+        const [statsRes, ordersRes, consultRes, prodRes, nuskhaRes, inqRes, usersRes, invRes] = await Promise.all([
           fetch("/api/admin/stats"),
           fetch("/api/orders"),
           fetch("/api/consultations"),
           fetch("/api/products"),
           fetch("/api/nuskhajaat"),
           fetch("/api/inquiries"),
-<<<<<<< HEAD
-          fetch("/api/admin/users")
-        );
-      } else if (isEditor) {
-        fetchPromises.push(fetch("/api/products"), fetch("/api/nuskhajaat"));
-      } else if (isContributor) {
-        fetchPromises.push(fetch("/api/inquiries"));
-      }
-
-      const results = await Promise.all(fetchPromises);
-
-      if (isAdmin) {
-        const [statsRes, ordersRes, consultRes, prodRes, nuskhaRes, inqRes, usersRes] = results;
-=======
           fetch("/api/admin/users"),
           fetch("/api/admin/inventory"),
         ]);
 
->>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
         if (statsRes.ok) {
           const d = await statsRes.json();
           if (d.success) setStats(d.data);
@@ -223,30 +197,25 @@ export default function AdminDashboardPage() {
           }
         }
       } else if (isEditor) {
-<<<<<<< HEAD
-        const [prodRes, nuskhaRes] = results;
-=======
-        const [prodRes, invRes] = await Promise.all([
+        const [prodRes, nuskhaRes, invRes] = await Promise.all([
           fetch("/api/products"),
+          fetch("/api/nuskhajaat"),
           fetch("/api/admin/inventory"),
         ]);
->>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
         if (prodRes.ok) {
           const d = await prodRes.json();
           if (d.success) setProducts(d.data);
         }
-<<<<<<< HEAD
         if (nuskhaRes && nuskhaRes.ok) {
           const d = await nuskhaRes.json();
           if (d.success) setNuskhajaat(d.data);
-=======
+        }
         if (invRes.ok) {
           const d = await invRes.json();
           if (d.success) {
             setInventorySizes(d.data || []);
             setInventorySummary(d.summary || null);
           }
->>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
         }
       } else if (isContributor) {
         const inqRes = await fetch("/api/inquiries");

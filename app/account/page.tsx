@@ -383,7 +383,22 @@ export default function AccountPage() {
 
         {/* ─── TAB 2: WISHLIST ─── */}
         {activeTab === "wishlist" && (
-          <div>
+          <div className="space-y-4">
+            {wishlistProducts.length > 0 && (
+              <div className="flex items-center justify-between pb-2 border-b border-[#e6dfd5]">
+                <span className="text-xs text-[#59534b]">
+                  Showing <strong>{wishlistProducts.length}</strong> saved {wishlistProducts.length === 1 ? "remedy" : "remedies"}
+                </span>
+                <Link
+                  href="/wishlist"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#22623a] hover:text-[#c59b27] transition-colors"
+                >
+                  <span>Open Dedicated Wishlist &amp; Share</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            )}
+
             {wishlistProducts.length === 0 ? (
               <div className="bg-white p-12 rounded-2xl border border-[#e6dfd5] text-center space-y-4">
                 <Heart className="w-12 h-12 text-[#7a7268] opacity-40 mx-auto" />

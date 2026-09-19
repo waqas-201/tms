@@ -36,13 +36,14 @@ import {
   Droplet,
   Sun,
   Award,
+  Heart,
 } from "lucide-react";
 
 export default function NuskhaDetailPage() {
   const params = useParams();
   const router = useRouter();
   const slug = params?.slug as string;
-  const { addNuskhaToCart, setIsCartOpen } = useCart();
+  const { addNuskhaToCart, setIsCartOpen, toggleWishlist, isInWishlist } = useCart();
 
   const [nuskha, setNuskha] = useState<Nuskha | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -318,14 +319,30 @@ export default function NuskhaDetailPage() {
                   </p>
                 </div>
 
-                {/* Thumbnail Image */}
-                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-[#faf8f5] border border-[#e6dfd5] shrink-0">
+                {/* Thumbnail Image with Wishlist Button */}
+                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl overflow-hidden bg-[#faf8f5] border border-[#e6dfd5] shrink-0 group">
                   <Image
                     src={nuskha.image}
                     alt={nuskha.title}
                     fill
                     className="object-cover"
                   />
+                  <button
+                    type="button"
+                    onClick={() => toggleWishlist(nuskha.id)}
+                    aria-label={isInWishlist(nuskha.id) ? "Remove from wishlist" : "Add to wishlist"}
+                    className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-md transition-all shadow-xs ${
+                      isInWishlist(nuskha.id)
+                        ? "bg-white text-red-500 shadow-sm"
+                        : "bg-white/85 text-gray-700 hover:bg-white hover:text-red-500"
+                    }`}
+                  >
+                    <Heart
+                      className={`w-3.5 h-3.5 ${
+                        isInWishlist(nuskha.id) ? "fill-red-500 text-red-500" : ""
+                      }`}
+                    />
+                  </button>
                 </div>
               </div>
 
@@ -739,15 +756,35 @@ export default function NuskhaDetailPage() {
                   </span>
                 </button>
 
-                <a
-                  href={generateWhatsAppDirectUrl()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold tracking-wide rounded-xl transition-all shadow-xs flex items-center justify-center gap-2"
-                >
-                  <MessageSquare className="w-4 h-4 fill-current" />
-                  <span>Order Directly on WhatsApp</span>
-                </a>
+                <div className="grid grid-cols-5 gap-2">
+                  <a
+                    href={generateWhatsAppDirectUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="col-span-4 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold tracking-wide rounded-xl transition-all shadow-xs flex items-center justify-center gap-2"
+                  >
+                    <MessageSquare className="w-4 h-4 fill-current" />
+                    <span>Order Directly on WhatsApp</span>
+                  </a>
+
+                  <button
+                    type="button"
+                    onClick={() => toggleWishlist(nuskha.id)}
+                    aria-label={isInWishlist(nuskha.id) ? "Remove from wishlist" : "Add to wishlist"}
+                    title={isInWishlist(nuskha.id) ? "In your Saved Remedies" : "Save to Wishlist"}
+                    className={`col-span-1 py-3 rounded-xl border flex items-center justify-center transition-all ${
+                      isInWishlist(nuskha.id)
+                        ? "bg-red-50 border-red-200 text-red-500"
+                        : "bg-[#faf8f5] hover:bg-[#f0ebe1] border-[#e6dfd5] text-[#59534b] hover:text-red-500"
+                    }`}
+                  >
+                    <Heart
+                      className={`w-4 h-4 ${
+                        isInWishlist(nuskha.id) ? "fill-red-500 text-red-500" : ""
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
 
               {/* Guarantee badges */}

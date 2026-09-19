@@ -193,14 +193,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setCart((prev) => {
       const existingIndex = prev.findIndex(
         (item) =>
-<<<<<<< HEAD
-          item.product.id === product.id &&
-          item.selectedSize.name === size.name &&
-          !item.customDetails
-=======
-          (size.id && item.selectedSize.id ? item.selectedSize.id === size.id : false) ||
-          (item.product.id === product.id && item.selectedSize.name === size.name)
->>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
+          !item.customDetails &&
+          ((size.id && item.selectedSize.id ? item.selectedSize.id === size.id : false) ||
+           (item.product.id === product.id && item.selectedSize.name === size.name))
       );
 
       if (existingIndex > -1) {

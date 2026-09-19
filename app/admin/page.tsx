@@ -28,8 +28,12 @@ import {
   AlertCircle,
   X,
   Lock,
+  Sparkles,
+  Leaf,
+  Scale,
 } from "lucide-react";
 import ProductFormModal from "@/app/components/ProductFormModal";
+import NuskhaFormModal from "@/app/components/NuskhaFormModal";
 import OrderInvoiceModal from "@/app/components/OrderInvoiceModal";
 import { ROLES, isStaffRole } from "@/lib/rbac-base";
 
@@ -45,7 +49,7 @@ export default function AdminDashboardPage() {
 
   // Tab State
   const [activeTab, setActiveTab] = useState<
-    "overview" | "consultations" | "orders" | "products" | "inquiries" | "team"
+    "overview" | "consultations" | "orders" | "products" | "nuskhajaat" | "inquiries" | "team"
   >("overview");
 
   // Data State
@@ -53,6 +57,7 @@ export default function AdminDashboardPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
+  const [nuskhajaat, setNuskhajaat] = useState<any[]>([]);
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [usersList, setUsersList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,6 +78,11 @@ export default function AdminDashboardPage() {
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any | null>(null);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
+
+  // Nuskha (Compounded Remedies) modal state
+  const [isNuskhaModalOpen, setIsNuskhaModalOpen] = useState(false);
+  const [editingNuskha, setEditingNuskha] = useState<any | null>(null);
+  const [deletingNuskhaId, setDeletingNuskhaId] = useState<string | null>(null);
 
   // Invoice modal state
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
@@ -120,11 +130,12 @@ export default function AdminDashboardPage() {
           fetch("/api/orders"),
           fetch("/api/consultations"),
           fetch("/api/products"),
+          fetch("/api/nuskhajaat"),
           fetch("/api/inquiries"),
           fetch("/api/admin/users")
         );
       } else if (isEditor) {
-        fetchPromises.push(fetch("/api/products"));
+        fetchPromises.push(fetch("/api/products"), fetch("/api/nuskhajaat"));
       } else if (isContributor) {
         fetchPromises.push(fetch("/api/inquiries"));
       }
@@ -132,7 +143,7 @@ export default function AdminDashboardPage() {
       const results = await Promise.all(fetchPromises);
 
       if (isAdmin) {
-        const [statsRes, ordersRes, consultRes, prodRes, inqRes, usersRes] = results;
+        const [statsRes, ordersRes, consultRes, prodRes, nuskhaRes, inqRes, usersRes] = results;
         if (statsRes.ok) {
           const d = await statsRes.json();
           if (d.success) setStats(d.data);
@@ -149,6 +160,10 @@ export default function AdminDashboardPage() {
           const d = await prodRes.json();
           if (d.success) setProducts(d.data);
         }
+        if (nuskhaRes.ok) {
+          const d = await nuskhaRes.json();
+          if (d.success) setNuskhajaat(d.data);
+        }
         if (inqRes.ok) {
           const d = await inqRes.json();
           if (d.success) setInquiries(d.data);
@@ -158,10 +173,14 @@ export default function AdminDashboardPage() {
           if (d.success) setUsersList(d.data);
         }
       } else if (isEditor) {
-        const [prodRes] = results;
+        const [prodRes, nuskhaRes] = results;
         if (prodRes.ok) {
           const d = await prodRes.json();
           if (d.success) setProducts(d.data);
+        }
+        if (nuskhaRes && nuskhaRes.ok) {
+          const d = await nuskhaRes.json();
+          if (d.success) setNuskhajaat(d.data);
         }
       } else if (isContributor) {
         const [inqRes] = results;
@@ -273,6 +292,45 @@ export default function AdminDashboardPage() {
   const openNewProduct = () => {
     setEditingProduct(null);
     setIsProductModalOpen(true);
+  };
+
+  // Nuskha (Compounded Formulas) handlers
+  const handleToggleNuskhaStock = async (nuskha: any) => {
+    try {
+      await fetch(`/api/nuskhajaat/${nuskha.id || nuskha.slug}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ inStock: !nuskha.inStock }),
+      });
+      fetchData();
+    } catch (e) {
+      console.error("Error updating Nuskha stock:", e);
+    }
+  };
+
+  const handleDeleteNuskha = async (nuskhaId: string) => {
+    if (!isAdmin) return;
+    setDeletingNuskhaId(nuskhaId);
+    try {
+      const res = await fetch(`/api/nuskhajaat/${nuskhaId}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchData();
+      }
+    } catch (e) {
+      console.error("Error deleting Nuskha:", e);
+    } finally {
+      setDeletingNuskhaId(null);
+    }
+  };
+
+  const openNuskhaEditor = (nuskha: any) => {
+    setEditingNuskha(nuskha);
+    setIsNuskhaModalOpen(true);
+  };
+
+  const openNewNuskha = () => {
+    setEditingNuskha(null);
+    setIsNuskhaModalOpen(true);
   };
 
   const openInvoice = (order: any) => {
@@ -538,6 +596,20 @@ export default function AdminDashboardPage() {
             >
               <Package className="w-3.5 h-3.5" />
               <span>Products & Catalog ({products.length})</span>
+            </button>
+          )}
+
+          {(isAdmin || isEditor) && (
+            <button
+              onClick={() => setActiveTab("nuskhajaat")}
+              className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg transition-colors shrink-0 ${
+                activeTab === "nuskhajaat"
+                  ? "bg-[#22623a] text-white shadow-xs"
+                  : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a]"
+              }`}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
+              <span>Nuskhajaat / Compounds ({nuskhajaat.length})</span>
             </button>
           )}
 
@@ -1049,6 +1121,208 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
+        {/* TAB 4.5: NUSKHAJAAT (COMPOUNDED REMEDIES) — AVAILABLE TO ADMIN & EDITOR */}
+        {activeTab === "nuskhajaat" && (isAdmin || isEditor) && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="font-serif text-xl font-bold text-[#22623a]">Nuskhajaat / Compounded Remedies</h2>
+                  <span className="px-2 py-0.5 bg-[#c59b27]/15 text-[#8c6a15] text-[10px] font-bold uppercase rounded-md border border-[#c59b27]/30">
+                    Apothecary Engine
+                  </span>
+                </div>
+                <p className="text-xs text-[#6a6660] mt-1">
+                  Classical Unani multi-herb formulations. Manage multi-herb ratios, default/min/max grams, unit pricing, preparation formats, and live customizer settings.
+                </p>
+              </div>
+              <button
+                onClick={openNewNuskha}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-semibold uppercase tracking-wider rounded-lg transition-colors shadow-md shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Create New Nuskha</span>
+              </button>
+            </div>
+
+            {/* Quick Metrics Bar */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] shadow-xs flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-[#22623a]/10 text-[#22623a] flex items-center justify-center shrink-0">
+                  <Sparkles className="w-5 h-5 text-[#c59b27]" />
+                </div>
+                <div>
+                  <p className="text-[11px] text-[#7a7268] uppercase font-bold">Total Formulations</p>
+                  <p className="text-lg font-bold text-[#22623a]">{nuskhajaat.length} Classical Compounds</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] shadow-xs flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-800 flex items-center justify-center shrink-0">
+                  <Leaf className="w-5 h-5 text-emerald-700" />
+                </div>
+                <div>
+                  <p className="text-[11px] text-[#7a7268] uppercase font-bold">In-Stock Remedies</p>
+                  <p className="text-lg font-bold text-emerald-800">
+                    {nuskhajaat.filter((n) => n.inStock).length} Available for Dispensing
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] shadow-xs flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg bg-[#c59b27]/10 text-[#8c6a15] flex items-center justify-center shrink-0">
+                  <Scale className="w-5 h-5 text-[#c59b27]" />
+                </div>
+                <div>
+                  <p className="text-[11px] text-[#7a7268] uppercase font-bold">Compounding System</p>
+                  <p className="text-lg font-bold text-[#22623a]">Real-Time Gram Pricing</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Nuskhajaat Table */}
+            <div className="bg-white rounded-xl border border-[#e6dfd5] shadow-xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#faf8f5] text-[#22623a] border-b border-[#e6dfd5]">
+                    <tr>
+                      <th className="p-3.5 font-bold">Nuskha Compound</th>
+                      <th className="p-3.5 font-bold">Specialty / Category</th>
+                      <th className="p-3.5 font-bold">Herb Composition</th>
+                      <th className="p-3.5 font-bold">Base Price & Prep</th>
+                      <th className="p-3.5 font-bold">Status</th>
+                      <th className="p-3.5 font-bold text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#e6dfd5]">
+                    {nuskhajaat.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="p-8 text-center text-xs text-[#6a6660]">
+                          No compounded Nuskhajaat found. Click &quot;Create New Nuskha&quot; above to add your first classical multi-herb formula.
+                        </td>
+                      </tr>
+                    ) : (
+                      nuskhajaat.map((n) => {
+                        const totalBaseGrams = (n.ingredients || []).reduce(
+                          (sum: number, ing: any) => sum + (ing.unit === "grams" ? Number(ing.defaultQuantity || 0) : 0),
+                          0
+                        );
+                        return (
+                          <tr key={n.id || n.slug} className="hover:bg-[#faf8f5]/50">
+                            <td className="p-3.5 font-medium text-[#22623a]">
+                              <div className="flex items-start gap-2.5">
+                                <div className="w-9 h-9 rounded-lg bg-[#faf8f5] border border-[#e6dfd5] flex items-center justify-center shrink-0 text-base">
+                                  {n.image ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img src={n.image} alt={n.title} className="w-full h-full object-cover rounded-lg" />
+                                  ) : (
+                                    <span>🌿</span>
+                                  )}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="font-bold text-[#22623a]">{n.title}</span>
+                                    {n.featured && (
+                                      <span className="px-1.5 py-0.2 bg-[#c59b27]/10 text-[#c59b27] rounded text-[9px] font-bold uppercase">
+                                        ★ Featured
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2 mt-0.5 text-[11px] text-[#7a7268]">
+                                    <span className="font-serif text-[#8c6a15]" dir="rtl">{n.urduTitle}</span>
+                                    <span>·</span>
+                                    <code className="text-[10px] text-[#999] bg-[#faf8f5] px-1 rounded">/{n.slug}</code>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="p-3.5 text-[#59534b]">
+                              <span className="inline-block px-2 py-0.5 bg-[#f4eee5] rounded-md font-medium text-[11px] text-[#22623a]">
+                                {n.categoryLabel || n.category}
+                              </span>
+                            </td>
+                            <td className="p-3.5">
+                              <div className="space-y-0.5">
+                                <p className="font-semibold text-[#22623a]">
+                                  {(n.ingredients || []).length} Classical Herbs
+                                </p>
+                                <p className="text-[11px] text-[#7a7268]">
+                                  ~{totalBaseGrams}g base weight
+                                </p>
+                              </div>
+                            </td>
+                            <td className="p-3.5">
+                              <div className="space-y-0.5">
+                                <span className="font-bold text-[#22623a] block">
+                                  ₨ {Number(n.basePrice || 0).toLocaleString()}
+                                </span>
+                                <span className="text-[10px] text-[#7a7268]">
+                                  Prep Fee: ₨{Number(n.preparationFee || 0)}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="p-3.5">
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                n.inStock ? "bg-emerald-100 text-emerald-900" : "bg-red-100 text-red-900"
+                              }`}>
+                                {n.inStock ? "In Stock" : "Out of Stock"}
+                              </span>
+                            </td>
+                            <td className="p-3.5 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  onClick={() => handleToggleNuskhaStock(n)}
+                                  className="px-2 py-1 bg-[#faf8f5] hover:bg-[#e6dfd5] text-[#22623a] text-[11px] font-semibold rounded border border-[#e6dfd5]"
+                                  title="Toggle Stock"
+                                >
+                                  {n.inStock ? "Mark Out" : "Restock"}
+                                </button>
+                                <Link
+                                  href={`/nuskhajaat/${n.slug}`}
+                                  target="_blank"
+                                  className="p-1.5 bg-[#faf8f5] hover:bg-[#e6dfd5] text-[#59534b] hover:text-[#22623a] rounded border border-[#e6dfd5]"
+                                  title="View Live Compounding Page"
+                                >
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </Link>
+                                <button
+                                  onClick={() => openNuskhaEditor(n)}
+                                  className="p-1.5 bg-[#22623a] hover:bg-[#1b502e] text-white rounded"
+                                  title="Edit Nuskha Formula"
+                                >
+                                  <Edit3 className="w-3.5 h-3.5" />
+                                </button>
+                                {isAdmin && (
+                                  <button
+                                    onClick={() => {
+                                      if (confirm(`Delete "${n.title}" formula permanently? This cannot be undone.`)) {
+                                        handleDeleteNuskha(n.id || n.slug);
+                                      }
+                                    }}
+                                    disabled={deletingNuskhaId === (n.id || n.slug)}
+                                    className="p-1.5 bg-red-50 hover:bg-red-100 text-red-700 rounded border border-red-200 disabled:opacity-50"
+                                    title="Delete Nuskha (Admin only)"
+                                  >
+                                    {deletingNuskhaId === (n.id || n.slug) ? (
+                                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                    ) : (
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    )}
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* TAB 5: INQUIRIES — AVAILABLE TO ADMIN & CONTRIBUTOR */}
         {activeTab === "inquiries" && (isAdmin || isContributor) && (
           <div className="space-y-6">
@@ -1432,6 +1706,17 @@ export default function AdminDashboardPage() {
         }}
         onSuccess={() => fetchData()}
         initialProduct={editingProduct}
+      />
+
+      {/* Nuskha (Compounded Formulas) Modal */}
+      <NuskhaFormModal
+        isOpen={isNuskhaModalOpen}
+        onClose={() => {
+          setIsNuskhaModalOpen(false);
+          setEditingNuskha(null);
+        }}
+        onSuccess={() => fetchData()}
+        initialNuskha={editingNuskha}
       />
 
       {/* Invoice Modal */}

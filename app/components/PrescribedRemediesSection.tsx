@@ -80,18 +80,35 @@ export default function PrescribedRemediesSection() {
           ))}
         </div>
 
-        {/* Subtle Assurance Strip */}
-        <div className="p-4 sm:p-5 rounded-2xl bg-[#faf8f5] border border-[#e6dfd5] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#59534b]">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#22623a] shrink-0" />
-            <span>Need a custom dosage or specific formulation prepared for your condition?</span>
+        {/* Subtle Assurance & Custom Compounding Strip */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#faf8f5] border border-[#e6dfd5] flex items-center justify-between gap-4 text-xs text-[#59534b]">
+            <div className="flex items-center gap-2.5">
+              <ShieldCheck className="w-4 h-4 text-[#22623a] shrink-0" />
+              <span>Need a custom dosage or specific formulation prepared for your condition?</span>
+            </div>
+            <Link
+              href="/consultation"
+              className="text-[#22623a] hover:text-[#1b502e] font-bold inline-flex items-center gap-1 shrink-0"
+            >
+              <span>Online Consultation &rarr;</span>
+            </Link>
           </div>
-          <Link
-            href="/consultation"
-            className="text-[#22623a] hover:text-[#1b502e] font-bold inline-flex items-center gap-1 shrink-0"
-          >
-            <span>Ask Hakim Sahib for Customized Preparation &rarr;</span>
-          </Link>
+
+          <div className="p-4 sm:p-5 rounded-2xl bg-[#22623a]/5 border border-[#22623a]/20 flex items-center justify-between gap-4 text-xs text-[#22623a]">
+            <div className="flex items-center gap-2.5">
+              <Sparkles className="w-4 h-4 text-[#c59b27] shrink-0" />
+              <span>
+                <strong>Nuskhajaat (Compounds):</strong> Adjust gram quantities of raw herbs with on-the-fly pricing.
+              </span>
+            </div>
+            <Link
+              href="/nuskhajaat"
+              className="text-[#8c6a15] hover:text-[#22623a] font-bold inline-flex items-center gap-1 shrink-0"
+            >
+              <span>Explore Nuskhajaat &rarr;</span>
+            </Link>
+          </div>
         </div>
 
       </div>

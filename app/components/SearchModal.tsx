@@ -14,7 +14,27 @@ interface SearchModalProps {
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Product[]>([]);
+  const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    async function loadCatalog() {
+      try {
+        const res = await fetch("/api/products");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+            setProductsList(json.data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load catalog for search:", err);
+      }
+    }
+    if (isOpen) {
+      loadCatalog();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen) {
@@ -39,18 +59,18 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     }
 
     const q = query.toLowerCase();
-    const filtered = PRODUCTS.filter((item) => {
+    const filtered = productsList.filter((item) => {
       return (
         item.name.toLowerCase().includes(q) ||
         item.shortDescription.toLowerCase().includes(q) ||
         item.categoryLabel.toLowerCase().includes(q) ||
-        item.benefits.some((b) => b.toLowerCase().includes(q)) ||
-        item.ingredients.some((ing) => ing.name.toLowerCase().includes(q))
+        item.benefits?.some((b) => b.toLowerCase().includes(q)) ||
+        item.ingredients?.some((ing) => ing.name.toLowerCase().includes(q))
       );
     });
 
     setResults(filtered);
-  }, [query]);
+  }, [query, productsList]);
 
   // Handle escape key
   useEffect(() => {

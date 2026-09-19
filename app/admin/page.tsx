@@ -25,16 +25,31 @@ import {
   ShieldCheck,
   Search,
   CheckCircle2,
+  Check,
   AlertCircle,
   X,
   Lock,
+<<<<<<< HEAD
   Sparkles,
   Leaf,
   Scale,
+=======
+  Warehouse,
+  SlidersHorizontal,
+  History,
+  Scale,
+  AlertTriangle,
+  ArrowDownRight,
+  TrendingDown,
+>>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
 } from "lucide-react";
 import ProductFormModal from "@/app/components/ProductFormModal";
 import NuskhaFormModal from "@/app/components/NuskhaFormModal";
 import OrderInvoiceModal from "@/app/components/OrderInvoiceModal";
+import ReceiveStockModal from "@/app/components/inventory/ReceiveStockModal";
+import AdjustStockModal from "@/app/components/inventory/AdjustStockModal";
+import StockMovementsDrawer from "@/app/components/inventory/StockMovementsDrawer";
+import UnitsManagerModal from "@/app/components/inventory/UnitsManagerModal";
 import { ROLES, isStaffRole } from "@/lib/rbac-base";
 
 export default function AdminDashboardPage() {
@@ -49,7 +64,11 @@ export default function AdminDashboardPage() {
 
   // Tab State
   const [activeTab, setActiveTab] = useState<
+<<<<<<< HEAD
     "overview" | "consultations" | "orders" | "products" | "nuskhajaat" | "inquiries" | "team"
+=======
+    "overview" | "consultations" | "orders" | "products" | "inventory" | "inquiries" | "team"
+>>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
   >("overview");
 
   // Data State
@@ -57,10 +76,29 @@ export default function AdminDashboardPage() {
   const [orders, setOrders] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
+<<<<<<< HEAD
   const [nuskhajaat, setNuskhajaat] = useState<any[]>([]);
+=======
+  const [inventorySizes, setInventorySizes] = useState<any[]>([]);
+  const [inventorySummary, setInventorySummary] = useState<any>(null);
+>>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [usersList, setUsersList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Inventory Filter State
+  const [inventorySearch, setInventorySearch] = useState("");
+  const [inventoryCategoryFilter, setInventoryCategoryFilter] = useState("all");
+  const [inventoryLowStockOnly, setInventoryLowStockOnly] = useState(false);
+
+  // Inventory Modals State
+  const [isReceiveStockOpen, setIsReceiveStockOpen] = useState(false);
+  const [preselectedProductSizeId, setPreselectedProductSizeId] = useState<string | null>(null);
+  const [isAdjustStockOpen, setIsAdjustStockOpen] = useState(false);
+  const [selectedAdjustItem, setSelectedAdjustItem] = useState<any | null>(null);
+  const [isMovementsDrawerOpen, setIsMovementsDrawerOpen] = useState(false);
+  const [selectedMovementsItem, setSelectedMovementsItem] = useState<any | null>(null);
+  const [isUnitsModalOpen, setIsUnitsModalOpen] = useState(false);
 
   // Consultation state
   const [selectedConsultation, setSelectedConsultation] = useState<any>(null);
@@ -122,16 +160,15 @@ export default function AdminDashboardPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const fetchPromises: Promise<Response>[] = [];
-
       if (isAdmin) {
-        fetchPromises.push(
+        const [statsRes, ordersRes, consultRes, prodRes, inqRes, usersRes, invRes] = await Promise.all([
           fetch("/api/admin/stats"),
           fetch("/api/orders"),
           fetch("/api/consultations"),
           fetch("/api/products"),
           fetch("/api/nuskhajaat"),
           fetch("/api/inquiries"),
+<<<<<<< HEAD
           fetch("/api/admin/users")
         );
       } else if (isEditor) {
@@ -144,6 +181,12 @@ export default function AdminDashboardPage() {
 
       if (isAdmin) {
         const [statsRes, ordersRes, consultRes, prodRes, nuskhaRes, inqRes, usersRes] = results;
+=======
+          fetch("/api/admin/users"),
+          fetch("/api/admin/inventory"),
+        ]);
+
+>>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
         if (statsRes.ok) {
           const d = await statsRes.json();
           if (d.success) setStats(d.data);
@@ -172,18 +215,41 @@ export default function AdminDashboardPage() {
           const d = await usersRes.json();
           if (d.success) setUsersList(d.data);
         }
+        if (invRes.ok) {
+          const d = await invRes.json();
+          if (d.success) {
+            setInventorySizes(d.data || []);
+            setInventorySummary(d.summary || null);
+          }
+        }
       } else if (isEditor) {
+<<<<<<< HEAD
         const [prodRes, nuskhaRes] = results;
+=======
+        const [prodRes, invRes] = await Promise.all([
+          fetch("/api/products"),
+          fetch("/api/admin/inventory"),
+        ]);
+>>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
         if (prodRes.ok) {
           const d = await prodRes.json();
           if (d.success) setProducts(d.data);
         }
+<<<<<<< HEAD
         if (nuskhaRes && nuskhaRes.ok) {
           const d = await nuskhaRes.json();
           if (d.success) setNuskhajaat(d.data);
+=======
+        if (invRes.ok) {
+          const d = await invRes.json();
+          if (d.success) {
+            setInventorySizes(d.data || []);
+            setInventorySummary(d.summary || null);
+          }
+>>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
         }
       } else if (isContributor) {
-        const [inqRes] = results;
+        const inqRes = await fetch("/api/inquiries");
         if (inqRes.ok) {
           const d = await inqRes.json();
           if (d.success) setInquiries(d.data);
@@ -428,6 +494,27 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Filter inventory list
+  const filteredInventory = useMemo(() => {
+    return inventorySizes.filter((item) => {
+      const matchesSearch =
+        inventorySearch === "" ||
+        item.productName?.toLowerCase().includes(inventorySearch.toLowerCase()) ||
+        item.name?.toLowerCase().includes(inventorySearch.toLowerCase()) ||
+        item.weight?.toLowerCase().includes(inventorySearch.toLowerCase()) ||
+        item.sku?.toLowerCase().includes(inventorySearch.toLowerCase());
+
+      const matchesCategory =
+        inventoryCategoryFilter === "all" ||
+        item.categoryLabel?.toLowerCase() === inventoryCategoryFilter.toLowerCase() ||
+        item.categoryId?.toLowerCase() === inventoryCategoryFilter.toLowerCase();
+
+      const matchesLowStock = !inventoryLowStockOnly || item.isLowStock;
+
+      return matchesSearch && matchesCategory && matchesLowStock;
+    });
+  }, [inventorySizes, inventorySearch, inventoryCategoryFilter, inventoryLowStockOnly]);
+
   // Filter users list
   const filteredUsers = useMemo(() => {
     return usersList.filter((u) => {
@@ -587,6 +674,25 @@ export default function AdminDashboardPage() {
 
           {(isAdmin || isEditor) && (
             <button
+              onClick={() => setActiveTab("inventory")}
+              className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg transition-colors shrink-0 ${
+                activeTab === "inventory"
+                  ? "bg-[#22623a] text-white shadow-xs"
+                  : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a]"
+              }`}
+            >
+              <Warehouse className="w-3.5 h-3.5" />
+              <span>Inventory & Stock ({inventorySizes.length})</span>
+              {inventorySummary?.lowStockCount > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-red-100 text-red-800 text-[10px] font-bold">
+                  {inventorySummary.lowStockCount}
+                </span>
+              )}
+            </button>
+          )}
+
+          {(isAdmin || isEditor) && (
+            <button
               onClick={() => setActiveTab("products")}
               className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg transition-colors shrink-0 ${
                 activeTab === "products"
@@ -706,6 +812,30 @@ export default function AdminDashboardPage() {
                 </p>
               </div>
             </div>
+
+            {/* Low Stock Warning Banner in Overview */}
+            {inventorySummary?.lowStockCount > 0 && (
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between text-xs text-amber-900">
+                <div className="flex items-center gap-2.5">
+                  <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
+                  <div>
+                    <strong className="text-[#22623a]">Inventory Attention Required:</strong>{" "}
+                    <span>
+                      {inventorySummary.lowStockCount} pack variant(s) are running below safety stock levels.
+                    </span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => {
+                    setInventoryLowStockOnly(true);
+                    setActiveTab("inventory");
+                  }}
+                  className="px-3.5 py-1.5 bg-amber-700 hover:bg-amber-800 text-white font-semibold rounded-lg text-xs transition-colors shrink-0 shadow-xs"
+                >
+                  Manage Stock
+                </button>
+              </div>
+            )}
 
             {/* Recent Activity Panels */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1017,6 +1147,365 @@ export default function AdminDashboardPage() {
                     <p>Select an order to view its details and update courier tracking.</p>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: INVENTORY & PHYSICAL STOCK CONTROL (Admin & Editor) */}
+        {activeTab === "inventory" && (isAdmin || isEditor) && (
+          <div className="space-y-6">
+            {/* Header & Main Action Bar */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-serif text-xl font-bold text-[#22623a]">
+                  Inventory & Stock Control
+                </h2>
+                <p className="text-xs text-[#6a6660]">
+                  Real-time multi-tier stock tracking: Physical On-Hand, Active Order Reservations, and Live Available inventory.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsUnitsModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-[#faf8f5] text-[#22623a] border border-[#e6dfd5] text-xs font-semibold rounded-lg transition-colors shadow-xs"
+                >
+                  <Scale className="w-3.5 h-3.5 text-[#c59b27]" />
+                  <span>Units Catalog</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedMovementsItem(null);
+                    setIsMovementsDrawerOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-[#faf8f5] text-[#22623a] border border-[#e6dfd5] text-xs font-semibold rounded-lg transition-colors shadow-xs"
+                >
+                  <History className="w-3.5 h-3.5 text-[#22623a]" />
+                  <span>Audit Ledger</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPreselectedProductSizeId(null);
+                    setIsReceiveStockOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>+ Receive Stock Batch</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Inventory KPI Summary Cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] space-y-1 shadow-xs">
+                <span className="text-[10px] font-semibold text-[#6a6660] uppercase tracking-wider block">Physical On Hand</span>
+                <p className="text-xl font-bold text-[#22623a]">
+                  {inventorySummary?.totalOnHand?.toLocaleString() || 0}
+                </p>
+                <span className="text-[10px] text-[#6a6660] font-medium">In clinic store</span>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] space-y-1 shadow-xs">
+                <span className="text-[10px] font-semibold text-[#6a6660] uppercase tracking-wider block">Reserved Orders</span>
+                <p className="text-xl font-bold text-[#c59b27]">
+                  {inventorySummary?.totalReserved?.toLocaleString() || 0}
+                </p>
+                <span className="text-[10px] text-amber-700 font-medium">Awaiting dispatch</span>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] space-y-1 shadow-xs">
+                <span className="text-[10px] font-semibold text-[#6a6660] uppercase tracking-wider block">Live Available</span>
+                <p className="text-xl font-bold text-[#2d7648]">
+                  {inventorySummary?.totalAvailable?.toLocaleString() || 0}
+                </p>
+                <span className="text-[10px] text-emerald-700 font-medium">Live on storefront</span>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] space-y-1 shadow-xs">
+                <span className="text-[10px] font-semibold text-[#6a6660] uppercase tracking-wider block">Packaging SKUs</span>
+                <p className="text-xl font-bold text-[#22623a]">
+                  {inventorySizes.length}
+                </p>
+                <span className="text-[10px] text-[#6a6660] font-medium">Active pack sizes</span>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] space-y-1 shadow-xs">
+                <span className="text-[10px] font-semibold text-[#6a6660] uppercase tracking-wider block">Stock Valuation</span>
+                <p className="text-lg font-bold text-[#22623a] truncate" title={`₨ ${(inventorySummary?.totalStockValue || 0).toLocaleString()}`}>
+                  ₨ {(inventorySummary?.totalStockValue || 0).toLocaleString()}
+                </p>
+                <span className="text-[10px] text-[#6a6660] font-medium">Retail value</span>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] space-y-1 shadow-xs">
+                <span className="text-[10px] font-semibold text-[#6a6660] uppercase tracking-wider block">Low Stock Alerts</span>
+                <p className={`text-xl font-bold ${inventorySummary?.lowStockCount > 0 ? "text-red-700" : "text-[#22623a]"}`}>
+                  {inventorySummary?.lowStockCount || 0}
+                </p>
+                <span className={`text-[10px] font-medium ${inventorySummary?.lowStockCount > 0 ? "text-red-600" : "text-[#6a6660]"}`}>
+                  Below safety limit
+                </span>
+              </div>
+            </div>
+
+            {/* Low Stock Warning Banner */}
+            {inventorySummary?.lowStockCount > 0 && !inventoryLowStockOnly && (
+              <div className="p-3.5 bg-amber-50/80 border border-amber-200 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-amber-900">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+                  <span>
+                    <strong>{inventorySummary.lowStockCount} product pack(s)</strong> are currently at or below their low-stock safety threshold.
+                  </span>
+                </div>
+                <button
+                  onClick={() => setInventoryLowStockOnly(true)}
+                  className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-lg text-xs transition-colors shrink-0"
+                >
+                  Filter to Low Stock Items
+                </button>
+              </div>
+            )}
+
+            {/* Filter & Search Toolbar */}
+            <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-white p-4 rounded-xl border border-[#e6dfd5]">
+              <div className="relative flex-1">
+                <Search className="w-4 h-4 text-[#6a6660] absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search by product name, variant size (e.g. 500g, 100ml), unit, or SKU..."
+                  value={inventorySearch}
+                  onChange={(e) => setInventorySearch(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-xs bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a]"
+                />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  value={inventoryCategoryFilter}
+                  onChange={(e) => setInventoryCategoryFilter(e.target.value)}
+                  className="text-xs px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#22623a] font-medium focus:outline-none focus:border-[#22623a]"
+                >
+                  <option value="all">All Categories</option>
+                  {Array.from(new Set(inventorySizes.map((i) => i.productCategory).filter(Boolean))).map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+
+                <button
+                  type="button"
+                  onClick={() => setInventoryLowStockOnly(!inventoryLowStockOnly)}
+                  className={`text-xs px-3 py-2 rounded-lg font-semibold border transition-colors flex items-center gap-1.5 ${
+                    inventoryLowStockOnly
+                      ? "bg-red-50 border-red-300 text-red-700"
+                      : "bg-[#faf8f5] border-[#e6dfd5] text-[#59534b] hover:border-[#22623a]"
+                  }`}
+                >
+                  <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
+                  <span>Low Stock Only</span>
+                </button>
+
+                {(inventorySearch || inventoryCategoryFilter !== "all" || inventoryLowStockOnly) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setInventorySearch("");
+                      setInventoryCategoryFilter("all");
+                      setInventoryLowStockOnly(false);
+                    }}
+                    className="text-xs px-2.5 py-2 text-[#6a6660] hover:text-[#22623a] underline font-medium"
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Inventory Master Table */}
+            <div className="bg-white rounded-xl border border-[#e6dfd5] shadow-xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#faf8f5] text-[#22623a] border-b border-[#e6dfd5]">
+                    <tr>
+                      <th className="p-3.5 font-bold">Product & Pack Variant</th>
+                      <th className="p-3.5 font-bold">Unit / Type</th>
+                      <th className="p-3.5 font-bold">Retail Price</th>
+                      <th className="p-3.5 font-bold text-center">On Hand</th>
+                      <th className="p-3.5 font-bold text-center">Reserved</th>
+                      <th className="p-3.5 font-bold text-center">Live Available</th>
+                      <th className="p-3.5 font-bold">Stock Status</th>
+                      <th className="p-3.5 font-bold text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#e6dfd5]">
+                    {filteredInventory.length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="p-8 text-center text-[#6a6660]">
+                          <Warehouse className="w-8 h-8 mx-auto text-[#c59b27] opacity-60 mb-2" />
+                          <p className="font-semibold text-[#22623a]">No stock variants found</p>
+                          <p className="text-[11px] text-[#6a6660] mt-0.5">
+                            Try clearing your search filters or receive stock into the catalog.
+                          </p>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredInventory.map((item) => {
+                        const isLow = item.isLowStock;
+                        const isOut = item.available <= 0;
+
+                        return (
+                          <tr key={item.id} className="hover:bg-[#faf8f5]/60 transition-colors">
+                            <td className="p-3.5">
+                              <div>
+                                <p className="font-bold text-[#22623a] text-xs">
+                                  {item.productName}
+                                </p>
+                                <div className="flex items-center gap-2 text-[11px] text-[#6a6660] mt-0.5">
+                                  <span className="font-semibold text-[#1a1816]">
+                                    {item.name} ({item.weight})
+                                  </span>
+                                  {item.productCategory && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="px-1.5 py-0.2 rounded bg-[#f4eee5] text-[10px] text-[#59534b]">
+                                        {item.productCategory}
+                                      </span>
+                                    </>
+                                  )}
+                                  {item.sku && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="font-mono text-[10px] text-[#6a6660]">
+                                        SKU: {item.sku}
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+
+                            <td className="p-3.5">
+                              <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-[#faf8f5] border border-[#e6dfd5] text-[#22623a]">
+                                {item.unit ? `${item.unit.code} (${item.unit.name})` : item.weight}
+                              </span>
+                            </td>
+
+                            <td className="p-3.5">
+                              <div>
+                                <span className="font-bold text-[#22623a]">
+                                  ₨ {item.price?.toLocaleString()}
+                                </span>
+                                {item.originalPrice && item.originalPrice > item.price && (
+                                  <span className="block text-[10px] text-[#6a6660] line-through">
+                                    ₨ {item.originalPrice.toLocaleString()}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+
+                            <td className="p-3.5 text-center">
+                              <span className="font-bold text-xs text-[#22623a]">
+                                {item.stockOnHand}
+                              </span>
+                            </td>
+
+                            <td className="p-3.5 text-center">
+                              {item.stockReserved > 0 ? (
+                                <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800">
+                                  {item.stockReserved}
+                                </span>
+                              ) : (
+                                <span className="text-[#6a6660] text-xs">0</span>
+                              )}
+                            </td>
+
+                            <td className="p-3.5 text-center">
+                              <span
+                                className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                                  isOut
+                                    ? "bg-red-100 text-red-800"
+                                    : isLow
+                                    ? "bg-amber-100 text-amber-800"
+                                    : "bg-emerald-100 text-emerald-800"
+                                }`}
+                              >
+                                {item.available}
+                              </span>
+                            </td>
+
+                            <td className="p-3.5">
+                              {isOut ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-red-700">
+                                  <AlertCircle className="w-3.5 h-3.5" />
+                                  <span>Out of Stock</span>
+                                </span>
+                              ) : isLow ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700">
+                                  <AlertTriangle className="w-3.5 h-3.5" />
+                                  <span>Low (≤ {item.lowStockThreshold})</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700">
+                                  <Check className="w-3.5 h-3.5" />
+                                  <span>Live / Healthy</span>
+                                </span>
+                              )}
+                            </td>
+
+                            <td className="p-3.5 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setPreselectedProductSizeId(item.id);
+                                    setIsReceiveStockOpen(true);
+                                  }}
+                                  className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded text-[11px] font-semibold transition-colors flex items-center gap-1"
+                                  title="Receive stock batch for this variant"
+                                >
+                                  <Plus className="w-3 h-3 text-emerald-700" />
+                                  <span>Receive</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedAdjustItem(item);
+                                    setIsAdjustStockOpen(true);
+                                  }}
+                                  className="p-1 text-[#59534b] hover:text-[#22623a] hover:bg-[#faf8f5] rounded border border-[#e6dfd5] transition-colors"
+                                  title="Adjust stock (shrinkage, recount, damage)"
+                                >
+                                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedMovementsItem(item);
+                                    setIsMovementsDrawerOpen(true);
+                                  }}
+                                  className="p-1 text-[#59534b] hover:text-[#22623a] hover:bg-[#faf8f5] rounded border border-[#e6dfd5] transition-colors"
+                                  title="View audit ledger movements"
+                                >
+                                  <History className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -1727,6 +2216,45 @@ export default function AdminDashboardPage() {
           setInvoiceOrder(null);
         }}
         order={invoiceOrder}
+      />
+
+      {/* Receive Stock Batch Modal */}
+      <ReceiveStockModal
+        isOpen={isReceiveStockOpen}
+        onClose={() => {
+          setIsReceiveStockOpen(false);
+          setPreselectedProductSizeId(null);
+        }}
+        onSuccess={() => fetchData()}
+        preselectedProductSizeId={preselectedProductSizeId}
+      />
+
+      {/* Adjust Stock Modal */}
+      <AdjustStockModal
+        isOpen={isAdjustStockOpen}
+        onClose={() => {
+          setIsAdjustStockOpen(false);
+          setSelectedAdjustItem(null);
+        }}
+        onSuccess={() => fetchData()}
+        productSizeItem={selectedAdjustItem}
+      />
+
+      {/* Stock Movements Audit Drawer */}
+      <StockMovementsDrawer
+        isOpen={isMovementsDrawerOpen}
+        onClose={() => {
+          setIsMovementsDrawerOpen(false);
+          setSelectedMovementsItem(null);
+        }}
+        productSizeItem={selectedMovementsItem}
+      />
+
+      {/* Units Catalog Manager Modal */}
+      <UnitsManagerModal
+        isOpen={isUnitsModalOpen}
+        onClose={() => setIsUnitsModalOpen(false)}
+        onSuccess={() => fetchData()}
       />
     </div>
   );

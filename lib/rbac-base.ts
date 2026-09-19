@@ -15,6 +15,9 @@ export type Permission =
   | "products:create"
   | "products:edit"
   | "products:delete"
+  | "inventory:view"
+  | "inventory:manage"
+  | "units:manage"
   | "consultations:manage"
   | "consultations:view_own"
   | "inquiries:view"
@@ -30,6 +33,9 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     "products:create",
     "products:edit",
     "products:delete",
+    "inventory:view",
+    "inventory:manage",
+    "units:manage",
     "consultations:manage",
     "consultations:view_own",
     "inquiries:view",
@@ -41,6 +47,8 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     "orders:view_own",
     "products:create",
     "products:edit",
+    "inventory:view",
+    "inventory:manage",
     "consultations:view_own",
   ],
   contributor: [

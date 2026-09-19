@@ -39,9 +39,13 @@ export default function ProductQuickViewModal({
   const [isAdded, setIsAdded] = useState(false);
 
   const isSaved = isInWishlist(product.id);
+  const isAvailable =
+    selectedSize.available !== undefined ? selectedSize.available > 0 : product.inStock;
+  const maxAvailable = selectedSize.available !== undefined ? selectedSize.available : 99;
 
   const handleAddToCart = () => {
-    addToCart(product, selectedSize, quantity);
+    if (!isAvailable) return;
+    addToCart(product, selectedSize, Math.min(quantity, maxAvailable));
     setIsAdded(true);
     setTimeout(() => {
       setIsAdded(false);
@@ -199,8 +203,9 @@ export default function ProductQuickViewModal({
                       {quantity}
                     </span>
                     <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="px-3 py-2.5 text-xs text-[#59534b] hover:text-[#22623a] transition-colors"
+                      onClick={() => setQuantity(Math.min(maxAvailable, quantity + 1))}
+                      disabled={!isAvailable || quantity >= maxAvailable}
+                      className="px-3 py-2.5 text-xs text-[#59534b] hover:text-[#22623a] transition-colors disabled:opacity-40"
                       aria-label="Increase"
                     >
                       +
@@ -210,14 +215,18 @@ export default function ProductQuickViewModal({
                   {/* Add to Cart */}
                   <button
                     onClick={handleAddToCart}
-                    disabled={!product.inStock}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200 shadow-md ${
-                      isAdded
+                    disabled={!isAvailable}
+                    className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all duration-200 shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                      !isAvailable
+                        ? "bg-gray-200 text-gray-500"
+                        : isAdded
                         ? "bg-[#2d7648] text-white"
                         : "bg-[#22623a] hover:bg-[#1b502e] text-white"
                     }`}
                   >
-                    {isAdded ? (
+                    {!isAvailable ? (
+                      <span>Out of Stock</span>
+                    ) : isAdded ? (
                       <>
                         <Check className="w-4 h-4" />
                         <span>Added to Cart</span>

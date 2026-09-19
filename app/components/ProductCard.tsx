@@ -33,10 +33,13 @@ export default function ProductCard({
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
   const isSaved = isInWishlist(product.id);
+  const isAvailable =
+    selectedSize.available !== undefined ? selectedSize.available > 0 : product.inStock;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!isAvailable) return;
     addToCart(product, selectedSize, 1);
     setIsAdded(true);
     setTimeout(() => {
@@ -179,23 +182,33 @@ export default function ProductCard({
                   ₨ {selectedSize.originalPrice.toLocaleString()}
                 </div>
               )}
-              <span className="text-[10px] text-[#2d7648] font-semibold flex items-center gap-1 mt-1">
-                <Check className="w-3 h-3" /> Ready to Dispatch
-              </span>
+              {isAvailable ? (
+                <span className="text-[10px] text-[#2d7648] font-semibold flex items-center gap-1 mt-1">
+                  <Check className="w-3 h-3" /> Ready to Dispatch
+                </span>
+              ) : (
+                <span className="text-[10px] text-red-700 font-semibold flex items-center gap-1 mt-1">
+                  Out of Stock
+                </span>
+              )}
             </div>
 
             <div className="space-y-2">
               <button
                 type="button"
                 onClick={handleAddToCart}
-                disabled={!product.inStock}
-                className={`w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-semibold tracking-wider uppercase transition-all duration-200 active:scale-95 ${
-                  isAdded
+                disabled={!isAvailable}
+                className={`w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg text-xs font-semibold tracking-wider uppercase transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  !isAvailable
+                    ? "bg-gray-200 text-gray-500"
+                    : isAdded
                     ? "bg-[#2d7648] text-white shadow-xs"
                     : "bg-[#22623a] hover:bg-[#1b502e] text-white shadow-xs hover:shadow-md"
                 }`}
               >
-                {isAdded ? (
+                {!isAvailable ? (
+                  <span>Out of Stock</span>
+                ) : isAdded ? (
                   <>
                     <Check className="w-3.5 h-3.5" />
                     <span>Added</span>
@@ -361,15 +374,19 @@ export default function ProductCard({
             <button
               type="button"
               onClick={handleAddToCart}
-              disabled={!product.inStock}
-              className={`flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold tracking-wider uppercase transition-all duration-200 active:scale-95 ${
-                isAdded
+              disabled={!isAvailable}
+              className={`flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold tracking-wider uppercase transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${
+                !isAvailable
+                  ? "bg-gray-200 text-gray-500"
+                  : isAdded
                   ? "bg-[#2d7648] text-white shadow-xs"
                   : "bg-[#22623a] hover:bg-[#1b502e] text-white shadow-xs hover:shadow-md"
               }`}
               aria-label={`Add ${product.name} to cart`}
             >
-              {isAdded ? (
+              {!isAvailable ? (
+                <span>Out of Stock</span>
+              ) : isAdded ? (
                 <>
                   <Check className="w-3.5 h-3.5" />
                   <span>Added</span>

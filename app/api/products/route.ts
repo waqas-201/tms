@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireRole, ROLES } from "@/lib/rbac";
+import { formatProductRecord } from "@/lib/catalog";
 
 export async function GET(request: NextRequest) {
   try {
@@ -43,17 +44,14 @@ export async function GET(request: NextRequest) {
       where,
       orderBy,
       include: {
-        sizes: true,
+        sizes: {
+          include: { unit: true },
+          orderBy: { price: "asc" },
+        },
       },
     });
 
-    // Parse JSON fields safely for response
-    const formatted = products.map((p) => ({
-      ...p,
-      benefits: safeJsonParse(p.benefits, []),
-      ingredients: safeJsonParse(p.ingredients, []),
-      warnings: safeJsonParse(p.warnings || "[]", []),
-    }));
+    const formatted = products.map(formatProductRecord);
 
     return NextResponse.json({ success: true, data: formatted });
   } catch (error) {
@@ -67,8 +65,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    // Both Admin and Editor can create new products in the catalog
-    const { errorResponse } = await requireRole(request, [ROLES.ADMIN, ROLES.EDITOR]);
+    const { session, errorResponse } = await requireRole(request, [ROLES.ADMIN, ROLES.EDITOR]);
     if (errorResponse) return errorResponse;
 
     const body = await request.json();
@@ -137,64 +134,119 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    const parsedBenefits = Array.isArray(benefits) ? JSON.stringify(benefits) : (typeof benefits === "string" ? benefits : "[]");
-    const parsedIngredients = Array.isArray(ingredients) ? JSON.stringify(ingredients) : (typeof ingredients === "string" ? ingredients : "[]");
-    const parsedWarnings = Array.isArray(warnings) ? JSON.stringify(warnings) : (typeof warnings === "string" ? warnings : "[]");
+    const parsedBenefits = Array.isArray(benefits)
+      ? JSON.stringify(benefits)
+      : typeof benefits === "string"
+      ? benefits
+      : "[]";
+    const parsedIngredients = Array.isArray(ingredients)
+      ? JSON.stringify(ingredients)
+      : typeof ingredients === "string"
+      ? ingredients
+      : "[]";
+    const parsedWarnings = Array.isArray(warnings)
+      ? JSON.stringify(warnings)
+      : typeof warnings === "string"
+      ? warnings
+      : "[]";
 
-    const newProduct = await prisma.product.create({
-      data: {
-        slug,
-        name,
-        urduName: body.urduName || "",
-        categoryId: catId,
-        categoryLabel: catLabel,
-        categoryUrdu: "",
-        shortDescription: shortDescription || "",
-        fullDescription: fullDescription || "",
-        traditionalPurpose: traditionalPurpose || "",
-        benefits: parsedBenefits,
-        ingredients: parsedIngredients,
-        howToUse: howToUse || "",
-        dosage: dosage || "",
-        hakimAdvice: hakimAdvice || "",
-        warnings: parsedWarnings,
-        price: Number(price),
-        originalPrice: originalPrice ? Number(originalPrice) : null,
-        discountPercentage: discountPercentage ? Number(discountPercentage) : null,
-        image,
-        inStock: inStock ?? true,
-        featured: featured ?? false,
-        rating: rating ? Number(rating) : 5.0,
-        badge: badge || null,
-        mizaj: mizaj || null,
-        sizes: sizes && Array.isArray(sizes) && sizes.length > 0 ? {
-          create: sizes.map((s: { name: string; weight: string; price: number; originalPrice?: number }) => ({
-            name: s.name,
-            weight: s.weight,
-            price: Number(s.price),
-            originalPrice: s.originalPrice ? Number(s.originalPrice) : null,
-          })),
-        } : undefined,
-      },
-      include: {
-        sizes: true,
-      },
+    // Derive display price from lowest size price if sizes are given
+    let basePrice = Number(price);
+    if (sizes && Array.isArray(sizes) && sizes.length > 0) {
+      const minSizePrice = Math.min(...sizes.map((s: any) => Number(s.price) || basePrice));
+      if (!isNaN(minSizePrice) && minSizePrice > 0) {
+        basePrice = minSizePrice;
+      }
+    }
+
+    const newProduct = await prisma.$transaction(async (tx) => {
+      const prod = await tx.product.create({
+        data: {
+          slug,
+          name,
+          urduName: body.urduName || "",
+          categoryId: catId,
+          categoryLabel: catLabel,
+          categoryUrdu: "",
+          shortDescription: shortDescription || "",
+          fullDescription: fullDescription || "",
+          traditionalPurpose: traditionalPurpose || "",
+          benefits: parsedBenefits,
+          ingredients: parsedIngredients,
+          howToUse: howToUse || "",
+          dosage: dosage || "",
+          hakimAdvice: hakimAdvice || "",
+          warnings: parsedWarnings,
+          price: basePrice,
+          originalPrice: originalPrice ? Number(originalPrice) : null,
+          discountPercentage: discountPercentage ? Number(discountPercentage) : null,
+          image,
+          inStock: inStock ?? true,
+          featured: featured ?? false,
+          rating: rating ? Number(rating) : 5.0,
+          badge: badge || null,
+          mizaj: mizaj || null,
+        },
+      });
+
+      if (sizes && Array.isArray(sizes) && sizes.length > 0) {
+        for (const s of sizes) {
+          const initialQty = Math.max(0, Number(s.initialStock || s.stockOnHand || 0));
+          const sku = s.sku || `${slug}-${(s.name || s.weight || "std").toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+
+          const createdSize = await tx.productSize.create({
+            data: {
+              productId: prod.id,
+              name: s.name || "Standard Pack",
+              weight: s.weight || s.name || "Standard",
+              price: Number(s.price) || basePrice,
+              originalPrice: s.originalPrice ? Number(s.originalPrice) : null,
+              unitId: s.unitId || null,
+              quantityValue: s.quantityValue !== undefined && s.quantityValue !== null ? Number(s.quantityValue) : null,
+              sku,
+              stockOnHand: initialQty,
+              stockReserved: 0,
+              lowStockThreshold: Number(s.lowStockThreshold) || 5,
+              isActive: s.isActive !== undefined ? Boolean(s.isActive) : true,
+            },
+          });
+
+          if (initialQty > 0) {
+            await tx.stockMovement.create({
+              data: {
+                productSizeId: createdSize.id,
+                type: "RECEIVE",
+                quantity: initialQty,
+                onHandAfter: initialQty,
+                reservedAfter: 0,
+                reason: "Initial product creation stock",
+                createdById: session?.user?.id || null,
+              },
+            });
+          }
+        }
+      }
+
+      return await tx.product.findUnique({
+        where: { id: prod.id },
+        include: {
+          sizes: {
+            include: { unit: true },
+            orderBy: { price: "asc" },
+          },
+        },
+      });
     });
 
-    return NextResponse.json({ success: true, data: newProduct }, { status: 201 });
+    return NextResponse.json(
+      { success: true, data: formatProductRecord(newProduct) },
+      { status: 201 }
+    );
   } catch (error: any) {
     console.error("Error creating product:", error);
     return NextResponse.json(
       { success: false, error: error?.message || "Failed to create product." },
       { status: 500 }
     );
-  }
-}
-
-function safeJsonParse(val: string, fallback: unknown) {
-  try {
-    return JSON.parse(val);
-  } catch {
-    return fallback;
   }
 }

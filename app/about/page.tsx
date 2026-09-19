@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,15 +13,76 @@ import {
   MessageCircle,
 } from "lucide-react";
 
-export const metadata = {
-  title: "About Us · 35+ Years of Herbal Care",
+export const metadata: Metadata = {
+  title: "About Us · 35+ Years of Honest Herbal Care in Karachi",
   description:
-    "Learn about our clinic history, our Hakim's philosophy, and our pure herbal preparation standards at Tameer-e-Sehat in Karachi.",
+    "Learn about our clinic history, our Hakim's philosophy, and our pure herbal preparation standards at Tameer-e-Sehat in Karachi, Pakistan since 1990.",
+  alternates: {
+    canonical: "https://tameeresehat.com/about",
+  },
+  openGraph: {
+    title: "About Tameer-e-Sehat · 35+ Years of Herbal Care",
+    description:
+      "Bridging 35+ years of classical Eastern Tibbi wisdom with modern purity. Pure steam distillates, artisanal herbal preserves, and honest healthcare.",
+    url: "https://tameeresehat.com/about",
+    siteName: "Tameer-e-Sehat",
+    locale: "en_PK",
+    type: "website",
+    images: [
+      {
+        url: "/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg",
+        width: 1200,
+        height: 630,
+        alt: "About Tameer-e-Sehat Herbal Clinic Karachi",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "About Tameer-e-Sehat · 35+ Years of Herbal Care",
+    description:
+      "Learn about our clinic history, our Hakim's philosophy, and our pure herbal preparation standards in Karachi.",
+    images: ["/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg"],
+  },
 };
 
 export default function AboutPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "AboutPage",
+        name: "About Tameer-e-Sehat",
+        description:
+          "History, ethos, Hakim lineage, and apothecary compounding standards of Matab Tameer-e-Sehat in Karachi.",
+        url: "https://tameeresehat.com/about",
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://tameeresehat.com",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "About Us",
+            item: "https://tameeresehat.com/about",
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="bg-[#faf8f5]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Header */}
       <section className="relative py-16 sm:py-24 border-b border-[#e6dfd5] overflow-hidden bg-[#22623a] text-white">
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#143e23]/50 blur-3xl pointer-events-none" />

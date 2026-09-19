@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -19,15 +20,76 @@ import {
   ExternalLink,
 } from "lucide-react";
 
-export const metadata = {
-  title: "Clinical Specialties & Chronic Health Care | Tameer-e-Sehat",
+export const metadata: Metadata = {
+  title: "Clinical Specialties & Chronic Health Care Departments",
   description:
     "Explore our 6 specialized clinical departments: Stomach & GERD, Knee & Joint Pain, Liver Detox, Vitality & Energy, Allergies, and Hair Health. 35+ years of Unani healing in Karachi.",
+  alternates: {
+    canonical: "https://tameeresehat.com/specialties",
+  },
+  openGraph: {
+    title: "Clinical Specialties & Chronic Health Care | Tameer-e-Sehat",
+    description:
+      "Explore 6 specialized Unani clinical departments in Karachi: Digestive disorders, Arthritis, Vitality, Respiratory, and Liver care.",
+    url: "https://tameeresehat.com/specialties",
+    siteName: "Tameer-e-Sehat",
+    locale: "en_PK",
+    type: "website",
+    images: [
+      {
+        url: "/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Tameer-e-Sehat Clinical Specialties Karachi",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Clinical Specialties & Chronic Health Care | Tameer-e-Sehat",
+    description:
+      "Targeting the root cause of chronic ailments with individualized herbal regimens and 35+ years of clinical Hakim expertise.",
+    images: ["/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg"],
+  },
 };
 
 export default function SpecialtiesPage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "MedicalWebPage",
+        name: "Clinical Specialties & Chronic Health Care Departments",
+        description:
+          "Explore our specialized Unani clinical departments: Stomach & GERD, Knee & Joint Pain, Liver Detox, Vitality & Energy, Allergies, and Hair Health.",
+        url: "https://tameeresehat.com/specialties",
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://tameeresehat.com",
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Clinical Specialties",
+            item: "https://tameeresehat.com/specialties",
+          },
+        ],
+      },
+    ],
+  };
+
   return (
     <div className="bg-[#faf8f5]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ─── 1. HERO HEADER ─── */}
       <section className="relative py-14 sm:py-20 bg-[#22623a] text-white border-b border-[#143e23] overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#143e23]/50 blur-3xl pointer-events-none" />

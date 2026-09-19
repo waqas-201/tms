@@ -13,6 +13,7 @@ import { isStaffRole } from "@/lib/rbac-base";
 import {
   Search,
   ShoppingBag,
+  Heart,
   Menu,
   X,
   User,
@@ -35,7 +36,7 @@ import {
 
 export default function Header() {
   const pathname = usePathname();
-  const { totalItems, setIsCartOpen } = useCart();
+  const { totalItems, setIsCartOpen, wishlist } = useCart();
   const { data: session } = useSession();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -239,6 +240,21 @@ export default function Header() {
                           <User className="w-3.5 h-3.5 text-[#2d7648]" />
                           <span>My Account &amp; Orders</span>
                         </Link>
+                        <Link
+                          href="/wishlist"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="w-full px-3.5 py-2 text-left text-[#59534b] hover:bg-[#faf8f5] flex items-center justify-between"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Heart className="w-3.5 h-3.5 text-red-500" />
+                            <span>Saved Remedies</span>
+                          </div>
+                          {wishlist.length > 0 && (
+                            <span className="px-1.5 py-0.2 bg-red-100 text-red-700 text-[10px] font-bold rounded-full">
+                              {wishlist.length}
+                            </span>
+                          )}
+                        </Link>
                         {isStaffRole((session.user as any).role) && (
                           <Link
                             href="/admin"
@@ -279,6 +295,21 @@ export default function Header() {
                           <span>My Account</span>
                         </Link>
                         <Link
+                          href="/wishlist"
+                          onClick={() => setIsUserMenuOpen(false)}
+                          className="w-full px-3.5 py-2 text-left text-[#59534b] hover:bg-[#faf8f5] flex items-center justify-between"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Heart className="w-3.5 h-3.5 text-red-500" />
+                            <span>Saved Remedies</span>
+                          </div>
+                          {wishlist.length > 0 && (
+                            <span className="px-1.5 py-0.2 bg-red-100 text-red-700 text-[10px] font-bold rounded-full">
+                              {wishlist.length}
+                            </span>
+                          )}
+                        </Link>
+                        <Link
                           href="/login"
                           onClick={() => setIsUserMenuOpen(false)}
                           className="w-full px-3.5 py-2 text-left text-[#59534b] hover:bg-[#faf8f5] flex items-center gap-2"
@@ -305,6 +336,27 @@ export default function Header() {
                   </div>
                 )}
               </div>
+
+              {/* Wishlist Link Button */}
+              <Link
+                href="/wishlist"
+                className="relative p-2 text-[#59534b] hover:text-[#22623a] hover:bg-black/5 rounded-full transition-colors"
+                title="Saved Remedies & Wishlist"
+                aria-label="Wishlist"
+              >
+                <Heart
+                  className={`w-4 h-4 transition-colors ${
+                    wishlist.length > 0
+                      ? "text-red-500 fill-red-500"
+                      : "text-[#59534b]"
+                  }`}
+                />
+                {wishlist.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white font-bold text-[9px] rounded-full flex items-center justify-center shadow-xs">
+                    {wishlist.length}
+                  </span>
+                )}
+              </Link>
 
               {/* Shopping Bag Drawer Button */}
               <button
@@ -389,6 +441,22 @@ export default function Header() {
                   </Link>
                 );
               })}
+
+              <Link
+                href="/wishlist"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center justify-between py-2.5 px-3 text-xs font-semibold text-[#59534b] hover:bg-[#faf8f5] rounded-xl transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Heart className="w-4 h-4 text-red-500" />
+                  <span>Saved Remedies / Wishlist</span>
+                </div>
+                {wishlist.length > 0 && (
+                  <span className="px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-bold rounded-full">
+                    {wishlist.length}
+                  </span>
+                )}
+              </Link>
 
               <Link
                 href="/track-order"

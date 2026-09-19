@@ -110,9 +110,6 @@ function ProductsContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || "all";
 
-<<<<<<< HEAD
-  // Comprehensive Filter States
-=======
   // Products from API
   const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
   const [isLoading, setIsLoading] = useState(false);
@@ -138,7 +135,6 @@ function ProductsContent() {
   }, []);
 
   // Filter States
->>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedConcern, setSelectedConcern] = useState<string>("all");
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>("all");
@@ -424,7 +420,6 @@ function ProductsContent() {
               {/* Sidebar Scrollable Body */}
               <div className="flex-1 overflow-y-auto px-4 py-3.5 space-y-5 custom-scrollbar">
 
-<<<<<<< HEAD
                 {/* 1. Health Concern Facet */}
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-[#22623a] uppercase tracking-wider flex items-center gap-1.5">
@@ -607,26 +602,6 @@ function ProductsContent() {
                     <span className="flex items-center gap-1">
                       <Percent className="w-3 h-3 text-[#c59b27]" />
                       <span>On Sale / Discounted</span>
-=======
-              {/* 2. Category Facet */}
-              <div className="space-y-2.5 pt-4 border-t border-[#f4eee5]">
-                <label className="text-xs font-bold text-[#22623a] uppercase tracking-wider block flex items-center gap-1.5">
-                  <Package className="w-3.5 h-3.5 text-[#c59b27]" />
-                  <span>By Formulation Type</span>
-                </label>
-                <div className="space-y-1">
-                  <button
-                    onClick={() => setSelectedCategory("all")}
-                    className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors flex items-center justify-between ${
-                      selectedCategory === "all"
-                        ? "bg-[#22623a] text-white font-semibold"
-                        : "text-[#59534b] hover:bg-[#faf8f5] hover:text-[#22623a]"
-                    }`}
-                  >
-                    <span>All Formulations</span>
-                    <span className={`text-[10px] ${selectedCategory === "all" ? "text-white/80" : "text-[#7a7268]"}`}>
-                      {productsList.length}
->>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
                     </span>
                   </label>
 
@@ -656,30 +631,6 @@ function ProductsContent() {
                     <RotateCcw className="w-3.5 h-3.5" />
                     <span>Reset All Filters</span>
                   </button>
-<<<<<<< HEAD
-=======
-
-                  {CATEGORIES.map((cat) => {
-                    const isSelected = selectedCategory === cat.id;
-                    const count = productsList.filter((p) => p.category === cat.id).length;
-                    return (
-                      <button
-                        key={cat.id}
-                        onClick={() => setSelectedCategory(cat.id)}
-                        className={`w-full text-left px-3 py-2 rounded-xl text-xs transition-colors flex items-center justify-between ${
-                          isSelected
-                            ? "bg-[#22623a] text-white font-semibold"
-                            : "text-[#59534b] hover:bg-[#faf8f5] hover:text-[#22623a]"
-                        }`}
-                      >
-                        <span className="truncate pr-2">{cat.name}</span>
-                        <span className={`text-[10px] ${isSelected ? "text-white/80" : "text-[#7a7268]"}`}>
-                          {count}
-                        </span>
-                      </button>
-                    );
-                  })}
->>>>>>> 47f735b1daa73a59462b19e0a9788bc47776f5ea
                 </div>
               )}
             </div>

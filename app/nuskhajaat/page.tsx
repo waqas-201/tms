@@ -22,6 +22,7 @@ import {
   ShieldCheck,
   Clock,
   HeartHandshake,
+  Heart,
   MessageCircle,
   HelpCircle,
   X,
@@ -30,7 +31,7 @@ import {
 } from "lucide-react";
 
 export default function NuskhajaatPage() {
-  const { addNuskhaToCart } = useCart();
+  const { addNuskhaToCart, toggleWishlist, isInWishlist } = useCart();
   const [nuskhajaat, setNuskhajaat] = useState<Nuskha[]>(INITIAL_NUSKHAJAAT);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -358,15 +359,38 @@ export default function NuskhajaatPage() {
                     {/* Gradient overlay */}
                     <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-black/10" />
 
-                    {/* Top Badges */}
-                    <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2">
-                      <span className="px-2.5 py-1 bg-[#22623a]/90 backdrop-blur-xs text-white text-[11px] font-bold uppercase tracking-wider rounded-lg border border-white/20 shadow-xs">
-                        {nuskha.badge || nuskha.categoryLabel}
-                      </span>
+                    {/* Top Badges & Wishlist Action */}
+                    <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2 z-10">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="px-2.5 py-1 bg-[#22623a]/90 backdrop-blur-xs text-white text-[11px] font-bold uppercase tracking-wider rounded-lg border border-white/20 shadow-xs">
+                          {nuskha.badge || nuskha.categoryLabel}
+                        </span>
 
-                      <span className="px-2.5 py-1 bg-white/95 backdrop-blur-xs text-[#22623a] text-[11px] font-bold rounded-lg border border-[#e6dfd5] shadow-xs">
-                        {nuskha.preparationType}
-                      </span>
+                        <span className="px-2.5 py-1 bg-white/95 backdrop-blur-xs text-[#22623a] text-[11px] font-bold rounded-lg border border-[#e6dfd5] shadow-xs">
+                          {nuskha.preparationType}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleWishlist(nuskha.id);
+                        }}
+                        aria-label={isInWishlist(nuskha.id) ? "Remove from wishlist" : "Add to wishlist"}
+                        className={`p-2 rounded-full backdrop-blur-md transition-all duration-200 shadow-xs ${
+                          isInWishlist(nuskha.id)
+                            ? "bg-white text-red-500 shadow-sm"
+                            : "bg-white/80 text-gray-700 hover:bg-white hover:text-red-500"
+                        }`}
+                      >
+                        <Heart
+                          className={`w-4 h-4 ${
+                            isInWishlist(nuskha.id) ? "fill-red-500 text-red-500" : ""
+                          }`}
+                        />
+                      </button>
                     </div>
 
                     {/* Bottom Title on Image */}

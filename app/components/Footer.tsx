@@ -148,7 +148,12 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/products" className="hover:text-white transition-colors">
-                  Herbal Remedies
+                  Shop Remedies
+                </Link>
+              </li>
+              <li>
+                <Link href="/nuskhajaat" className="hover:text-white transition-colors text-[#c59b27] font-medium">
+                  Nuskhajaat (Compounds) ✨
                 </Link>
               </li>
               <li>

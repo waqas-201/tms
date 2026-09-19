@@ -9,9 +9,11 @@ import HakimAuthoritySection from "@/app/components/HakimAuthoritySection";
 import CommunityReviewsSection from "@/app/components/CommunityReviewsSection";
 // import ObjectionHandlingSection from "@/app/components/ObjectionHandlingSection"; // A/B Test Variant: FAQ Accordion
 // import CommunityQASection from "@/app/components/CommunityQASection"; // A/B Test Variant: Q&A Forum
-// import PrescribedRemediesSection from "@/app/components/PrescribedRemediesSection"; // A/B Test Variant: Apothecary Remedies Grid
+//  import PrescribedRemediesSection from "@/app/components/PrescribedRemediesSection"; // A/B Test Variant: Apothecary Remedies Grid
 // import ClinicVisitingSection from "@/app/components/ClinicVisitingSection"; // A/B Test Variant: In-Person Karachi Clinic Card
 import WhatsAppConsultationBanner from "@/app/components/WhatsAppConsultationBanner";
+import ClinicVisitingSection from "./components/ClinicVisitingSection";
+import PrescribedRemediesSection from "./components/PrescribedRemediesSection";
 
 export default function Home() {
   return (
@@ -47,10 +49,9 @@ export default function Home() {
       {/* <CommunityQASection /> */}
 
       {/* [A/B Test Variant] 11. Physician-Formulated Apothecary Remedies (Commented Out for Testing) */}
-      {/* <PrescribedRemediesSection /> */}
-
+      <PrescribedRemediesSection/> 
       {/* [A/B Test Variant] 12. Physical Karachi Clinic Visit, Hours & Map Directions (Commented Out for Testing) */}
-      {/* <ClinicVisitingSection /> */}
+     <ClinicVisitingSection /> 
 
       {/* 8. Final CTA — Direct WhatsApp Urgent Consultation Helpline (Active) */}
       <WhatsAppConsultationBanner />

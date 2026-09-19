@@ -30,6 +30,7 @@ import {
   Sparkles,
   MapPin,
   Clock,
+  Home,
 } from "lucide-react";
 
 export default function Header() {
@@ -68,10 +69,12 @@ export default function Header() {
   }, []);
 
   const navLinks = [
-    { name: "Consult", href: "/consultation", icon: Stethoscope },
+    { name: "Home", href: "/", icon: Home },
+    { name: "Shop", href: "/products", icon: ShoppingBag },
+    { name: "Nuskhajaat", href: "/nuskhajaat", icon: Sparkles, badge: "Custom" },
     { name: "Specialties", href: "/specialties", icon: Activity },
-    { name: "Herbal Remedies", href: "/products", icon: Package },
-    { name: "About Us", href: "/about", icon: Sparkles },
+    { name: "Consult", href: "/consultation", icon: Stethoscope },
+    { name: "About Us", href: "/about", icon: Building2 },
   ];
 
   return (
@@ -160,7 +163,7 @@ export default function Header() {
             </Link>
 
             {/* ── Center: Primary Navigation Links ── */}
-            <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+            <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
 
@@ -168,13 +171,18 @@ export default function Header() {
                   <Link
                     key={link.name}
                     href={link.href}
-                    className={`text-sm font-medium transition-colors duration-150 relative py-1 ${
+                    className={`text-sm font-medium transition-colors duration-150 relative py-1 flex items-center gap-1.5 ${
                       isActive
                         ? "text-[#22623a]"
                         : "text-[#59534b] hover:text-[#22623a]"
                     }`}
                   >
-                    {link.name}
+                    <span>{link.name}</span>
+                    {link.badge && (
+                      <span className="px-1.5 py-0.5 bg-[#c59b27]/15 text-[#8c6a15] text-[9px] font-bold uppercase tracking-wider rounded-md border border-[#c59b27]/30">
+                        {link.badge}
+                      </span>
+                    )}
                     {isActive && (
                       <span className="absolute -bottom-[3px] left-0 w-full h-[2px] bg-[#c59b27] rounded-full" />
                     )}
@@ -362,19 +370,6 @@ export default function Header() {
 
             {/* Navigation Links with Icons */}
             <div className="space-y-1">
-              <Link
-                href="/"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 py-2.5 px-3 text-xs font-semibold rounded-xl transition-colors ${
-                  pathname === "/"
-                    ? "bg-[#eef7f1] text-[#22623a] font-bold"
-                    : "text-[#59534b] hover:bg-[#faf8f5]"
-                }`}
-              >
-                <Sparkles className="w-4 h-4 text-[#c59b27]" />
-                <span>Home</span>
-              </Link>
-
               {navLinks.map((link) => {
                 const Icon = link.icon;
                 const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));

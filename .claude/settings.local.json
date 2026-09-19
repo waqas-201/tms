@@ -8,7 +8,10 @@
       "Bash(npm ls *)",
       "Bash(npx tsc *)",
       "Bash(node *)",
-      "Bash(py --version)"
+      "Bash(py --version)",
+      "mcp__ide__getDiagnostics",
+      "PowerShell(npx prisma generate)",
+      "PowerShell(npm run *)"
     ]
   }
 }

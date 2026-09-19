@@ -178,6 +178,60 @@ model OrderItem {
 }
 
 // -------------------------------------------------------------
+// Classical Nuskhajaat & Compounded Herbal Formulas
+// -------------------------------------------------------------
+
+model Nuskha {
+  id                 String             @id @default(cuid())
+  slug               String             @unique
+  title              String
+  urduTitle          String
+  category           String             // e.g. "digestion", "joints-arthritis", "vitality", "respiratory", "brain-memory", "liver-detox"
+  categoryLabel      String             // e.g. "Stomach & Digestion"
+  shortDescription   String
+  fullDescription    String
+  traditionalPurpose String?
+  mizaj              String?            // e.g. "Haar Yabis (Warm & Dry 2°)"
+  dosageInstructions String
+  howToPrepare       String?
+  preparationType    String             @default("Safoof") // "Safoof" | "Majun" | "Joshanda" | "Roghan" | "Arq Mix"
+  preparationFee     Float              @default(120.0)
+  discountPercentage Int?               @default(0)
+  image              String
+  inStock            Boolean            @default(true)
+  featured           Boolean            @default(false)
+  rating             Float              @default(5.0)
+  reviewCount        Int                @default(0)
+  badge              String?
+  benefits           String?            // Stored as JSON array string
+  warnings           String?            // Stored as JSON array string
+  hakimAdvice        String?
+  ingredients        NuskhaIngredient[]
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+}
+
+model NuskhaIngredient {
+  id              String   @id @default(cuid())
+  nuskhaId        String
+  nuskha          Nuskha   @relation(fields: [nuskhaId], references: [id], onDelete: Cascade)
+  name            String
+  urduName        String
+  role            String?  // e.g. "Juz-e-Azam (Primary Herb)"
+  unit            String   @default("grams") // "grams" | "tola" | "ml" | "pieces"
+  defaultQuantity Float    @default(50.0)
+  minQuantity     Float    @default(10.0)
+  maxQuantity     Float    @default(500.0)
+  step            Float    @default(5.0)
+  pricePerUnit    Float    // Price in PKR per unit
+  isOptional      Boolean  @default(false)
+  notes           String?
+  orderIndex      Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// -------------------------------------------------------------
 // Clinical Consultation & Patient Inquiries
 // -------------------------------------------------------------
 

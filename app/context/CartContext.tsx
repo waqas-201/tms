@@ -2,11 +2,22 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product, ProductSize, CLINIC_INFO } from "@/app/data/products";
+import { Nuskha } from "@/app/data/nuskhajaat";
+
+export interface CartItemCustomDetails {
+  type: "nuskha";
+  nuskhaSlug: string;
+  courseDuration: string; // e.g. "30 Days Course"
+  preparationFormat: string; // e.g. "Ready Safoof (Ground Powder)"
+  totalWeightGrams: number;
+  ingredientsSummary: string; // e.g. "Saunf (50g), Zeera (50g), Sonth (30g)..."
+}
 
 export interface CartItem {
   product: Product;
   selectedSize: ProductSize;
   quantity: number;
+  customDetails?: CartItemCustomDetails;
 }
 
 export interface AppliedCoupon {
@@ -42,6 +53,17 @@ export const AVAILABLE_COUPONS: Record<string, AppliedCoupon> = {
 interface CartContextType {
   cart: CartItem[];
   addToCart: (product: Product, selectedSize?: ProductSize, quantity?: number) => void;
+  addNuskhaToCart: (
+    nuskha: Nuskha,
+    customization: {
+      courseDuration: string;
+      preparationFormat: string;
+      finalPrice: number;
+      totalWeightGrams: number;
+      ingredientsSummary: string;
+      quantity?: number;
+    }
+  ) => void;
   removeFromCart: (productId: string, sizeName: string) => void;
   updateQuantity: (productId: string, sizeName: string, quantity: number) => void;
   clearCart: () => void;
@@ -166,7 +188,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const existingIndex = prev.findIndex(
         (item) =>
           item.product.id === product.id &&
-          item.selectedSize.name === size.name
+          item.selectedSize.name === size.name &&
+          !item.customDetails
       );
 
       if (existingIndex > -1) {
@@ -179,6 +202,101 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     });
 
     showToast(`Added "${product.name} (${size.weight})" to cart.`);
+    setIsCartOpen(true);
+  };
+
+  const addNuskhaToCart = (
+    nuskha: Nuskha,
+    customization: {
+      courseDuration: string;
+      preparationFormat: string;
+      finalPrice: number;
+      totalWeightGrams: number;
+      ingredientsSummary: string;
+      quantity?: number;
+    }
+  ) => {
+    const qty = customization.quantity || 1;
+    const syntheticId = `nuskha-${nuskha.id}-${customization.courseDuration.replace(/\s+/g, "_")}-${customization.preparationFormat.replace(/\s+/g, "_")}`;
+    const sizeName = `${customization.courseDuration} (${customization.preparationFormat})`;
+
+    const syntheticProduct: Product = {
+      id: syntheticId,
+      slug: `nuskha/${nuskha.slug}`,
+      name: nuskha.title,
+      urduName: nuskha.urduTitle,
+      category: nuskha.category as any,
+      categoryLabel: nuskha.categoryLabel,
+      categoryUrdu: "",
+      shortDescription: nuskha.shortDescription,
+      fullDescription: nuskha.fullDescription,
+      traditionalPurpose: nuskha.traditionalPurpose || "",
+      benefits: nuskha.benefits,
+      ingredients: nuskha.ingredients.map((ing) => ({
+        name: ing.name,
+        urdu: ing.urduName,
+        role: ing.role || "",
+      })),
+      howToUse: nuskha.dosageInstructions,
+      dosage: nuskha.dosageInstructions,
+      hakimAdvice: nuskha.hakimAdvice || "",
+      price: customization.finalPrice,
+      image: nuskha.image,
+      inStock: nuskha.inStock,
+      featured: nuskha.featured,
+      rating: nuskha.rating,
+      reviewCount: nuskha.reviewCount,
+      badge: nuskha.badge || "Compound Nuskha",
+      mizaj: nuskha.mizaj || "Mo'tadil",
+      sizes: [
+        {
+          name: sizeName,
+          weight: `Approx. ${customization.totalWeightGrams}g`,
+          price: customization.finalPrice,
+        },
+      ],
+    };
+
+    const syntheticSize: ProductSize = {
+      name: sizeName,
+      weight: `Approx. ${customization.totalWeightGrams}g`,
+      price: customization.finalPrice,
+    };
+
+    const customDetails: CartItemCustomDetails = {
+      type: "nuskha",
+      nuskhaSlug: nuskha.slug,
+      courseDuration: customization.courseDuration,
+      preparationFormat: customization.preparationFormat,
+      totalWeightGrams: customization.totalWeightGrams,
+      ingredientsSummary: customization.ingredientsSummary,
+    };
+
+    setCart((prev) => {
+      const existingIndex = prev.findIndex(
+        (item) =>
+          item.product.id === syntheticId &&
+          item.selectedSize.name === sizeName
+      );
+
+      if (existingIndex > -1) {
+        const updated = [...prev];
+        updated[existingIndex].quantity += qty;
+        return updated;
+      } else {
+        return [
+          ...prev,
+          {
+            product: syntheticProduct,
+            selectedSize: syntheticSize,
+            quantity: qty,
+            customDetails,
+          },
+        ];
+      }
+    });
+
+    showToast(`Added "${nuskha.title}" formulation to your cart.`);
     setIsCartOpen(true);
   };
 
@@ -256,7 +374,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   let discountAmount = 0;
   if (appliedCoupon && subtotal > 0) {
     if (appliedCoupon.minSubtotal && subtotal < appliedCoupon.minSubtotal) {
-      // Coupon threshold not met
       discountAmount = 0;
     } else if (appliedCoupon.discountType === "percentage") {
       discountAmount = Math.round((subtotal * appliedCoupon.discountValue) / 100);
@@ -312,14 +429,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     notes?: string;
   }) => {
     const itemList = cart
-      .map(
-        (item, idx) =>
-          `${idx + 1}. *${item.product.name}* (${item.selectedSize.weight})\n   Qty: ${
-            item.quantity
-          } x ₨ ${item.selectedSize.price} = ₨ ${
-            item.selectedSize.price * item.quantity
-          }`
-      )
+      .map((item, idx) => {
+        let text = `${idx + 1}. *${item.product.name}* (${item.selectedSize.name} - ${item.selectedSize.weight})\n   Qty: ${
+          item.quantity
+        } x ₨ ${item.selectedSize.price} = ₨ ${(
+          item.selectedSize.price * item.quantity
+        ).toLocaleString()}`;
+
+        if (item.customDetails) {
+          text += `\n   _Formulation Breakdown:_\n   • Course: ${item.customDetails.courseDuration}\n   • Format: ${item.customDetails.preparationFormat}\n   • Herbs: ${item.customDetails.ingredientsSummary}`;
+        }
+        return text;
+      })
       .join("\n\n");
 
     let message = `*Assalam-o-Alaikum Tameer-e-Sehat,*\nI would like to place an order from your website:\n\n${itemList}\n\n*Subtotal:* ₨ ${subtotal.toLocaleString()}`;
@@ -343,7 +464,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    message += `\n\nPlease confirm availability and dispatch details. JazakAllah!`;
+    message += `\n\nPlease confirm preparation and dispatch details. JazakAllah!`;
 
     const encoded = encodeURIComponent(message);
     return `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encoded}`;
@@ -354,6 +475,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       value={{
         cart,
         addToCart,
+        addNuskhaToCart,
         removeFromCart,
         updateQuantity,
         clearCart,

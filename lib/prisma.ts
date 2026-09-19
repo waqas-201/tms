@@ -37,9 +37,14 @@ function getPrismaClient(): PrismaClient {
     return globalForPrisma.prisma;
   }
 
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    throw new Error("DATABASE_URL environment variable is missing.");
+  const connectionString =
+    process.env.DATABASE_URL ||
+    "postgresql://postgres:postgres@localhost:5432/placeholder_db?sslmode=disable";
+
+  if (!process.env.DATABASE_URL && process.env.NODE_ENV === "production") {
+    console.warn(
+      "⚠️ [WARN] DATABASE_URL environment variable is not defined. Ensure it is configured in your deployment platform (e.g. Vercel)."
+    );
   }
 
   const pool = new Pool({ connectionString });
@@ -57,5 +62,16 @@ function getPrismaClient(): PrismaClient {
   return client;
 }
 
-export const prisma = getPrismaClient();
+// Lazy Proxy to ensure safe module evaluation during static build & route collection
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_target, prop, receiver) {
+    const client = getPrismaClient();
+    const value = Reflect.get(client, prop, receiver);
+    if (typeof value === "function") {
+      return value.bind(client);
+    }
+    return value;
+  },
+});
+
 export default prisma;

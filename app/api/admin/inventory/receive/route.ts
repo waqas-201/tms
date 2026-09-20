@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
     if (errorResponse) return errorResponse;
 
     const body = await request.json();
-    const { productSizeId, quantity, reason } = body;
+    const { productSizeId, quantity, reason, batchNumber, expiryDate, unitCost } = body;
 
     if (!productSizeId) {
       return NextResponse.json(
@@ -30,6 +30,9 @@ export async function POST(request: NextRequest) {
       quantity: Math.floor(numQty),
       reason: reason?.trim() || "Batch stock reception",
       userId: session.user.id,
+      batchNumber: batchNumber?.trim() || undefined,
+      expiryDate: expiryDate ? new Date(expiryDate) : undefined,
+      unitCost: unitCost ? Number(unitCost) : undefined,
     });
 
     return NextResponse.json({

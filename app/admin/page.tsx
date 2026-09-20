@@ -38,6 +38,19 @@ import {
   ArrowDownRight,
   TrendingDown,
   Lock,
+  Building2,
+  CreditCard,
+  Wallet,
+  Landmark,
+  TrendingUp,
+  Receipt,
+  Phone,
+  ArrowUpRight,
+  ArrowDownLeft,
+  FileSpreadsheet,
+  PieChart,
+  Zap,
+  BarChart3,
 } from "lucide-react";
 import ProductFormModal from "@/app/components/ProductFormModal";
 import NuskhaFormModal from "@/app/components/NuskhaFormModal";
@@ -46,6 +59,13 @@ import ReceiveStockModal from "@/app/components/inventory/ReceiveStockModal";
 import AdjustStockModal from "@/app/components/inventory/AdjustStockModal";
 import StockMovementsDrawer from "@/app/components/inventory/StockMovementsDrawer";
 import UnitsManagerModal from "@/app/components/inventory/UnitsManagerModal";
+import CustomerLedgerModal from "@/app/components/accounts/CustomerLedgerModal";
+import ReceivePaymentModal from "@/app/components/accounts/ReceivePaymentModal";
+import VendorModal from "@/app/components/vendors/VendorModal";
+import PurchaseBillModal from "@/app/components/vendors/PurchaseBillModal";
+import VendorPaymentModal from "@/app/components/vendors/VendorPaymentModal";
+import VendorLedgerModal from "@/app/components/vendors/VendorLedgerModal";
+import QuickStockModal from "@/app/components/inventory/QuickStockModal";
 import { ROLES, isStaffRole } from "@/lib/rbac-base";
 
 export default function AdminDashboardPage() {
@@ -115,6 +135,39 @@ export default function AdminDashboardPage() {
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false);
   const [invoiceOrder, setInvoiceOrder] = useState<any | null>(null);
 
+  // Accounts & Receivables State
+  const [customersList, setCustomersList] = useState<any[]>([]);
+  const [accountsSummary, setAccountsSummary] = useState<any>(null);
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [customerFilter, setCustomerFilter] = useState<"all" | "due" | "settled">("all");
+  const [isCustomerLedgerOpen, setIsCustomerLedgerOpen] = useState(false);
+  const [selectedLedgerCustomer, setSelectedLedgerCustomer] = useState<string | null>(null);
+  const [isReceivePaymentOpen, setIsReceivePaymentOpen] = useState(false);
+  const [paymentModalCustomer, setPaymentModalCustomer] = useState<any | null>(null);
+  const [paymentModalOrderId, setPaymentModalOrderId] = useState<string | null>(null);
+  const [paymentModalMaxDue, setPaymentModalMaxDue] = useState<number | undefined>(undefined);
+
+  // Vendors & Purchasing State
+  const [vendorsList, setVendorsList] = useState<any[]>([]);
+  const [vendorsSummary, setVendorsSummary] = useState<any>(null);
+  const [purchasesList, setPurchasesList] = useState<any[]>([]);
+  const [vendorSubTab, setVendorSubTab] = useState<"vendors" | "bills">("vendors");
+  const [vendorSearch, setVendorSearch] = useState("");
+  const [isVendorModalOpen, setIsVendorModalOpen] = useState(false);
+  const [editingVendor, setEditingVendor] = useState<any | null>(null);
+  const [isPurchaseBillModalOpen, setIsPurchaseBillModalOpen] = useState(false);
+  const [purchaseBillVendorId, setPurchaseBillVendorId] = useState<string | null>(null);
+  const [isVendorPaymentModalOpen, setIsVendorPaymentModalOpen] = useState(false);
+  const [vendorPaymentTarget, setVendorPaymentTarget] = useState<any | null>(null);
+  const [vendorPaymentPurchaseId, setVendorPaymentPurchaseId] = useState<string | null>(null);
+  const [vendorPaymentMaxDue, setVendorPaymentMaxDue] = useState<number | undefined>(undefined);
+  const [isVendorLedgerOpen, setIsVendorLedgerOpen] = useState(false);
+  const [selectedVendorLedgerId, setSelectedVendorLedgerId] = useState<string | null>(null);
+
+  // Quick Stock Restock Modal State
+  const [isQuickStockOpen, setIsQuickStockOpen] = useState(false);
+  const [selectedQuickStockItem, setSelectedQuickStockItem] = useState<any | null>(null);
+
   // Team management state
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [userRoleFilter, setUserRoleFilter] = useState("all");
@@ -150,7 +203,19 @@ export default function AdminDashboardPage() {
     setLoading(true);
     try {
       if (isAdmin) {
-        const [statsRes, ordersRes, consultRes, prodRes, nuskhaRes, inqRes, usersRes, invRes] = await Promise.all([
+        const [
+          statsRes,
+          ordersRes,
+          consultRes,
+          prodRes,
+          nuskhaRes,
+          inqRes,
+          usersRes,
+          invRes,
+          accountsRes,
+          vendorsRes,
+          purchasesRes,
+        ] = await Promise.all([
           fetch("/api/admin/stats"),
           fetch("/api/orders"),
           fetch("/api/consultations"),
@@ -159,6 +224,9 @@ export default function AdminDashboardPage() {
           fetch("/api/inquiries"),
           fetch("/api/admin/users"),
           fetch("/api/admin/inventory"),
+          fetch("/api/admin/accounts/customers"),
+          fetch("/api/admin/vendors"),
+          fetch("/api/admin/purchases"),
         ]);
 
         if (statsRes.ok) {
@@ -194,6 +262,26 @@ export default function AdminDashboardPage() {
           if (d.success) {
             setInventorySizes(d.data || []);
             setInventorySummary(d.summary || null);
+          }
+        }
+        if (accountsRes && accountsRes.ok) {
+          const d = await accountsRes.json();
+          if (d.success) {
+            setCustomersList(d.data || []);
+            setAccountsSummary(d.summary || null);
+          }
+        }
+        if (vendorsRes && vendorsRes.ok) {
+          const d = await vendorsRes.json();
+          if (d.success) {
+            setVendorsList(d.data || []);
+            setVendorsSummary(d.summary || null);
+          }
+        }
+        if (purchasesRes && purchasesRes.ok) {
+          const d = await purchasesRes.json();
+          if (d.success) {
+            setPurchasesList(d.data || []);
           }
         }
       } else if (isEditor) {
@@ -502,6 +590,54 @@ export default function AdminDashboardPage() {
     });
   }, [usersList, userSearchQuery, userRoleFilter]);
 
+  // Filter Customers List
+  const filteredCustomers = useMemo(() => {
+    return customersList.filter((c) => {
+      const q = customerSearch.toLowerCase();
+      const matchesSearch =
+        customerSearch === "" ||
+        c.name?.toLowerCase().includes(q) ||
+        c.phone?.toLowerCase().includes(q) ||
+        c.email?.toLowerCase().includes(q) ||
+        c.city?.toLowerCase().includes(q);
+
+      const matchesFilter =
+        customerFilter === "all" ||
+        (customerFilter === "due" && (c.currentBalance || 0) > 0) ||
+        (customerFilter === "settled" && (c.currentBalance || 0) <= 0);
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [customersList, customerSearch, customerFilter]);
+
+  // Filter Vendors List
+  const filteredVendors = useMemo(() => {
+    return vendorsList.filter((v) => {
+      const q = vendorSearch.toLowerCase();
+      return (
+        vendorSearch === "" ||
+        v.name?.toLowerCase().includes(q) ||
+        v.company?.toLowerCase().includes(q) ||
+        v.phone?.toLowerCase().includes(q) ||
+        v.email?.toLowerCase().includes(q)
+      );
+    });
+  }, [vendorsList, vendorSearch]);
+
+  // Filter Purchases List
+  const filteredPurchases = useMemo(() => {
+    return purchasesList.filter((p) => {
+      const q = vendorSearch.toLowerCase();
+      return (
+        vendorSearch === "" ||
+        p.billNumber?.toLowerCase().includes(q) ||
+        p.vendorName?.toLowerCase().includes(q) ||
+        p.vendorPhone?.toLowerCase().includes(q) ||
+        p.notes?.toLowerCase().includes(q)
+      );
+    });
+  }, [purchasesList, vendorSearch]);
+
   if (sessionLoading) {
     return (
       <div className="min-h-screen bg-[#faf8f5] flex items-center justify-center">
@@ -638,6 +774,58 @@ export default function AdminDashboardPage() {
             >
               <ShoppingBag className="w-3.5 h-3.5" />
               <span>Orders ({orders.length})</span>
+            </button>
+          )}
+
+          {isAdmin && (
+            <button
+              onClick={() => setActiveTab("accounts")}
+              className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg transition-colors shrink-0 ${
+                activeTab === "accounts"
+                  ? "bg-[#22623a] text-white shadow-xs"
+                  : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a]"
+              }`}
+            >
+              <CreditCard className="w-3.5 h-3.5" />
+              <span>Accounts & Receivables ({customersList.length})</span>
+              {accountsSummary?.totalOutstandingReceivable > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold">
+                  ₨ {Math.round(accountsSummary.totalOutstandingReceivable / 1000)}k
+                </span>
+              )}
+            </button>
+          )}
+
+          {isAdmin && (
+            <button
+              onClick={() => setActiveTab("vendors")}
+              className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg transition-colors shrink-0 ${
+                activeTab === "vendors"
+                  ? "bg-[#22623a] text-white shadow-xs"
+                  : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a]"
+              }`}
+            >
+              <Building2 className="w-3.5 h-3.5" />
+              <span>Vendors & Purchasing ({vendorsList.length})</span>
+              {vendorsSummary?.totalPayableBalance > 0 && (
+                <span className="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-bold">
+                  ₨ {Math.round(vendorsSummary.totalPayableBalance / 1000)}k
+                </span>
+              )}
+            </button>
+          )}
+
+          {isAdmin && (
+            <button
+              onClick={() => setActiveTab("finance")}
+              className={`flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-lg transition-colors shrink-0 ${
+                activeTab === "finance"
+                  ? "bg-[#22623a] text-white shadow-xs"
+                  : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a]"
+              }`}
+            >
+              <TrendingUp className="w-3.5 h-3.5" />
+              <span>Financial KPIs & Reports</span>
             </button>
           )}
 
@@ -1434,6 +1622,19 @@ export default function AdminDashboardPage() {
                                 <button
                                   type="button"
                                   onClick={() => {
+                                    setSelectedQuickStockItem(item);
+                                    setIsQuickStockOpen(true);
+                                  }}
+                                  className="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded text-[11px] font-semibold transition-colors flex items-center gap-1"
+                                  title="Quick single-click restock"
+                                >
+                                  <Zap className="w-3 h-3 text-amber-700" />
+                                  <span>Quick +</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
                                     setPreselectedProductSizeId(item.id);
                                     setIsReceiveStockOpen(true);
                                   }}
@@ -1776,6 +1977,928 @@ export default function AdminDashboardPage() {
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: ACCOUNTS RECEIVABLE & CUSTOMER LEDGERS (Admin Only) */}
+        {activeTab === "accounts" && isAdmin && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="font-serif text-xl font-bold text-[#22623a]">
+                    Customer Accounts & Receivables Ledger (A/R)
+                  </h2>
+                  {(accountsSummary?.totalReceivableDue || 0) > 0 && (
+                    <span className="px-2 py-0.5 bg-amber-100 border border-amber-300 text-amber-900 rounded-md text-[11px] font-bold">
+                      ₨ {(accountsSummary?.totalReceivableDue || 0).toLocaleString()} Total Due
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-[#6a6660]">
+                  Consolidated customer balances, payment records, outstanding dues, and printable ledger statements.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPaymentModalCustomer(null);
+                    setPaymentModalOrderId(null);
+                    setPaymentModalMaxDue(undefined);
+                    setIsReceivePaymentOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-semibold rounded-lg transition-colors shadow-xs"
+                >
+                  <DollarSign className="w-4 h-4 text-[#c59b27]" />
+                  <span>Record Customer Payment</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Accounts Summary KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold text-[#6a6660] uppercase flex items-center gap-1">
+                  <Wallet className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Total Outstanding Receivables</span>
+                </span>
+                <p className="text-2xl font-bold text-amber-800">
+                  ₨ {(accountsSummary?.totalReceivableDue || 0).toLocaleString()}
+                </p>
+                <p className="text-[10px] text-[#6a6660]">
+                  From {accountsSummary?.activeCustomersWithDues || 0} customer account(s) with pending dues
+                </p>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold text-[#6a6660] uppercase flex items-center gap-1">
+                  <Users className="w-3.5 h-3.5 text-[#22623a]" />
+                  <span>Customer Ledger Accounts</span>
+                </span>
+                <p className="text-2xl font-bold text-[#22623a]">
+                  {customersList.length}
+                </p>
+                <p className="text-[10px] text-[#6a6660]">
+                  Indexed by phone & registered accounts
+                </p>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold text-[#6a6660] uppercase flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>Fully Settled Accounts</span>
+                </span>
+                <p className="text-2xl font-bold text-emerald-800">
+                  {accountsSummary?.totalSettled || 0}
+                </p>
+                <p className="text-[10px] text-[#6a6660]">
+                  Zero outstanding balance / fully paid
+                </p>
+              </div>
+            </div>
+
+            {/* Filters & Search Toolbar */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-4 rounded-xl border border-[#e6dfd5]">
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 text-[#6a6660] absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search customer by name, phone, email, city..."
+                  value={customerSearch}
+                  onChange={(e) => setCustomerSearch(e.target.value)}
+                  className="w-full pl-9 pr-8 py-2 text-xs bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a]"
+                />
+                {customerSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setCustomerSearch("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6a6660] hover:text-[#1a1816]"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto">
+                <button
+                  type="button"
+                  onClick={() => setCustomerFilter("all")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    customerFilter === "all"
+                      ? "bg-[#22623a] text-white"
+                      : "bg-[#faf8f5] text-[#59534b] hover:bg-[#e6dfd5]"
+                  }`}
+                >
+                  All ({customersList.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCustomerFilter("due")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    customerFilter === "due"
+                      ? "bg-amber-700 text-white"
+                      : "bg-[#faf8f5] text-amber-800 hover:bg-amber-50"
+                  }`}
+                >
+                  Pending Dues ({accountsSummary?.activeCustomersWithDues || 0})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCustomerFilter("settled")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                    customerFilter === "settled"
+                      ? "bg-emerald-700 text-white"
+                      : "bg-[#faf8f5] text-emerald-800 hover:bg-emerald-50"
+                  }`}
+                >
+                  Settled ({accountsSummary?.totalSettled || 0})
+                </button>
+              </div>
+            </div>
+
+            {/* Customers Receivable Ledger Table */}
+            <div className="bg-white rounded-xl border border-[#e6dfd5] shadow-xs overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#faf8f5] text-[#22623a] border-b border-[#e6dfd5]">
+                    <tr>
+                      <th className="p-3.5 font-bold">Customer / Patient</th>
+                      <th className="p-3.5 font-bold">Contact & WhatsApp</th>
+                      <th className="p-3.5 font-bold text-right">Total Invoiced</th>
+                      <th className="p-3.5 font-bold text-right">Total Paid</th>
+                      <th className="p-3.5 font-bold text-right">Net Balance Due</th>
+                      <th className="p-3.5 font-bold text-center">Status</th>
+                      <th className="p-3.5 font-bold text-right">Account Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#e6dfd5]">
+                    {filteredCustomers.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} className="p-8 text-center text-[#6a6660]">
+                          No customer accounts found matching your search.
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredCustomers.map((c, idx) => {
+                        const balance = c.currentBalance || 0;
+                        const isDue = balance > 0;
+                        const customerIdKey = c.phone || c.userId || c.name || `cust-${idx}`;
+                        const waText = encodeURIComponent(
+                          `*Assalam-o-Alaikum ${c.name || "Respected Patient"},*\n\nHere is your official account balance summary from *Tameer-e-Sehat Herbal Dispensary*:\n\n📦 *Total Orders Billed:* ₨ ${(c.totalPurchases || 0).toLocaleString()}\n✅ *Total Payments Received:* ₨ ${(c.totalPaid || 0).toLocaleString()}\n⚠️ *Net Outstanding Due:* ₨ ${balance.toLocaleString()}\n\nFor accounts queries, contact our helpline at +92 312 2841990.\n*Tameer-e-Sehat Health Clinic*`
+                        );
+                        return (
+                          <tr key={customerIdKey} className="hover:bg-[#faf8f5]/60 transition-colors">
+                            <td className="p-3.5">
+                              <div className="font-bold text-[#22623a]">
+                                {c.name || "Walk-in / Guest Patient"}
+                              </div>
+                              <div className="text-[11px] text-[#6a6660]">
+                                {c.city || "Pakistan"} · {c.ordersCount || 0} order(s)
+                              </div>
+                            </td>
+
+                            <td className="p-3.5">
+                              <div className="font-mono text-[11px] text-[#1a1816]">
+                                {c.phone || "No phone"}
+                              </div>
+                              {c.email && (
+                                <div className="text-[10px] text-[#6a6660] font-mono">
+                                  {c.email}
+                                </div>
+                              )}
+                            </td>
+
+                            <td className="p-3.5 text-right font-bold text-[#1a1816]">
+                              ₨ {(c.totalPurchases || 0).toLocaleString()}
+                            </td>
+
+                            <td className="p-3.5 text-right font-bold text-[#2d7648]">
+                              ₨ {(c.totalPaid || 0).toLocaleString()}
+                            </td>
+
+                            <td className="p-3.5 text-right">
+                              <span
+                                className={`font-mono font-bold text-sm ${
+                                  isDue ? "text-amber-800" : "text-emerald-700"
+                                }`}
+                              >
+                                ₨ {balance.toLocaleString()}
+                              </span>
+                            </td>
+
+                            <td className="p-3.5 text-center">
+                              <span
+                                className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                                  isDue
+                                    ? "bg-amber-100 text-amber-900 border border-amber-300"
+                                    : "bg-emerald-100 text-emerald-900 border border-emerald-300"
+                                }`}
+                              >
+                                {isDue ? "OUTSTANDING" : "SETTLED"}
+                              </span>
+                            </td>
+
+                            <td className="p-3.5 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setSelectedLedgerCustomer(c.phone || c.userId || c.name);
+                                    setIsCustomerLedgerOpen(true);
+                                  }}
+                                  className="px-2 py-1 bg-[#faf8f5] hover:bg-[#e6dfd5] text-[#22623a] border border-[#e6dfd5] rounded text-[11px] font-semibold transition-colors flex items-center gap-1"
+                                  title="View full chronological account statement"
+                                >
+                                  <FileText className="w-3.5 h-3.5" />
+                                  <span>Ledger</span>
+                                </button>
+
+                                {isDue && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setPaymentModalCustomer(c);
+                                      setPaymentModalMaxDue(balance);
+                                      setPaymentModalOrderId(null);
+                                      setIsReceivePaymentOpen(true);
+                                    }}
+                                    className="px-2 py-1 bg-[#22623a] hover:bg-[#1b502e] text-white rounded text-[11px] font-semibold transition-colors flex items-center gap-1 shadow-2xs"
+                                    title="Record payment received"
+                                  >
+                                    <DollarSign className="w-3.5 h-3.5 text-[#c59b27]" />
+                                    <span>Receive</span>
+                                  </button>
+                                )}
+
+                                {c.phone && (
+                                  <a
+                                    href={`https://wa.me/${c.phone.replace(/[^0-9]/g, "")}?text=${waText}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-1 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#25D366] border border-[#25D366]/30 rounded transition-colors"
+                                    title="Send WhatsApp Balance Statement"
+                                  >
+                                    <MessageSquare className="w-3.5 h-3.5" />
+                                  </a>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: VENDORS, RAW HERB SUPPLIERS & PURCHASING (Admin Only) */}
+        {activeTab === "vendors" && isAdmin && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="font-serif text-xl font-bold text-[#22623a]">
+                    Vendors & Raw Herb Suppliers (Accounts Payable - A/P)
+                  </h2>
+                  {(vendorsSummary?.totalPayablesDue || 0) > 0 && (
+                    <span className="px-2 py-0.5 bg-amber-100 border border-amber-300 text-amber-900 rounded-md text-[11px] font-bold">
+                      ₨ {(vendorsSummary?.totalPayablesDue || 0).toLocaleString()} Total Payable
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-[#6a6660]">
+                  Manage raw botanical herb suppliers, packaging vendors, inward purchase bills, and disbursement vouchers.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingVendor(null);
+                    setIsVendorModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-semibold rounded-lg transition-colors shadow-xs"
+                >
+                  <Building2 className="w-4 h-4 text-[#c59b27]" />
+                  <span>Register Vendor</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPurchaseBillVendorId(null);
+                    setIsPurchaseBillModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#c59b27] hover:bg-[#a8821d] text-white text-xs font-semibold rounded-lg transition-colors shadow-xs"
+                >
+                  <Package className="w-4 h-4" />
+                  <span>New Purchase Bill</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVendorPaymentTarget(null);
+                    setVendorPaymentPurchaseId(null);
+                    setVendorPaymentMaxDue(undefined);
+                    setIsVendorPaymentModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#faf8f5] hover:bg-[#e6dfd5] text-[#22623a] border border-[#e6dfd5] text-xs font-semibold rounded-lg transition-colors"
+                >
+                  <CreditCard className="w-4 h-4 text-[#22623a]" />
+                  <span>Disburse Payment</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Vendor Sub-Nav Tabs */}
+            <div className="flex items-center gap-2 border-b border-[#e6dfd5] pb-2">
+              <button
+                type="button"
+                onClick={() => setVendorSubTab("vendors")}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                  vendorSubTab === "vendors"
+                    ? "bg-[#22623a] text-white shadow-xs"
+                    : "bg-[#faf8f5] text-[#59534b] hover:bg-[#e6dfd5]"
+                }`}
+              >
+                <Building2 className="w-4 h-4" />
+                <span>Suppliers Directory ({vendorsList.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setVendorSubTab("bills")}
+                className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
+                  vendorSubTab === "bills"
+                    ? "bg-[#22623a] text-white shadow-xs"
+                    : "bg-[#faf8f5] text-[#59534b] hover:bg-[#e6dfd5]"
+                }`}
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                <span>Inward Purchase Bills ({purchasesList.length})</span>
+              </button>
+            </div>
+
+            {/* Vendor KPIs Summary */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold text-[#6a6660] uppercase">
+                  Registered Suppliers
+                </span>
+                <p className="text-2xl font-bold text-[#22623a]">
+                  {vendorsList.length}
+                </p>
+                <p className="text-[10px] text-[#6a6660]">Botanical & packaging vendors</p>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold text-[#6a6660] uppercase">
+                  Inward Purchases Billed
+                </span>
+                <p className="text-2xl font-bold text-[#1a1816]">
+                  ₨ {(vendorsSummary?.totalPurchasesBilled || 0).toLocaleString()}
+                </p>
+                <p className="text-[10px] text-[#6a6660]">Total inventory inward cost</p>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] shadow-xs space-y-1">
+                <span className="text-[11px] font-semibold text-[#6a6660] uppercase">
+                  Disbursed Payments
+                </span>
+                <p className="text-2xl font-bold text-[#2d7648]">
+                  ₨ {(vendorsSummary?.totalPaymentsDisbursed || 0).toLocaleString()}
+                </p>
+                <p className="text-[10px] text-[#6a6660]">Total payments to suppliers</p>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl border border-amber-200 bg-amber-50/40 shadow-xs space-y-1">
+                <span className="text-[11px] font-bold text-amber-900 uppercase">
+                  Net Outstanding Payable
+                </span>
+                <p className="text-2xl font-bold text-amber-950">
+                  ₨ {(vendorsSummary?.totalPayablesDue || 0).toLocaleString()}
+                </p>
+                <p className="text-[10px] text-amber-800">Total liability owed to suppliers</p>
+              </div>
+            </div>
+
+            {/* SubTab 1: Suppliers Directory */}
+            {vendorSubTab === "vendors" && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between gap-3 bg-white p-4 rounded-xl border border-[#e6dfd5]">
+                  <div className="relative w-full sm:w-80">
+                    <Search className="w-4 h-4 text-[#6a6660] absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Search vendor by name, shop, phone, city..."
+                      value={vendorSearch}
+                      onChange={(e) => setVendorSearch(e.target.value)}
+                      className="w-full pl-9 pr-8 py-2 text-xs bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a]"
+                    />
+                    {vendorSearch && (
+                      <button
+                        type="button"
+                        onClick={() => setVendorSearch("")}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6a6660] hover:text-[#1a1816]"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-xl border border-[#e6dfd5] shadow-xs overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-[#faf8f5] text-[#22623a] border-b border-[#e6dfd5]">
+                        <tr>
+                          <th className="p-3.5 font-bold">Supplier / Market Shop</th>
+                          <th className="p-3.5 font-bold">Phone & WhatsApp</th>
+                          <th className="p-3.5 font-bold">Market Location</th>
+                          <th className="p-3.5 font-bold text-right">Total Purchases</th>
+                          <th className="p-3.5 font-bold text-right">Total Paid</th>
+                          <th className="p-3.5 font-bold text-right">Net Payable Due</th>
+                          <th className="p-3.5 font-bold text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#e6dfd5]">
+                        {filteredVendors.length === 0 ? (
+                          <tr>
+                            <td colSpan={7} className="p-8 text-center text-[#6a6660]">
+                              No suppliers registered yet. Click &quot;Register Vendor&quot; above to add one.
+                            </td>
+                          </tr>
+                        ) : (
+                          filteredVendors.map((v) => {
+                            const payable = v.currentBalance || 0;
+                            const isDue = payable > 0;
+                            return (
+                              <tr key={v.id} className="hover:bg-[#faf8f5]/60 transition-colors">
+                                <td className="p-3.5">
+                                  <div className="font-bold text-[#22623a] text-sm">
+                                    {v.name}
+                                  </div>
+                                  {v.company && (
+                                    <div className="text-[11px] text-[#59534b] font-medium">
+                                      {v.company}
+                                    </div>
+                                  )}
+                                </td>
+
+                                <td className="p-3.5">
+                                  <div className="font-mono text-[11px] text-[#1a1816]">
+                                    {v.phone || "No phone"}
+                                  </div>
+                                  {v.email && (
+                                    <div className="text-[10px] text-[#6a6660] font-mono">
+                                      {v.email}
+                                    </div>
+                                  )}
+                                </td>
+
+                                <td className="p-3.5 text-[#59534b] text-[11px] max-w-xs truncate">
+                                  {v.address || "Karachi, Pakistan"}
+                                </td>
+
+                                <td className="p-3.5 text-right font-bold text-[#1a1816]">
+                                  ₨ {(v.totalPurchases || 0).toLocaleString()}
+                                </td>
+
+                                <td className="p-3.5 text-right font-bold text-[#2d7648]">
+                                  ₨ {(v.totalPayments || 0).toLocaleString()}
+                                </td>
+
+                                <td className="p-3.5 text-right">
+                                  <span
+                                    className={`font-mono font-bold text-sm ${
+                                      isDue ? "text-amber-800" : "text-emerald-700"
+                                    }`}
+                                  >
+                                    ₨ {payable.toLocaleString()}
+                                  </span>
+                                </td>
+
+                                <td className="p-3.5 text-right">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedVendorLedgerId(v.id);
+                                        setIsVendorLedgerOpen(true);
+                                      }}
+                                      className="px-2 py-1 bg-[#faf8f5] hover:bg-[#e6dfd5] text-[#22623a] border border-[#e6dfd5] rounded text-[11px] font-semibold transition-colors flex items-center gap-1"
+                                      title="View Supplier Statement"
+                                    >
+                                      <FileText className="w-3.5 h-3.5" />
+                                      <span>Statement</span>
+                                    </button>
+
+                                    {isDue && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setVendorPaymentTarget(v);
+                                          setVendorPaymentPurchaseId(null);
+                                          setVendorPaymentMaxDue(payable);
+                                          setIsVendorPaymentModalOpen(true);
+                                        }}
+                                        className="px-2 py-1 bg-[#22623a] hover:bg-[#1b502e] text-white rounded text-[11px] font-semibold transition-colors flex items-center gap-1 shadow-2xs"
+                                        title="Disburse payment"
+                                      >
+                                        <DollarSign className="w-3.5 h-3.5 text-[#c59b27]" />
+                                        <span>Pay</span>
+                                      </button>
+                                    )}
+
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setPurchaseBillVendorId(v.id);
+                                        setIsPurchaseBillModalOpen(true);
+                                      }}
+                                      className="p-1 bg-[#c59b27]/10 hover:bg-[#c59b27]/20 text-[#c59b27] border border-[#c59b27]/30 rounded transition-colors"
+                                      title="Create Purchase Bill"
+                                    >
+                                      <Package className="w-3.5 h-3.5" />
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setEditingVendor(v);
+                                        setIsVendorModalOpen(true);
+                                      }}
+                                      className="p-1 text-[#59534b] hover:text-[#22623a] hover:bg-[#faf8f5] rounded border border-[#e6dfd5] transition-colors"
+                                      title="Edit Vendor Info"
+                                    >
+                                      <Edit3 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* SubTab 2: Inward Purchase Bills */}
+            {vendorSubTab === "bills" && (
+              <div className="space-y-4">
+                <div className="bg-white rounded-xl border border-[#e6dfd5] shadow-xs overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-[#faf8f5] text-[#22623a] border-b border-[#e6dfd5]">
+                        <tr>
+                          <th className="p-3.5 font-bold">Bill # & Date</th>
+                          <th className="p-3.5 font-bold">Supplier / Vendor</th>
+                          <th className="p-3.5 font-bold">Items Received</th>
+                          <th className="p-3.5 font-bold text-right">Bill Total (PKR)</th>
+                          <th className="p-3.5 font-bold text-right">Amount Paid</th>
+                          <th className="p-3.5 font-bold text-center">Status</th>
+                          <th className="p-3.5 font-bold text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#e6dfd5]">
+                        {purchasesList.length === 0 ? (
+                          <tr>
+                            <td colSpan={7} className="p-8 text-center text-[#6a6660]">
+                              No inward purchase bills recorded yet. Click &quot;New Purchase Bill&quot; to log incoming botanical or packaging stock.
+                            </td>
+                          </tr>
+                        ) : (
+                          purchasesList.map((p) => {
+                            const unpaidAmount = Math.max(0, p.totalAmount - (p.paidAmount || 0));
+                            return (
+                              <tr key={p.id} className="hover:bg-[#faf8f5]/60 transition-colors">
+                                <td className="p-3.5">
+                                  <span className="font-mono font-bold text-[#22623a] block">
+                                    Bill #{p.billNumber}
+                                  </span>
+                                  <span className="text-[10px] text-[#6a6660]">
+                                    {new Date(p.billDate).toLocaleDateString("en-PK")}
+                                  </span>
+                                </td>
+
+                                <td className="p-3.5">
+                                  <span className="font-bold text-[#1a1816] block">
+                                    {p.vendor?.name || "Unknown Supplier"}
+                                  </span>
+                                  <span className="text-[10px] text-[#6a6660]">
+                                    {p.vendor?.company || p.vendor?.phone || "—"}
+                                  </span>
+                                </td>
+
+                                <td className="p-3.5 text-[#59534b]">
+                                  <span className="font-semibold text-[#22623a]">
+                                    {p.items?.length || 0} item(s)
+                                  </span>
+                                  {p.items && p.items.length > 0 && (
+                                    <div className="text-[10px] text-[#7a7268] truncate max-w-xs">
+                                      {p.items.map((i: any) => `${i.productName} (${i.quantityReceived})`).join(", ")}
+                                    </div>
+                                  )}
+                                </td>
+
+                                <td className="p-3.5 text-right font-bold text-[#1a1816]">
+                                  ₨ {(p.totalAmount || 0).toLocaleString()}
+                                </td>
+
+                                <td className="p-3.5 text-right font-bold text-[#2d7648]">
+                                  ₨ {(p.paidAmount || 0).toLocaleString()}
+                                </td>
+
+                                <td className="p-3.5 text-center">
+                                  <span
+                                    className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                                      p.paymentStatus === "PAID"
+                                        ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
+                                        : p.paymentStatus === "PARTIAL"
+                                        ? "bg-amber-100 text-amber-900 border border-amber-300"
+                                        : "bg-red-100 text-red-900 border border-red-300"
+                                    }`}
+                                  >
+                                    {p.paymentStatus || "UNPAID"}
+                                  </span>
+                                </td>
+
+                                <td className="p-3.5 text-right">
+                                  <div className="flex items-center justify-end gap-1.5">
+                                    {unpaidAmount > 0 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setVendorPaymentTarget(p.vendor);
+                                          setVendorPaymentPurchaseId(p.id);
+                                          setVendorPaymentMaxDue(unpaidAmount);
+                                          setIsVendorPaymentModalOpen(true);
+                                        }}
+                                        className="px-2 py-1 bg-[#22623a] hover:bg-[#1b502e] text-white rounded text-[11px] font-semibold transition-colors flex items-center gap-1 shadow-2xs"
+                                        title="Pay bill"
+                                      >
+                                        <DollarSign className="w-3.5 h-3.5 text-[#c59b27]" />
+                                        <span>Pay Bill</span>
+                                      </button>
+                                    )}
+
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedVendorLedgerId(p.vendorId);
+                                        setIsVendorLedgerOpen(true);
+                                      }}
+                                      className="px-2 py-1 bg-[#faf8f5] hover:bg-[#e6dfd5] text-[#22623a] border border-[#e6dfd5] rounded text-[11px] font-semibold transition-colors flex items-center gap-1"
+                                      title="View vendor ledger"
+                                    >
+                                      <FileText className="w-3.5 h-3.5" />
+                                      <span>Ledger</span>
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB: EXECUTIVE FINANCIAL DASHBOARD (Admin Only) */}
+        {activeTab === "finance" && isAdmin && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="font-serif text-xl font-bold text-[#22623a]">
+                  Executive Financial Dashboard & Clinical Economics
+                </h2>
+                <p className="text-xs text-[#6a6660]">
+                  Real-time revenue, cash collections, accounts receivable, supplier payables, inventory asset valuation, and gross margins.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fetchData()}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#faf8f5] hover:bg-[#e6dfd5] text-[#22623a] border border-[#e6dfd5] text-xs font-semibold rounded-lg transition-colors"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Refresh Financials</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Financial Overview Master KPI Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Card 1: Gross Sales */}
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] shadow-xs space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-[#22623a] uppercase tracking-wider">
+                    Total Invoiced Sales
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-[#22623a]/10 text-[#22623a] flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                </div>
+                <p className="text-2xl font-serif font-bold text-[#22623a]">
+                  ₨ {(stats?.totalRevenue || 0).toLocaleString()}
+                </p>
+                <p className="text-[10px] text-[#6a6660]">
+                  Across {orders.length} patient order(s)
+                </p>
+              </div>
+
+              {/* Card 2: Cash Collected */}
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] shadow-xs space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-[#2d7648] uppercase tracking-wider">
+                    Cash Collected
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                    <CheckCircle2 className="w-4 h-4" />
+                  </div>
+                </div>
+                <p className="text-2xl font-serif font-bold text-[#2d7648]">
+                  ₨ {Math.max(0, (stats?.totalRevenue || 0) - (accountsSummary?.totalReceivableDue || 0)).toLocaleString()}
+                </p>
+                <p className="text-[10px] text-[#6a6660]">
+                  Received via Cash, Bank, EasyPaisa, COD
+                </p>
+              </div>
+
+              {/* Card 3: Receivables (A/R) */}
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] shadow-xs space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wider">
+                    Accounts Receivable (A/R)
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
+                    <Wallet className="w-4 h-4" />
+                  </div>
+                </div>
+                <p className="text-2xl font-serif font-bold text-amber-800">
+                  ₨ {(accountsSummary?.totalReceivableDue || 0).toLocaleString()}
+                </p>
+                <p className="text-[10px] text-[#6a6660]">
+                  Pending collection from patients & clients
+                </p>
+              </div>
+
+              {/* Card 4: Payables (A/P) */}
+              <div className="bg-white p-4 rounded-xl border border-[#e6dfd5] shadow-xs space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-red-800 uppercase tracking-wider">
+                    Accounts Payable (A/P)
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-red-50 text-red-700 flex items-center justify-center">
+                    <Building2 className="w-4 h-4" />
+                  </div>
+                </div>
+                <p className="text-2xl font-serif font-bold text-red-800">
+                  ₨ {(vendorsSummary?.totalPayablesDue || 0).toLocaleString()}
+                </p>
+                <p className="text-[10px] text-[#6a6660]">
+                  Owed to botanical herb & packaging vendors
+                </p>
+              </div>
+            </div>
+
+            {/* Inventory Valuation & Margins Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-white p-5 rounded-xl border border-[#e6dfd5] shadow-xs space-y-2">
+                <div className="flex items-center gap-2">
+                  <Warehouse className="w-5 h-5 text-[#22623a]" />
+                  <h3 className="font-bold text-sm text-[#22623a]">
+                    Inventory Valuation (At Cost)
+                  </h3>
+                </div>
+                <p className="text-3xl font-serif font-bold text-[#1a1816]">
+                  ₨ {(inventorySummary?.totalCostValue || 0).toLocaleString()}
+                </p>
+                <p className="text-xs text-[#59534b]">
+                  Total investment tied up in physical on-hand botanical stock ({inventorySummary?.totalOnHandStock || 0} units).
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-xl border border-[#e6dfd5] shadow-xs space-y-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-[#c59b27]" />
+                  <h3 className="font-bold text-sm text-[#22623a]">
+                    Potential Retail Value
+                  </h3>
+                </div>
+                <p className="text-3xl font-serif font-bold text-[#22623a]">
+                  ₨ {(inventorySummary?.totalRetailValue || 0).toLocaleString()}
+                </p>
+                <p className="text-xs text-[#59534b]">
+                  Expected revenue upon 100% catalog liquidation at current retail pricing.
+                </p>
+              </div>
+
+              <div className="bg-white p-5 rounded-xl border border-emerald-200 bg-emerald-50/40 shadow-xs space-y-2">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-emerald-700" />
+                  <h3 className="font-bold text-sm text-emerald-900">
+                    Unrealized Gross Margin
+                  </h3>
+                </div>
+                <p className="text-3xl font-serif font-bold text-emerald-950">
+                  ₨ {(inventorySummary?.potentialProfitMargin || 0).toLocaleString()}
+                </p>
+                <p className="text-xs text-emerald-800">
+                  Projected gross margin ({inventorySummary?.totalCostValue ? Math.round(((inventorySummary.potentialProfitMargin || 0) / inventorySummary.totalRetailValue) * 100) : 0}% catalog margin).
+                </p>
+              </div>
+            </div>
+
+            {/* Financial Working Capital & Cash Balance Position */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Working Position */}
+              <div className="bg-white p-6 rounded-xl border border-[#e6dfd5] shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b border-[#e6dfd5] pb-3">
+                  <div className="flex items-center gap-2">
+                    <Landmark className="w-5 h-5 text-[#22623a]" />
+                    <h3 className="font-serif font-bold text-[#22623a] text-sm">
+                      Working Capital & Net Balance Matrix
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between items-center p-3 bg-[#faf8f5] rounded-lg">
+                    <span className="font-medium text-[#59534b]">Customer Receivables (Assets):</span>
+                    <span className="font-mono font-bold text-emerald-800 text-sm">
+                      + ₨ {(accountsSummary?.totalReceivableDue || 0).toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center p-3 bg-[#faf8f5] rounded-lg">
+                    <span className="font-medium text-[#59534b]">Supplier Payables (Liabilities):</span>
+                    <span className="font-mono font-bold text-red-800 text-sm">
+                      - ₨ {(vendorsSummary?.totalPayablesDue || 0).toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center p-3.5 bg-[#22623a]/10 border border-[#22623a]/20 rounded-lg">
+                    <span className="font-bold text-[#22623a]">Net Accounts Position (A/R - A/P):</span>
+                    <span className="font-mono font-black text-[#22623a] text-base">
+                      ₨ {((accountsSummary?.totalReceivableDue || 0) - (vendorsSummary?.totalPayablesDue || 0)).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Operational Procurement & Invoicing Breakdown */}
+              <div className="bg-white p-6 rounded-xl border border-[#e6dfd5] shadow-xs space-y-4">
+                <div className="flex items-center justify-between border-b border-[#e6dfd5] pb-3">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-[#22623a]" />
+                    <h3 className="font-serif font-bold text-[#22623a] text-sm">
+                      Procurement vs Inward Purchase Summary
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between items-center p-3 bg-[#faf8f5] rounded-lg">
+                    <span className="font-medium text-[#59534b]">Total Inward Bills Received:</span>
+                    <span className="font-mono font-bold text-[#1a1816] text-sm">
+                      ₨ {(vendorsSummary?.totalPurchasesBilled || 0).toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center p-3 bg-[#faf8f5] rounded-lg">
+                    <span className="font-medium text-[#59534b]">Total Supplier Payments Disbursed:</span>
+                    <span className="font-mono font-bold text-[#2d7648] text-sm">
+                      ₨ {(vendorsSummary?.totalPaymentsDisbursed || 0).toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between items-center p-3.5 bg-amber-50 border border-amber-200 rounded-lg">
+                    <span className="font-bold text-amber-950">Pending Supplier Dues (Unpaid Bills):</span>
+                    <span className="font-mono font-black text-amber-900 text-base">
+                      ₨ {(vendorsSummary?.totalPayablesDue || 0).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -2224,6 +3347,105 @@ export default function AdminDashboardPage() {
         isOpen={isUnitsModalOpen}
         onClose={() => setIsUnitsModalOpen(false)}
         onSuccess={() => fetchData()}
+      />
+
+      {/* Customer Ledger Statement Modal */}
+      <CustomerLedgerModal
+        isOpen={isCustomerLedgerOpen}
+        onClose={() => {
+          setIsCustomerLedgerOpen(false);
+          setSelectedLedgerCustomer(null);
+        }}
+        customerIdentifier={selectedLedgerCustomer}
+        onCollectPayment={(customer: any) => {
+          setPaymentModalCustomer(customer);
+          setPaymentModalMaxDue(customer?.currentBalance);
+          setPaymentModalOrderId(null);
+          setIsReceivePaymentOpen(true);
+        }}
+      />
+
+      {/* Receive Customer Payment Modal */}
+      <ReceivePaymentModal
+        isOpen={isReceivePaymentOpen}
+        onClose={() => {
+          setIsReceivePaymentOpen(false);
+          setPaymentModalCustomer(null);
+          setPaymentModalOrderId(null);
+          setPaymentModalMaxDue(undefined);
+        }}
+        onSuccess={() => fetchData()}
+        customer={paymentModalCustomer}
+        orderId={paymentModalOrderId}
+        maxDue={paymentModalMaxDue}
+      />
+
+      {/* Vendor Profile Modal (Add/Edit) */}
+      <VendorModal
+        isOpen={isVendorModalOpen}
+        onClose={() => {
+          setIsVendorModalOpen(false);
+          setEditingVendor(null);
+        }}
+        onSuccess={() => fetchData()}
+        vendor={editingVendor}
+      />
+
+      {/* Inward Purchase Bill Modal */}
+      <PurchaseBillModal
+        isOpen={isPurchaseBillModalOpen}
+        onClose={() => {
+          setIsPurchaseBillModalOpen(false);
+          setPurchaseBillVendorId(null);
+        }}
+        onSuccess={() => fetchData()}
+        defaultVendorId={purchaseBillVendorId}
+      />
+
+      {/* Vendor Payment Voucher Modal */}
+      <VendorPaymentModal
+        isOpen={isVendorPaymentModalOpen}
+        onClose={() => {
+          setIsVendorPaymentModalOpen(false);
+          setVendorPaymentTarget(null);
+          setVendorPaymentPurchaseId(null);
+          setVendorPaymentMaxDue(undefined);
+        }}
+        onSuccess={() => fetchData()}
+        vendor={vendorPaymentTarget}
+        purchaseId={vendorPaymentPurchaseId}
+        maxDue={vendorPaymentMaxDue}
+      />
+
+      {/* Vendor Statement / Ledger Modal */}
+      <VendorLedgerModal
+        isOpen={isVendorLedgerOpen}
+        onClose={() => {
+          setIsVendorLedgerOpen(false);
+          setSelectedVendorLedgerId(null);
+        }}
+        vendorId={selectedVendorLedgerId}
+        onPayVendor={(vendor) => {
+          setVendorPaymentTarget(vendor);
+          setVendorPaymentPurchaseId(null);
+          setVendorPaymentMaxDue(vendor.currentBalance);
+          setIsVendorPaymentModalOpen(true);
+        }}
+        onNewBill={(vendorId) => {
+          setPurchaseBillVendorId(vendorId);
+          setIsPurchaseBillModalOpen(true);
+        }}
+      />
+
+      {/* Quick Stock Restock Modal */}
+      <QuickStockModal
+        isOpen={isQuickStockOpen}
+        onClose={() => {
+          setIsQuickStockOpen(false);
+          setSelectedQuickStockItem(null);
+        }}
+        onSuccess={() => fetchData()}
+        productSizeItem={selectedQuickStockItem}
       />
     </div>
   );

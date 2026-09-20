@@ -19,11 +19,17 @@ export async function receiveStock({
   quantity,
   reason,
   userId,
+  batchNumber,
+  expiryDate,
+  unitCost,
 }: {
   productSizeId: string;
   quantity: number;
   reason?: string;
   userId?: string;
+  batchNumber?: string;
+  expiryDate?: Date | string | null;
+  unitCost?: number;
 }) {
   if (!productSizeId) throw new Error("productSizeId is required.");
   if (!quantity || quantity <= 0) {
@@ -42,12 +48,16 @@ export async function receiveStock({
 
     const newOnHand = size.stockOnHand + quantity;
     const reserved = size.stockReserved;
+    const parsedExpiry = expiryDate ? new Date(expiryDate) : null;
 
     const updatedSize = await tx.productSize.update({
       where: { id: size.id },
       data: {
         stockOnHand: newOnHand,
         isActive: true,
+        ...(batchNumber && { batchNumber }),
+        ...(parsedExpiry && { expiryDate: parsedExpiry }),
+        ...(unitCost !== undefined && unitCost > 0 && { costPrice: unitCost }),
       },
     });
 
@@ -59,6 +69,9 @@ export async function receiveStock({
         onHandAfter: newOnHand,
         reservedAfter: reserved,
         reason: reason || "Manual stock reception",
+        batchNumber: batchNumber || null,
+        expiryDate: parsedExpiry,
+        unitCost: unitCost || null,
         createdById: userId || null,
       },
     });
@@ -352,5 +365,89 @@ export async function releaseReservationForOrder(
     }
 
     return { success: true };
+  });
+}
+
+/**
+ * Receive items from a Purchase Order into physical inventory.
+ * Automatically updates stock on hand, cost prices, batch numbers, expiry dates,
+ * creates audit log movements, and marks PO as stockReceived.
+ */
+export async function receivePurchaseOrderStock(
+  purchaseOrderId: string,
+  userId?: string
+) {
+  return await prisma.$transaction(async (tx) => {
+    const po = await tx.purchaseOrder.findUnique({
+      where: { id: purchaseOrderId },
+      include: {
+        items: {
+          include: {
+            productSize: true,
+          },
+        },
+        vendor: true,
+      },
+    });
+
+    if (!po) throw new Error("Purchase Order not found.");
+    if (po.stockReceived) {
+      throw new Error("Stock for this Purchase Order has already been received.");
+    }
+
+    for (const item of po.items) {
+      if (!item.productSizeId) continue;
+
+      const size = await tx.productSize.findUnique({
+        where: { id: item.productSizeId },
+        include: { product: true },
+      });
+
+      if (!size) continue;
+
+      const newOnHand = size.stockOnHand + item.quantity;
+
+      await tx.productSize.update({
+        where: { id: size.id },
+        data: {
+          stockOnHand: newOnHand,
+          isActive: true,
+          ...(item.unitCost > 0 && { costPrice: item.unitCost }),
+          ...(item.batchNumber && { batchNumber: item.batchNumber }),
+          ...(item.expiryDate && { expiryDate: item.expiryDate }),
+        },
+      });
+
+      await tx.stockMovement.create({
+        data: {
+          productSizeId: size.id,
+          type: "RECEIVE",
+          quantity: item.quantity,
+          onHandAfter: newOnHand,
+          reservedAfter: size.stockReserved,
+          reason: `PO #${po.poNumber} from ${po.vendor.name}`,
+          batchNumber: item.batchNumber || null,
+          expiryDate: item.expiryDate || null,
+          unitCost: item.unitCost || null,
+          createdById: userId || null,
+        },
+      });
+
+      // Ensure product is set to inStock
+      await tx.product.update({
+        where: { id: size.productId },
+        data: { inStock: true },
+      });
+    }
+
+    const updatedPo = await tx.purchaseOrder.update({
+      where: { id: po.id },
+      data: {
+        stockReceived: true,
+        status: "RECEIVED",
+      },
+    });
+
+    return updatedPo;
   });
 }

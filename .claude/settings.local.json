@@ -12,7 +12,9 @@
       "mcp__ide__getDiagnostics",
       "PowerShell(npx prisma generate)",
       "PowerShell(npm run *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "PowerShell(npx prisma db push)",
+      "PowerShell(npx tsc --noEmit)"
     ]
   }
 }

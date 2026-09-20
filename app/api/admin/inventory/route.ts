@@ -68,6 +68,9 @@ export async function GET(request: NextRequest) {
         weight: s.weight,
         price: s.price,
         originalPrice: s.originalPrice,
+        costPrice: s.costPrice,
+        batchNumber: s.batchNumber,
+        expiryDate: s.expiryDate,
         sku: s.sku,
         unitId: s.unitId,
         unitCode: s.unit?.code || null,
@@ -89,6 +92,8 @@ export async function GET(request: NextRequest) {
       totalOnHand: formatted.reduce((acc, curr) => acc + curr.stockOnHand, 0),
       totalReserved: formatted.reduce((acc, curr) => acc + curr.stockReserved, 0),
       totalAvailable: formatted.reduce((acc, curr) => acc + curr.available, 0),
+      totalStockValuation: formatted.reduce((acc, curr) => acc + (curr.stockOnHand * (curr.costPrice || curr.price * 0.55)), 0),
+      totalRetailValuation: formatted.reduce((acc, curr) => acc + (curr.stockOnHand * curr.price), 0),
       lowStockCount: formatted.filter((f) => f.isLowStock).length,
       outOfStockCount: formatted.filter((f) => f.available === 0).length,
     };

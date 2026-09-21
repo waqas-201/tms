@@ -38,6 +38,25 @@ export function formatProductRecord(p: any): Product {
   // Calculate live inStock flag based on sizes availability
   const hasLiveStock = sizes.length > 0 ? sizes.some((s) => (s.available ?? 0) > 0 && s.isActive) : p.inStock;
 
+  // Parse multi-image gallery or single primary image
+  let gallery: string[] = [];
+  if (p.image) {
+    if (typeof p.image === "string" && (p.image.startsWith("[") || p.image.startsWith("{"))) {
+      try {
+        const parsed = JSON.parse(p.image);
+        if (Array.isArray(parsed)) {
+          gallery = parsed.filter((img: any) => typeof img === "string" && img.trim().length > 0);
+        }
+      } catch {
+        gallery = [];
+      }
+    }
+    if (gallery.length === 0 && typeof p.image === "string" && p.image.trim()) {
+      gallery = [p.image.trim()];
+    }
+  }
+  const primaryImage = gallery[0] || (typeof p.image === "string" ? p.image : "") || "/images/placeholder.jpg";
+
   return {
     id: p.id,
     slug: p.slug,
@@ -58,7 +77,8 @@ export function formatProductRecord(p: any): Product {
     price: p.price,
     originalPrice: p.originalPrice || undefined,
     discountPercentage: p.discountPercentage || undefined,
-    image: p.image,
+    image: primaryImage,
+    gallery,
     sizes,
     inStock: hasLiveStock,
     featured: p.featured ?? false,

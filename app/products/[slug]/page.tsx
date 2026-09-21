@@ -88,6 +88,7 @@ export default function ProductDetailPage({
   const [selectedSize, setSelectedSize] = useState<ProductSize>(
     initialProduct?.sizes[0] || { name: "Standard", weight: "250g", price: initialProduct?.price || 0 }
   );
+  const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(1);
   const [isAdded, setIsAdded] = useState(false);
   const [activeTab, setActiveTab] = useState<"overview" | "ingredients" | "dosage" | "shipping" | "reviews">("overview");
@@ -305,40 +306,79 @@ export default function ProductDetailPage({
 
             {/* ── LEFT: PRODUCT IMAGERY (5 cols on lg) ── */}
             <div className="lg:col-span-5 space-y-4">
-              <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-white border border-[#e6dfd5] shadow-xs">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  fill
-                  className="object-cover object-center"
-                  priority
-                />
+              {(() => {
+                const images = (product.gallery && product.gallery.length > 0)
+                  ? product.gallery
+                  : [product.image || "/images/placeholder.jpg"];
+                const currentImg = images[activeImageIndex] || images[0] || "/images/placeholder.jpg";
 
-                {/* Badges Overlay */}
-                <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10 pointer-events-none">
-                  {product.badge && (
-                    <span className="bg-[#22623a] text-white text-[11px] font-semibold tracking-wider uppercase px-3 py-1 rounded shadow-xs">
-                      {product.badge}
-                    </span>
-                  )}
-                  {product.discountPercentage && product.discountPercentage > 0 && (
-                    <span className="bg-[#c59b27] text-white text-[11px] font-bold px-2.5 py-0.5 rounded shadow-xs">
-                      -{product.discountPercentage}% OFF
-                    </span>
-                  )}
-                </div>
+                return (
+                  <>
+                    <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-white border border-[#e6dfd5] shadow-xs">
+                      <Image
+                        src={currentImg}
+                        alt={product.name}
+                        fill
+                        className="object-cover object-center transition-all duration-300"
+                        priority
+                      />
 
-                {/* Mobile Wishlist Toggle Button */}
-                <button
-                  onClick={() => toggleWishlist(product.id)}
-                  className={`sm:hidden absolute top-4 right-4 p-2.5 rounded-full backdrop-blur-xs transition-colors shadow-xs z-10 ${
-                    isSaved ? "bg-white text-red-500" : "bg-white/90 text-[#59534b]"
-                  }`}
-                  aria-label="Toggle Wishlist"
-                >
-                  <Heart className={`w-4 h-4 ${isSaved ? "fill-red-500" : ""}`} />
-                </button>
-              </div>
+                      {/* Badges Overlay */}
+                      <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10 pointer-events-none">
+                        {product.badge && (
+                          <span className="bg-[#22623a] text-white text-[11px] font-semibold tracking-wider uppercase px-3 py-1 rounded shadow-xs">
+                            {product.badge}
+                          </span>
+                        )}
+                        {product.discountPercentage && product.discountPercentage > 0 && (
+                          <span className="bg-[#c59b27] text-white text-[11px] font-bold px-2.5 py-0.5 rounded shadow-xs">
+                            -{product.discountPercentage}% OFF
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Mobile Wishlist Toggle Button */}
+                      <button
+                        onClick={() => toggleWishlist(product.id)}
+                        className={`sm:hidden absolute top-4 right-4 p-2.5 rounded-full backdrop-blur-xs transition-colors shadow-xs z-10 ${
+                          isSaved ? "bg-white text-red-500" : "bg-white/90 text-[#59534b]"
+                        }`}
+                        aria-label="Toggle Wishlist"
+                      >
+                        <Heart className={`w-4 h-4 ${isSaved ? "fill-red-500" : ""}`} />
+                      </button>
+                    </div>
+
+                    {/* Multi-Image Gallery Thumbnails */}
+                    {images.length > 1 && (
+                      <div className="flex items-center gap-2.5 overflow-x-auto pb-1 pt-0.5">
+                        {images.map((img, idx) => {
+                          const isSelected = (activeImageIndex % images.length) === idx;
+                          return (
+                            <button
+                              key={`${img}-${idx}`}
+                              type="button"
+                              onClick={() => setActiveImageIndex(idx)}
+                              className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 bg-white transition-all shrink-0 ${
+                                isSelected
+                                  ? "border-[#22623a] ring-2 ring-[#22623a]/20 shadow-xs scale-102"
+                                  : "border-[#e6dfd5] hover:border-[#c59b27] opacity-80 hover:opacity-100"
+                              }`}
+                            >
+                              <Image
+                                src={img}
+                                alt={`${product.name} thumbnail ${idx + 1}`}
+                                fill
+                                className="object-cover object-center p-0.5"
+                              />
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
 
               {/* Purity & Batch Trust Indicators */}
               <div className="grid grid-cols-2 gap-3">

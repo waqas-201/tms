@@ -86,6 +86,7 @@ export async function POST(request: NextRequest) {
       originalPrice,
       discountPercentage,
       image,
+      images,
       inStock,
       featured,
       rating,
@@ -94,7 +95,17 @@ export async function POST(request: NextRequest) {
       sizes,
     } = body;
 
-    if (!name || !categoryId || price === undefined || price === null || !image) {
+    // Resolve images: support multi-image array or single URL string
+    let resolvedImageStr = "";
+    if (Array.isArray(images) && images.length > 0) {
+      resolvedImageStr = JSON.stringify(images.filter((img: any) => typeof img === "string" && img.trim().length > 0));
+    } else if (Array.isArray(image) && image.length > 0) {
+      resolvedImageStr = JSON.stringify(image.filter((img: any) => typeof img === "string" && img.trim().length > 0));
+    } else if (typeof image === "string" && image.trim()) {
+      resolvedImageStr = image.trim();
+    }
+
+    if (!name || !categoryId || price === undefined || price === null || !resolvedImageStr) {
       return NextResponse.json(
         { success: false, error: "Missing required fields (Name, Category, Price, or Image)." },
         { status: 400 }
@@ -118,6 +129,15 @@ export async function POST(request: NextRequest) {
       slug = `${slug}-${Date.now().toString().slice(-4)}`;
     }
 
+    // First hero image for category if needed
+    let firstHeroImg = resolvedImageStr;
+    try {
+      if (resolvedImageStr.startsWith("[")) {
+        const parsed = JSON.parse(resolvedImageStr);
+        if (Array.isArray(parsed) && parsed.length > 0) firstHeroImg = parsed[0];
+      }
+    } catch {}
+
     // Ensure category exists in DB (upsert if needed)
     const catId = categoryId.toLowerCase().replace(/\s+/g, "-");
     const catLabel = categoryLabel || categoryId;
@@ -130,7 +150,7 @@ export async function POST(request: NextRequest) {
         name: catLabel,
         urduName: "",
         description: `${catLabel} remedies and herbal formulations.`,
-        heroImage: image,
+        heroImage: firstHeroImg,
       },
     });
 
@@ -180,7 +200,7 @@ export async function POST(request: NextRequest) {
           price: basePrice,
           originalPrice: originalPrice ? Number(originalPrice) : null,
           discountPercentage: discountPercentage ? Number(discountPercentage) : null,
-          image,
+          image: resolvedImageStr,
           inStock: inStock ?? true,
           featured: featured ?? false,
           rating: rating ? Number(rating) : 5.0,
@@ -201,6 +221,7 @@ export async function POST(request: NextRequest) {
               weight: s.weight || s.name || "Standard",
               price: Number(s.price) || basePrice,
               originalPrice: s.originalPrice ? Number(s.originalPrice) : null,
+              costPrice: s.costPrice ? Number(s.costPrice) : null,
               unitId: s.unitId || null,
               quantityValue: s.quantityValue !== undefined && s.quantityValue !== null ? Number(s.quantityValue) : null,
               sku,

@@ -56,6 +56,7 @@ export async function PUT(
     const body = await request.json();
     const {
       name,
+      urduName,
       categoryId,
       categoryLabel,
       shortDescription,
@@ -71,6 +72,7 @@ export async function PUT(
       originalPrice,
       discountPercentage,
       image,
+      images,
       inStock,
       featured,
       rating,
@@ -89,6 +91,16 @@ export async function PUT(
         { success: false, error: "Product not found." },
         { status: 404 }
       );
+    }
+
+    // Resolve images: support multi-image array or single URL string
+    let resolvedImageStr: string | undefined = undefined;
+    if (Array.isArray(images) && images.length > 0) {
+      resolvedImageStr = JSON.stringify(images.filter((img: any) => typeof img === "string" && img.trim().length > 0));
+    } else if (Array.isArray(image) && image.length > 0) {
+      resolvedImageStr = JSON.stringify(image.filter((img: any) => typeof img === "string" && img.trim().length > 0));
+    } else if (typeof image === "string" && image.trim()) {
+      resolvedImageStr = image.trim();
     }
 
     const parsedBenefits = benefits !== undefined ? (Array.isArray(benefits) ? JSON.stringify(benefits) : String(benefits)) : undefined;
@@ -122,6 +134,7 @@ export async function PUT(
           const sku = s.sku || `${existing.slug}-${(s.name || s.weight || "std").toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
           const sizePrice = Number(s.price) || basePrice;
           const original = s.originalPrice ? Number(s.originalPrice) : null;
+          const costPrice = s.costPrice ? Number(s.costPrice) : null;
           const lowStockThreshold = Number(s.lowStockThreshold) || 5;
           const qtyVal = s.quantityValue !== undefined && s.quantityValue !== null ? Number(s.quantityValue) : null;
 
@@ -133,6 +146,7 @@ export async function PUT(
                 weight: s.weight || s.name || "Standard",
                 price: sizePrice,
                 originalPrice: original,
+                costPrice: s.costPrice !== undefined ? costPrice : undefined,
                 unitId: s.unitId || null,
                 quantityValue: qtyVal,
                 sku,
@@ -149,6 +163,7 @@ export async function PUT(
                 weight: s.weight || s.name || "Standard",
                 price: sizePrice,
                 originalPrice: original,
+                costPrice: costPrice,
                 unitId: s.unitId || null,
                 quantityValue: qtyVal,
                 sku,
@@ -180,6 +195,7 @@ export async function PUT(
         where: { id: existing.id },
         data: {
           ...(name && { name }),
+          ...(urduName !== undefined && { urduName }),
           ...(categoryId && { categoryId }),
           ...(categoryLabel && { categoryLabel }),
           ...(shortDescription !== undefined && { shortDescription }),
@@ -194,7 +210,7 @@ export async function PUT(
           price: basePrice,
           ...(originalPrice !== undefined && { originalPrice: originalPrice ? Number(originalPrice) : null }),
           ...(discountPercentage !== undefined && { discountPercentage: discountPercentage ? Number(discountPercentage) : null }),
-          ...(image && { image }),
+          ...(resolvedImageStr && { image: resolvedImageStr }),
           ...(inStock !== undefined && { inStock }),
           ...(featured !== undefined && { featured }),
           ...(rating !== undefined && { rating: Number(rating) }),

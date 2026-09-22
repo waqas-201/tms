@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { CLINIC_INFO, CONSULTATION_AREAS } from "@/app/data/products";
+import { CLINIC_INFO } from "@/app/data/products";
 import { useSession } from "@/lib/auth-client";
 import {
   Sparkles,
@@ -9,438 +9,609 @@ import {
   ShieldCheck,
   Clock,
   Send,
-  UserCheck,
-  CheckCircle,
+  Phone,
+  CheckCircle2,
   Loader2,
   AlertCircle,
+  MapPin,
+  HeartHandshake,
+  Mic,
+  Activity,
+  Flame,
+  Zap,
+  Lock,
+  ArrowRight,
+  Navigation,
+  HelpCircle,
+  ChevronDown,
+  Building2,
 } from "lucide-react";
+import Reveal from "@/app/components/motion/Reveal";
+
+interface SymptomCategory {
+  id: string;
+  title: string;
+  urduTitle: string;
+  subtitle: string;
+  symptoms: string[];
+  icon: typeof Activity;
+  whatsappMessage: string;
+}
+
+const SYMPTOM_CATEGORIES: SymptomCategory[] = [
+  {
+    id: "stomach",
+    title: "Stomach, Gas & Digestion",
+    urduTitle: "معدہ، گیس اور تیزابیت",
+    subtitle: "Bloating, acid reflux, burning, constipation & IBS",
+    symptoms: ["Gas & Bloating", "Acid Burning (Seene ki jalan)", "Constipation (Qabz)", "IBS & Stomach heaviness"],
+    icon: Flame,
+    whatsappMessage: "Assalam-o-Alaikum Hakim Sahib, I am experiencing stomach digestion/gas/acidity issues and would like your herbal guidance.",
+  },
+  {
+    id: "joints",
+    title: "Joints, Knees & Back Pain",
+    urduTitle: "جوڑوں، گھٹنوں اور کمر کا درد",
+    subtitle: "Stiff knees, swelling, arthritis, sciatica & backache",
+    symptoms: ["Knee pain & stiffness", "Lower backache", "Uric acid & swelling", "Muscle tiredness"],
+    icon: Activity,
+    whatsappMessage: "Assalam-o-Alaikum Hakim Sahib, I am suffering from joint/knee/back pain and need your advice on natural remedies.",
+  },
+  {
+    id: "vitality",
+    title: "Energy & Nervous Vitality",
+    urduTitle: "طاقت اور اعصابی کمزوری",
+    subtitle: "Chronic fatigue, low stamina, brain fog & weakness",
+    symptoms: ["Everyday exhaustion", "Nervous weakness (Asabi kamzori)", "Brain fog & lack of focus", "Low physical stamina"],
+    icon: Zap,
+    whatsappMessage: "Assalam-o-Alaikum Hakim Sahib, I feel constant fatigue and weakness. Please guide me on restorative herbal tonics.",
+  },
+  {
+    id: "liver",
+    title: "Liver Health & Metabolism",
+    urduTitle: "جگر اور میٹابولزم",
+    subtitle: "Fatty liver, body heat, sluggish metabolism & appetite loss",
+    symptoms: ["Fatty liver discomfort", "Excess body heat (Jigar ki garmi)", "Loss of appetite", "Jaundice recovery"],
+    icon: HeartHandshake,
+    whatsappMessage: "Assalam-o-Alaikum Hakim Sahib, I need guidance regarding liver health / body heat (Jigar ki garmi).",
+  },
+  {
+    id: "skin-hair",
+    title: "Skin, Hair & Allergies",
+    urduTitle: "جلد، بال اور الرجی",
+    subtitle: "Hair thinning, scalp dandruff, dry eczema & acne",
+    symptoms: ["Hair fall & weak roots", "Chronic dandruff & itching", "Acne & blood impurities", "Dry skin & seasonal allergy"],
+    icon: Sparkles,
+    whatsappMessage: "Assalam-o-Alaikum Hakim Sahib, I would like consultation regarding hair fall / skin health.",
+  },
+  {
+    id: "private",
+    title: "Confidential Personal Wellness",
+    urduTitle: "مخصوص پوشیدہ طبی رہنمائی",
+    subtitle: "100% private discussion for personal health issues",
+    symptoms: ["Men's vitality & stamina", "Women's hormonal balance", "Strictly private & discreet", "Direct Hakim consultation"],
+    icon: Lock,
+    whatsappMessage: "Assalam-o-Alaikum Hakim Sahib, I would like to have a strictly confidential private consultation.",
+  },
+];
 
 export default function ConsultationPage() {
   const { data: sessionData } = useSession();
 
-  const [formData, setFormData] = useState({
-    fullName: sessionData?.user?.name || "",
-    age: "35",
-    gender: "Male",
-    city: (sessionData?.user as any)?.city || "Karachi",
-    phone: (sessionData?.user as any)?.phone || "",
-    email: sessionData?.user?.email || "",
-    primaryConcern: "Stomach, Gas & Acidity (Digestion)",
-    duration: "1 to 3 months",
-    symptomsDescription: "",
-    priorTreatments: "",
-    dietHabits: "",
-    preferredContact: "WHATSAPP",
-  });
+  const [selectedCategory, setSelectedCategory] = useState<SymptomCategory>(SYMPTOM_CATEGORIES[0]);
+  const [showCallbackForm, setShowCallbackForm] = useState(false);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [submittedDossier, setSubmittedDossier] = useState<any>(null);
+  // Micro-form for quick callback
+  const [callbackName, setCallbackName] = useState(sessionData?.user?.name || "");
+  const [callbackPhone, setCallbackPhone] = useState((sessionData?.user as any)?.phone || "");
+  const [callbackCity, setCallbackCity] = useState((sessionData?.user as any)?.city || "Karachi");
+  const [callbackNotes, setCallbackNotes] = useState("");
+  const [submittingCallback, setSubmittingCallback] = useState(false);
+  const [callbackSuccess, setCallbackSuccess] = useState<any | null>(null);
+  const [callbackError, setCallbackError] = useState<string | null>(null);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  // FAQ Accordion state
+  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+
+  const getWhatsAppUrl = (category: SymptomCategory, customNotes?: string) => {
+    let msg = category.whatsappMessage;
+    if (customNotes && customNotes.trim()) {
+      msg += `\n\n*Patient Notes:* ${customNotes.trim()}`;
+    }
+    return `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(msg)}`;
   };
 
-  const generateWhatsAppUrl = (ticket?: string) => {
-    const text = `*Assalam-o-Alaikum Hakim Sahib (Tameer-e-Sehat Health Consultation)*\n` +
-      (ticket ? `*Ticket Number:* ${ticket}\n` : "") +
-      `*Name:* ${formData.fullName}\n` +
-      `*Age & Gender:* ${formData.age} yrs · ${formData.gender}\n` +
-      `*City:* ${formData.city}\n` +
-      `*Phone:* ${formData.phone}\n\n` +
-      `*Main Health Issue:* ${formData.primaryConcern}\n` +
-      `*Duration:* ${formData.duration}\n\n` +
-      `*Symptoms Description:* ${formData.symptomsDescription || "As discussed"}\n\n` +
-      `*Current/Past Medicines:* ${formData.priorTreatments || "None"}\n\n` +
-      `_I am requesting your guidance and recommended herbal remedy. Thank you._`;
-
-    return `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(text)}`;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleCallbackSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
+    setSubmittingCallback(true);
+    setCallbackError(null);
 
     try {
       const res = await fetch("/api/consultations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fullName: formData.fullName,
-          age: Number(formData.age),
-          gender: formData.gender,
-          phone: formData.phone,
-          email: formData.email,
-          city: formData.city,
-          primarySymptoms: `${formData.primaryConcern}: ${formData.symptomsDescription}`,
-          duration: formData.duration,
-          previousTreatments: formData.priorTreatments,
-          digestiveState: formData.dietHabits,
-          preferredContact: formData.preferredContact,
+          fullName: callbackName,
+          phone: callbackPhone,
+          city: callbackCity,
+          primarySymptoms: `[Quick Callback Request] ${selectedCategory.title}${
+            callbackNotes ? `: ${callbackNotes}` : ""
+          }`,
+          age: 35,
+          gender: "Not Specified",
+          duration: "Ongoing",
+          preferredContact: "PHONE",
         }),
       });
 
       const json = await res.json();
       if (!res.ok || !json.success) {
-        throw new Error(json.error || "Failed to submit consultation.");
+        throw new Error(json.error || "Failed to request callback.");
       }
 
-      setSubmittedDossier(json.data);
+      setCallbackSuccess(json.data);
     } catch (err: any) {
-      setError(err.message || "Failed to submit consultation form. Please try again or message on WhatsApp.");
+      setCallbackError(err.message || "Failed to submit callback request. Please connect on WhatsApp instead.");
     } finally {
-      setLoading(false);
+      setSubmittingCallback(false);
     }
   };
 
+  const faqs = [
+    {
+      q: "Is the consultation really 100% free with no obligation?",
+      a: "Yes, absolutely. In accordance with traditional Tibbi ethics (Bila-Muawza Mashwara), Hakim Muhammad Tariq provides symptom assessment and health guidance completely free. You are never forced to purchase any remedy.",
+    },
+    {
+      q: "Can I send a voice note or pictures of doctor reports on WhatsApp?",
+      a: "Yes! Voice notes in Urdu, English, or Punjabi are warmly welcomed. You can also photograph lab reports, ultrasound scans, or current prescriptions and share them directly on WhatsApp.",
+    },
+    {
+      q: "How fast will Hakim Sahib respond to my WhatsApp message?",
+      a: "During clinical dispensary hours (10:00 AM – 10:00 PM PKT), initial responses and reviews typically arrive within 2 to 4 hours. Urgent queries are prioritized.",
+    },
+    {
+      q: "Can I visit the clinic in Karachi for in-person pulse diagnosis (Nabz)?",
+      a: "Yes, our established physical Matab is located in Korangi No. 4, Karachi. Walk-ins are welcome Monday to Saturday (10:00 AM – 10:00 PM) and Friday after Juma prayer.",
+    },
+  ];
+
   return (
-    <div className="bg-[#faf8f5]">
-      {/* Hero Header */}
-      <section className="relative py-16 sm:py-20 border-b border-[#e6dfd5] overflow-hidden bg-[#22623a] text-white">
+    <div className="bg-[#faf8f5] min-h-screen">
+      {/* ─── 1. Reassuring Hero Banner (Low-anxiety, zero mental burden) ─── */}
+      <section className="relative py-14 sm:py-18 bg-[#22623a] text-white border-b border-[#1b502e] overflow-hidden">
         <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-[#143e23]/50 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 rounded-full bg-[#c59b27]/10 blur-3xl pointer-events-none" />
 
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 relative z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#143e23] border border-[#2d7648] text-[#c59b27] text-xs font-medium tracking-wide">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 relative z-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#143e23] border border-[#2d7648] text-[#c59b27] text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Free Online Health Consultation</span>
+            <span>Zero-Effort Health Guidance</span>
           </div>
 
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
-            Talk to Our Hakim Online
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
+            Speak Directly with Hakim Sahib
           </h1>
 
-          <p className="text-base sm:text-lg text-[#f4eee5]/90 font-serif italic max-w-xl mx-auto">
-            Get personalized health guidance, dietary tips, and the right natural remedies for your body.
+          <p className="text-sm sm:text-base text-[#f4eee5]/90 max-w-2xl mx-auto leading-relaxed">
+            No complicated forms or lengthy questionnaires. Simply pick your health concern below to connect on WhatsApp, or request a quick callback.
           </p>
 
-          <p className="text-xs sm:text-sm text-[#f4eee5]/80 max-w-xl mx-auto leading-relaxed">
-            Fill out the quick form below. Our experienced Hakim will review your symptoms carefully and guide you towards natural recovery.
-          </p>
+          {/* 3 Emotional Reassurance Pillars */}
+          <div className="pt-3 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto text-left">
+            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
+              <div className="w-8 h-8 rounded-lg bg-[#c59b27] text-[#143e23] flex items-center justify-center shrink-0 font-bold">
+                <HeartHandshake className="w-4 h-4" />
+              </div>
+              <div className="text-xs">
+                <strong className="block text-white">100% Free Consultation</strong>
+                <span className="text-[#f4eee5]/75 text-[11px]">Bila-Muawza · No obligation</span>
+              </div>
+            </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-xs text-[#f4eee5]/70">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#c59b27]" /> 100% Private & Confidential
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-[#c59b27]" /> 2 to 4 Hours Response Time
-            </span>
-            <span className="flex items-center gap-1.5">
-              <UserCheck className="w-4 h-4 text-[#c59b27]" /> 35+ Years Clinical Experience
-            </span>
+            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
+              <div className="w-8 h-8 rounded-lg bg-[#c59b27] text-[#143e23] flex items-center justify-center shrink-0 font-bold">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <div className="text-xs">
+                <strong className="block text-white">Strictly Confidential</strong>
+                <span className="text-[#f4eee5]/75 text-[11px]">Direct Hakim review</span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-white/10 backdrop-blur-xs border border-white/15">
+              <div className="w-8 h-8 rounded-lg bg-[#25D366] text-white flex items-center justify-center shrink-0 font-bold">
+                <Mic className="w-4 h-4" />
+              </div>
+              <div className="text-xs">
+                <strong className="block text-white">Voice Notes Welcome</strong>
+                <span className="text-[#f4eee5]/75 text-[11px]">Audio in Urdu / English</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Main Form Section */}
-      <section className="py-16 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        {submittedDossier ? (
-          <div className="bg-white rounded-2xl p-8 sm:p-12 border border-[#e6dfd5] shadow-xl text-center space-y-6">
-            <div className="w-16 h-16 rounded-full bg-[#2d7648] text-white flex items-center justify-center mx-auto">
-              <CheckCircle className="w-10 h-10" />
-            </div>
+      {/* ─── 2. Interactive 2-Tap Diagnostic Triage ─── */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 space-y-12">
+        <div className="space-y-3 text-center max-w-2xl mx-auto">
+          <span className="text-xs uppercase tracking-widest font-bold text-[#8c6a15]">
+            Step 1 of 2 · Choose Your Concern
+          </span>
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#22623a]">
+            What is Bothering You Today?
+          </h2>
+          <p className="text-xs sm:text-sm text-[#59534b]">
+            Tap any condition to immediately prepare your consultation.
+          </p>
+        </div>
 
-            <div className="space-y-2">
-              <span className="text-xs uppercase font-semibold text-[#c59b27] tracking-widest">
-                Form Saved Successfully
-              </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#22623a]">
-                Consultation Request Received!
-              </h2>
-              <p className="text-xs sm:text-sm text-[#59534b]">
-                Your reference ticket number is:{" "}
-                <strong className="text-[#22623a] font-mono text-sm sm:text-base px-2.5 py-1 bg-[#faf8f5] rounded border border-[#e6dfd5]">
-                  {submittedDossier.ticketNumber}
-                </strong>
-              </p>
-            </div>
+        {/* 6 Visual Condition Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {SYMPTOM_CATEGORIES.map((cat) => {
+            const Icon = cat.icon;
+            const isSelected = selectedCategory.id === cat.id;
 
-            <div className="p-5 bg-[#faf8f5] rounded-xl border border-[#e6dfd5] text-left text-xs text-[#59534b] space-y-2 max-w-lg mx-auto">
-              <p>
-                <strong>Name:</strong> {submittedDossier.fullName} ({submittedDossier.age} yrs, {submittedDossier.gender})
-              </p>
-              <p>
-                <strong>City & Phone:</strong> {submittedDossier.city} · {submittedDossier.phone}
-              </p>
-              <p>
-                <strong>Symptoms:</strong> {submittedDossier.primarySymptoms}
-              </p>
-              <p className="text-[11px] text-[#6a6660] pt-1 border-t border-[#e6dfd5]">
-                Hakim Sahib will review your symptoms and contact you via WhatsApp / phone with honest guidance and natural recommendations.
-              </p>
-            </div>
-
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <a
-                href={generateWhatsAppUrl(submittedDossier.ticketNumber)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold rounded-md shadow-xs transition-colors"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>Open WhatsApp with Ticket</span>
-              </a>
-
+            return (
               <button
-                onClick={() => setSubmittedDossier(null)}
-                className="w-full sm:w-auto px-6 py-3 bg-[#22623a] text-white text-xs font-semibold rounded-md"
+                key={cat.id}
+                type="button"
+                onClick={() => {
+                  setSelectedCategory(cat);
+                  setCallbackSuccess(null);
+                }}
+                className={`text-left p-5 rounded-2xl border-2 transition-all relative flex flex-col justify-between group ${
+                  isSelected
+                    ? "bg-white border-[#22623a] shadow-lg ring-2 ring-[#22623a]/10"
+                    : "bg-white/80 hover:bg-white border-[#e6dfd5] hover:border-[#cde4d6] shadow-xs"
+                }`}
               >
-                Submit Another Request
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
+                        isSelected
+                          ? "bg-[#22623a] text-[#c59b27]"
+                          : "bg-[#eef7f1] text-[#22623a] group-hover:bg-[#22623a] group-hover:text-white"
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </div>
+
+                    {isSelected && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#eef7f1] text-[#22623a] text-[10px] font-bold uppercase tracking-wider">
+                        <CheckCircle2 className="w-3 h-3 text-[#22623a]" />
+                        <span>Selected</span>
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <h3 className="font-serif text-base font-bold text-[#22623a]">
+                      {cat.title}
+                    </h3>
+                    <p className="text-xs text-[#8c6a15] font-semibold" dir="rtl">
+                      {cat.urduTitle}
+                    </p>
+                    <p className="text-xs text-[#6a6660] leading-snug">
+                      {cat.subtitle}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Symptom Tag Pills */}
+                <div className="pt-3 flex flex-wrap gap-1.5 border-t border-[#f4eee5] mt-3">
+                  {cat.symptoms.map((s, idx) => (
+                    <span
+                      key={idx}
+                      className="px-2 py-0.5 rounded-md bg-[#faf8f5] text-[#59534b] text-[10px] font-medium border border-[#e6dfd5]"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
               </button>
+            );
+          })}
+        </div>
+
+        {/* ─── 3. Action Dispatcher for Selected Condition ─── */}
+        <div className="bg-white rounded-3xl border border-[#e6dfd5] p-6 sm:p-8 lg:p-10 shadow-lg space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#f4eee5]">
+            <div className="space-y-1">
+              <span className="text-xs uppercase tracking-wider font-bold text-[#8c6a15]">
+                Step 2 of 2 · Ready to Consult
+              </span>
+              <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#22623a]">
+                Consult on: <span className="underline decoration-[#c59b27]">{selectedCategory.title}</span>
+              </h3>
+              <p className="text-xs text-[#6a6660]">
+                Choose how you want to connect with Hakim Muhammad Tariq:
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#22623a] bg-[#eef7f1] px-3.5 py-1.5 rounded-xl border border-[#cde4d6] self-start md:self-auto">
+              <Clock className="w-3.5 h-3.5 text-[#8c6a15]" />
+              <span>Replies in 2–4 Hours</span>
             </div>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            {/* Left Col: The Medical Intake Form */}
-            <div className="lg:col-span-8 bg-white p-6 sm:p-10 rounded-2xl border border-[#e6dfd5] shadow-xs space-y-6">
-              <div className="space-y-1 border-b border-[#f4eee5] pb-4">
-                <h2 className="font-serif text-xl font-bold text-[#22623a]">
-                  Health & Symptoms Form
-                </h2>
-                <p className="text-xs text-[#6a6660]">
-                  Please share your symptoms honestly so our Hakim can give you accurate guidance.
+
+          {/* Primary 1-Click WhatsApp Action */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <div className="lg:col-span-7 space-y-4">
+              <div className="p-4 rounded-2xl bg-[#f6fcf8] border border-[#cde4d6] space-y-2">
+                <div className="flex items-center gap-2 text-[#22623a] font-bold text-xs">
+                  <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                  <span>Instant WhatsApp Guidance (Recommended)</span>
+                </div>
+                <p className="text-xs text-[#59534b] leading-relaxed">
+                  Opens WhatsApp with your selected concern pre-composed. You can simply hit send, type extra details, or send an audio voice note.
                 </p>
               </div>
 
-              {error && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <a
+                  href={getWhatsAppUrl(selectedCategory)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-1 inline-flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg group"
+                >
+                  <MessageCircle className="w-4.5 h-4.5" />
+                  <span>Start WhatsApp Consultation</span>
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </a>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Section 1: Demographics */}
-                <div className="space-y-3">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#c59b27]">
-                    1. Your Contact Information
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5 sm:col-span-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCallbackForm(!showCallbackForm)}
+                  className="px-5 py-3.5 bg-[#faf8f5] hover:bg-[#f4eee5] text-[#22623a] border border-[#e6dfd5] text-xs font-bold rounded-xl transition-all"
+                >
+                  {showCallbackForm ? "Hide Callback Form" : "Request Phone Callback"}
+                </button>
+              </div>
+
+              {/* Voice Note Prompt Badge */}
+              <div className="flex items-center gap-2 text-xs text-[#6a6660] pt-1">
+                <Mic className="w-3.5 h-3.5 text-[#8c6a15]" />
+                <span>
+                  <strong>Tip:</strong> You don&apos;t need to type in detail — feel free to send a 1-minute voice note on WhatsApp.
+                </span>
+              </div>
+            </div>
+
+            {/* Right Help Box */}
+            <div className="lg:col-span-5 bg-[#faf8f5] rounded-2xl p-5 border border-[#e6dfd5] space-y-3">
+              <h4 className="font-serif text-sm font-bold text-[#22623a] flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#c59b27]" />
+                <span>What Happens Next?</span>
+              </h4>
+              <ul className="text-xs text-[#59534b] space-y-2">
+                <li className="flex items-start gap-2">
+                  <span className="w-4 h-4 rounded-full bg-[#22623a] text-white text-[10px] flex items-center justify-center shrink-0 mt-0.5 font-bold">1</span>
+                  <span>Hakim Sahib evaluates your symptoms &amp; body temperament (Mizaj).</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-4 h-4 rounded-full bg-[#22623a] text-white text-[10px] flex items-center justify-center shrink-0 mt-0.5 font-bold">2</span>
+                  <span>You receive tailored dietary tips and natural remedy recommendations.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="w-4 h-4 rounded-full bg-[#22623a] text-white text-[10px] flex items-center justify-center shrink-0 mt-0.5 font-bold">3</span>
+                  <span>Pure herbal preparations can be dispatched to your doorstep anywhere in Pakistan.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Optional Collapsible Phone Callback Form */}
+          {showCallbackForm && (
+            <div className="pt-6 border-t border-[#f4eee5] space-y-4">
+              <div className="space-y-1">
+                <h4 className="font-serif text-base font-bold text-[#22623a]">
+                  Request Free Phone Callback
+                </h4>
+                <p className="text-xs text-[#6a6660]">
+                  Enter your contact number. Clinic staff will call you to schedule a call with Hakim Sahib.
+                </p>
+              </div>
+
+              {callbackSuccess ? (
+                <div className="p-5 bg-[#eef7f1] rounded-2xl border border-[#cde4d6] text-center space-y-2">
+                  <CheckCircle2 className="w-8 h-8 text-[#22623a] mx-auto" />
+                  <h5 className="font-serif text-base font-bold text-[#22623a]">
+                    Callback Request Received!
+                  </h5>
+                  <p className="text-xs text-[#59534b]">
+                    Ticket Reference: <strong className="font-mono text-[#22623a]">{callbackSuccess.ticketNumber}</strong>. We will call you shortly at <strong>{callbackSuccess.phone}</strong>.
+                  </p>
+                </div>
+              ) : (
+                <form onSubmit={handleCallbackSubmit} className="space-y-4">
+                  {callbackError && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{callbackError}</span>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="space-y-1">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        Full Name <span className="text-red-500">*</span>
+                        Your Name <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
                         required
-                        name="fullName"
-                        value={formData.fullName}
-                        onChange={handleChange}
+                        value={callbackName}
+                        onChange={(e) => setCallbackName(e.target.value)}
                         placeholder="e.g. Tariq Mehmood"
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
+                        className="w-full text-xs px-3 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
                       />
                     </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-[#1a1816]">
-                        Age (Years) <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        required
-                        min="1"
-                        max="120"
-                        name="age"
-                        value={formData.age}
-                        onChange={handleChange}
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-[#1a1816]">
-                        Gender <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        name="gender"
-                        value={formData.gender}
-                        onChange={handleChange}
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
-                      >
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       <label className="text-xs font-semibold text-[#1a1816]">
                         Phone / WhatsApp <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="tel"
                         required
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
+                        value={callbackPhone}
+                        onChange={(e) => setCallbackPhone(e.target.value)}
                         placeholder="0300-1234567"
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
+                        className="w-full text-xs px-3 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
                       />
                     </div>
 
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       <label className="text-xs font-semibold text-[#1a1816]">
-                        City <span className="text-red-500">*</span>
+                        City
                       </label>
                       <input
                         type="text"
-                        required
-                        name="city"
-                        value={formData.city}
-                        onChange={handleChange}
-                        placeholder="Karachi, Lahore, Islamabad, etc."
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
+                        value={callbackCity}
+                        onChange={(e) => setCallbackCity(e.target.value)}
+                        placeholder="Karachi, Lahore, etc."
+                        className="w-full text-xs px-3 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
                       />
                     </div>
                   </div>
-                </div>
 
-                {/* Section 2: Clinical Details */}
-                <div className="space-y-3 pt-3 border-t border-[#f4eee5]">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#c59b27]">
-                    2. Your Symptoms & Health Concerns
-                  </h3>
-
-                  <div className="space-y-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-[#1a1816]">
-                        Main Health Concern <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        name="primaryConcern"
-                        value={formData.primaryConcern}
-                        onChange={handleChange}
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
-                      >
-                        {CONSULTATION_AREAS.map((a) => (
-                          <option key={a.title} value={a.title}>
-                            {a.title}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-[#1a1816]">
-                        How long have you felt this way? <span className="text-red-500">*</span>
-                      </label>
-                      <select
-                        name="duration"
-                        value={formData.duration}
-                        onChange={handleChange}
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
-                      >
-                        <option value="Less than 2 weeks">Less than 2 weeks</option>
-                        <option value="1 to 3 months">1 to 3 months</option>
-                        <option value="6 months to 1 year">6 months to 1 year</option>
-                        <option value="More than 1 year (Chronic)">More than 1 year</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-[#1a1816]">
-                        Describe your symptoms in detail <span className="text-red-500">*</span>
-                      </label>
-                      <textarea
-                        required
-                        rows={3}
-                        name="symptomsDescription"
-                        value={formData.symptomsDescription}
-                        onChange={handleChange}
-                        placeholder="Tell us what you feel — such as stomach burning, gas, joint pain, fatigue, sleep trouble, or skin issues..."
-                        className="w-full text-xs p-3.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-[#1a1816]">
-                        Current or Past Medicines You Take (Optional)
-                      </label>
-                      <input
-                        type="text"
-                        name="priorTreatments"
-                        value={formData.priorTreatments}
-                        onChange={handleChange}
-                        placeholder="e.g. Taking antacids daily, pain tablets for back pain"
-                        className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
-                      />
-                    </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-semibold text-[#1a1816]">
+                      Additional Notes / Preferred Time (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={callbackNotes}
+                      onChange={(e) => setCallbackNotes(e.target.value)}
+                      placeholder="e.g. Please call me after 4:00 PM"
+                      className="w-full text-xs px-3 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                    />
                   </div>
-                </div>
 
-                <div className="pt-2">
                   <button
                     type="submit"
-                    disabled={loading}
-                    className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md hover:shadow-lg disabled:opacity-50"
+                    disabled={submittingCallback}
+                    className="w-full sm:w-auto px-6 py-3 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    {loading ? (
+                    {submittingCallback ? (
                       <>
                         <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Sending to Hakim...</span>
+                        <span>Sending Request...</span>
                       </>
                     ) : (
                       <>
-                        <Send className="w-4 h-4" />
-                        <span>Submit Health Details to Hakim</span>
+                        <Send className="w-3.5 h-3.5" />
+                        <span>Submit Callback Request</span>
                       </>
                     )}
                   </button>
+                </form>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* ─── 4. In-Person Karachi Clinic (Nabz Pulse Examination) ─── */}
+        <div className="p-6 sm:p-8 bg-white rounded-3xl border border-[#e6dfd5] shadow-xs">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <div className="lg:col-span-8 space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#eef7f1] text-[#22623a] text-xs font-semibold">
+                <Building2 className="w-3.5 h-3.5 text-[#c59b27]" />
+                <span>Karachi In-Person Clinic Visit</span>
+              </div>
+              <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#22623a]">
+                Prefer Traditional Pulse Diagnosis (Nabz)?
+              </h3>
+              <p className="text-xs sm:text-sm text-[#59534b]">
+                Visit our physical clinic in Korangi No. 4, Karachi. Walk-ins are warmly welcome for hands-on pulse diagnosis and freshly compounded herbal preserves.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs text-[#59534b]">
+                <div className="p-3 bg-[#faf8f5] rounded-xl border border-[#e6dfd5] space-y-1">
+                  <span className="font-bold text-[#22623a] block flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-[#c59b27]" /> Clinic Address:
+                  </span>
+                  <p className="text-[11px] leading-relaxed">{CLINIC_INFO.address}</p>
                 </div>
-              </form>
+                <div className="p-3 bg-[#faf8f5] rounded-xl border border-[#e6dfd5] space-y-1">
+                  <span className="font-bold text-[#22623a] block flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-[#c59b27]" /> Dispensary Hours:
+                  </span>
+                  <p className="text-[11px]">Mon – Sat: {CLINIC_INFO.timings}</p>
+                  <p className="text-[11px] text-[#8c6a15] font-semibold">Friday: {CLINIC_INFO.fridayTimings}</p>
+                </div>
+              </div>
             </div>
 
-            {/* Right Column: Direct WhatsApp & Clinic Details */}
-            <div className="lg:col-span-4 space-y-6">
-              {/* WhatsApp Fast Track Card */}
-              <div className="bg-[#22623a] text-white p-6 rounded-2xl border border-[#143e23] shadow-lg space-y-4">
-                <div className="flex items-center gap-2 text-[#c59b27]">
-                  <MessageCircle className="w-5 h-5" />
-                  <h3 className="font-serif text-sm font-bold">
-                    Prefer WhatsApp Directly?
-                  </h3>
-                </div>
-                <p className="text-xs text-[#f4eee5]/80 leading-relaxed">
-                  Want to send a voice note or share your prescription image? Connect directly with Hakim Sahib on WhatsApp.
-                </p>
-                <a
-                  href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold rounded-md transition-colors shadow-xs"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>Chat on WhatsApp ({CLINIC_INFO.phoneFormatted})</span>
-                </a>
-              </div>
+            <div className="lg:col-span-4 space-y-3 text-center lg:text-right">
+              <a
+                href={CLINIC_INFO.googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md"
+              >
+                <Navigation className="w-3.5 h-3.5 text-[#c59b27]" />
+                <span>Open in Google Maps</span>
+              </a>
 
-              {/* Clinic Timings & Physical Consultations */}
-              <div className="bg-white p-6 rounded-2xl border border-[#e6dfd5] shadow-xs space-y-3">
-                <h3 className="font-serif text-sm font-bold text-[#22623a]">
-                  In-Person Clinic Visit (Karachi)
-                </h3>
-                <p className="text-xs text-[#6a6660] leading-relaxed">
-                  Karachi residents are warmly welcome to visit our physical clinic for traditional pulse diagnosis and personal checkups.
-                </p>
-                <div className="pt-2 text-xs space-y-1.5 text-[#59534b] border-t border-[#f4eee5]">
-                  <p>
-                    <strong>Address:</strong> {CLINIC_INFO.address}
-                  </p>
-                  <p>
-                    <strong>Timings:</strong> {CLINIC_INFO.timings}
-                  </p>
-                  <p className="text-[#c59b27] font-medium">
-                    {CLINIC_INFO.fridayTimings}
-                  </p>
-                </div>
-              </div>
+              <a
+                href={`tel:${CLINIC_INFO.phone}`}
+                className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#faf8f5] hover:bg-[#f4eee5] text-[#22623a] text-xs font-semibold rounded-xl border border-[#e6dfd5] transition-all"
+              >
+                <Phone className="w-3.5 h-3.5 text-[#8c6a15]" />
+                <span>Call Clinic: {CLINIC_INFO.phoneFormatted}</span>
+              </a>
             </div>
           </div>
-        )}
-      </section>
+        </div>
+
+        {/* ─── 5. Frequently Asked Questions (Anxiety Reducers) ─── */}
+        <div className="space-y-4 max-w-3xl mx-auto pt-4">
+          <div className="text-center space-y-1">
+            <span className="text-xs uppercase tracking-widest font-bold text-[#8c6a15]">
+              Common Questions
+            </span>
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#22623a]">
+              Frequently Asked Questions
+            </h3>
+          </div>
+
+          <div className="space-y-2.5">
+            {faqs.map((faq, idx) => {
+              const isOpen = openFaqIndex === idx;
+              return (
+                <div
+                  key={idx}
+                  className="bg-white rounded-2xl border border-[#e6dfd5] overflow-hidden transition-all shadow-2xs"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaqIndex(isOpen ? null : idx)}
+                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 font-serif font-bold text-xs sm:text-sm text-[#22623a] hover:bg-[#faf8f5] transition-colors"
+                  >
+                    <span className="flex items-center gap-2">
+                      <HelpCircle className="w-4 h-4 text-[#8c6a15] shrink-0" />
+                      <span>{faq.q}</span>
+                    </span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-[#6a6660] shrink-0 transition-transform ${
+                        isOpen ? "rotate-180 text-[#22623a]" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {isOpen && (
+                    <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-xs text-[#59534b] leading-relaxed border-t border-[#f4eee5] pt-3">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

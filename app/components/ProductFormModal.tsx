@@ -1210,7 +1210,7 @@ export default function ProductFormModal({
   );
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto p-3 sm:p-6 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-hidden">
       {/* Backdrop */}
       <div
         onClick={onClose}
@@ -1218,7 +1218,7 @@ export default function ProductFormModal({
       />
 
       {/* Centered Modal Card */}
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-[#e6dfd5] overflow-hidden my-auto max-h-[92vh] flex flex-col animate-fade-in text-[#1c1917]">
+      <div className="relative z-10 w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-[#e6dfd5] overflow-hidden max-h-[90vh] sm:max-h-[88vh] flex flex-col animate-fade-in text-[#1c1917]">
         {/* Header with Title & Step Progress */}
         <div className="px-5 sm:px-6 pt-5 pb-4 border-b border-[#e6dfd5] bg-gradient-to-r from-[#faf8f5] to-white shrink-0">
           <div className="flex items-center justify-between gap-3 mb-3">
@@ -1331,7 +1331,7 @@ export default function ProductFormModal({
         </div>
 
         {/* Scrollable Wizard Body */}
-        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-5">
+        <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-5">
           {/* Error Banner */}
           {error && (
             <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 flex items-center gap-2.5 text-xs sm:text-sm animate-fade-in">

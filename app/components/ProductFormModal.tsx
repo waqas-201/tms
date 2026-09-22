@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useId } from "react";
 import Image from "next/image";
 import {
   X,
@@ -22,36 +22,58 @@ import {
   ArrowDown,
   Info,
   CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  SlidersHorizontal,
+  Wand2,
+  Leaf,
+  Droplets,
+  Heart,
+  Eye,
+  FileText,
+  ShieldCheck,
+  Zap,
 } from "lucide-react";
 import { UploadDropzone } from "@/lib/uploadthing";
 
 export const DEFAULT_CATEGORIES = [
-  { id: "murabbajaat", name: "Herbal Preserves (Murabba)", urdu: "مربہ جات" },
-  { id: "arqiyat", name: "Pure Herbal Distillates (Arq)", urdu: "عرقیات" },
-  { id: "oils-marham", name: "Pain Relief Oils & Balms", urdu: "روغنیات و مرہم" },
-  { id: "herbs-seeds", name: "Whole Herbs & Seeds", urdu: "جڑی بوٹیاں و تخم" },
-  { id: "teas-vitality", name: "Wellness Teas & Energy Mixes", urdu: "قہوہ جات و معجون" },
-  { id: "hair-skin", name: "Hair & Skin Care", urdu: "حسن و صحت بال و جلد" },
-];
-
-const POPULAR_BENEFITS = [
-  "100% Pure & Natural Botanical Formula",
-  "Free from Artificial Chemicals & Preservatives",
-  "Supports Natural Digestion & Gut Health",
-  "Rich in Natural Bio-Antioxidants & Vitamins",
-  "Strengthens Physical Stamina & Daily Vitality",
-  "Promotes Heart, Brain & Memory Health",
-  "Soothes Joint Stiffness & Aches",
-  "Prepared under Qualified Supervision",
+  { id: "murabbajaat", name: "Herbal Preserves (Murabba)", urdu: "مربہ جات", icon: Leaf },
+  { id: "arqiyat", name: "Pure Herbal Distillates (Arq)", urdu: "عرقیات", icon: Droplets },
+  { id: "oils-marham", name: "Pain Relief Oils & Balms", urdu: "روغنیات و مرہم", icon: Heart },
+  { id: "herbs-seeds", name: "Whole Herbs & Seeds", urdu: "جڑی بوٹیاں و تخم", icon: Leaf },
+  { id: "teas-vitality", name: "Wellness Teas & Energy Mixes", urdu: "قہوہ جات و معجون", icon: Zap },
+  { id: "hair-skin", name: "Hair & Skin Care", urdu: "حسن و صحت بال و جلد", icon: Star },
 ];
 
 const PRESET_BADGES = [
   "Best Seller",
-  "100% Organic",
-  "Featured",
-  "Hot Deal",
-  "Pure Herbal",
+  "100% Pure & Organic",
+  "Apothecary Choice",
   "Traditional Formula",
+  "Hot Deal",
+  "Featured",
+];
+
+const MIZAJ_OPTIONS = [
+  { value: "Mo'tadil (Balanced)", label: "Mo'tadil / معتدل (Balanced & Neutral)" },
+  { value: "Haar Yabis (Hot & Dry)", label: "Haar Yabis / گرم خشک (Hot & Dry)" },
+  { value: "Haar Ratab (Hot & Moist)", label: "Haar Ratab / گرم تر (Hot & Moist)" },
+  { value: "Barid Yabis (Cold & Dry)", label: "Barid Yabis / سرد خشک (Cold & Dry)" },
+  { value: "Barid Ratab (Cold & Wet)", label: "Barid Ratab / سرد تر (Cold & Wet)" },
+];
+
+const PRESET_UNITS_CATALOG = [
+  { code: "g", name: "Gram", kind: "WEIGHT" },
+  { code: "kg", name: "Kilogram", kind: "WEIGHT" },
+  { code: "ml", name: "Millilitre", kind: "VOLUME" },
+  { code: "l", name: "Litre", kind: "VOLUME" },
+  { code: "tola", name: "Tola", kind: "TRADITIONAL" },
+  { code: "masha", name: "Masha", kind: "TRADITIONAL" },
+  { code: "jar", name: "Jar", kind: "PACK" },
+  { code: "bottle", name: "Bottle", kind: "PACK" },
+  { code: "sachet", name: "Sachet", kind: "PACK" },
+  { code: "pack", name: "Pack", kind: "PACK" },
+  { code: "piece", name: "Piece", kind: "PACK" },
 ];
 
 interface UnitItem {
@@ -89,6 +111,365 @@ interface ProductFormModalProps {
   initialProduct?: any | null;
 }
 
+/**
+ * Intelligent Herbal Knowledge Base & Synthesizer
+ * Generates authentic Unani/Tibbi descriptions, Urdu titles, mizaj, dosage & key benefits
+ */
+function synthesizeHerbalData(title: string, currentCategoryId: string) {
+  const t = title.toLowerCase().trim();
+
+  // 1. Amla / Emblica
+  if (t.includes("amla") || t.includes("aonla") || t.includes("emblic")) {
+    return {
+      urduName: "خالص آملہ کا مقوی مربہ",
+      categoryId: "murabbajaat",
+      categoryLabel: "Herbal Preserves (Murabba)",
+      mizaj: "Barid Yabis (Cold & Dry)",
+      badge: "Best Seller",
+      shortDescription: "Classical Unani cardiac and digestive tonic prepared from fresh hand-picked Amla in natural syrup.",
+      fullDescription: "Prepared according to traditional Unani pharmacopoeia guidelines. Amla (Emblica officinalis) is revered in Eastern medicine as a supreme rejuvenator (Rasayana), exceptionally rich in natural Vitamin C, polyphenols, and essential minerals to strengthen the heart, brain, and eyesight while soothing gastric acidity.",
+      benefits: [
+        "Rich in Natural Vitamin C & Bioflavonoids",
+        "Strengthens Heart Muscles & Relieves Palpitations",
+        "Nourishes Hair Roots & Promotes Lustrous Growth",
+        "Soothes Stomach Heat & Hyperacidity",
+        "Enhances Eye Vision & Daily Vitality",
+      ],
+      howToUse: "Take 1-2 pieces in the morning on an empty stomach. Rinse off excess syrup with plain water if preferred.",
+      dosage: "1-2 pieces (approx 25-50g) daily with water or lukewarm milk.",
+      suggestedUnitCode: "g",
+      suggestedQty: "500",
+      suggestedPrice: "1200",
+    };
+  }
+
+  // 2. Harar / Haritaki
+  if (t.includes("harar") || t.includes("harad") || t.includes("haritaki")) {
+    return {
+      urduName: "مربہ ہرڑ اکسیر ہاضم",
+      categoryId: "murabbajaat",
+      categoryLabel: "Herbal Preserves (Murabba)",
+      mizaj: "Haar Yabis (Hot & Dry)",
+      badge: "Traditional Formula",
+      shortDescription: "Renowned 'King of Herbs' preserve formulated to restore sluggish digestion, relieve constipation, and clarify intellect.",
+      fullDescription: "Harar Murabba is formulated using premium yellow Chebulic Myrobalans. Celebrated in Tibb-e-Unani for its gentle laxative and detoxifying properties, it clears stubborn intestinal stagnation, strengthens the stomach lining, and sharpens memory.",
+      benefits: [
+        "Gently Relieves Chronic Constipation & Bloating",
+        "Improves Gastric Digestion & Nutrient Absorption",
+        "Clears Brain Fog & Strengthens Memory Faculties",
+        "Eliminates Metabolic Waste & Intestinal Toxins",
+        "Protects Stomach Against Gas & Acidity",
+      ],
+      howToUse: "Chew 1 piece thoroughly at bedtime followed by a glass of lukewarm water or milk.",
+      dosage: "1 piece (approx 20-30g) daily before sleep.",
+      suggestedUnitCode: "g",
+      suggestedQty: "500",
+      suggestedPrice: "1150",
+    };
+  }
+
+  // 3. Apple / Saib Murabba
+  if (t.includes("saib") || t.includes("apple") || t.includes("seb")) {
+    return {
+      urduName: "سیب کا مقوی دل مربہ",
+      categoryId: "murabbajaat",
+      categoryLabel: "Herbal Preserves (Murabba)",
+      mizaj: "Mo'tadil (Balanced)",
+      badge: "100% Pure & Organic",
+      shortDescription: "Delicious restorative preserve made with fresh mountain apples to uplift mood, calm anxiety, and energize the heart.",
+      fullDescription: "Saib Murabba (Apple Preserve) is a classical exhilarant (Mufarreh) that invigorates vital organs. It replenishes vital hemoglobin, alleviates mental tension, regulates heartbeat, and imparts natural radiance to the complexion.",
+      benefits: [
+        "Premier Cardiac Tonic for Weakness & Palpitations",
+        "Elevates Mood & Calms Mental Stress/Anxiety",
+        "Enriches Hemoglobin & Blood Formation",
+        "Provides Instant Natural Energy & Vitality",
+        "Safe & Nourishing for All Ages",
+      ],
+      howToUse: "Eat 1 slice early morning before breakfast, ideally wrapped in edible silver leaf (Warq-e-Nuqra).",
+      dosage: "1-2 slices (approx 40g) every morning.",
+      suggestedUnitCode: "g",
+      suggestedQty: "500",
+      suggestedPrice: "1350",
+    };
+  }
+
+  // 4. Kasni (Chicory) Distillate
+  if (t.includes("kasni") || t.includes("chicory")) {
+    return {
+      urduName: "عرق کاسنی مصفی جگر",
+      categoryId: "arqiyat",
+      categoryLabel: "Pure Herbal Distillates (Arq)",
+      mizaj: "Barid Ratab (Cold & Wet)",
+      badge: "Best Seller",
+      shortDescription: "Wood-fired steam distillate of Cichorium intybus for liver detoxification, reducing body heat, and kidney health.",
+      fullDescription: "Arq Kasni is steam-distilled from freshly harvested wild chicory herbs and roots. Revered across centuries of Unani therapeutics as the ultimate hepatoprotective tonic, it neutralizes excess hepatic bile, cools internal burning, and stimulates natural renal filtration.",
+      benefits: [
+        "Deeply Purifies the Liver & Stimulates Bile Flow",
+        "Extinguishes Internal Body Heat & Bilious Jaundice",
+        "Relieves Burning Sensation in Urination & Palms",
+        "Reduces Liver & Abdominal Inflammation",
+        "Supports Healthy Skin Clarity & Complexion",
+      ],
+      howToUse: "Mix half a cup with equal parts water or Arq Mako, and consume 30 minutes before meals.",
+      dosage: "60ml (half cup) twice daily in morning and evening.",
+      suggestedUnitCode: "ml",
+      suggestedQty: "800",
+      suggestedPrice: "450",
+    };
+  }
+
+  // 5. Mako (Solanum Nigrum) Distillate
+  if (t.includes("mako") || t.includes("solanum")) {
+    return {
+      urduName: "عرق مکو دافع ورم",
+      categoryId: "arqiyat",
+      categoryLabel: "Pure Herbal Distillates (Arq)",
+      mizaj: "Barid Yabis (Cold & Dry)",
+      badge: "Traditional Formula",
+      shortDescription: "Pure botanical distillate formulated to soothe visceral swelling, stomach inflammation, and visceral heat.",
+      fullDescription: "Arq Mako is prepared through fractional copper condensation of fresh black nightshade herbs. Its natural anti-inflammatory bio-alkaloids specifically resolve swelling in the liver, spleen, and intestinal tract.",
+      benefits: [
+        "Resolves Internal Visceral Inflammation & Swelling",
+        "Soothes Gastritis & Stomach Lining Irritation",
+        "Complements Arq Kasni for Complete Hepatic Relief",
+        "Assists in Regulating Normal Liver Enzymes",
+        "100% Steam Distilled with No Added Preservatives",
+      ],
+      howToUse: "Take half a cup before meals, often paired with Arq Kasni or plain water.",
+      dosage: "60ml (half cup) 2 times daily.",
+      suggestedUnitCode: "ml",
+      suggestedQty: "800",
+      suggestedPrice: "450",
+    };
+  }
+
+  // 6. Arq Gulab / Rose Water
+  if (t.includes("gulab") || t.includes("rose")) {
+    return {
+      urduName: "خالص عرق گلاب سہ آتشہ",
+      categoryId: "arqiyat",
+      categoryLabel: "Pure Herbal Distillates (Arq)",
+      mizaj: "Mo'tadil (Balanced)",
+      badge: "100% Pure & Organic",
+      shortDescription: "Triple-distilled pure organic Damask rose essence for ocular comfort, facial glow, and cardiac soothing.",
+      fullDescription: "Crafted from fresh Rosa damascena petals using traditional copper pot alembics. Provides instant cooling relief when used for tired eyes, tightens facial pores as a botanical toner, and calms palpitations when consumed with sharbat.",
+      benefits: [
+        "Refreshes & Soothes Tired, Irritated Eyes",
+        "Natural Skin Toner & Pore Tightener",
+        "Calms Palpitations & Cardiac Heat",
+        "100% Food-Grade and Free from Alcohol/Fragrances",
+        "Imparts Radiant Natural Complexion Glow",
+      ],
+      howToUse: "Drink 2 tablespoons with cold water, spray directly over face, or apply drops to eyes.",
+      dosage: "20-30ml orally or as needed topically.",
+      suggestedUnitCode: "ml",
+      suggestedQty: "500",
+      suggestedPrice: "380",
+    };
+  }
+
+  // 7. Kalonji / Black Seed Oil or Seed
+  if (t.includes("kalonji") || t.includes("black seed") || t.includes("nigella")) {
+    return {
+      urduName: "روغن کلونجی خالص کولڈ پریسڈ",
+      categoryId: t.includes("oil") || t.includes("roghan") ? "oils-marham" : "herbs-seeds",
+      categoryLabel: t.includes("oil") || t.includes("roghan") ? "Pain Relief Oils & Balms" : "Whole Herbs & Seeds",
+      mizaj: "Haar Yabis (Hot & Dry)",
+      badge: "Best Seller",
+      shortDescription: "Premium virgin cold-pressed Black Seed (Nigella sativa) oil rich in natural Thymoquinone for total immune & joint support.",
+      fullDescription: "Cold-pressed from select non-GMO Ethiopian and indigenous Kalonji seeds at strictly controlled low temperatures to preserve volatile aromatic compounds. Delivers potent antioxidant, anti-inflammatory, and immune-modulating properties.",
+      benefits: [
+        "Rich in Active Thymoquinone (TQ) for Immune Defense",
+        "Relieves Chronic Joint Stiffness & Muscular Aches",
+        "Strengthens Hair Follicles & Prevents Hair Fall",
+        "Supports Clear Respiratory Passages & Easy Breathing",
+        "Promotes Healthy Blood Sugar & Lipid Balance",
+      ],
+      howToUse: "Take half teaspoon orally with warm milk/honey, or massage directly onto aching joints and scalp.",
+      dosage: "2.5ml to 5ml (half to one teaspoon) once daily.",
+      suggestedUnitCode: "ml",
+      suggestedQty: "120",
+      suggestedPrice: "950",
+    };
+  }
+
+  // 8. Badam / Almond Oil
+  if (t.includes("badam") || t.includes("almond")) {
+    return {
+      urduName: "روغن بادام شیریں خالص",
+      categoryId: "oils-marham",
+      categoryLabel: "Pain Relief Oils & Balms",
+      mizaj: "Haar Ratab (Hot & Moist)",
+      badge: "100% Pure & Organic",
+      shortDescription: "100% pure cold-pressed Sweet Almond oil rich in Vitamin E for brain vitality, smooth digestion, and lustrous skin.",
+      fullDescription: "Cold-pressed from premium sweet Gurbandi and Californian almonds. Contains abundant Vitamin E, natural squalene, and unsaturated fatty acids to nourish nerve cells, relieve constipation, and provide radiant skin hydration.",
+      benefits: [
+        "Nourishes Brain Cells & Enhances Intellectual Focus",
+        "Gentle, Natural Lubrication for Smooth Bowels",
+        "Deeply Hydrates Dry Skin & Reduces Under-Eye Circles",
+        "Conditions Dry, Damaged Hair with Glossy Shine",
+        "Safe for Infant Massage & Delicate Skin",
+      ],
+      howToUse: "Add 1 teaspoon to a glass of warm milk at night, or massage a few drops onto face and temples.",
+      dosage: "5ml (1 teaspoon) daily.",
+      suggestedUnitCode: "ml",
+      suggestedQty: "100",
+      suggestedPrice: "1400",
+    };
+  }
+
+  // 9. Shilajit / Salajeet
+  if (t.includes("shilajit") || t.includes("salajeet") || t.includes("mumijo")) {
+    return {
+      urduName: "خالص ہمالیائی سلاجیت سنیاسی",
+      categoryId: "teas-vitality",
+      categoryLabel: "Wellness Teas & Energy Mixes",
+      mizaj: "Haar Yabis (Hot & Dry)",
+      badge: "Apothecary Choice",
+      shortDescription: "Purified high-altitude Himalayan mineral pitch containing 84+ trace minerals and 70%+ Fulvic Acid for supreme vigor.",
+      fullDescription: "Traditional water-purified Shilajit sourced directly from high-altitude Himalayan rock fissures. Contains rich fulvic and humic acids to drive cellular ATP energy production, combat chronic fatigue, and strengthen bones, ligaments, and stamina.",
+      benefits: [
+        "Packed with 84+ Ionic Minerals & 70%+ Fulvic Acid",
+        "Dramatically Boosts Physical Stamina & Daily Energy",
+        "Accelerates Muscle Recovery & Strengthens Joints",
+        "Enhances Vital Vigor & Cellular Oxygenation",
+        "Traditionally Purified & 100% Chemical-Free",
+      ],
+      howToUse: "Dissolve a pea-sized portion (300-500mg) in a glass of warm milk, green tea, or warm water once daily in the morning.",
+      dosage: "Pea-sized portion (300-500mg) once daily.",
+      suggestedUnitCode: "g",
+      suggestedQty: "30",
+      suggestedPrice: "2400",
+    };
+  }
+
+  // 10. Ispaghol / Psyllium Husk
+  if (t.includes("ispaghol") || t.includes("psyllium") || t.includes("husk")) {
+    return {
+      urduName: "خالص اسپغول مسلم و بھوسی",
+      categoryId: "herbs-seeds",
+      categoryLabel: "Whole Herbs & Seeds",
+      mizaj: "Barid Ratab (Cold & Wet)",
+      badge: "Best Seller",
+      shortDescription: "Triple-cleaned, 100% natural pure white Psyllium husk for smooth digestive transit, cholesterol control, and cooling.",
+      fullDescription: "High-purity soluble dietary fiber harvested from Plantago ovata. Swells gently in the intestinal tract to create comfortable bulk, gently eliminating waste while absorbing excess dietary lipids and cooling stomach heat.",
+      benefits: [
+        "100% Natural Soluble Fiber for Regular Bowels",
+        "Provides Gentle Relief from Acidity & Constipation",
+        "Aids in Lowering Excess Cholesterol Levels",
+        "Supports Healthy Weight Management & Satiety",
+        "Triple-Cleaned & Free from Dust or Residue",
+      ],
+      howToUse: "Stir 1-2 tablespoons into water, warm milk, or yogurt. Drink immediately followed by an extra glass of water.",
+      dosage: "1-2 tablespoons (approx 7-14g) 1-2 times daily.",
+      suggestedUnitCode: "g",
+      suggestedQty: "100",
+      suggestedPrice: "650",
+    };
+  }
+
+  // 11. Ashwagandha / Asgandh
+  if (t.includes("asgandh") || t.includes("ashwagandha") || t.includes("withania")) {
+    return {
+      urduName: "اسگندھ ناگوری خالص اکسیر",
+      categoryId: "herbs-seeds",
+      categoryLabel: "Whole Herbs & Seeds",
+      mizaj: "Haar Yabis (Hot & Dry)",
+      badge: "Apothecary Choice",
+      shortDescription: "Premium Nagori Ashwagandha root powder to soothe stress, reduce cortisol, and build deep physical stamina.",
+      fullDescription: "Pure unadulterated roots of Withania somnifera processed into micro-fine botanical powder. Renowned as the premier adaptogen in Eastern medicine to combat adrenal burnout, promote restorative sleep, and enhance muscular vitality.",
+      benefits: [
+        "Calms Mental Stress & Regulates Cortisol Levels",
+        "Builds Musculoskeletal Strength & Stamina",
+        "Promotes Deep, Restorative Nighttime Sleep",
+        "Supports Hormonal Balance & Endurance",
+        "100% Pure Nagori Root with No Additives",
+      ],
+      howToUse: "Mix half a teaspoon (3g) with a glass of warm milk and honey before bedtime.",
+      dosage: "3g to 5g daily with warm milk.",
+      suggestedUnitCode: "g",
+      suggestedQty: "100",
+      suggestedPrice: "750",
+    };
+  }
+
+  // 12. Pain Relief / Dard Oil / Marham
+  if (t.includes("dard") || t.includes("pain") || t.includes("marham") || t.includes("balm") || t.includes("joint")) {
+    return {
+      urduName: "مفید درد ورم کش جڑی بوٹی تیل",
+      categoryId: "oils-marham",
+      categoryLabel: "Pain Relief Oils & Balms",
+      mizaj: "Haar Yabis (Hot & Dry)",
+      badge: "Best Seller",
+      shortDescription: "Fast-acting herbal transdermal oil infused with classical Unani warming herbs for knee, joint, and back relief.",
+      fullDescription: "A synergistic blend of wintergreen, eucalyptus, camphor, and warming herbal extracts formulated to penetrate deep into joints, tendons, and muscles. Restores flexibility, improves micro-circulation, and relieves chronic stiffness.",
+      benefits: [
+        "Rapid Relief from Knee, Back & Shoulder Discomfort",
+        "Soothes Stiff Joints & Restores Easy Mobility",
+        "Deep Transdermal Herbal Penetration",
+        "Reduces Muscular Swelling After Strain",
+        "Non-Sticky Formulation with Pleasing Aroma",
+      ],
+      howToUse: "Apply 5-10 drops directly onto affected area and gently massage in circular motions for 3-5 minutes.",
+      dosage: "Use 2-3 times daily or as needed.",
+      suggestedUnitCode: "ml",
+      suggestedQty: "60",
+      suggestedPrice: "850",
+    };
+  }
+
+  // 13. Ubtan / Skin Care / Hair
+  if (t.includes("ubtan") || t.includes("skin") || t.includes("hair") || t.includes("face") || t.includes("husn")) {
+    return {
+      urduName: "خاص ہربل حسن ابٹن و فیس پیک",
+      categoryId: "hair-skin",
+      categoryLabel: "Hair & Skin Care",
+      mizaj: "Mo'tadil (Balanced)",
+      badge: "100% Pure & Organic",
+      shortDescription: "Artisanal herbal formula with wild turmeric, sandalwood, and rose for spotless glowing skin.",
+      fullDescription: "Hand-blended according to ancestral beauty formulations using Kasturi turmeric, red sandalwood, rose petals, and chickpea flour. Gently removes dead epidermal cells, fades sun tans, clears blemishes, and imparts natural luminosity.",
+      benefits: [
+        "Imparts Instant Golden Glow & Even Skin Tone",
+        "Fades Sun Tan, Blemishes & Dark Spots",
+        "Tightens Enlarged Pores & Smooths Texture",
+        "100% Chemical-Free, Sulfate-Free & Paraben-Free",
+        "Suitable for All Skin Types",
+      ],
+      howToUse: "Mix 1-2 spoons with pure Rose Water (or milk for dry skin) to make a smooth paste. Apply for 15 minutes and rinse gently.",
+      dosage: "Use 2-3 times a week.",
+      suggestedUnitCode: "g",
+      suggestedQty: "150",
+      suggestedPrice: "900",
+    };
+  }
+
+  // 14. Fallback / Generic Category Synthesis
+  const cat = DEFAULT_CATEGORIES.find((c) => c.id === currentCategoryId) || DEFAULT_CATEGORIES[0];
+  const capitalizedTitle = title ? title.charAt(0).toUpperCase() + title.slice(1) : "Pure Herbal Formula";
+
+  return {
+    urduName: `خالص ${title || "ہربل دوا"}`,
+    categoryId: cat.id,
+    categoryLabel: cat.name,
+    mizaj: "Mo'tadil (Balanced)",
+    badge: "100% Pure & Organic",
+    shortDescription: `Authentic Unani formulation of ${capitalizedTitle} prepared with natural herbs for vitality and wellbeing.`,
+    fullDescription: `${capitalizedTitle} is prepared according to traditional Eastern apothecary standards. Carefully processed using authentic botanical ingredients to support your natural vitality, balance, and general wellness without synthetic chemicals or artificial additives.`,
+    benefits: [
+      "100% Pure & Unadulterated Botanical Formula",
+      "Free from Artificial Chemicals & Harmful Preservatives",
+      "Supports Natural Vitality, Stamina & Balance",
+      "Prepared under Experienced Apothecary Supervision",
+      "Packaged in Hygienic, Food-Grade Containers",
+    ],
+    howToUse: "Consume or apply as directed by your physician or as indicated on the pack label.",
+    dosage: "Standard adult dosage: Take 1 serving once or twice daily with fresh water or milk.",
+    suggestedUnitCode: "g",
+    suggestedQty: "250",
+    suggestedPrice: "950",
+  };
+}
+
 export default function ProductFormModal({
   isOpen,
   onClose,
@@ -102,6 +483,19 @@ export default function ProductFormModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Quick vs Advanced toggle
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [autoGenSparkle, setAutoGenSparkle] = useState(false);
+  const [autoGenMessage, setAutoGenMessage] = useState<string | null>(null);
+
+  // Inline Unit Creator State
+  const [isInlineUnitOpen, setIsInlineUnitOpen] = useState(false);
+  const [newUnitCode, setNewUnitCode] = useState("");
+  const [newUnitName, setNewUnitName] = useState("");
+  const [newUnitKind, setNewUnitKind] = useState("WEIGHT");
+  const [addingUnit, setAddingUnit] = useState(false);
+  const [unitSuccessToast, setUnitSuccessToast] = useState<string | null>(null);
+
   // Form State
   const [formData, setFormData] = useState({
     name: "",
@@ -110,6 +504,7 @@ export default function ProductFormModal({
     categoryId: "murabbajaat",
     categoryLabel: "Herbal Preserves (Murabba)",
     badge: "",
+    mizaj: "Mo'tadil (Balanced)",
     shortDescription: "",
     fullDescription: "",
     howToUse: "",
@@ -142,39 +537,39 @@ export default function ProductFormModal({
   ]);
 
   // Fetch available units and categories
-  useEffect(() => {
-    async function loadMetadata() {
-      try {
-        const [unitsRes, catsRes] = await Promise.all([
-          fetch("/api/units"),
-          fetch("/api/categories"),
-        ]);
+  const fetchMetadata = async () => {
+    try {
+      const [unitsRes, catsRes] = await Promise.all([
+        fetch("/api/units?all=true"),
+        fetch("/api/categories"),
+      ]);
 
-        if (unitsRes.ok) {
-          const uData = await unitsRes.json();
-          if (uData.success && Array.isArray(uData.data)) {
-            setUnits(uData.data);
-          }
+      if (unitsRes.ok) {
+        const uData = await unitsRes.json();
+        if (uData.success && Array.isArray(uData.data)) {
+          setUnits(uData.data);
         }
+      }
 
-        if (catsRes.ok) {
-          const cData = await catsRes.json();
-          if (cData.success && Array.isArray(cData.data) && cData.data.length > 0) {
-            setCategories(cData.data);
-          } else {
-            setCategories(DEFAULT_CATEGORIES);
-          }
+      if (catsRes.ok) {
+        const cData = await catsRes.json();
+        if (cData.success && Array.isArray(cData.data) && cData.data.length > 0) {
+          setCategories(cData.data);
         } else {
           setCategories(DEFAULT_CATEGORIES);
         }
-      } catch (err) {
-        console.error("Failed to load metadata:", err);
+      } else {
         setCategories(DEFAULT_CATEGORIES);
       }
+    } catch (err) {
+      console.error("Failed to load metadata:", err);
+      setCategories(DEFAULT_CATEGORIES);
     }
+  };
 
+  useEffect(() => {
     if (isOpen) {
-      loadMetadata();
+      fetchMetadata();
     }
   }, [isOpen]);
 
@@ -186,7 +581,10 @@ export default function ProductFormModal({
       if (Array.isArray(initialProduct.gallery) && initialProduct.gallery.length > 0) {
         initialGallery = initialProduct.gallery.filter(Boolean);
       } else if (initialProduct.image) {
-        if (typeof initialProduct.image === "string" && (initialProduct.image.startsWith("[") || initialProduct.image.startsWith("{"))) {
+        if (
+          typeof initialProduct.image === "string" &&
+          (initialProduct.image.startsWith("[") || initialProduct.image.startsWith("{"))
+        ) {
           try {
             const parsed = JSON.parse(initialProduct.image);
             if (Array.isArray(parsed)) {
@@ -194,7 +592,11 @@ export default function ProductFormModal({
             }
           } catch {}
         }
-        if (initialGallery.length === 0 && typeof initialProduct.image === "string" && initialProduct.image.trim()) {
+        if (
+          initialGallery.length === 0 &&
+          typeof initialProduct.image === "string" &&
+          initialProduct.image.trim()
+        ) {
           initialGallery = [initialProduct.image.trim()];
         }
       }
@@ -209,6 +611,7 @@ export default function ProductFormModal({
           DEFAULT_CATEGORIES.find((c) => c.id === initialProduct.categoryId)?.name ||
           "Herbal Preserves (Murabba)",
         badge: initialProduct.badge || "",
+        mizaj: initialProduct.mizaj || "Mo'tadil (Balanced)",
         shortDescription: initialProduct.shortDescription || "",
         fullDescription: initialProduct.fullDescription || "",
         howToUse: initialProduct.howToUse || "",
@@ -232,8 +635,12 @@ export default function ProductFormModal({
               originalPrice: s.originalPrice ? String(s.originalPrice) : "",
               costPrice: s.costPrice ? String(s.costPrice) : "",
               unitId: s.unitId || undefined,
-              quantityValue: s.quantityValue !== undefined && s.quantityValue !== null ? String(s.quantityValue) : undefined,
-              initialStock: s.stockOnHand !== undefined ? String(s.stockOnHand) : "20",
+              quantityValue:
+                s.quantityValue !== undefined && s.quantityValue !== null
+                  ? String(s.quantityValue)
+                  : undefined,
+              initialStock:
+                s.stockOnHand !== undefined ? String(s.stockOnHand) : "20",
               lowStockThreshold: s.lowStockThreshold ? String(s.lowStockThreshold) : "5",
               sku: s.sku || undefined,
               isActive: s.isActive ?? true,
@@ -252,6 +659,7 @@ export default function ProductFormModal({
               },
             ]
       );
+      setShowAdvanced(true); // Open advanced if editing
     } else {
       // New product defaults
       setFormData({
@@ -260,18 +668,19 @@ export default function ProductFormModal({
         slug: "",
         categoryId: "murabbajaat",
         categoryLabel: "Herbal Preserves (Murabba)",
-        badge: "",
+        badge: "100% Pure & Organic",
+        mizaj: "Mo'tadil (Balanced)",
         shortDescription: "",
         fullDescription: "",
-        howToUse: "Take 1 teaspoon (approx 5g) 1-2 times daily with warm water or milk.",
-        dosage: "1 teaspoon (approx 5g)",
+        howToUse: "Take 1 serving daily with lukewarm water or milk.",
+        dosage: "1 serving (approx 5-10g) daily",
         featured: false,
       });
       setGallery([]);
       setBenefitsList([
         "100% Pure & Natural Botanical Formula",
         "Free from Artificial Chemicals & Preservatives",
-        "Supports Natural Digestion & Gut Health",
+        "Supports Natural Digestion & Internal Vitality",
       ]);
       setVariantsList([
         {
@@ -286,8 +695,10 @@ export default function ProductFormModal({
           isActive: true,
         },
       ]);
+      setShowAdvanced(false);
     }
     setError(null);
+    setAutoGenMessage(null);
   }, [initialProduct, isOpen]);
 
   // Handle Name Input -> Auto-Generate URL Slug
@@ -316,6 +727,100 @@ export default function ProductFormModal({
       categoryId: catId,
       categoryLabel: selected ? selected.name : catId,
     }));
+  };
+
+  // 1-Click Smart Herbal Synthesizer Trigger
+  const handleAutoGenerateHerbal = () => {
+    if (!formData.name.trim()) {
+      setError("Please enter a Product Title first (e.g. 'Pure Amla Murabba' or 'Arq Kasni').");
+      return;
+    }
+
+    setAutoGenSparkle(true);
+    const synth = synthesizeHerbalData(formData.name, formData.categoryId);
+
+    setFormData((prev) => ({
+      ...prev,
+      urduName: synth.urduName,
+      categoryId: synth.categoryId,
+      categoryLabel: synth.categoryLabel,
+      badge: synth.badge,
+      mizaj: synth.mizaj,
+      shortDescription: synth.shortDescription,
+      fullDescription: synth.fullDescription,
+      howToUse: synth.howToUse,
+      dosage: synth.dosage,
+    }));
+
+    setBenefitsList(synth.benefits);
+
+    // If default primary variant is unset or standard, suggest unit and price
+    if (variantsList.length === 1 && (!variantsList[0].price || variantsList[0].price === "1200")) {
+      const matchedUnit = units.find((u) => u.code === synth.suggestedUnitCode);
+      setVariantsList([
+        {
+          ...variantsList[0],
+          name: `${synth.suggestedQty}${synth.suggestedUnitCode} Pack`,
+          weight: `${synth.suggestedQty}${synth.suggestedUnitCode}`,
+          quantityValue: synth.suggestedQty,
+          unitId: matchedUnit?.id || variantsList[0].unitId,
+          price: synth.suggestedPrice,
+        },
+      ]);
+    }
+
+    setAutoGenMessage("✨ Herbal details, Urdu title, benefits & dosage auto-filled!");
+    setTimeout(() => setAutoGenSparkle(false), 800);
+    setTimeout(() => setAutoGenMessage(null), 4000);
+    setError(null);
+  };
+
+  // Inline Unit Creation Handler
+  const handleCreateInlineUnit = async (preset?: { code: string; name: string; kind: string }) => {
+    const code = preset ? preset.code : newUnitCode.trim().toLowerCase();
+    const name = preset ? preset.name : newUnitName.trim();
+    const kind = preset ? preset.kind : newUnitKind;
+
+    if (!code || !name) {
+      setError("Please provide both a unit code (e.g. 'tola') and display name.");
+      return;
+    }
+
+    setAddingUnit(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/units", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, name, kind }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to create unit.");
+      }
+
+      const createdUnit: UnitItem = data.data;
+      setUnits((prev) => {
+        const filtered = prev.filter((u) => u.id !== createdUnit.id);
+        return [...filtered, createdUnit];
+      });
+
+      // Automatically select this new unit for the first variant
+      if (variantsList.length > 0) {
+        handleVariantChange(0, "unitId", createdUnit.id);
+      }
+
+      setUnitSuccessToast(`Unit '${createdUnit.name}' (${createdUnit.code}) created & selected!`);
+      setTimeout(() => setUnitSuccessToast(null), 3000);
+      setNewUnitCode("");
+      setNewUnitName("");
+      setIsInlineUnitOpen(false);
+    } catch (err: any) {
+      setError(err?.message || "Failed to add unit.");
+    } finally {
+      setAddingUnit(false);
+    }
   };
 
   // Image Management Handlers
@@ -382,6 +887,9 @@ export default function ProductFormModal({
         const selectedUnit = units.find((u) => u.id === uId);
         if (selectedUnit && qVal) {
           item.weight = `${qVal}${selectedUnit.code}`;
+          if (!item.name || item.name.includes("Pack")) {
+            item.name = `${qVal}${selectedUnit.code} Pack`;
+          }
         } else if (qVal) {
           item.weight = `${qVal}g`;
         }
@@ -419,19 +927,18 @@ export default function ProductFormModal({
     setVariantsList((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Submit Handler
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Submit Handler (Supports Dual "Save & Publish" vs "Save as Draft")
+  const handleSubmit = async (publishLive: boolean = true) => {
     setError(null);
 
     // Validation
     if (!formData.name.trim()) {
-      setError("Please enter the Product Title / Name.");
+      setError("Please enter the Product Title.");
       return;
     }
 
     if (gallery.length === 0) {
-      setError("Please upload or add at least one product photo for the gallery.");
+      setError("Please upload or add at least one product photo.");
       return;
     }
 
@@ -443,7 +950,7 @@ export default function ProductFormModal({
     for (let i = 0; i < variantsList.length; i++) {
       const v = variantsList[i];
       if (!v.price || isNaN(Number(v.price)) || Number(v.price) <= 0) {
-        setError(`Variant #${i + 1} (${v.name || "Unnamed"}) requires a valid selling price.`);
+        setError(`Pack Variant #${i + 1} (${v.name || "Unnamed"}) requires a valid selling price.`);
         return;
       }
     }
@@ -451,7 +958,7 @@ export default function ProductFormModal({
     const minVariantPrice = Math.min(...variantsList.map((v) => Number(v.price) || 999999));
     const effectiveBasePrice = minVariantPrice < 999999 ? minVariantPrice : Number(variantsList[0].price);
 
-    // Primary cover image is the first in the gallery
+    // Primary cover image is always the first in gallery
     const primaryImage = gallery[0];
 
     setLoading(true);
@@ -465,6 +972,7 @@ export default function ProductFormModal({
         categoryLabel: formData.categoryLabel,
         price: effectiveBasePrice,
         badge: formData.badge.trim() || null,
+        mizaj: formData.mizaj.trim() || null,
         shortDescription: formData.shortDescription.trim(),
         fullDescription: formData.fullDescription.trim(),
         howToUse: formData.howToUse.trim(),
@@ -472,6 +980,7 @@ export default function ProductFormModal({
         image: primaryImage,
         images: gallery,
         featured: formData.featured,
+        inStock: publishLive,
         benefits: benefitsList,
         sizes: variantsList.map((v) => ({
           ...(v.id && { id: v.id }),
@@ -485,7 +994,7 @@ export default function ProductFormModal({
           initialStock: v.initialStock ? Math.max(0, Number(v.initialStock)) : 20,
           lowStockThreshold: v.lowStockThreshold ? Number(v.lowStockThreshold) : 5,
           sku: v.sku?.trim() || undefined,
-          isActive: v.isActive ?? true,
+          isActive: publishLive ? (v.isActive ?? true) : false,
         })),
       };
 
@@ -517,97 +1026,134 @@ export default function ProductFormModal({
 
   if (!isOpen) return null;
 
+  // Compute missing preset units for quick inline creation
+  const existingUnitCodes = new Set(units.map((u) => u.code.toLowerCase()));
+  const missingUnitPresets = PRESET_UNITS_CATALOG.filter(
+    (p) => !existingUnitCodes.has(p.code.toLowerCase())
+  );
+
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto p-3 sm:p-6 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 overflow-y-auto p-2 sm:p-4 md:p-6 flex items-center justify-center">
       {/* Backdrop */}
       <div
         onClick={onClose}
         className="fixed inset-0 bg-[#22623a]/60 backdrop-blur-xs transition-opacity animate-fade-in"
       />
 
-      {/* Modal Window */}
-      <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl border border-[#e6dfd5] overflow-hidden my-auto max-h-[92vh] flex flex-col animate-fade-in">
-        {/* Sticky Header */}
-        <div className="px-6 py-4 border-b border-[#e6dfd5] bg-[#faf8f5] flex items-center justify-between shrink-0">
+      {/* Modal Card */}
+      <div className="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-[#e6dfd5] overflow-hidden my-auto max-h-[94vh] flex flex-col animate-fade-in text-[#1c1917]">
+        {/* Header */}
+        <div className="px-5 sm:px-7 py-4 border-b border-[#e6dfd5] bg-linear-to-r from-[#faf8f5] to-white flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-[#22623a] text-[#c59b27] flex items-center justify-center shadow-xs">
-              <Package className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-[#22623a] text-[#c59b27] flex items-center justify-center shadow-md">
+              <Leaf className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-serif text-lg font-bold text-[#22623a]">
-                {isEditing ? "Edit Product" : "Add New Product"}
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="font-serif text-lg sm:text-xl font-bold text-[#22623a]">
+                  {isEditing ? "Edit Herbal Product" : "Add Product (Quick Upload)"}
+                </h2>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 uppercase tracking-wider">
+                  {isEditing ? "Catalog Item" : "Fast Form"}
+                </span>
+              </div>
               <p className="text-xs text-[#6a6660]">
-                Standard e-commerce product details, multi-image gallery, packaging units & stock.
+                Fill in the 4 essentials below or use Smart Auto-Fill for instant herbal details.
               </p>
             </div>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-2 rounded-lg text-[#6a6660] hover:text-[#22623a] hover:bg-[#e6dfd5]/50 transition-colors"
+            className="p-2 rounded-xl text-[#6a6660] hover:text-[#22623a] hover:bg-[#e6dfd5]/60 transition-all"
+            title="Close"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Scrollable Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-7 text-xs">
+        {/* Scrollable Form Content */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-7 space-y-6">
+          {/* Error Banner */}
           {error && (
-            <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center gap-2.5">
-              <AlertCircle className="w-5 h-5 shrink-0 text-red-600" />
-              <span className="font-medium text-xs leading-relaxed">{error}</span>
+            <div className="p-3.5 sm:p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 flex items-center gap-3 text-xs sm:text-sm">
+              <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
+              <span className="font-medium leading-relaxed">{error}</span>
             </div>
           )}
 
-          {/* SECTION 1: Basic Information */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-[#e6dfd5] pb-2">
-              <Layers className="w-4 h-4 text-[#22623a]" />
-              <h3 className="font-bold text-[#22623a] text-sm">1. Basic Information</h3>
+          {/* Unit Success Toast */}
+          {unitSuccessToast && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 flex items-center gap-2 text-xs font-semibold animate-fade-in">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>{unitSuccessToast}</span>
+            </div>
+          )}
+
+          {/* Auto-Gen Success Notice */}
+          {autoGenMessage && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 flex items-center gap-2 text-xs font-semibold animate-fade-in">
+              <Sparkles className="w-4 h-4 text-amber-600" />
+              <span>{autoGenMessage}</span>
+            </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* STEP 1: Product Title, Category & Smart Generator */}
+          {/* ========================================================= */}
+          <div className="bg-[#faf8f5]/80 p-4 sm:p-5 rounded-2xl border border-[#e6dfd5] space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-[#22623a] text-white text-xs font-bold flex items-center justify-center">
+                  1
+                </span>
+                <h3 className="font-serif font-bold text-sm sm:text-base text-[#22623a]">
+                  Product Title & Category
+                </h3>
+              </div>
+
+              {/* 1-Click Auto Generate Button */}
+              <button
+                type="button"
+                onClick={handleAutoGenerateHerbal}
+                className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                  autoGenSparkle
+                    ? "bg-[#c59b27] text-white scale-95"
+                    : "bg-linear-to-r from-[#22623a] to-[#2d7648] hover:from-[#1a4d2e] hover:to-[#22623a] text-white hover:shadow-md"
+                }`}
+                title="Automatically writes descriptions, Urdu names, and health benefits based on herbal formula name."
+              >
+                <Sparkles className={`w-3.5 h-3.5 ${autoGenSparkle ? "animate-spin text-white" : "text-[#c59b27]"}`} />
+                <span>⚡ Auto-Generate Herbal Info</span>
+              </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Product Name */}
-              <div className="space-y-1.5 md:col-span-2">
-                <label className="text-xs font-semibold text-[#1a1816] flex items-center justify-between">
-                  <span>Product Title / Name <span className="text-red-500">*</span></span>
-                  <span className="text-[11px] text-[#6a6660] font-normal">e.g. Pure Himalayan Shilajit</span>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5">
+              {/* Product Title */}
+              <div className="md:col-span-7 space-y-1">
+                <label className="text-xs font-bold text-[#1c1917] flex items-center justify-between">
+                  <span>Product Title (English) <span className="text-rose-600">*</span></span>
+                  <span className="text-[11px] text-[#6a6660] font-normal">e.g. Pure Amla Murabba or Arq Kasni</span>
                 </label>
                 <input
                   type="text"
                   required
                   value={formData.name}
                   onChange={handleNameChange}
-                  placeholder="Enter full product name in English"
-                  className="w-full text-xs p-3 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-all shadow-xs"
+                  placeholder="e.g. Pure Amla Murabba, Arq Kasni, Kalonji Oil"
+                  className="w-full text-sm p-3 bg-white border border-[#e6dfd5] rounded-xl text-[#1c1917] font-medium focus:outline-none focus:ring-2 focus:ring-[#22623a] focus:border-transparent transition-all shadow-2xs"
                 />
               </div>
 
-              {/* Urdu Name */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#1a1816] flex items-center justify-between">
-                  <span>Urdu Title (Optional)</span>
-                  <span className="text-[11px] text-[#6a6660] font-normal">اردو نام</span>
-                </label>
-                <input
-                  type="text"
-                  dir="rtl"
-                  value={formData.urduName}
-                  onChange={(e) => setFormData({ ...formData, urduName: e.target.value })}
-                  placeholder="مثلاً: خالص سلاجیت پہاڑی"
-                  className="w-full text-xs p-3 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white font-serif transition-all shadow-xs text-right"
-                />
-              </div>
-
-              {/* Category Selection */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#1a1816]">
-                  Category <span className="text-red-500">*</span>
+              {/* Category */}
+              <div className="md:col-span-5 space-y-1">
+                <label className="text-xs font-bold text-[#1c1917]">
+                  Category <span className="text-rose-600">*</span>
                 </label>
                 <select
                   value={formData.categoryId}
                   onChange={handleCategoryChange}
-                  className="w-full text-xs p-3 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-all shadow-xs"
+                  className="w-full text-sm p-3 bg-white border border-[#e6dfd5] rounded-xl text-[#1c1917] font-medium focus:outline-none focus:ring-2 focus:ring-[#22623a] focus:border-transparent transition-all shadow-2xs cursor-pointer"
                 >
                   {categories.map((cat) => (
                     <option key={cat.id} value={cat.id}>
@@ -616,172 +1162,352 @@ export default function ProductFormModal({
                   ))}
                 </select>
               </div>
-
-              {/* URL Slug */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#1a1816] flex items-center justify-between">
-                  <span>URL Slug</span>
-                  <span className="text-[10px] text-[#6a6660] font-mono">/products/[slug]</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  placeholder="auto-generated-product-slug"
-                  className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] font-mono focus:outline-none focus:border-[#22623a] focus:bg-white transition-all"
-                />
-              </div>
-
-              {/* Product Badge / Ribbon */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#1a1816] flex items-center justify-between">
-                  <span>Badge / Ribbon (Optional)</span>
-                  <span className="text-[10px] text-[#6a6660]">e.g. Best Seller, 100% Organic</span>
-                </label>
-                <div className="space-y-2">
-                  <input
-                    type="text"
-                    value={formData.badge}
-                    onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                    placeholder="Custom badge text or click suggestion"
-                    className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-all"
-                  />
-                  <div className="flex flex-wrap gap-1">
-                    {PRESET_BADGES.map((b) => (
-                      <button
-                        key={b}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, badge: b })}
-                        className={`text-[10px] px-2 py-0.5 rounded-md border transition-all ${
-                          formData.badge === b
-                            ? "bg-[#22623a] text-white border-[#22623a] font-semibold"
-                            : "bg-white text-[#6a6660] border-[#e6dfd5] hover:border-[#c59b27]"
-                        }`}
-                      >
-                        {b}
-                      </button>
-                    ))}
-                    {formData.badge && (
-                      <button
-                        type="button"
-                        onClick={() => setFormData({ ...formData, badge: "" })}
-                        className="text-[10px] px-1.5 py-0.5 text-red-600 hover:underline"
-                      >
-                        Clear
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Featured Product Checkbox */}
-            <div className="pt-1">
-              <label className="inline-flex items-center gap-2 cursor-pointer select-none bg-[#faf8f5] p-3 rounded-xl border border-[#e6dfd5] hover:border-[#22623a] transition-all">
-                <input
-                  type="checkbox"
-                  checked={formData.featured}
-                  onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-                  className="w-4 h-4 rounded text-[#22623a] focus:ring-[#22623a] border-gray-300"
-                />
-                <span className="font-semibold text-xs text-[#22623a] flex items-center gap-1.5">
-                  <Star className="w-3.5 h-3.5 text-[#c59b27] fill-[#c59b27]" />
-                  Feature on Homepage & Spotlight Carousels
-                </span>
-              </label>
             </div>
           </div>
 
-          {/* SECTION 2: Multi-Image Gallery */}
-          <div className="space-y-4">
+          {/* ========================================================= */}
+          {/* STEP 2: Packaging Pack, Unit & Live Stock */}
+          {/* ========================================================= */}
+          <div className="bg-[#faf8f5]/80 p-4 sm:p-5 rounded-2xl border border-[#e6dfd5] space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-[#22623a] text-white text-xs font-bold flex items-center justify-center">
+                  2
+                </span>
+                <h3 className="font-serif font-bold text-sm sm:text-base text-[#22623a]">
+                  Pack Size, Price & Stock
+                </h3>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {/* Add Inline Unit Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsInlineUnitOpen((prev) => !prev)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-white border border-[#e6dfd5] text-[#22623a] hover:bg-[#faf8f5] transition-all"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+ New Unit</span>
+                </button>
+
+                {/* Add Another Variant */}
+                <button
+                  type="button"
+                  onClick={addVariant}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-[#22623a] text-white hover:bg-[#1a4d2e] transition-all"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>+ Extra Size Variant</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Inline Unit Creator Popover */}
+            {isInlineUnitOpen && (
+              <div className="bg-white p-4 rounded-xl border-2 border-[#22623a] shadow-lg space-y-3 animate-fade-in">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Scale className="w-4 h-4 text-[#22623a]" />
+                    <span className="text-xs font-bold text-[#22623a]">
+                      Create New Measurement Unit (e.g. tola, sachet, jar, bottle)
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsInlineUnitOpen(false)}
+                    className="text-[#6a6660] hover:text-rose-600 p-1"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div>
+                    <label className="text-[11px] font-semibold text-[#4a4640] block mb-1">
+                      Unit Code (e.g. tola, ml, sachet)
+                    </label>
+                    <input
+                      type="text"
+                      value={newUnitCode}
+                      onChange={(e) => setNewUnitCode(e.target.value)}
+                      placeholder="tola"
+                      className="w-full text-xs p-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-[#4a4640] block mb-1">
+                      Display Name (e.g. Tola)
+                    </label>
+                    <input
+                      type="text"
+                      value={newUnitName}
+                      onChange={(e) => setNewUnitName(e.target.value)}
+                      placeholder="Tola"
+                      className="w-full text-xs p-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-[#4a4640] block mb-1">
+                      Kind
+                    </label>
+                    <select
+                      value={newUnitKind}
+                      onChange={(e) => setNewUnitKind(e.target.value)}
+                      className="w-full text-xs p-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg cursor-pointer"
+                    >
+                      <option value="WEIGHT">Weight (g, kg, tola)</option>
+                      <option value="VOLUME">Volume (ml, L, drop)</option>
+                      <option value="PACK">Pack / Piece (jar, bottle, sachet)</option>
+                      <option value="TRADITIONAL">Traditional (tola, masha)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between flex-wrap gap-2 pt-1 border-t border-[#e6dfd5]">
+                  {missingUnitPresets.length > 0 && (
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <span className="text-[10px] text-[#6a6660] font-medium">Quick add:</span>
+                      {missingUnitPresets.slice(0, 4).map((preset) => (
+                        <button
+                          key={preset.code}
+                          type="button"
+                          onClick={() => handleCreateInlineUnit(preset)}
+                          disabled={addingUnit}
+                          className="text-[10px] px-2 py-0.5 rounded bg-[#faf8f5] border border-[#e6dfd5] hover:border-[#22623a] text-[#22623a] font-medium"
+                        >
+                          + {preset.name} ({preset.code})
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <button
+                    type="button"
+                    disabled={addingUnit}
+                    onClick={() => handleCreateInlineUnit()}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#22623a] text-white rounded-lg text-xs font-bold hover:bg-[#1a4d2e] disabled:opacity-50 ml-auto"
+                  >
+                    {addingUnit ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
+                    <span>Save & Use Unit</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Variants Grid */}
+            <div className="space-y-3">
+              {variantsList.map((variant, index) => (
+                <div
+                  key={index}
+                  className="bg-white p-4 rounded-xl border border-[#e6dfd5] hover:border-[#c59b27] transition-all space-y-3 shadow-2xs"
+                >
+                  <div className="flex items-center justify-between border-b border-[#e6dfd5] pb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-full bg-[#22623a] text-white text-[11px] font-bold flex items-center justify-center">
+                        {index + 1}
+                      </span>
+                      <span className="font-bold text-xs text-[#22623a]">
+                        {variant.name || `Pack Variant #${index + 1}`} ({variant.weight || "Standard"})
+                      </span>
+                    </div>
+
+                    {variantsList.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeVariant(index)}
+                        className="text-xs text-rose-600 hover:text-rose-800 font-semibold inline-flex items-center gap-1 p-1"
+                        title="Remove variant"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Remove Size</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5">
+                    {/* Quantity Value & Unit */}
+                    <div className="col-span-2 space-y-1">
+                      <label className="text-[11px] font-bold text-[#1c1917]">
+                        Pack Size & Unit <span className="text-rose-600">*</span>
+                      </label>
+                      <div className="flex gap-1.5">
+                        <input
+                          type="number"
+                          value={variant.quantityValue || ""}
+                          onChange={(e) => handleVariantChange(index, "quantityValue", e.target.value)}
+                          placeholder="500"
+                          className="w-1/2 text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1c1917] font-semibold focus:outline-none focus:border-[#22623a]"
+                        />
+                        <select
+                          value={variant.unitId || ""}
+                          onChange={(e) => handleVariantChange(index, "unitId", e.target.value)}
+                          className="w-1/2 text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1c1917] font-medium focus:outline-none focus:border-[#22623a] cursor-pointer"
+                        >
+                          <option value="">Unit (g/ml)...</option>
+                          {units.map((u) => (
+                            <option key={u.id} value={u.id}>
+                              {u.name} ({u.code})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Selling Price */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-[#1c1917]">
+                        Selling Price (PKR) <span className="text-rose-600">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        value={variant.price}
+                        onChange={(e) => handleVariantChange(index, "price", e.target.value)}
+                        placeholder="1200"
+                        className="w-full text-xs p-2.5 bg-emerald-50/50 border border-emerald-300 rounded-xl text-emerald-900 font-bold focus:outline-none focus:border-[#22623a]"
+                      />
+                    </div>
+
+                    {/* Initial Stock */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-[#1c1917]">
+                        Opening Stock
+                      </label>
+                      <input
+                        type="number"
+                        value={variant.initialStock || "0"}
+                        onChange={(e) => handleVariantChange(index, "initialStock", e.target.value)}
+                        placeholder="25"
+                        className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1c1917] font-semibold focus:outline-none focus:border-[#22623a]"
+                      />
+                    </div>
+
+                    {/* Cost Price */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-medium text-[#6a6660]">
+                        Cost (Optional)
+                      </label>
+                      <input
+                        type="number"
+                        value={variant.costPrice || ""}
+                        onChange={(e) => handleVariantChange(index, "costPrice", e.target.value)}
+                        placeholder="600"
+                        className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#6a6660] focus:outline-none focus:border-[#22623a]"
+                      />
+                    </div>
+
+                    {/* Regular / Strikethrough Price */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-medium text-[#6a6660]">
+                        MRP / List (Opt)
+                      </label>
+                      <input
+                        type="number"
+                        value={variant.originalPrice || ""}
+                        onChange={(e) => handleVariantChange(index, "originalPrice", e.target.value)}
+                        placeholder="1500"
+                        className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#6a6660] focus:outline-none focus:border-[#22623a]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ========================================================= */}
+          {/* STEP 3: Multi-Photo Gallery */}
+          {/* ========================================================= */}
+          <div className="bg-[#faf8f5]/80 p-4 sm:p-5 rounded-2xl border border-[#e6dfd5] space-y-4">
             <div className="flex items-center justify-between border-b border-[#e6dfd5] pb-2">
               <div className="flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-[#22623a]" />
-                <h3 className="font-bold text-[#22623a] text-sm">2. Product Image Gallery</h3>
+                <span className="w-6 h-6 rounded-full bg-[#22623a] text-white text-xs font-bold flex items-center justify-center">
+                  3
+                </span>
+                <h3 className="font-serif font-bold text-sm sm:text-base text-[#22623a]">
+                  Product Photos ({gallery.length} added)
+                </h3>
               </div>
               <span className="text-[11px] text-[#6a6660]">
-                {gallery.length} image{gallery.length === 1 ? "" : "s"} added (first image is primary cover)
+                ⭐ First image is the Primary Cover
               </span>
             </div>
 
             {/* Gallery Thumbnails List */}
             {gallery.length > 0 && (
-              <div className="space-y-2">
-                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
-                  {gallery.map((imgUrl, index) => {
-                    const isCover = index === 0;
-                    return (
-                      <div
-                        key={`${imgUrl}-${index}`}
-                        className={`relative group rounded-xl border overflow-hidden bg-[#faf8f5] aspect-square flex flex-col justify-between transition-all ${
-                          isCover
-                            ? "border-2 border-[#22623a] ring-2 ring-[#22623a]/15 shadow-sm"
-                            : "border-[#e6dfd5] hover:border-[#c59b27]"
-                        }`}
-                      >
-                        {/* Image */}
-                        <div className="relative w-full h-full">
-                          <Image
-                            src={imgUrl}
-                            alt={`Gallery image ${index + 1}`}
-                            fill
-                            className="object-contain p-1"
-                          />
+              <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                {gallery.map((imgUrl, index) => {
+                  const isCover = index === 0;
+                  return (
+                    <div
+                      key={`${imgUrl}-${index}`}
+                      className={`relative group rounded-2xl border-2 overflow-hidden bg-white aspect-square flex flex-col justify-between transition-all shadow-xs ${
+                        isCover
+                          ? "border-[#22623a] ring-3 ring-[#22623a]/15"
+                          : "border-[#e6dfd5] hover:border-[#c59b27]"
+                      }`}
+                    >
+                      <div className="relative w-full h-full p-2">
+                        <Image
+                          src={imgUrl}
+                          alt={`Product photo ${index + 1}`}
+                          fill
+                          sizes="(max-width: 768px) 50vw, 150px"
+                          className="object-contain"
+                        />
+                      </div>
+
+                      {/* Top Badges */}
+                      <div className="absolute top-1.5 left-1.5 right-1.5 flex items-center justify-between pointer-events-none">
+                        {isCover ? (
+                          <span className="bg-[#22623a] text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
+                            ⭐ Cover
+                          </span>
+                        ) : (
+                          <span className="bg-black/60 text-white text-[10px] font-medium px-2 py-0.5 rounded-full backdrop-blur-xs">
+                            #{index + 1}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Hover Overlay Actions */}
+                      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
+                        <div className="flex items-center justify-end">
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            title="Delete photo"
+                            className="p-1.5 bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors shadow-xs"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
                         </div>
 
-                        {/* Top Badge */}
-                        <div className="absolute top-1 left-1 right-1 flex items-center justify-between pointer-events-none">
-                          {isCover ? (
-                            <span className="bg-[#22623a] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-xs flex items-center gap-0.5">
-                              ⭐ Cover
-                            </span>
+                        <div className="flex items-center justify-between gap-1">
+                          {!isCover ? (
+                            <button
+                              type="button"
+                              onClick={() => makeCoverImage(index)}
+                              className="text-[10px] font-bold bg-[#22623a] text-white px-2 py-1 rounded-lg hover:bg-[#1b502e] w-full text-center transition-colors"
+                            >
+                              Set as Cover
+                            </button>
                           ) : (
-                            <span className="bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded backdrop-blur-xs">
-                              #{index + 1}
+                            <span className="text-[10px] text-white font-semibold text-center w-full">
+                              Cover Photo
                             </span>
                           )}
                         </div>
-
-                        {/* Hover Overlay Actions */}
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-between p-2">
-                          <div className="flex items-center justify-end">
-                            <button
-                              type="button"
-                              onClick={() => removeImage(index)}
-                              title="Delete image"
-                              className="p-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors shadow-xs"
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-
-                          <div className="flex items-center justify-between gap-1">
-                            {!isCover ? (
-                              <button
-                                type="button"
-                                onClick={() => makeCoverImage(index)}
-                                className="text-[10px] font-bold bg-[#22623a] text-white px-2 py-1 rounded hover:bg-[#1b502e] w-full text-center transition-colors"
-                              >
-                                Set Cover
-                              </button>
-                            ) : (
-                              <span className="text-[10px] text-white/90 text-center w-full font-medium">
-                                Primary Cover
-                              </span>
-                            )}
-                          </div>
-                        </div>
                       </div>
-                    );
-                  })}
-                </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
 
-            {/* UploadDropzone (Multi-Image) & URL Input */}
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-              {/* Dropzone */}
-              <div className="md:col-span-8 bg-[#faf8f5] p-4 rounded-xl border border-dashed border-[#c59b27] text-center space-y-2">
+            {/* Multi-Image UploadDropzone & URL Fallback */}
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-start">
+              <div className="md:col-span-8 bg-white p-4 rounded-2xl border-2 border-dashed border-[#c59b27] text-center space-y-2">
                 <UploadDropzone
                   endpoint="imageUploader"
                   onClientUploadComplete={(res) => {
@@ -803,23 +1529,23 @@ export default function ProductFormModal({
                     setError(`Upload error: ${err.message}`);
                   }}
                   appearance={{
-                    button: "bg-[#22623a] hover:bg-[#1b502e] text-xs font-semibold py-2 px-4 rounded-lg shadow-xs",
+                    button: "bg-[#22623a] hover:bg-[#1b502e] text-xs font-semibold py-2 px-4 rounded-xl shadow-xs",
                     container: "border-none p-1",
-                    label: "text-xs font-medium text-[#22623a]",
-                    allowedContent: "text-[10px] text-[#6a6660]",
+                    label: "text-xs font-semibold text-[#22623a]",
+                    allowedContent: "text-[11px] text-[#6a6660]",
                   }}
                 />
                 {uploadSuccessCount !== null && (
-                  <p className="text-[#2d7648] font-semibold flex items-center justify-center gap-1 text-xs">
-                    <CheckCircle2 className="w-4 h-4" /> Added {uploadSuccessCount} image(s) to gallery!
+                  <p className="text-emerald-700 font-bold flex items-center justify-center gap-1.5 text-xs">
+                    <CheckCircle2 className="w-4 h-4" /> Added {uploadSuccessCount} photo(s) to gallery!
                   </p>
                 )}
               </div>
 
-              {/* URL or Preset Input */}
-              <div className="md:col-span-4 bg-[#faf8f5] p-4 rounded-xl border border-[#e6dfd5] space-y-3">
-                <label className="text-xs font-semibold text-[#1a1816] block">
-                  Add via Image URL:
+              {/* URL or Sample Image Input */}
+              <div className="md:col-span-4 bg-white p-4 rounded-2xl border border-[#e6dfd5] space-y-2.5">
+                <label className="text-xs font-bold text-[#1c1917] block">
+                  Add via Image URL / Preset
                 </label>
                 <div className="space-y-2">
                   <input
@@ -827,20 +1553,20 @@ export default function ProductFormModal({
                     value={customImageUrl}
                     onChange={(e) => setCustomImageUrl(e.target.value)}
                     placeholder="https://... or /images/1-scaled.png"
-                    className="w-full text-xs p-2.5 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a]"
+                    className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1c1917] focus:outline-none focus:border-[#22623a]"
                   />
                   <button
                     type="button"
                     onClick={addImageUrl}
-                    className="w-full py-2 bg-white hover:bg-[#22623a] hover:text-white border border-[#22623a] text-[#22623a] font-semibold rounded-lg transition-all flex items-center justify-center gap-1 text-xs shadow-xs"
+                    className="w-full py-2 bg-white hover:bg-[#22623a] hover:text-white border border-[#22623a] text-[#22623a] font-bold rounded-xl transition-all flex items-center justify-center gap-1 text-xs shadow-xs"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Add to Gallery</span>
                   </button>
                 </div>
 
-                <div className="pt-1 border-t border-[#e6dfd5] space-y-1">
-                  <span className="text-[10px] text-[#6a6660] block font-medium">Quick sample images:</span>
+                <div className="pt-2 border-t border-[#e6dfd5] space-y-1">
+                  <span className="text-[10px] text-[#6a6660] font-medium block">Quick sample herbal photos:</span>
                   <div className="flex flex-wrap gap-1">
                     {["/images/1-scaled.png", "/images/2-scaled.png", "/images/3-scaled.png"].map((preset) => (
                       <button
@@ -851,7 +1577,7 @@ export default function ProductFormModal({
                             setGallery((prev) => [...prev, preset]);
                           }
                         }}
-                        className="text-[10px] px-2 py-0.5 bg-white border border-[#e6dfd5] hover:border-[#c59b27] rounded text-[#6a6660]"
+                        className="text-[10px] px-2 py-0.5 bg-[#faf8f5] border border-[#e6dfd5] hover:border-[#c59b27] rounded-lg text-[#6a6660]"
                       >
                         {preset.replace("/images/", "")}
                       </button>
@@ -862,367 +1588,278 @@ export default function ProductFormModal({
             </div>
           </div>
 
-          {/* SECTION 3: Descriptions & Key Highlights */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 border-b border-[#e6dfd5] pb-2">
-              <Sparkles className="w-4 h-4 text-[#22623a]" />
-              <h3 className="font-bold text-[#22623a] text-sm">3. Descriptions & Key Highlights</h3>
-            </div>
-
-            <div className="space-y-4">
-              {/* Short Summary */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#1a1816] flex items-center justify-between">
-                  <span>Short Summary / Subtitle</span>
-                  <span className="text-[10px] text-[#6a6660]">Shown on catalog cards and product overview</span>
-                </label>
-                <input
-                  type="text"
-                  value={formData.shortDescription}
-                  onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
-                  placeholder="e.g. 100% pure steam distillate of fresh botanical flowers for liver and skin."
-                  className="w-full text-xs p-3 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-all shadow-xs"
-                />
+          {/* ========================================================= */}
+          {/* STEP 4: Collapsible "Advanced Details" Accordion */}
+          {/* ========================================================= */}
+          <div className="border border-[#e6dfd5] rounded-2xl overflow-hidden bg-white">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced((prev) => !prev)}
+              className="w-full px-5 py-3.5 bg-[#faf8f5] hover:bg-[#f5f0e8] flex items-center justify-between text-left transition-colors cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                <SlidersHorizontal className="w-4 h-4 text-[#22623a]" />
+                <span className="font-serif font-bold text-sm text-[#22623a]">
+                  Advanced Details & Descriptions (SEO, Urdu Title, Mizaj, Benefits, Dosage)
+                </span>
               </div>
-
-              {/* Full Description */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-[#1a1816]">
-                  Full Detailed Description
-                </label>
-                <textarea
-                  rows={3}
-                  value={formData.fullDescription}
-                  onChange={(e) => setFormData({ ...formData, fullDescription: e.target.value })}
-                  placeholder="Describe the product formulation, natural ingredients, health benefits, and botanical qualities..."
-                  className="w-full text-xs p-3 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-all shadow-xs"
-                />
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#6a6660]">
+                <span>{showAdvanced ? "Collapse" : "Expand"}</span>
+                {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </div>
+            </button>
 
-              {/* Key Benefits (Chips) */}
-              <div className="space-y-2 bg-[#faf8f5] p-4 rounded-xl border border-[#e6dfd5]">
-                <label className="text-xs font-semibold text-[#1a1816] flex items-center justify-between">
-                  <span>Key Product Benefits & Highlights</span>
-                  <span className="text-[10px] text-[#6a6660]">{benefitsList.length} highlights added</span>
-                </label>
+            {showAdvanced && (
+              <div className="p-5 sm:p-6 space-y-5 border-t border-[#e6dfd5] animate-fade-in text-xs">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+                  {/* Urdu Name */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-[#1c1917] flex items-center justify-between">
+                      <span>Urdu Script Name</span>
+                      <span className="text-[11px] text-[#6a6660]">اردو نام</span>
+                    </label>
+                    <input
+                      type="text"
+                      dir="rtl"
+                      value={formData.urduName}
+                      onChange={(e) => setFormData({ ...formData, urduName: e.target.value })}
+                      placeholder="مثلاً: خالص آملہ کا مقوی مربہ"
+                      className="w-full text-sm p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl font-serif text-right text-[#1c1917] focus:outline-none focus:border-[#22623a]"
+                    />
+                  </div>
 
-                {/* Input row */}
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newBenefitInput}
-                    onChange={(e) => setNewBenefitInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        addBenefit(newBenefitInput);
-                      }
-                    }}
-                    placeholder="Type a key benefit & press enter (e.g. Cleanses liver and flushes internal toxins)"
-                    className="flex-1 text-xs p-2.5 bg-white border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => addBenefit(newBenefitInput)}
-                    className="px-4 py-2.5 bg-[#22623a] hover:bg-[#1b502e] text-white font-semibold rounded-xl text-xs flex items-center gap-1 transition-all shadow-xs"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>Add</span>
-                  </button>
+                  {/* URL Slug */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-[#1c1917]">
+                      URL Slug
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.slug}
+                      onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                      placeholder="pure-amla-murabba"
+                      className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl font-mono text-[#1c1917] focus:outline-none focus:border-[#22623a]"
+                    />
+                  </div>
+
+                  {/* Mizaj / Temperament */}
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-[#1c1917]">
+                      Mizaj (Unani Temperament)
+                    </label>
+                    <select
+                      value={formData.mizaj}
+                      onChange={(e) => setFormData({ ...formData, mizaj: e.target.value })}
+                      className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl cursor-pointer focus:outline-none focus:border-[#22623a]"
+                    >
+                      {MIZAJ_OPTIONS.map((m) => (
+                        <option key={m.value} value={m.value}>
+                          {m.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
-                {/* Current Chips */}
-                {benefitsList.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {benefitsList.map((b, i) => (
-                      <span
-                        key={i}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-[#22623a]/30 rounded-lg text-xs font-medium text-[#22623a] shadow-2xs"
-                      >
-                        <Check className="w-3 h-3 text-[#2d7648]" />
-                        <span>{b}</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  {/* Badge */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-[#1c1917]">
+                      Product Badge / Ribbon
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.badge}
+                      onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
+                      placeholder="e.g. Best Seller, 100% Organic"
+                      className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl"
+                    />
+                    <div className="flex flex-wrap gap-1">
+                      {PRESET_BADGES.map((b) => (
                         <button
+                          key={b}
                           type="button"
-                          onClick={() => removeBenefit(i)}
-                          className="text-[#6a6660] hover:text-red-600 ml-0.5"
+                          onClick={() => setFormData({ ...formData, badge: b })}
+                          className={`text-[10px] px-2 py-0.5 rounded-lg border transition-all ${
+                            formData.badge === b
+                              ? "bg-[#22623a] text-white border-[#22623a] font-bold"
+                              : "bg-[#faf8f5] text-[#6a6660] border-[#e6dfd5] hover:border-[#c59b27]"
+                          }`}
                         >
-                          <X className="w-3 h-3" />
+                          {b}
                         </button>
-                      </span>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                )}
 
-                {/* Popular Benefit Suggestions */}
-                <div className="pt-2 border-t border-[#e6dfd5] space-y-1">
-                  <span className="text-[10px] text-[#6a6660] font-medium block">Click to add popular highlights:</span>
-                  <div className="flex flex-wrap gap-1">
-                    {POPULAR_BENEFITS.filter((b) => !benefitsList.includes(b)).slice(0, 5).map((b) => (
-                      <button
-                        key={b}
-                        type="button"
-                        onClick={() => addBenefit(b)}
-                        className="text-[10px] px-2 py-0.5 bg-white border border-[#e6dfd5] hover:border-[#c59b27] hover:text-[#22623a] rounded-md text-[#6a6660] transition-all flex items-center gap-1"
-                      >
-                        <Plus className="w-2.5 h-2.5" />
-                        <span>{b}</span>
-                      </button>
-                    ))}
+                  {/* Featured checkbox */}
+                  <div className="flex items-center">
+                    <label className="inline-flex items-center gap-2.5 cursor-pointer select-none bg-[#faf8f5] p-3 rounded-xl border border-[#e6dfd5] hover:border-[#22623a] transition-all w-full">
+                      <input
+                        type="checkbox"
+                        checked={formData.featured}
+                        onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+                        className="w-4 h-4 rounded text-[#22623a] focus:ring-[#22623a] border-gray-300"
+                      />
+                      <span className="font-bold text-xs text-[#22623a] flex items-center gap-1.5">
+                        <Star className="w-3.5 h-3.5 text-[#c59b27] fill-[#c59b27]" />
+                        Spotlight on Homepage Carousel
+                      </span>
+                    </label>
                   </div>
                 </div>
-              </div>
 
-              {/* How to Use / Dosage */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[#1a1816]">
-                    How to Use / Directions
+                {/* Short Description */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-[#1c1917]">
+                    Short Summary (Catalog & Search Cards)
                   </label>
                   <input
                     type="text"
-                    value={formData.howToUse}
-                    onChange={(e) => setFormData({ ...formData, howToUse: e.target.value })}
-                    placeholder="e.g. Take in the morning on empty stomach with lukewarm milk."
-                    className="w-full text-xs p-3 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-all shadow-xs"
+                    value={formData.shortDescription}
+                    onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
+                    placeholder="Short one-line summary of botanical formulation..."
+                    className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl"
                   />
                 </div>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-[#1a1816]">
-                    Dosage
+                {/* Full Description */}
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-[#1c1917]">
+                    Detailed Herbal Description
                   </label>
-                  <input
-                    type="text"
-                    value={formData.dosage}
-                    onChange={(e) => setFormData({ ...formData, dosage: e.target.value })}
-                    placeholder="e.g. 1 teaspoon (5g) twice daily"
-                    className="w-full text-xs p-3 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-all shadow-xs"
+                  <textarea
+                    rows={3}
+                    value={formData.fullDescription}
+                    onChange={(e) => setFormData({ ...formData, fullDescription: e.target.value })}
+                    placeholder="Full therapeutic history, traditional preparation, and herbal quality..."
+                    className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl"
                   />
                 </div>
-              </div>
-            </div>
-          </div>
 
-          {/* SECTION 4: Packaging Variants & Live Stock */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between border-b border-[#e6dfd5] pb-2">
-              <div className="flex items-center gap-2">
-                <Scale className="w-4 h-4 text-[#22623a]" />
-                <h3 className="font-bold text-[#22623a] text-sm">
-                  4. Packaging Variants & Live Stock
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={addVariant}
-                className="px-3 py-1.5 bg-[#22623a] hover:bg-[#1b502e] text-white font-semibold rounded-lg text-xs flex items-center gap-1.5 transition-all shadow-xs"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add Variant</span>
-              </button>
-            </div>
+                {/* Key Benefits (Chips) */}
+                <div className="space-y-2 bg-[#faf8f5] p-4 rounded-xl border border-[#e6dfd5]">
+                  <label className="text-xs font-bold text-[#1c1917] flex items-center justify-between">
+                    <span>Key Health Highlights & Benefits ({benefitsList.length})</span>
+                  </label>
 
-            <p className="text-[11px] text-[#6a6660]">
-              Define size options (e.g. 250g, 500g, 1000ml) with selling prices, purchase costs, and initial stock quantities.
-            </p>
-
-            <div className="space-y-3">
-              {variantsList.map((variant, index) => (
-                <div
-                  key={index}
-                  className="bg-[#faf8f5] p-4 rounded-xl border border-[#e6dfd5] hover:border-[#c59b27] transition-all space-y-3"
-                >
-                  <div className="flex items-center justify-between border-b border-[#e6dfd5] pb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-[#22623a] text-white text-[10px] font-bold flex items-center justify-center">
-                        {index + 1}
-                      </span>
-                      <span className="font-bold text-xs text-[#22623a]">
-                        {variant.name || `Variant #${index + 1}`} ({variant.weight || "Standard"})
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      {variantsList.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeVariant(index)}
-                          title="Remove variant"
-                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newBenefitInput}
+                      onChange={(e) => setNewBenefitInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addBenefit(newBenefitInput);
+                        }
+                      }}
+                      placeholder="Type a health benefit & press Enter (e.g. Strengthens heart & improves memory)"
+                      className="flex-1 text-xs p-2.5 bg-white border border-[#e6dfd5] rounded-xl text-[#1c1917]"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => addBenefit(newBenefitInput)}
+                      className="px-3.5 py-2 bg-[#22623a] text-white font-bold rounded-xl text-xs flex items-center gap-1"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add</span>
+                    </button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
-                    {/* Variant Name */}
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
-                        Variant Name
-                      </label>
-                      <input
-                        type="text"
-                        value={variant.name}
-                        onChange={(e) => handleVariantChange(index, "name", e.target.value)}
-                        placeholder="e.g. Standard Jar, 500ml Bottle"
-                        className="w-full text-xs p-2.5 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a]"
-                      />
-                    </div>
-
-                    {/* Quantity & Unit Selection */}
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
-                        Quantity & Unit
-                      </label>
-                      <div className="flex gap-1">
-                        <input
-                          type="number"
-                          value={variant.quantityValue || ""}
-                          onChange={(e) => handleVariantChange(index, "quantityValue", e.target.value)}
-                          placeholder="500"
-                          className="w-1/2 text-xs p-2.5 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a]"
-                        />
-                        <select
-                          value={variant.unitId || ""}
-                          onChange={(e) => handleVariantChange(index, "unitId", e.target.value)}
-                          className="w-1/2 text-xs p-2.5 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a]"
+                  {benefitsList.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {benefitsList.map((b, i) => (
+                        <span
+                          key={i}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-[#22623a]/30 rounded-lg text-xs font-medium text-[#22623a] shadow-2xs"
                         >
-                          <option value="">Unit...</option>
-                          {units.map((u) => (
-                            <option key={u.id} value={u.id}>
-                              {u.name} ({u.code})
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          <span>{b}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeBenefit(i)}
+                            className="text-[#6a6660] hover:text-rose-600 ml-0.5"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </span>
+                      ))}
                     </div>
+                  )}
+                </div>
 
-                    {/* Selling Price */}
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
-                        Selling Price (PKR) <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        required
-                        value={variant.price}
-                        onChange={(e) => handleVariantChange(index, "price", e.target.value)}
-                        placeholder="1200"
-                        className="w-full text-xs p-2.5 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816] font-bold text-[#22623a] focus:outline-none focus:border-[#22623a]"
-                      />
-                    </div>
+                {/* How to Use / Dosage */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-[#1c1917]">
+                      How to Use / Directions
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.howToUse}
+                      onChange={(e) => setFormData({ ...formData, howToUse: e.target.value })}
+                      placeholder="e.g. Take 1 serving in morning on empty stomach with warm milk."
+                      className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl"
+                    />
+                  </div>
 
-                    {/* Regular / Original Price */}
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-[#6a6660]">
-                        Regular Price (PKR) (Optional)
-                      </label>
-                      <input
-                        type="number"
-                        value={variant.originalPrice || ""}
-                        onChange={(e) => handleVariantChange(index, "originalPrice", e.target.value)}
-                        placeholder="1500 (strikethrough)"
-                        className="w-full text-xs p-2.5 bg-white border border-[#e6dfd5] rounded-lg text-[#6a6660] focus:outline-none focus:border-[#22623a]"
-                      />
-                    </div>
-
-                    {/* Cost Price */}
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-[#6a6660]">
-                        Cost / Purchase Price (PKR)
-                      </label>
-                      <input
-                        type="number"
-                        value={variant.costPrice || ""}
-                        onChange={(e) => handleVariantChange(index, "costPrice", e.target.value)}
-                        placeholder="600 (for margin calculation)"
-                        className="w-full text-xs p-2.5 bg-white border border-[#e6dfd5] rounded-lg text-[#6a6660] focus:outline-none focus:border-[#22623a]"
-                      />
-                    </div>
-
-                    {/* Initial Stock On Hand */}
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
-                        Initial Stock on Hand
-                      </label>
-                      <input
-                        type="number"
-                        value={variant.initialStock || "0"}
-                        onChange={(e) => handleVariantChange(index, "initialStock", e.target.value)}
-                        placeholder="25"
-                        className="w-full text-xs p-2.5 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816] font-semibold focus:outline-none focus:border-[#22623a]"
-                      />
-                    </div>
-
-                    {/* Low Stock Alert */}
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
-                        Low-Stock Alert Threshold
-                      </label>
-                      <input
-                        type="number"
-                        value={variant.lowStockThreshold || "5"}
-                        onChange={(e) => handleVariantChange(index, "lowStockThreshold", e.target.value)}
-                        placeholder="5"
-                        className="w-full text-xs p-2.5 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a]"
-                      />
-                    </div>
-
-                    {/* SKU */}
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-semibold text-[#6a6660]">
-                        SKU (Auto or Custom)
-                      </label>
-                      <input
-                        type="text"
-                        value={variant.sku || ""}
-                        onChange={(e) => handleVariantChange(index, "sku", e.target.value)}
-                        placeholder="e.g. TMS-SHIL-500G"
-                        className="w-full text-xs p-2.5 bg-white border border-[#e6dfd5] rounded-lg text-[#6a6660] font-mono focus:outline-none focus:border-[#22623a]"
-                      />
-                    </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-[#1c1917]">
+                      Dosage
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.dosage}
+                      onChange={(e) => setFormData({ ...formData, dosage: e.target.value })}
+                      placeholder="e.g. 1 teaspoon (approx 5g) twice daily"
+                      className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl"
+                    />
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
-        </form>
+        </div>
 
-        {/* Sticky Footer */}
-        <div className="px-6 py-4 border-t border-[#e6dfd5] bg-[#faf8f5] flex items-center justify-between shrink-0">
+        {/* Footer Bar with Dual Action Buttons */}
+        <div className="px-5 sm:px-7 py-4 border-t border-[#e6dfd5] bg-linear-to-r from-[#faf8f5] to-white flex items-center justify-between shrink-0 flex-wrap gap-3">
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-5 py-2.5 rounded-xl border border-[#e6dfd5] text-[#1a1816] hover:bg-white font-semibold text-xs transition-all"
+            className="px-4 py-2.5 rounded-xl border border-[#e6dfd5] text-[#4a4640] hover:bg-white font-semibold text-xs transition-all"
           >
             Cancel
           </button>
 
-          <div className="flex items-center gap-3">
-            {gallery.length > 0 && variantsList.length > 0 && (
-              <span className="text-[11px] text-[#6a6660] hidden sm:inline">
-                {gallery.length} image{gallery.length === 1 ? "" : "s"} &bull; {variantsList.length} variant{variantsList.length === 1 ? "" : "s"}
-              </span>
-            )}
-
+          <div className="flex items-center gap-2.5">
+            {/* Save as Inactive / Draft */}
             <button
               type="button"
-              onClick={handleSubmit}
+              onClick={() => handleSubmit(false)}
               disabled={loading}
-              className="px-6 py-2.5 rounded-xl bg-[#22623a] hover:bg-[#1b502e] text-[#c59b27] font-bold text-xs transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
+              className="px-4 py-2.5 rounded-xl border border-[#e6dfd5] bg-white hover:bg-[#faf8f5] text-[#4a4640] font-semibold text-xs transition-all disabled:opacity-50"
+            >
+              Save as Draft (Inactive)
+            </button>
+
+            {/* Save & Publish */}
+            <button
+              type="button"
+              onClick={() => handleSubmit(true)}
+              disabled={loading}
+              className="px-5 sm:px-6 py-2.5 rounded-xl bg-linear-to-r from-[#22623a] to-[#2d7648] hover:from-[#1a4d2e] hover:to-[#22623a] text-[#c59b27] font-bold text-xs transition-all shadow-md flex items-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Saving Product...</span>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span className="text-white">Saving Product...</span>
                 </>
               ) : (
                 <>
                   <Check className="w-4 h-4" />
-                  <span>{isEditing ? "Update Product" : "Save & Publish Product"}</span>
+                  <span>{isEditing ? "Update & Publish" : "Save & Publish Product"}</span>
                 </>
               )}
             </button>

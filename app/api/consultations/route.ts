@@ -87,9 +87,9 @@ export async function POST(request: NextRequest) {
       preferredContact = "WHATSAPP",
     } = body;
 
-    if (!fullName || !age || !gender || !phone || !city || !primarySymptoms || !duration) {
+    if (!fullName || !phone || !primarySymptoms) {
       return NextResponse.json(
-        { success: false, error: "Please fill all mandatory diagnostic intake fields." },
+        { success: false, error: "Please provide your name, phone number, and health concern." },
         { status: 400 }
       );
     }
@@ -101,14 +101,14 @@ export async function POST(request: NextRequest) {
     const consultation = await prisma.consultationRequest.create({
       data: {
         ticketNumber,
-        fullName,
-        age: Number(age),
-        gender,
-        phone,
-        email: email || null,
-        city,
-        primarySymptoms,
-        duration,
+        fullName: fullName.trim(),
+        age: Number(age) || 35,
+        gender: gender || "Not Specified",
+        phone: phone.trim(),
+        email: email ? email.trim() : null,
+        city: city ? city.trim() : "Pakistan",
+        primarySymptoms: primarySymptoms.trim(),
+        duration: duration || "Recent / Ongoing",
         previousTreatments: previousTreatments || null,
         currentMedications: currentMedications || null,
         digestiveState: digestiveState || null,

@@ -3,12 +3,12 @@
 import React from "react";
 import Link from "next/link";
 import { CLINIC_INFO } from "@/app/data/products";
-import { MessageCircle, Sparkles, Phone, ShieldCheck, Clock } from "lucide-react";
+import { MessageCircle, Sparkles, Phone, ShieldCheck, Mic, ArrowRight } from "lucide-react";
 import Reveal from "./motion/Reveal";
 
 export default function WhatsAppConsultationBanner() {
   const whatsappConsultationUrl = `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(
-    "Assalam-o-Alaikum Hakim Sahib, I would like to seek guidance regarding my health symptoms."
+    "Assalam-o-Alaikum Hakim Sahib, I would like to seek herbal guidance regarding my health symptoms."
   )}`;
 
   return (
@@ -19,59 +19,55 @@ export default function WhatsAppConsultationBanner() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <Reveal>
-          <div className="bg-[#0b1f14] rounded-2xl p-6 sm:p-8 border border-[#143e23] shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="bg-[#0b1f14] rounded-3xl p-6 sm:p-8 lg:p-10 border border-[#143e23] shadow-2xl flex flex-col lg:flex-row items-center justify-between gap-8">
 
             {/* Left Content */}
-            <div className="space-y-3 text-center lg:text-left max-w-xl">
-              <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
+            <div className="space-y-3.5 text-center lg:text-left max-w-xl">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#143e23] border border-[#2d7648] text-xs font-bold text-[#c59b27] uppercase tracking-wider">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Direct Hakim Guidance</span>
+                <span>Zero Forms · 100% Free · Bila-Muawza</span>
               </span>
 
-              <h2 className="font-serif text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-tight">
-                Get Your Free Consultation Today
+              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
+                Direct Consultation with Hakim Muhammad Tariq
               </h2>
 
-              <p className="text-xs sm:text-sm text-[#f4eee5]/80 max-w-md">
-                One honest assessment from a qualified Hakim — zero steroids, zero
-                obligation, and a clear herbal recovery plan tailor-made for your body.
+              <p className="text-xs sm:text-sm text-[#f4eee5]/80 leading-relaxed">
+                No complex clinical forms or typing essays. Send an audio voice note or pictures of medical reports directly on WhatsApp for an authentic Unani evaluation.
               </p>
 
-              {/* Urgency Chip — limited daily review slots */}
-              <div className="inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full bg-[#c59b27]/15 border border-[#c59b27]/40 text-[#c59b27]">
-                <Clock className="w-3.5 h-3.5" />
-                <span className="text-[11px] font-semibold">
-                  Limited daily review slots — on first-come basis today
+              {/* Comfort Trust Badges */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-1 text-xs text-[#f4eee5]/85">
+                <span className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
+                  <Mic className="w-3.5 h-3.5 text-[#25D366]" /> Voice Notes Welcome
                 </span>
-              </div>
-
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-1 text-xs text-[#f4eee5]/70">
-                <span className="flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#c59b27]" /> 100% Private
+                <span className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#c59b27]" /> 100% Confidential
                 </span>
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5 bg-white/5 px-2.5 py-1 rounded-lg border border-white/10">
                   <Phone className="w-3.5 h-3.5 text-[#c59b27]" /> <span dir="ltr">{CLINIC_INFO.phoneFormatted}</span>
                 </span>
               </div>
             </div>
 
-            {/* Right Buttons */}
+            {/* Right Action CTAs */}
             <div className="flex flex-col sm:flex-row lg:flex-col gap-3 w-full sm:w-auto shrink-0">
               <a
                 href={whatsappConsultationUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 px-5 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold rounded-xl shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2.5 px-6 py-3.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <MessageCircle className="w-4.5 h-4.5" />
-                <span>Start Free Consultation</span>
+                <span>Open WhatsApp Chat</span>
+                <ArrowRight className="w-4 h-4" />
               </a>
 
               <Link
                 href="/consultation"
-                className="flex items-center justify-center gap-2 px-5 py-3 bg-[#143e23] hover:bg-[#2d7648] text-white text-xs font-semibold uppercase tracking-wider rounded-xl border border-[#2d7648] transition-all text-center hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 px-6 py-3.5 bg-[#143e23] hover:bg-[#2d7648] text-white text-xs font-bold uppercase tracking-wider rounded-xl border border-[#2d7648] transition-all text-center hover:scale-[1.02] active:scale-[0.98]"
               >
-                <span>Fill Consultation Form</span>
+                <span>2-Tap Health Diagnostic Hub</span>
               </Link>
             </div>
 

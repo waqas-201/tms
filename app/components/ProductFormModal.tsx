@@ -15,6 +15,7 @@ import {
   Layers,
   Star,
   Tag,
+  FolderTree,
   Scale,
   Sparkles,
   ArrowRight,
@@ -34,6 +35,7 @@ import {
   Power,
 } from "lucide-react";
 import { UploadDropzone } from "@/lib/uploadthing";
+import { PRESET_UNANI_CATEGORIES } from "@/app/components/admin/CategoriesTab";
 
 export const DEFAULT_CATEGORIES = [
   { id: "murabbajaat", name: "Herbal Preserves (Murabba)", urdu: "مربہ جات", icon: Leaf },
@@ -549,6 +551,15 @@ export default function ProductFormModal({
   const [autoGenSparkle, setAutoGenSparkle] = useState(false);
   const [autoGenMessage, setAutoGenMessage] = useState<string | null>(null);
 
+  // Inline Category Creator State
+  const [isInlineCategoryOpen, setIsInlineCategoryOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [newCategoryUrdu, setNewCategoryUrdu] = useState("");
+  const [newCategorySlug, setNewCategorySlug] = useState("");
+  const [newCategoryDesc, setNewCategoryDesc] = useState("");
+  const [addingCategory, setAddingCategory] = useState(false);
+  const [categorySuccessToast, setCategorySuccessToast] = useState<string | null>(null);
+
   // Inline Unit Creator State
   const [isInlineUnitOpen, setIsInlineUnitOpen] = useState(false);
   const [newUnitCode, setNewUnitCode] = useState("");
@@ -874,6 +885,81 @@ export default function ProductFormModal({
     setError(null);
   };
 
+  // Inline Category Creation Handler
+  const handleCreateInlineCategory = async (preset?: {
+    id: string;
+    name: string;
+    urduName: string;
+    description?: string;
+  }) => {
+    const name = (preset ? preset.name : newCategoryName).trim();
+    const urduName = (preset ? preset.urduName : newCategoryUrdu).trim();
+    const cleanSlug = (preset
+      ? preset.id
+      : newCategorySlug.trim() || name
+    )
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    const description = preset?.description || newCategoryDesc.trim();
+
+    if (!name) {
+      setError("Category name (English) is required.");
+      return;
+    }
+    if (!urduName) {
+      setError("Category name in Urdu (اردو نام) is required.");
+      return;
+    }
+
+    setAddingCategory(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: cleanSlug,
+          slug: cleanSlug,
+          name,
+          urduName,
+          description,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to create category.");
+      }
+
+      const createdCat: CategoryItem = data.data;
+      setCategories((prev) => {
+        const filtered = prev.filter((c) => c.id !== createdCat.id);
+        return [...filtered, createdCat];
+      });
+
+      // Automatically select this new category
+      setFormData((prev) => ({
+        ...prev,
+        categoryId: createdCat.id,
+        categoryLabel: createdCat.name,
+      }));
+
+      setCategorySuccessToast(`Category '${createdCat.name}' created & selected!`);
+      setTimeout(() => setCategorySuccessToast(null), 3500);
+      setNewCategoryName("");
+      setNewCategoryUrdu("");
+      setNewCategorySlug("");
+      setNewCategoryDesc("");
+      setIsInlineCategoryOpen(false);
+    } catch (err: any) {
+      setError(err?.message || "Failed to add category.");
+    } finally {
+      setAddingCategory(false);
+    }
+  };
+
   // Inline Unit Creation Handler
   const handleCreateInlineUnit = async (preset?: { code: string; name: string; kind: string }) => {
     const code = preset ? preset.code : newUnitCode.trim().toLowerCase();
@@ -1112,10 +1198,15 @@ export default function ProductFormModal({
 
   if (!isOpen) return null;
 
-  // Compute missing preset units for quick inline creation
+  // Compute missing preset units & categories for quick inline creation
   const existingUnitCodes = new Set(units.map((u) => u.code.toLowerCase()));
   const missingUnitPresets = PRESET_UNITS_CATALOG.filter(
     (p) => !existingUnitCodes.has(p.code.toLowerCase())
+  );
+
+  const existingCategoryIds = new Set(categories.map((c) => c.id.toLowerCase()));
+  const missingCategoryPresets = PRESET_UNANI_CATEGORIES.filter(
+    (p) => !existingCategoryIds.has(p.id.toLowerCase())
   );
 
   return (
@@ -1249,6 +1340,14 @@ export default function ProductFormModal({
             </div>
           )}
 
+          {/* Category Creation Success Toast */}
+          {categorySuccessToast && (
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 flex items-center gap-2 text-xs font-semibold animate-fade-in">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+              <span>{categorySuccessToast}</span>
+            </div>
+          )}
+
           {/* Unit Creation Success Toast */}
           {unitSuccessToast && (
             <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-800 flex items-center gap-2 text-xs font-semibold animate-fade-in">
@@ -1329,11 +1428,30 @@ export default function ProductFormModal({
                 />
               </div>
 
-              {/* Category Dropdown */}
+              {/* Category Dropdown + Inline Creator */}
               <div>
-                <label className="block text-xs font-bold text-[#4a4640] mb-1.5">
-                  Apothecary Category <span className="text-rose-500">*</span>
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-bold text-[#4a4640]">
+                    Apothecary Category <span className="text-rose-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsInlineCategoryOpen((prev) => !prev)}
+                    className="text-xs text-[#22623a] hover:underline font-semibold inline-flex items-center gap-1"
+                  >
+                    {isInlineCategoryOpen ? (
+                      <>
+                        <X className="w-3.5 h-3.5" />
+                        Cancel
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-3.5 h-3.5" />
+                        + New Category
+                      </>
+                    )}
+                  </button>
+                </div>
                 <select
                   value={formData.categoryId}
                   onChange={handleCategoryChange}
@@ -1345,6 +1463,125 @@ export default function ProductFormModal({
                     </option>
                   ))}
                 </select>
+
+                {isInlineCategoryOpen && (
+                  <div className="mt-2.5 p-3.5 rounded-2xl bg-[#faf8f5] border border-[#e6dfd5] space-y-3 animate-fade-in">
+                    <div className="flex items-center gap-1.5">
+                      <FolderTree className="w-3.5 h-3.5 text-[#22623a]" />
+                      <span className="text-xs font-bold text-[#22623a]">
+                        Quick-create a new apothecary category
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#4a4640] mb-1">
+                          English Name <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={newCategoryName}
+                          onChange={(e) => {
+                            const name = e.target.value;
+                            const generatedSlug = name
+                              .toLowerCase()
+                              .trim()
+                              .replace(/[^a-z0-9]+/g, "-")
+                              .replace(/^-+|-+$/g, "");
+                            setNewCategoryName(name);
+                            setNewCategorySlug(generatedSlug);
+                          }}
+                          placeholder="e.g. Majoon & Khamira"
+                          className="w-full px-2.5 py-1.5 text-xs bg-white border border-[#e6dfd5] rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-bold text-[#4a4640] mb-1">
+                          Urdu Name <span className="text-rose-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          dir="rtl"
+                          value={newCategoryUrdu}
+                          onChange={(e) => setNewCategoryUrdu(e.target.value)}
+                          placeholder="معجون و خمیرہ"
+                          className="w-full px-2.5 py-1.5 text-xs bg-white border border-[#e6dfd5] rounded-lg text-right font-serif"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-[#4a4640] mb-1">
+                        URL Slug
+                        {newCategorySlug && (
+                          <span className="ml-1.5 font-mono text-[#6a6660] font-normal">
+                            /{newCategorySlug}
+                          </span>
+                        )}
+                      </label>
+                      <input
+                        type="text"
+                        value={newCategorySlug}
+                        onChange={(e) =>
+                          setNewCategorySlug(
+                            e.target.value
+                              .toLowerCase()
+                              .replace(/[^a-z0-9-]/g, "")
+                          )
+                        }
+                        placeholder="majoon-khamira"
+                        className="w-full px-2.5 py-1.5 text-xs bg-white border border-[#e6dfd5] rounded-lg font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-[#4a4640] mb-1">
+                        Short Description
+                      </label>
+                      <input
+                        type="text"
+                        value={newCategoryDesc}
+                        onChange={(e) => setNewCategoryDesc(e.target.value)}
+                        placeholder="Traditional Unani electuaries for vitality…"
+                        className="w-full px-2.5 py-1.5 text-xs bg-white border border-[#e6dfd5] rounded-lg"
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between flex-wrap gap-2 pt-0.5">
+                      <button
+                        type="button"
+                        disabled={addingCategory}
+                        onClick={() => handleCreateInlineCategory()}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#22623a] hover:bg-[#1a4d2e] text-white rounded-lg text-xs font-semibold disabled:opacity-50"
+                      >
+                        {addingCategory ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Plus className="w-3.5 h-3.5" />
+                        )}
+                        Save & Select
+                      </button>
+
+                      {missingCategoryPresets.length > 0 && (
+                        <div className="flex items-center gap-1 flex-wrap">
+                          <span className="text-[10px] text-[#6a6660]">Unani presets:</span>
+                          {missingCategoryPresets.slice(0, 5).map((p) => (
+                            <button
+                              key={p.id}
+                              type="button"
+                              disabled={addingCategory}
+                              onClick={() => handleCreateInlineCategory(p)}
+                              className="text-[10px] px-2 py-0.5 rounded bg-white border border-[#e6dfd5] text-[#22623a] font-medium hover:border-[#22623a] disabled:opacity-50"
+                              title={p.urduName}
+                            >
+                              +{p.name.split(" ")[0]}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Highlight Badges */}

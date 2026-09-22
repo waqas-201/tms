@@ -8,6 +8,7 @@ import {
   Package,
   Warehouse,
   Scale,
+  FolderTree,
   RefreshCw,
   LogOut,
   Loader2,
@@ -25,13 +26,15 @@ import QuickStockModal from "@/app/components/inventory/QuickStockModal";
 import ProductsTab from "@/app/components/admin/ProductsTab";
 import StockTab from "@/app/components/admin/StockTab";
 import UnitsTab from "@/app/components/admin/UnitsTab";
+import CategoriesTab from "@/app/components/admin/CategoriesTab";
 import { ROLES, isStaffRole } from "@/lib/rbac-base";
 
-type AdminTab = "products" | "inventory" | "units";
+type AdminTab = "products" | "inventory" | "categories" | "units";
 
 const TABS: { id: AdminTab; label: string; icon: typeof Package }[] = [
   { id: "products", label: "Products", icon: Package },
   { id: "inventory", label: "Stock", icon: Warehouse },
+  { id: "categories", label: "Categories", icon: FolderTree },
   { id: "units", label: "Units", icon: Scale },
 ];
 
@@ -303,6 +306,8 @@ export default function AdminDashboardPage() {
             }}
           />
         )}
+
+        {activeTab === "categories" && <CategoriesTab />}
 
         {activeTab === "units" && <UnitsTab />}
       </main>

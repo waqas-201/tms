@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireRole, ROLES } from "@/lib/rbac";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const includeInactive = searchParams.get("all") === "true";
+
     const units = await prisma.unit.findMany({
-      where: { isActive: true },
+      where: includeInactive ? {} : { isActive: true },
       orderBy: [{ kind: "asc" }, { name: "asc" }],
       include: {
         _count: {

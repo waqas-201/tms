@@ -26,7 +26,6 @@ model User {
   accounts      Account[]
   orders        Order[]
   consultations ConsultationRequest[]
-  customerLedgers CustomerLedgerEntry[]
 
   @@map("user")
 }
@@ -173,7 +172,6 @@ model ProductSize {
   isActive           Boolean             @default(true)
   movements          StockMovement[]
   orderItems         OrderItem[]
-  purchaseOrderItems PurchaseOrderItem[]
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
 }
@@ -334,7 +332,7 @@ model Review {
 }
 
 // -------------------------------------------------------------
-// Accounts, Payments, Vendors, Purchases & Financial Ledgers
+// Payments & Receipts
 // -------------------------------------------------------------
 
 model PaymentRecord {
@@ -351,108 +349,4 @@ model PaymentRecord {
   createdAt     DateTime @default(now())
 }
 
-model Vendor {
-  id             String              @id @default(cuid())
-  name           String
-  company        String?
-  phone          String
-  email          String?
-  city           String?
-  address        String?
-  category       String?             // e.g. "Raw Herbs", "Packaging Jars", "Oils & Extracts", "General Supplies"
-  paymentTerms   String?             // e.g. "Net 15", "Net 30", "Cash on Delivery", "Advance"
-  currentBalance Float               @default(0) // positive = amount we owe vendor (payable)
-  totalPurchased Float               @default(0)
-  totalPaid      Float               @default(0)
-  purchases      PurchaseOrder[]
-  payments       VendorPayment[]
-  ledgers        VendorLedgerEntry[]
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
-}
-
-model PurchaseOrder {
-  id              String              @id @default(cuid())
-  poNumber        String              @unique // e.g. PO-2026-1001
-  vendorId        String
-  vendor          Vendor              @relation(fields: [vendorId], references: [id], onDelete: Restrict)
-  vendorInvoiceNo String?
-  orderDate       DateTime            @default(now())
-  dueDate         DateTime?
-  status          String              @default("DRAFT") // "DRAFT" | "ORDERED" | "RECEIVED" | "CANCELLED"
-  paymentStatus   String              @default("UNPAID") // "UNPAID" | "PARTIAL" | "PAID"
-  subtotal        Float               @default(0)
-  taxAmount       Float               @default(0)
-  shippingCost    Float               @default(0)
-  totalAmount     Float               @default(0)
-  paidAmount      Float               @default(0)
-  dueAmount       Float               @default(0)
-  stockReceived   Boolean             @default(false)
-  notes           String?
-  items           PurchaseOrderItem[]
-  payments        VendorPayment[]
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-}
-
-model PurchaseOrderItem {
-  id              String         @id @default(cuid())
-  purchaseOrderId String
-  purchaseOrder   PurchaseOrder  @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
-  productSizeId   String?
-  productSize     ProductSize?   @relation(fields: [productSizeId], references: [id], onDelete: SetNull)
-  itemName        String
-  quantity        Int
-  unitCost        Float
-  totalCost       Float
-  batchNumber     String?
-  expiryDate      DateTime?
-  createdAt       DateTime       @default(now())
-}
-
-model VendorPayment {
-  id              String         @id @default(cuid())
-  paymentNumber   String         @unique // e.g. VPAY-2026-1001
-  vendorId        String
-  vendor          Vendor         @relation(fields: [vendorId], references: [id], onDelete: Cascade)
-  purchaseOrderId String?
-  purchaseOrder   PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id], onDelete: SetNull)
-  amount          Float
-  paymentDate     DateTime       @default(now())
-  paymentMethod   String         @default("BANK") // "BANK" | "CASH" | "CHEQUE" | "JAZZCASH" | "EASYPAISA" | "ONLINE"
-  referenceNumber String?
-  notes           String?
-  recordedBy      String?
-  createdAt       DateTime       @default(now())
-}
-
-model VendorLedgerEntry {
-  id             String   @id @default(cuid())
-  vendorId       String
-  vendor         Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
-  date           DateTime @default(now())
-  type           String   // "PURCHASE_BILL" | "PAYMENT" | "RETURN" | "OPENING_BALANCE" | "ADJUSTMENT"
-  reference      String?
-  description    String
-  debit          Float    @default(0) // payments made / deductions (reduces payable)
-  credit         Float    @default(0) // bill amounts / purchases (increases payable)
-  runningBalance Float    @default(0)
-  createdAt      DateTime @default(now())
-}
-
-model CustomerLedgerEntry {
-  id             String   @id @default(cuid())
-  userId         String?
-  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  customerPhone  String
-  customerName   String
-  date           DateTime @default(now())
-  type           String   // "ORDER_INVOICE" | "PAYMENT_RECEIVED" | "REFUND" | "OPENING_BALANCE" | "ADJUSTMENT"
-  reference      String?
-  description    String
-  debit          Float    @default(0) // order total / billed (increases receivable)
-  credit         Float    @default(0) // payment collected / credited (decreases receivable)
-  runningBalance Float    @default(0)
-  createdAt      DateTime @default(now())
-}
 

@@ -22,11 +22,7 @@ export type Permission =
   | "consultations:view_own"
   | "inquiries:view"
   | "users:manage"
-  | "stats:view"
-  | "accounts:view"
-  | "accounts:manage"
-  | "vendors:manage"
-  | "purchases:manage";
+  | "stats:view";
 
 export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
   admin: [
@@ -45,10 +41,6 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     "inquiries:view",
     "users:manage",
     "stats:view",
-    "accounts:view",
-    "accounts:manage",
-    "vendors:manage",
-    "purchases:manage",
   ],
   editor: [
     "dashboard:view",
@@ -58,7 +50,6 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     "inventory:view",
     "inventory:manage",
     "consultations:view_own",
-    "accounts:view",
   ],
   contributor: [
     "dashboard:view",

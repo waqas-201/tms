@@ -13,17 +13,50 @@ import {
   Calendar,
   Sparkles,
   ExternalLink,
+  CheckCircle2,
+  X,
+  Stethoscope,
+  Leaf,
+  Activity,
+  HeartPulse,
 } from "lucide-react";
-import { motion, useReducedMotion, type Variants } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion, type Variants } from "framer-motion";
 import ConsultationModal from "./ConsultationModal";
+
+interface SymptomChip {
+  id: string;
+  label: string;
+  query: string;
+  categorySlug?: string;
+}
+
+const SYMPTOM_CHIPS: SymptomChip[] = [
+  { id: "stomach", label: "Stomach & Digestion", query: "Stomach, Gas, Acidity and Digestion issues", categorySlug: "murabbajaat" },
+  { id: "joints", label: "Joint & Back Pain", query: "Joint, Sciatica and Muscular pain", categorySlug: "oils" },
+  { id: "liver", label: "Liver & Detox", query: "Liver, Jaundice and Body Detoxification", categorySlug: "arqiyat" },
+  { id: "skin", label: "Skin & Hair Care", query: "Skin Allergies, Acne and Hair Health", categorySlug: "skin-hair" },
+  { id: "vitality", label: "Vitality & Stamina", query: "General Weakness, Vitality and Energy", categorySlug: "majoon" },
+  { id: "respiratory", label: "Cough & Respiration", query: "Chronic Cough, Phlegm and Chest Congestion", categorySlug: "syrups" },
+];
 
 export default function HeroSection() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSymptom, setSelectedSymptom] = useState<SymptomChip | null>(null);
   const reducedMotion = useReducedMotion();
 
-  const generateQuickWhatsApp = () => {
-    const text = `*Assalam-o-Alaikum Hakim Sahib!*\n\nI would like to consult with you regarding herbal treatment options.\n\n_Please guide me on how to proceed._`;
+  const generateWhatsAppForSymptom = (symptomText?: string) => {
+    const text = symptomText
+      ? `*Assalam-o-Alaikum Hakim Sahib!*\n\nI would like to consult regarding treatment for: *${symptomText}*.\n\n_Please guide me on the diagnosis and herbal prescription._`
+      : `*Assalam-o-Alaikum Hakim Sahib!*\n\nI would like to consult with you regarding herbal treatment options.\n\n_Please guide me on how to proceed._`;
     return `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(text)}`;
+  };
+
+  const handleSymptomClick = (symptom: SymptomChip) => {
+    if (selectedSymptom?.id === symptom.id) {
+      setSelectedSymptom(null);
+    } else {
+      setSelectedSymptom(symptom);
+    }
   };
 
   // Stagger container variants
@@ -32,18 +65,18 @@ export default function HeroSection() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.05,
+        staggerChildren: 0.08,
+        delayChildren: 0.04,
       },
     },
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 16 },
+    hidden: { opacity: 0, y: 14 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.5, ease: "easeOut" },
+      transition: { duration: 0.45, ease: "easeOut" },
     },
   };
 
@@ -82,12 +115,12 @@ export default function HeroSection() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
 
-            {/* ── Left Column: Headline, CTAs & Stats (7 cols) ── */}
+            {/* ── Left Column: Headline, Symptom Chips, CTAs & Stats (7 cols) ── */}
             <motion.div
               variants={reducedMotion ? undefined : containerVariants}
               initial={reducedMotion ? false : "hidden"}
               animate="visible"
-              className="lg:col-span-7 space-y-5 sm:space-y-6"
+              className="lg:col-span-7 space-y-4 sm:space-y-5"
             >
               {/* Heritage & Google Rating Badges */}
               <motion.div
@@ -117,20 +150,119 @@ export default function HeroSection() {
               {/* Primary Headline */}
               <motion.div
                 variants={reducedMotion ? undefined : itemVariants}
-                className="space-y-3"
+                className="space-y-2.5"
               >
                 <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl xl:text-[52px] font-bold text-[#22623a] leading-[1.12] tracking-tight">
                   Heal Naturally with a Trusted Hakim
                 </h1>
                 <p className="text-sm sm:text-base text-[#59534b] leading-relaxed max-w-xl">
-                  Expert Unani consultations for stomach, joints, liver, skin & more — zero steroids, 100% herbal. Online via WhatsApp or at our Karachi clinic.
+                  Classical Unani consultations and handcrafted botanical remedies for stomach, joints, liver, skin & vitality — zero steroids, 100% herbal. Consult online or visit our Karachi clinic.
                 </p>
               </motion.div>
 
-              {/* ── Primary CTA Cards ── */}
+              {/* ── Interactive Symptom Concern Chips ── */}
               <motion.div
                 variants={reducedMotion ? undefined : itemVariants}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                className="space-y-2 pt-1"
+              >
+                <div className="flex items-center justify-between text-[11px] font-bold text-[#6a6660]">
+                  <span className="flex items-center gap-1.5">
+                    <Activity className="w-3.5 h-3.5 text-[#22623a]" />
+                    Select a health concern for targeted care:
+                  </span>
+                  {selectedSymptom && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedSymptom(null)}
+                      className="text-rose-600 hover:underline text-[10px] font-semibold"
+                    >
+                      Clear selection
+                    </button>
+                  )}
+                </div>
+
+                {/* Chip Pill Buttons */}
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                  {SYMPTOM_CHIPS.map((symptom) => {
+                    const isSelected = selectedSymptom?.id === symptom.id;
+                    return (
+                      <button
+                        key={symptom.id}
+                        type="button"
+                        onClick={() => handleSymptomClick(symptom)}
+                        className={`text-xs px-3 py-1.5 rounded-full font-medium transition-all flex items-center gap-1.5 ${
+                          isSelected
+                            ? "bg-[#22623a] text-white shadow-xs scale-105"
+                            : "bg-white text-[#4a4640] border border-[#e6dfd5] hover:border-[#22623a] hover:bg-[#faf8f5]"
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? "bg-[#c59b27]" : "bg-[#22623a]/40"}`} />
+                        <span>{symptom.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Animated Smart Dual Action Drawer */}
+                <AnimatePresence>
+                  {selectedSymptom && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, y: -4 }}
+                      animate={{ opacity: 1, height: "auto", y: 0 }}
+                      exit={{ opacity: 0, height: 0, y: -4 }}
+                      transition={{ duration: 0.25, ease: "easeOut" }}
+                      className="overflow-hidden pt-1"
+                    >
+                      <div className="p-3 bg-gradient-to-r from-emerald-50/80 via-white to-[#faf8f5] border border-emerald-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-xs">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-7 h-7 rounded-lg bg-[#22623a] text-white flex items-center justify-center shrink-0">
+                            <HeartPulse className="w-3.5 h-3.5" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-[#22623a] truncate">
+                              Targeted Care: {selectedSymptom.label}
+                            </p>
+                            <p className="text-[10px] text-[#6a6660] truncate">
+                              Browse physician-prepared remedies or consult directly.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <a
+                            href="#remedies"
+                            className="px-3 py-1.5 bg-white hover:bg-emerald-50 text-[#22623a] border border-[#cde4d6] rounded-xl text-[11px] font-bold transition-all"
+                          >
+                            Browse Remedies
+                          </a>
+                          <a
+                            href={generateWhatsAppForSymptom(selectedSymptom.query)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white rounded-xl text-[11px] font-bold flex items-center gap-1 transition-all shadow-xs"
+                          >
+                            <MessageCircle className="w-3 h-3" />
+                            <span>Consult on WhatsApp</span>
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedSymptom(null)}
+                            className="p-1.5 text-[#6a6660] hover:text-rose-600 rounded-lg hover:bg-white"
+                            title="Close"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+
+              {/* ── Primary Dual CTA Cards ── */}
+              <motion.div
+                variants={reducedMotion ? undefined : itemVariants}
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1"
               >
                 {/* WhatsApp Telehealth */}
                 <motion.div
@@ -147,7 +279,7 @@ export default function HeroSection() {
                     </div>
                   </div>
                   <a
-                    href={generateQuickWhatsApp()}
+                    href={generateWhatsAppForSymptom()}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-[11px] font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs hover:shadow-sm"
@@ -190,7 +322,29 @@ export default function HeroSection() {
                 </motion.div>
               </motion.div>
 
-              {/* Social Proof Metrics Row */}
+              {/* ── Subtle Apothecary Dispensary Quick Strip ── */}
+              <motion.div
+                variants={reducedMotion ? undefined : itemVariants}
+                className="flex flex-wrap items-center justify-between gap-3 p-3 rounded-2xl bg-gradient-to-r from-[#faf8f5] via-white to-[#faf8f5] border border-[#e6dfd5] shadow-2xs"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-[#22623a]/10 text-[#22623a] flex items-center justify-center shrink-0">
+                    <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
+                  </div>
+                  <div className="text-xs text-[#59534b]">
+                    <span className="font-bold text-[#1a1816]">Apothecary Dispensary:</span> Pure Murabba, Arqiyat, Majoon & Herbal Oils
+                  </div>
+                </div>
+                <Link
+                  href="/products"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#22623a] hover:text-[#1a4d2e] hover:underline"
+                >
+                  <span>Explore Remedies</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </motion.div>
+
+              {/* ── Social Proof Metrics Row ── */}
               <motion.div
                 variants={reducedMotion ? undefined : itemVariants}
                 className="flex items-center gap-6 sm:gap-8 pt-1"
@@ -230,7 +384,7 @@ export default function HeroSection() {
             >
               <div className="relative mx-auto max-w-sm sm:max-w-md lg:max-w-none">
                 {/* Main Image */}
-                <div className="relative aspect-[4/4.4] lg:aspect-[4/4.6] rounded-2xl overflow-hidden shadow-xl border-4 border-white bg-[#f6f2ea] max-h-[440px] w-full">
+                <div className="relative aspect-[4/4.4] lg:aspect-[4/4.6] rounded-3xl overflow-hidden shadow-xl border-4 border-white bg-[#f6f2ea] max-h-[460px] w-full">
                   <Image
                     src="/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg"
                     alt="Tameer-e-Sehat Herbal Clinic & Natural Remedies Pakistan"
@@ -245,26 +399,27 @@ export default function HeroSection() {
                     initial={reducedMotion ? false : { opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.4 }}
-                    className="absolute bottom-3.5 left-3.5 right-3.5 sm:bottom-4 sm:left-4 sm:right-4 p-3 sm:p-3.5 bg-white/95 backdrop-blur-xs rounded-xl border border-[#e6dfd5] shadow-lg"
+                    className="absolute bottom-3.5 left-3.5 right-3.5 sm:bottom-4 sm:left-4 sm:right-4 p-3 sm:p-3.5 bg-white/95 backdrop-blur-xs rounded-2xl border border-[#e6dfd5] shadow-lg"
                   >
                     <div className="flex items-center gap-2.5 sm:gap-3">
-                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#22623a] text-[#c59b27] flex items-center justify-center shrink-0">
+                      <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#22623a] text-[#c59b27] flex items-center justify-center shrink-0 shadow-xs">
                         <Award className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-[11px] sm:text-xs font-semibold text-[#22623a] truncate">
+                        <h4 className="text-[11px] sm:text-xs font-bold text-[#22623a] truncate">
                           Tameer-e-Sehat Herbal Clinic
                         </h4>
                         <p className="text-[10px] sm:text-[11px] text-[#6a6660] truncate">
-                          Korangi, Karachi · Est. 1990
+                          Korangi, Karachi · Est. 1990 · Hakim Prescribed
                         </p>
                       </div>
                       <a
                         href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-1.5 sm:p-2 bg-[#25D366] text-white rounded-full hover:bg-[#1EBE5D] transition-all hover:scale-105 shadow-xs shrink-0"
+                        className="p-1.5 sm:p-2 bg-[#25D366] text-white rounded-xl hover:bg-[#1EBE5D] transition-all hover:scale-105 shadow-xs shrink-0"
                         aria-label="Direct WhatsApp"
+                        title="Chat on WhatsApp"
                       >
                         <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       </a>
@@ -272,38 +427,53 @@ export default function HeroSection() {
                   </motion.div>
                 </div>
 
-                {/* Floating Trust Badge */}
+                {/* Floating Trust Badge Top-Left: Zero Steroids & Pure Formulations */}
                 <motion.div
                   animate={
                     reducedMotion
                       ? undefined
                       : {
-                          y: [0, -5, 0],
+                          y: [0, -4, 0],
                         }
                   }
                   transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute -top-3 -left-3 sm:-top-4 sm:-left-4 flex items-center gap-2 pl-2.5 pr-3.5 py-2 rounded-full bg-white/90 backdrop-blur-md border border-[#e6dfd5]/80 shadow-lg shadow-[#22623a]/10"
+                  className="absolute -top-3 -left-3 sm:-top-4 sm:-left-4 flex items-center gap-2 pl-2.5 pr-3.5 py-2 rounded-full bg-white/95 backdrop-blur-md border border-[#e6dfd5] shadow-lg shadow-[#22623a]/10"
                 >
                   <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-[#eef7f1] border border-[#cde4d6] flex items-center justify-center shrink-0">
                     <ShieldCheck className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-[#22623a]" />
                   </span>
                   <div className="leading-none">
-                    <span className="block text-[11px] sm:text-xs font-semibold text-[#22623a] tracking-tight">
-                      Free Consultation
+                    <span className="block text-[11px] sm:text-xs font-bold text-[#22623a] tracking-tight">
+                      Zero Steroids · 100% Herbal
                     </span>
-                    <span className="block text-[9px] sm:text-[10px] text-[#8c8a84] mt-1">
-                      No obligation review
+                    <span className="block text-[9px] sm:text-[10px] text-[#8c8a84] mt-0.5">
+                      Pure Botanical Formulations
                     </span>
                   </div>
                 </motion.div>
+
+                {/* Floating Rating Seal Top-Right */}
+                <motion.div
+                  animate={
+                    reducedMotion
+                      ? undefined
+                      : {
+                          y: [0, 4, 0],
+                        }
+                  }
+                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                  className="absolute -top-3 -right-3 sm:-top-4 sm:-right-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-md border border-[#e6dfd5] shadow-lg shadow-[#22623a]/10"
+                >
+                  <span className="text-[#c59b27] font-bold text-xs">⭐ 5.0</span>
+                  <span className="text-[10px] font-semibold text-[#1a1816]">Google Rating</span>
+                </motion.div>
               </div>
             </motion.div>
-
           </div>
         </div>
       </section>
 
-      {/* Universal Consultation Modal */}
+      {/* Consultation Modal */}
       <ConsultationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

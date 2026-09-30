@@ -203,58 +203,61 @@ export async function POST(request: NextRequest) {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const orderNumber = `TMS-${new Date().getFullYear()}-${randomSuffix}`;
 
-    const order = await prisma.$transaction(async (tx) => {
-      const createdOrder = await tx.order.create({
-        data: {
-          orderNumber,
-          customerName,
-          phone,
-          email: email || null,
-          city,
-          address,
-          deliveryNotes: finalDeliveryNotes,
-          paymentMethod,
-          paymentStatus: "PENDING",
-          orderStatus: "PENDING",
-          subtotal,
-          shippingFee,
-          total,
-          userId: session?.user?.id || null,
-          items: {
-            create: resolvedItems.map((item) => ({
-              productId: item.productId,
-              productSizeId: item.productSizeId,
-              productName: item.productName,
-              productUrduName: item.productUrduName,
-              sizeName: item.sizeName,
-              sizeWeight: item.sizeWeight,
-              price: item.price,
-              quantity: item.quantity,
-              total: item.total,
-              productImage: item.productImage,
-              stockState: item.stockState,
-            })),
+    const order = await prisma.$transaction(
+      async (tx) => {
+        const createdOrder = await tx.order.create({
+          data: {
+            orderNumber,
+            customerName,
+            phone,
+            email: email || null,
+            city,
+            address,
+            deliveryNotes: finalDeliveryNotes,
+            paymentMethod,
+            paymentStatus: "PENDING",
+            orderStatus: "PENDING",
+            subtotal,
+            shippingFee,
+            total,
+            userId: session?.user?.id || null,
+            items: {
+              create: resolvedItems.map((item) => ({
+                productId: item.productId,
+                productSizeId: item.productSizeId,
+                productName: item.productName,
+                productUrduName: item.productUrduName,
+                sizeName: item.sizeName,
+                sizeWeight: item.sizeWeight,
+                price: item.price,
+                quantity: item.quantity,
+                total: item.total,
+                productImage: item.productImage,
+                stockState: item.stockState,
+              })),
+            },
           },
-        },
-        include: {
-          items: true,
-        },
-      });
+          include: {
+            items: true,
+          },
+        });
 
-      // Reserve stock for the ordered items in this transaction
-      const itemsToReserve = resolvedItems
-        .filter((i) => i.productSizeId !== null)
-        .map((i) => ({
-          productSizeId: i.productSizeId as string,
-          quantity: i.quantity,
-        }));
+        // Reserve stock for the ordered items in this transaction
+        const itemsToReserve = resolvedItems
+          .filter((i) => i.productSizeId !== null)
+          .map((i) => ({
+            productSizeId: i.productSizeId as string,
+            quantity: i.quantity,
+          }));
 
-      if (itemsToReserve.length > 0) {
-        await reserveStockForOrder(tx, createdOrder.id, itemsToReserve);
-      }
+        if (itemsToReserve.length > 0) {
+          await reserveStockForOrder(tx, createdOrder.id, itemsToReserve);
+        }
 
-      return createdOrder;
-    });
+        return createdOrder;
+      },
+      { maxWait: 20000, timeout: 30000 }
+    );
 
     return NextResponse.json(
       {

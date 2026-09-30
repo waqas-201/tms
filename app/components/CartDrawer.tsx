@@ -197,11 +197,7 @@ export default function CartDrawer() {
                         <div>
                           <div className="flex items-start justify-between gap-2">
                             <Link
-                              href={
-                                item.customDetails
-                                  ? `/nuskhajaat/${item.customDetails.nuskhaSlug}`
-                                  : `/products/${item.product.slug}`
-                              }
+                              href={`/products/${item.product.slug}`}
                               onClick={() => setIsCartOpen(false)}
                               className="text-xs font-bold text-[#22623a] hover:text-[#c59b27] line-clamp-1 transition-colors"
                             >
@@ -218,20 +214,9 @@ export default function CartDrawer() {
                             </button>
                           </div>
 
-                          {item.customDetails ? (
-                            <div className="mt-1 space-y-0.5">
-                              <span className="inline-block px-1.5 py-0.5 bg-[#f4f9f5] border border-[#d8ecde] text-[#22623a] rounded text-[10px] font-bold">
-                                {item.customDetails.courseDuration} · {item.customDetails.preparationFormat}
-                              </span>
-                              <p className="text-[10px] text-[#7a7268] line-clamp-1" title={item.customDetails.ingredientsSummary}>
-                                Herbs: {item.customDetails.ingredientsSummary}
-                              </p>
-                            </div>
-                          ) : (
-                            <p className="text-[11px] text-[#7a7268] pt-0.5">
-                              Size: <span className="font-semibold text-[#1a1816]">{item.selectedSize.weight}</span>
-                            </p>
-                          )}
+                          <p className="text-[11px] text-[#7a7268] pt-0.5">
+                            Size: <span className="font-semibold text-[#1a1816]">{item.selectedSize.weight}</span>
+                          </p>
                         </div>
 
                         <div className="flex items-center justify-between mt-2 pt-1 border-t border-[#f4eee5]">

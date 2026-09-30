@@ -169,13 +169,23 @@ h1, h2, h3, .font-editorial {
   animation: tms-slide-up 0.5s ease-out both;
 }
 
+/* Right-sheet entrance (mobile nav, matches cart drawer side) */
+@keyframes tms-slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+.animate-slide-in-right {
+  animation: tms-slide-in-right 0.25s ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in,
   .animate-pop,
   .animate-float,
   .animate-shimmer,
   .animate-pulse-ring,
-  .animate-slide-up {
+  .animate-slide-up,
+  .animate-slide-in-right {
     animation: none;
   }
 }

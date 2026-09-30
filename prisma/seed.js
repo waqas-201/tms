@@ -34,10 +34,32 @@ const prisma = new PrismaClient({ adapter });
 
 const { PRODUCTS, CATEGORIES } = require("../app/data/products.ts");
 
-async function run() {
-  console.log("🌱 Seeding Neon PostgreSQL Database...");
+const STANDARD_UNITS = [
+  { code: "g", name: "Gram", kind: "WEIGHT" },
+  { code: "kg", name: "Kilogram", kind: "WEIGHT" },
+  { code: "ml", name: "Millilitre", kind: "VOLUME" },
+  { code: "l", name: "Litre", kind: "VOLUME" },
+  { code: "jar", name: "Jar", kind: "PACK" },
+  { code: "bottle", name: "Bottle", kind: "PACK" },
+  { code: "box", name: "Box", kind: "PACK" },
+  { code: "pcs", name: "Pieces", kind: "COUNT" },
+  { code: "tola", name: "Tola", kind: "WEIGHT" },
+];
 
-  // 1. Categories
+async function run() {
+  console.log("🌱 Seeding Neon PostgreSQL Database (Master Catalog & Admin)...");
+
+  // 1. Standard Units
+  for (const unit of STANDARD_UNITS) {
+    await prisma.unit.upsert({
+      where: { code: unit.code },
+      update: { name: unit.name, kind: unit.kind, isActive: true },
+      create: { code: unit.code, name: unit.name, kind: unit.kind, isActive: true },
+    });
+  }
+  console.log(`✅ ${STANDARD_UNITS.length} Measurement Units seeded.`);
+
+  // 2. Categories
   for (const cat of CATEGORIES) {
     await prisma.category.upsert({
       where: { id: cat.id },
@@ -60,7 +82,7 @@ async function run() {
   }
   console.log(`✅ ${CATEGORIES.length} Categories seeded.`);
 
-  // 2. Products
+  // 3. Products
   for (const prod of PRODUCTS) {
     const createdProduct = await prisma.product.upsert({
       where: { slug: prod.slug },
@@ -133,14 +155,17 @@ async function run() {
             weight: size.weight,
             price: size.price,
             originalPrice: size.originalPrice || null,
+            stockOnHand: 50, // Healthy starting baseline stock
+            lowStockThreshold: 5,
+            isActive: true,
           },
         });
       }
     }
   }
-  console.log(`✅ ${PRODUCTS.length} Products seeded.`);
+  console.log(`✅ ${PRODUCTS.length} Master Products seeded.`);
 
-  // 3. Admin User
+  // 4. Admin User
   await prisma.user.upsert({
     where: { email: "admin@tameeresehat.com" },
     update: {
@@ -157,89 +182,9 @@ async function run() {
       city: "Karachi",
     },
   });
-  console.log("✅ Admin user seeded.");
+  console.log("✅ Master Admin user confirmed.");
 
-  // 4. Sample Consultation Request
-  await prisma.consultationRequest.upsert({
-    where: { ticketNumber: "CON-2026-8921" },
-    update: {},
-    create: {
-      ticketNumber: "CON-2026-8921",
-      fullName: "Muhammad Rizwan",
-      age: 42,
-      gender: "Male",
-      phone: "0300-8765432",
-      email: "rizwan@example.com",
-      city: "Lahore",
-      primarySymptoms: "Digestive weakness, post-meal acidity, mild fatigue",
-      duration: "3 to 6 months",
-      previousTreatments: "Allopathic antacids (Omeprazole) with temporary relief",
-      digestiveState: "Gas, bloating after heavy meals",
-      preferredContact: "WHATSAPP",
-      status: "IN_REVIEW",
-      hakimNotes: "Prescribed Jawarish Kamuni with Arq Mako before meals.",
-    },
-  });
-  console.log("✅ Sample consultation request seeded.");
-
-  // 5. Sample Order
-  await prisma.order.upsert({
-    where: { orderNumber: "TMS-2026-1001" },
-    update: {},
-    create: {
-      orderNumber: "TMS-2026-1001",
-      customerName: "Zahid Hussain",
-      phone: "0321-4567890",
-      email: "zahid@example.com",
-      city: "Rawalpindi",
-      address: "House 14-B, Street 5, Satellite Town",
-      paymentMethod: "COD",
-      paymentStatus: "PENDING",
-      orderStatus: "CONFIRMED",
-      subtotal: 2450,
-      shippingFee: 0,
-      total: 2450,
-      items: {
-        create: [
-          {
-            productName: "Jawarish Shahi",
-            productUrduName: "",
-            sizeName: "Standard Jar",
-            sizeWeight: "250g",
-            price: 850,
-            quantity: 2,
-            total: 1700,
-          },
-          {
-            productName: "Arq-e-Gulab Khas",
-            productUrduName: "",
-            sizeName: "Glass Bottle",
-            sizeWeight: "800ml",
-            price: 750,
-            quantity: 1,
-            total: 750,
-          },
-        ],
-      },
-    },
-  });
-  console.log("✅ Sample order seeded.");
-
-  // 6. Sample Contact Inquiry
-  await prisma.contactInquiry.create({
-    data: {
-      name: "Dr. Farooq Siddiqui",
-      phone: "0333-1122334",
-      email: "farooq.s@gmail.com",
-      city: "Islamabad",
-      subject: "Prescription consultation for chronic joint stiffness",
-      message: "Looking for traditional Roghan Surkh and Majoon Suranjan dosage for an elderly patient.",
-      status: "UNREAD",
-    },
-  });
-  console.log("✅ Sample contact inquiry seeded.");
-
-  console.log("🎉 Seeding complete!");
+  console.log("🎉 Master catalog seed complete. Zero demo/test transactions added!");
 }
 
 run()

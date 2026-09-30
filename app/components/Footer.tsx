@@ -152,11 +152,6 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/nuskhajaat" className="hover:text-white transition-colors text-[#c59b27] font-medium">
-                  Nuskhajaat (Compounds) ✨
-                </Link>
-              </li>
-              <li>
                 <Link href="/about" className="hover:text-white transition-colors">
                   About Clinic
                 </Link>

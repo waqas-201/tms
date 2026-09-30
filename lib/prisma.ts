@@ -47,7 +47,12 @@ function getPrismaClient(): PrismaClient {
     );
   }
 
-  const pool = new Pool({ connectionString });
+  const pool = new Pool({
+    connectionString,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 15000,
+  });
   const adapter = new PrismaPg(pool);
   const client = new PrismaClient({
     adapter,

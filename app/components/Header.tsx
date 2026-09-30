@@ -26,7 +26,6 @@ import {
   Stethoscope,
   Activity,
   Building2,
-  Sparkles,
   Home,
 } from "lucide-react";
 
@@ -132,10 +131,9 @@ export default function Header() {
     };
   }, [isMobileMenuOpen]);
 
-  const navLinks = [
+  const navLinks: { name: string; href: string; icon: any; badge?: string }[] = [
     { name: "Home", href: "/", icon: Home },
     { name: "Shop", href: "/products", icon: ShoppingBag },
-    { name: "Nuskhajaat", href: "/nuskhajaat", icon: Sparkles, badge: "Custom" },
     { name: "Specialties", href: "/specialties", icon: Activity },
     { name: "Consult", href: "/consultation", icon: Stethoscope },
     { name: "About Us", href: "/about", icon: Building2 },

@@ -36,54 +36,57 @@ export async function receiveStock({
     throw new Error("Quantity received must be a positive number.");
   }
 
-  return await prisma.$transaction(async (tx) => {
-    const size = await tx.productSize.findUnique({
-      where: { id: productSizeId },
-      include: { product: true },
-    });
+  return await prisma.$transaction(
+    async (tx) => {
+      const size = await tx.productSize.findUnique({
+        where: { id: productSizeId },
+        include: { product: true },
+      });
 
-    if (!size) {
-      throw new Error("Product packaging size not found.");
-    }
+      if (!size) {
+        throw new Error("Product packaging size not found.");
+      }
 
-    const newOnHand = size.stockOnHand + quantity;
-    const reserved = size.stockReserved;
-    const parsedExpiry = expiryDate ? new Date(expiryDate) : null;
+      const newOnHand = size.stockOnHand + quantity;
+      const reserved = size.stockReserved;
+      const parsedExpiry = expiryDate ? new Date(expiryDate) : null;
 
-    const updatedSize = await tx.productSize.update({
-      where: { id: size.id },
-      data: {
-        stockOnHand: newOnHand,
-        isActive: true,
-        ...(batchNumber && { batchNumber }),
-        ...(parsedExpiry && { expiryDate: parsedExpiry }),
-        ...(unitCost !== undefined && unitCost > 0 && { costPrice: unitCost }),
-      },
-    });
+      const updatedSize = await tx.productSize.update({
+        where: { id: size.id },
+        data: {
+          stockOnHand: newOnHand,
+          isActive: true,
+          ...(batchNumber && { batchNumber }),
+          ...(parsedExpiry && { expiryDate: parsedExpiry }),
+          ...(unitCost !== undefined && unitCost > 0 && { costPrice: unitCost }),
+        },
+      });
 
-    const movement = await tx.stockMovement.create({
-      data: {
-        productSizeId: size.id,
-        type: "RECEIVE",
-        quantity: quantity,
-        onHandAfter: newOnHand,
-        reservedAfter: reserved,
-        reason: reason || "Manual stock reception",
-        batchNumber: batchNumber || null,
-        expiryDate: parsedExpiry,
-        unitCost: unitCost || null,
-        createdById: userId || null,
-      },
-    });
+      const movement = await tx.stockMovement.create({
+        data: {
+          productSizeId: size.id,
+          type: "RECEIVE",
+          quantity: quantity,
+          onHandAfter: newOnHand,
+          reservedAfter: reserved,
+          reason: reason || "Manual stock reception",
+          batchNumber: batchNumber || null,
+          expiryDate: parsedExpiry,
+          unitCost: unitCost || null,
+          createdById: userId || null,
+        },
+      });
 
-    // Also ensure product inStock is true
-    await tx.product.update({
-      where: { id: size.productId },
-      data: { inStock: true },
-    });
+      // Also ensure product inStock is true
+      await tx.product.update({
+        where: { id: size.productId },
+        data: { inStock: true },
+      });
 
-    return { size: updatedSize, movement };
-  });
+      return { size: updatedSize, movement };
+    },
+    { maxWait: 20000, timeout: 30000 }
+  );
 }
 
 /**
@@ -103,48 +106,51 @@ export async function adjustStock({
   if (!productSizeId) throw new Error("productSizeId is required.");
   if (quantity === 0) throw new Error("Adjustment quantity cannot be zero.");
 
-  return await prisma.$transaction(async (tx) => {
-    const size = await tx.productSize.findUnique({
-      where: { id: productSizeId },
-      include: { product: true },
-    });
+  return await prisma.$transaction(
+    async (tx) => {
+      const size = await tx.productSize.findUnique({
+        where: { id: productSizeId },
+        include: { product: true },
+      });
 
-    if (!size) {
-      throw new Error("Product packaging size not found.");
-    }
+      if (!size) {
+        throw new Error("Product packaging size not found.");
+      }
 
-    const newOnHand = size.stockOnHand + quantity;
-    if (newOnHand < 0) {
-      throw new Error(`Cannot adjust below 0. Current on hand: ${size.stockOnHand}`);
-    }
+      const newOnHand = size.stockOnHand + quantity;
+      if (newOnHand < 0) {
+        throw new Error(`Cannot adjust below 0. Current on hand: ${size.stockOnHand}`);
+      }
 
-    if (newOnHand < size.stockReserved) {
-      throw new Error(
-        `Cannot reduce stock below reserved orders (${size.stockReserved} units reserved).`
-      );
-    }
+      if (newOnHand < size.stockReserved) {
+        throw new Error(
+          `Cannot reduce stock below reserved orders (${size.stockReserved} units reserved).`
+        );
+      }
 
-    const updatedSize = await tx.productSize.update({
-      where: { id: size.id },
-      data: {
-        stockOnHand: newOnHand,
-      },
-    });
+      const updatedSize = await tx.productSize.update({
+        where: { id: size.id },
+        data: {
+          stockOnHand: newOnHand,
+        },
+      });
 
-    const movement = await tx.stockMovement.create({
-      data: {
-        productSizeId: size.id,
-        type: "ADJUST",
-        quantity: quantity,
-        onHandAfter: newOnHand,
-        reservedAfter: size.stockReserved,
-        reason: reason || (quantity > 0 ? "Inventory adjustment (+)" : "Inventory adjustment (-)"),
-        createdById: userId || null,
-      },
-    });
+      const movement = await tx.stockMovement.create({
+        data: {
+          productSizeId: size.id,
+          type: "ADJUST",
+          quantity: quantity,
+          onHandAfter: newOnHand,
+          reservedAfter: size.stockReserved,
+          reason: reason || (quantity > 0 ? "Inventory adjustment (+)" : "Inventory adjustment (-)"),
+          createdById: userId || null,
+        },
+      });
 
-    return { size: updatedSize, movement };
-  });
+      return { size: updatedSize, movement };
+    },
+    { maxWait: 20000, timeout: 30000 }
+  );
 }
 
 /**
@@ -211,69 +217,72 @@ export async function commitShipmentForOrder(
   orderId: string,
   userId?: string
 ) {
-  return await prisma.$transaction(async (tx) => {
-    const order = await tx.order.findUnique({
-      where: { id: orderId },
-      include: {
-        items: {
-          include: {
-            productSize: true,
+  return await prisma.$transaction(
+    async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { id: orderId },
+        include: {
+          items: {
+            include: {
+              productSize: true,
+            },
           },
         },
-      },
-    });
-
-    if (!order) throw new Error("Order not found.");
-
-    for (const item of order.items) {
-      if (!item.productSizeId || !item.productSize) continue;
-
-      // Skip already committed items
-      if (item.stockState === "COMMITTED") continue;
-
-      const size = await tx.productSize.findUnique({
-        where: { id: item.productSizeId },
-      });
-      if (!size) continue;
-
-      const newOnHand = Math.max(0, size.stockOnHand - item.quantity);
-      // If previously reserved, decrement reserved as well
-      const wasReserved = item.stockState === "RESERVED";
-      const newReserved = wasReserved
-        ? Math.max(0, size.stockReserved - item.quantity)
-        : size.stockReserved;
-
-      await tx.productSize.update({
-        where: { id: size.id },
-        data: {
-          stockOnHand: newOnHand,
-          stockReserved: newReserved,
-        },
       });
 
-      await tx.orderItem.update({
-        where: { id: item.id },
-        data: {
-          stockState: "COMMITTED",
-        },
-      });
+      if (!order) throw new Error("Order not found.");
 
-      await tx.stockMovement.create({
-        data: {
-          productSizeId: size.id,
-          type: "SALE",
-          quantity: -item.quantity,
-          onHandAfter: newOnHand,
-          reservedAfter: newReserved,
-          reason: `Dispatched in Order ${order.orderNumber}`,
-          orderId: order.id,
-          createdById: userId || null,
-        },
-      });
-    }
+      for (const item of order.items) {
+        if (!item.productSizeId || !item.productSize) continue;
 
-    return { success: true };
-  });
+        // Skip already committed items
+        if (item.stockState === "COMMITTED") continue;
+
+        const size = await tx.productSize.findUnique({
+          where: { id: item.productSizeId },
+        });
+        if (!size) continue;
+
+        const newOnHand = Math.max(0, size.stockOnHand - item.quantity);
+        // If previously reserved, decrement reserved as well
+        const wasReserved = item.stockState === "RESERVED";
+        const newReserved = wasReserved
+          ? Math.max(0, size.stockReserved - item.quantity)
+          : size.stockReserved;
+
+        await tx.productSize.update({
+          where: { id: size.id },
+          data: {
+            stockOnHand: newOnHand,
+            stockReserved: newReserved,
+          },
+        });
+
+        await tx.orderItem.update({
+          where: { id: item.id },
+          data: {
+            stockState: "COMMITTED",
+          },
+        });
+
+        await tx.stockMovement.create({
+          data: {
+            productSizeId: size.id,
+            type: "SALE",
+            quantity: -item.quantity,
+            onHandAfter: newOnHand,
+            reservedAfter: newReserved,
+            reason: `Dispatched in Order ${order.orderNumber}`,
+            orderId: order.id,
+            createdById: userId || null,
+          },
+        });
+      }
+
+      return { success: true };
+    },
+    { maxWait: 20000, timeout: 30000 }
+  );
 }
 
 /**
@@ -284,87 +293,90 @@ export async function releaseReservationForOrder(
   orderId: string,
   userId?: string
 ) {
-  return await prisma.$transaction(async (tx) => {
-    const order = await tx.order.findUnique({
-      where: { id: orderId },
-      include: {
-        items: {
-          include: {
-            productSize: true,
+  return await prisma.$transaction(
+    async (tx) => {
+      const order = await tx.order.findUnique({
+        where: { id: orderId },
+        include: {
+          items: {
+            include: {
+              productSize: true,
+            },
           },
         },
-      },
-    });
-
-    if (!order) throw new Error("Order not found.");
-
-    for (const item of order.items) {
-      if (!item.productSizeId || !item.productSize) continue;
-
-      if (item.stockState === "RELEASED") continue;
-
-      const size = await tx.productSize.findUnique({
-        where: { id: item.productSizeId },
       });
-      if (!size) continue;
 
-      if (item.stockState === "RESERVED") {
-        // Release reservation
-        const newReserved = Math.max(0, size.stockReserved - item.quantity);
+      if (!order) throw new Error("Order not found.");
 
-        await tx.productSize.update({
-          where: { id: size.id },
-          data: {
-            stockReserved: newReserved,
-          },
+      for (const item of order.items) {
+        if (!item.productSizeId || !item.productSize) continue;
+
+        if (item.stockState === "RELEASED") continue;
+
+        const size = await tx.productSize.findUnique({
+          where: { id: item.productSizeId },
         });
+        if (!size) continue;
 
-        await tx.stockMovement.create({
-          data: {
-            productSizeId: size.id,
-            type: "RELEASE",
-            quantity: item.quantity,
-            onHandAfter: size.stockOnHand,
-            reservedAfter: newReserved,
-            reason: `Order ${order.orderNumber} cancelled - reservation released`,
-            orderId: order.id,
-            createdById: userId || null,
-          },
-        });
-      } else if (item.stockState === "COMMITTED") {
-        // Return previously shipped stock to on-hand
-        const newOnHand = size.stockOnHand + item.quantity;
+        if (item.stockState === "RESERVED") {
+          // Release reservation
+          const newReserved = Math.max(0, size.stockReserved - item.quantity);
 
-        await tx.productSize.update({
-          where: { id: size.id },
-          data: {
-            stockOnHand: newOnHand,
-          },
-        });
+          await tx.productSize.update({
+            where: { id: size.id },
+            data: {
+              stockReserved: newReserved,
+            },
+          });
 
-        await tx.stockMovement.create({
+          await tx.stockMovement.create({
+            data: {
+              productSizeId: size.id,
+              type: "RELEASE",
+              quantity: item.quantity,
+              onHandAfter: size.stockOnHand,
+              reservedAfter: newReserved,
+              reason: `Order ${order.orderNumber} cancelled - reservation released`,
+              orderId: order.id,
+              createdById: userId || null,
+            },
+          });
+        } else if (item.stockState === "COMMITTED") {
+          // Return previously shipped stock to on-hand
+          const newOnHand = size.stockOnHand + item.quantity;
+
+          await tx.productSize.update({
+            where: { id: size.id },
+            data: {
+              stockOnHand: newOnHand,
+            },
+          });
+
+          await tx.stockMovement.create({
+            data: {
+              productSizeId: size.id,
+              type: "RECEIVE",
+              quantity: item.quantity,
+              onHandAfter: newOnHand,
+              reservedAfter: size.stockReserved,
+              reason: `Order ${order.orderNumber} cancelled/returned - stock restocked`,
+              orderId: order.id,
+              createdById: userId || null,
+            },
+          });
+        }
+
+        await tx.orderItem.update({
+          where: { id: item.id },
           data: {
-            productSizeId: size.id,
-            type: "RECEIVE",
-            quantity: item.quantity,
-            onHandAfter: newOnHand,
-            reservedAfter: size.stockReserved,
-            reason: `Order ${order.orderNumber} cancelled/returned - stock restocked`,
-            orderId: order.id,
-            createdById: userId || null,
+            stockState: "RELEASED",
           },
         });
       }
 
-      await tx.orderItem.update({
-        where: { id: item.id },
-        data: {
-          stockState: "RELEASED",
-        },
-      });
-    }
-
-    return { success: true };
-  });
+      return { success: true };
+    },
+    { maxWait: 20000, timeout: 30000 }
+  );
 }
 

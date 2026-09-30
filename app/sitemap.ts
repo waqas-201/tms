@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
 import { PRODUCTS } from "@/app/data/products";
-import { INITIAL_NUSKHAJAAT } from "@/app/data/nuskhajaat";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = "https://tameeresehat.com";
@@ -16,12 +15,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/products`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/nuskhajaat`,
       lastModified: now,
       changeFrequency: "daily",
       priority: 0.9,
@@ -60,13 +53,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  // Dynamic Nuskhajaat Compound Pages
-  const nuskhaRoutes: MetadataRoute.Sitemap = INITIAL_NUSKHAJAAT.map((nuskha) => ({
-    url: `${baseUrl}/nuskhajaat/${nuskha.slug}`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
-
-  return [...staticRoutes, ...productRoutes, ...nuskhaRoutes];
+  return [...staticRoutes, ...productRoutes];
 }

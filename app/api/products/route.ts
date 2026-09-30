@@ -179,85 +179,88 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const newProduct = await prisma.$transaction(async (tx) => {
-      const prod = await tx.product.create({
-        data: {
-          slug,
-          name,
-          urduName: body.urduName || "",
-          categoryId: catId,
-          categoryLabel: catLabel,
-          categoryUrdu: "",
-          shortDescription: shortDescription || "",
-          fullDescription: fullDescription || "",
-          traditionalPurpose: traditionalPurpose || "",
-          benefits: parsedBenefits,
-          ingredients: parsedIngredients,
-          howToUse: howToUse || "",
-          dosage: dosage || "",
-          hakimAdvice: hakimAdvice || "",
-          warnings: parsedWarnings,
-          price: basePrice,
-          originalPrice: originalPrice ? Number(originalPrice) : null,
-          discountPercentage: discountPercentage ? Number(discountPercentage) : null,
-          image: resolvedImageStr,
-          inStock: inStock ?? true,
-          featured: featured ?? false,
-          rating: rating ? Number(rating) : 5.0,
-          badge: badge || null,
-          mizaj: mizaj || null,
-        },
-      });
+    const newProduct = await prisma.$transaction(
+      async (tx) => {
+        const prod = await tx.product.create({
+          data: {
+            slug,
+            name,
+            urduName: body.urduName || "",
+            categoryId: catId,
+            categoryLabel: catLabel,
+            categoryUrdu: "",
+            shortDescription: shortDescription || "",
+            fullDescription: fullDescription || "",
+            traditionalPurpose: traditionalPurpose || "",
+            benefits: parsedBenefits,
+            ingredients: parsedIngredients,
+            howToUse: howToUse || "",
+            dosage: dosage || "",
+            hakimAdvice: hakimAdvice || "",
+            warnings: parsedWarnings,
+            price: basePrice,
+            originalPrice: originalPrice ? Number(originalPrice) : null,
+            discountPercentage: discountPercentage ? Number(discountPercentage) : null,
+            image: resolvedImageStr,
+            inStock: inStock ?? true,
+            featured: featured ?? false,
+            rating: rating ? Number(rating) : 5.0,
+            badge: badge || null,
+            mizaj: mizaj || null,
+          },
+        });
 
-      if (sizes && Array.isArray(sizes) && sizes.length > 0) {
-        for (const s of sizes) {
-          const initialQty = Math.max(0, Number(s.initialStock || s.stockOnHand || 0));
-          const sku = s.sku || `${slug}-${(s.name || s.weight || "std").toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+        if (sizes && Array.isArray(sizes) && sizes.length > 0) {
+          for (const s of sizes) {
+            const initialQty = Math.max(0, Number(s.initialStock || s.stockOnHand || 0));
+            const sku = s.sku || `${slug}-${(s.name || s.weight || "std").toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
 
-          const createdSize = await tx.productSize.create({
-            data: {
-              productId: prod.id,
-              name: s.name || "Standard Pack",
-              weight: s.weight || s.name || "Standard",
-              price: Number(s.price) || basePrice,
-              originalPrice: s.originalPrice ? Number(s.originalPrice) : null,
-              costPrice: s.costPrice ? Number(s.costPrice) : null,
-              unitId: s.unitId || null,
-              quantityValue: s.quantityValue !== undefined && s.quantityValue !== null ? Number(s.quantityValue) : null,
-              sku,
-              stockOnHand: initialQty,
-              stockReserved: 0,
-              lowStockThreshold: Number(s.lowStockThreshold) || 5,
-              isActive: s.isActive !== undefined ? Boolean(s.isActive) : true,
-            },
-          });
-
-          if (initialQty > 0) {
-            await tx.stockMovement.create({
+            const createdSize = await tx.productSize.create({
               data: {
-                productSizeId: createdSize.id,
-                type: "RECEIVE",
-                quantity: initialQty,
-                onHandAfter: initialQty,
-                reservedAfter: 0,
-                reason: "Initial product creation stock",
-                createdById: session?.user?.id || null,
+                productId: prod.id,
+                name: s.name || "Standard Pack",
+                weight: s.weight || s.name || "Standard",
+                price: Number(s.price) || basePrice,
+                originalPrice: s.originalPrice ? Number(s.originalPrice) : null,
+                costPrice: s.costPrice ? Number(s.costPrice) : null,
+                unitId: s.unitId || null,
+                quantityValue: s.quantityValue !== undefined && s.quantityValue !== null ? Number(s.quantityValue) : null,
+                sku,
+                stockOnHand: initialQty,
+                stockReserved: 0,
+                lowStockThreshold: Number(s.lowStockThreshold) || 5,
+                isActive: s.isActive !== undefined ? Boolean(s.isActive) : true,
               },
             });
+
+            if (initialQty > 0) {
+              await tx.stockMovement.create({
+                data: {
+                  productSizeId: createdSize.id,
+                  type: "RECEIVE",
+                  quantity: initialQty,
+                  onHandAfter: initialQty,
+                  reservedAfter: 0,
+                  reason: "Initial product creation stock",
+                  createdById: session?.user?.id || null,
+                },
+              });
+            }
           }
         }
-      }
 
-      return await tx.product.findUnique({
-        where: { id: prod.id },
-        include: {
-          sizes: {
-            include: { unit: true },
-            orderBy: { price: "asc" },
+        return await tx.product.findUnique({
+          where: { id: prod.id },
+          include: {
+            sizes: {
+              include: { unit: true },
+              orderBy: { price: "asc" },
+            },
           },
-        },
-      });
-    });
+        });
+      },
+      { maxWait: 20000, timeout: 30000 }
+    );
 
     return NextResponse.json(
       { success: true, data: formatProductRecord(newProduct) },

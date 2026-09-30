@@ -109,129 +109,132 @@ export async function PUT(
 
     let basePrice = price !== undefined ? Number(price) : existing.price;
 
-    const updated = await prisma.$transaction(async (tx) => {
-      // Upsert / update sizes if provided
-      if (sizes && Array.isArray(sizes) && sizes.length > 0) {
-        const minSizePrice = Math.min(...sizes.map((s: any) => Number(s.price) || basePrice));
-        if (!isNaN(minSizePrice) && minSizePrice > 0) {
-          basePrice = minSizePrice;
-        }
-
-        const incomingSizeIds = new Set(sizes.map((s: any) => s.id).filter(Boolean));
-
-        // Mark missing existing sizes as inactive
-        for (const existingSize of existing.sizes) {
-          if (!incomingSizeIds.has(existingSize.id)) {
-            await tx.productSize.update({
-              where: { id: existingSize.id },
-              data: { isActive: false },
-            });
+    const updated = await prisma.$transaction(
+      async (tx) => {
+        // Upsert / update sizes if provided
+        if (sizes && Array.isArray(sizes) && sizes.length > 0) {
+          const minSizePrice = Math.min(...sizes.map((s: any) => Number(s.price) || basePrice));
+          if (!isNaN(minSizePrice) && minSizePrice > 0) {
+            basePrice = minSizePrice;
           }
-        }
 
-        // Update or create sizes
-        for (const s of sizes) {
-          const sku = s.sku || `${existing.slug}-${(s.name || s.weight || "std").toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
-          const sizePrice = Number(s.price) || basePrice;
-          const original = s.originalPrice ? Number(s.originalPrice) : null;
-          const costPrice = s.costPrice ? Number(s.costPrice) : null;
-          const lowStockThreshold = Number(s.lowStockThreshold) || 5;
-          const qtyVal = s.quantityValue !== undefined && s.quantityValue !== null ? Number(s.quantityValue) : null;
+          const incomingSizeIds = new Set(sizes.map((s: any) => s.id).filter(Boolean));
 
-          if (s.id && existing.sizes.some((es) => es.id === s.id)) {
-            await tx.productSize.update({
-              where: { id: s.id },
-              data: {
-                name: s.name || "Standard Pack",
-                weight: s.weight || s.name || "Standard",
-                price: sizePrice,
-                originalPrice: original,
-                costPrice: s.costPrice !== undefined ? costPrice : undefined,
-                unitId: s.unitId || null,
-                quantityValue: qtyVal,
-                sku,
-                lowStockThreshold,
-                isActive: s.isActive !== undefined ? Boolean(s.isActive) : true,
-              },
-            });
-          } else {
-            const initialQty = Math.max(0, Number(s.initialStock || s.stockOnHand || 0));
-            const newSize = await tx.productSize.create({
-              data: {
-                productId: existing.id,
-                name: s.name || "Standard Pack",
-                weight: s.weight || s.name || "Standard",
-                price: sizePrice,
-                originalPrice: original,
-                costPrice: costPrice,
-                unitId: s.unitId || null,
-                quantityValue: qtyVal,
-                sku,
-                stockOnHand: initialQty,
-                stockReserved: 0,
-                lowStockThreshold,
-                isActive: s.isActive !== undefined ? Boolean(s.isActive) : true,
-              },
-            });
-
-            if (initialQty > 0) {
-              await tx.stockMovement.create({
-                data: {
-                  productSizeId: newSize.id,
-                  type: "RECEIVE",
-                  quantity: initialQty,
-                  onHandAfter: initialQty,
-                  reservedAfter: 0,
-                  reason: "Initial variant stock on product edit",
-                  createdById: session?.user?.id || null,
-                },
+          // Mark missing existing sizes as inactive
+          for (const existingSize of existing.sizes) {
+            if (!incomingSizeIds.has(existingSize.id)) {
+              await tx.productSize.update({
+                where: { id: existingSize.id },
+                data: { isActive: false },
               });
             }
           }
+
+          // Update or create sizes
+          for (const s of sizes) {
+            const sku = s.sku || `${existing.slug}-${(s.name || s.weight || "std").toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+            const sizePrice = Number(s.price) || basePrice;
+            const original = s.originalPrice ? Number(s.originalPrice) : null;
+            const costPrice = s.costPrice ? Number(s.costPrice) : null;
+            const lowStockThreshold = Number(s.lowStockThreshold) || 5;
+            const qtyVal = s.quantityValue !== undefined && s.quantityValue !== null ? Number(s.quantityValue) : null;
+
+            if (s.id && existing.sizes.some((es) => es.id === s.id)) {
+              await tx.productSize.update({
+                where: { id: s.id },
+                data: {
+                  name: s.name || "Standard Pack",
+                  weight: s.weight || s.name || "Standard",
+                  price: sizePrice,
+                  originalPrice: original,
+                  costPrice: s.costPrice !== undefined ? costPrice : undefined,
+                  unitId: s.unitId || null,
+                  quantityValue: qtyVal,
+                  sku,
+                  lowStockThreshold,
+                  isActive: s.isActive !== undefined ? Boolean(s.isActive) : true,
+                },
+              });
+            } else {
+              const initialQty = Math.max(0, Number(s.initialStock || s.stockOnHand || 0));
+              const newSize = await tx.productSize.create({
+                data: {
+                  productId: existing.id,
+                  name: s.name || "Standard Pack",
+                  weight: s.weight || s.name || "Standard",
+                  price: sizePrice,
+                  originalPrice: original,
+                  costPrice: costPrice,
+                  unitId: s.unitId || null,
+                  quantityValue: qtyVal,
+                  sku,
+                  stockOnHand: initialQty,
+                  stockReserved: 0,
+                  lowStockThreshold,
+                  isActive: s.isActive !== undefined ? Boolean(s.isActive) : true,
+                },
+              });
+
+              if (initialQty > 0) {
+                await tx.stockMovement.create({
+                  data: {
+                    productSizeId: newSize.id,
+                    type: "RECEIVE",
+                    quantity: initialQty,
+                    onHandAfter: initialQty,
+                    reservedAfter: 0,
+                    reason: "Initial variant stock on product edit",
+                    createdById: session?.user?.id || null,
+                  },
+                });
+              }
+            }
+          }
         }
-      }
 
-      await tx.product.update({
-        where: { id: existing.id },
-        data: {
-          ...(name && { name }),
-          ...(urduName !== undefined && { urduName }),
-          ...(categoryId && { categoryId }),
-          ...(categoryLabel && { categoryLabel }),
-          ...(shortDescription !== undefined && { shortDescription }),
-          ...(fullDescription !== undefined && { fullDescription }),
-          ...(traditionalPurpose !== undefined && { traditionalPurpose }),
-          ...(parsedBenefits !== undefined && { benefits: parsedBenefits }),
-          ...(parsedIngredients !== undefined && { ingredients: parsedIngredients }),
-          ...(howToUse !== undefined && { howToUse }),
-          ...(dosage !== undefined && { dosage }),
-          ...(hakimAdvice !== undefined && { hakimAdvice }),
-          ...(parsedWarnings !== undefined && { warnings: parsedWarnings }),
-          price: basePrice,
-          ...(originalPrice !== undefined && { originalPrice: originalPrice ? Number(originalPrice) : null }),
-          ...(discountPercentage !== undefined && { discountPercentage: discountPercentage ? Number(discountPercentage) : null }),
-          ...(resolvedImageStr && { image: resolvedImageStr }),
-          ...(inStock !== undefined && { inStock }),
-          ...(featured !== undefined && { featured }),
-          ...(rating !== undefined && { rating: Number(rating) }),
-          ...(badge !== undefined && { badge }),
-          ...(mizaj !== undefined && { mizaj }),
-        },
-      });
+        await tx.product.update({
+          where: { id: existing.id },
+          data: {
+            ...(name && { name }),
+            ...(urduName !== undefined && { urduName }),
+            ...(categoryId && { categoryId }),
+            ...(categoryLabel && { categoryLabel }),
+            ...(shortDescription !== undefined && { shortDescription }),
+            ...(fullDescription !== undefined && { fullDescription }),
+            ...(traditionalPurpose !== undefined && { traditionalPurpose }),
+            ...(parsedBenefits !== undefined && { benefits: parsedBenefits }),
+            ...(parsedIngredients !== undefined && { ingredients: parsedIngredients }),
+            ...(howToUse !== undefined && { howToUse }),
+            ...(dosage !== undefined && { dosage }),
+            ...(hakimAdvice !== undefined && { hakimAdvice }),
+            ...(parsedWarnings !== undefined && { warnings: parsedWarnings }),
+            price: basePrice,
+            ...(originalPrice !== undefined && { originalPrice: originalPrice ? Number(originalPrice) : null }),
+            ...(discountPercentage !== undefined && { discountPercentage: discountPercentage ? Number(discountPercentage) : null }),
+            ...(resolvedImageStr && { image: resolvedImageStr }),
+            ...(inStock !== undefined && { inStock }),
+            ...(featured !== undefined && { featured }),
+            ...(rating !== undefined && { rating: Number(rating) }),
+            ...(badge !== undefined && { badge }),
+            ...(mizaj !== undefined && { mizaj }),
+          },
+        });
 
-      return await tx.product.findUnique({
-        where: { id: existing.id },
-        include: {
-          sizes: {
-            include: { unit: true },
-            orderBy: { price: "asc" },
+        return await tx.product.findUnique({
+          where: { id: existing.id },
+          include: {
+            sizes: {
+              include: { unit: true },
+              orderBy: { price: "asc" },
+            },
+            reviews: {
+              orderBy: { createdAt: "desc" },
+            },
           },
-          reviews: {
-            orderBy: { createdAt: "desc" },
-          },
-        },
-      });
-    });
+        });
+      },
+      { maxWait: 20000, timeout: 30000 }
+    );
 
     return NextResponse.json({ success: true, data: formatProductRecord(updated) });
   } catch (error: any) {

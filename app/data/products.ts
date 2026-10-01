@@ -21,6 +21,7 @@ export interface Product {
   name: string;
   urduName: string;
   category: "murabbajaat" | "arqiyat" | "oils-marham" | "herbs-seeds" | "teas-vitality" | "hair-skin" | string;
+  categoryId?: string;
   categoryLabel: string;
   categoryUrdu: string;
   shortDescription: string;

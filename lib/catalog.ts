@@ -63,6 +63,7 @@ export function formatProductRecord(p: any): Product {
     name: p.name,
     urduName: p.urduName || "",
     category: p.categoryId as any,
+    categoryId: p.categoryId,
     categoryLabel: p.categoryLabel || p.categoryId,
     categoryUrdu: p.categoryUrdu || "",
     shortDescription: p.shortDescription || "",

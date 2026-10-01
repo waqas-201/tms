@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import React, { useState, useEffect, useMemo, useCallback, Suspense } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Product, CategoryInfo } from "@/app/data/products";
 import ProductCard from "@/app/components/ProductCard";
@@ -16,56 +16,148 @@ import {
   X,
   RotateCcw,
   Check,
-  Stethoscope,
-  Filter,
-  Package,
   Star,
   Flame,
   Snowflake,
   Scale,
-  Percent,
-  ChevronRight,
+  ChevronDown,
   Home,
-  CheckCircle2,
+  ChevronRight,
+  ArrowUpDown,
+  ShoppingBag,
+  Sliders,
 } from "lucide-react";
 
-// Health concern mappings to product content
+// Health concern mappings to product indications & botanicals
 const HEALTH_CONCERNS = [
   { id: "all", name: "All Health Concerns" },
   {
     id: "digestion",
     name: "Digestion, Acidity & Stomach",
-    keywords: ["stomach", "acidity", "digestion", "constipation", "gas", "gerd", "gut", "bel", "bael", "harar", "reflux"],
+    keywords: [
+      "stomach",
+      "acidity",
+      "digestion",
+      "constipation",
+      "gas",
+      "gerd",
+      "gut",
+      "bel",
+      "bael",
+      "harar",
+      "reflux",
+      "hazim",
+      "pait",
+      "qabz",
+    ],
   },
   {
     id: "joints",
     name: "Joint Pain, Arthritis & Bones",
-    keywords: ["joint", "knee", "pain", "arthritis", "backache", "stiffness", "bone", "baans", "bamboo", "roghan", "suranjan"],
+    keywords: [
+      "joint",
+      "knee",
+      "pain",
+      "arthritis",
+      "backache",
+      "stiffness",
+      "bone",
+      "baans",
+      "bamboo",
+      "roghan",
+      "suranjan",
+      "jor",
+      "dard",
+    ],
   },
   {
     id: "liver",
     name: "Liver Detox & Body Heat",
-    keywords: ["liver", "heat", "detox", "jaundice", "cooling", "fatty", "makoh", "kasni", "chicory", "afsanteen"],
+    keywords: [
+      "liver",
+      "heat",
+      "detox",
+      "jaundice",
+      "cooling",
+      "fatty",
+      "makoh",
+      "kasni",
+      "chicory",
+      "afsanteen",
+      "jigar",
+      "garmi",
+    ],
   },
   {
     id: "vitality",
     name: "Daily Energy, Brain & Stamina",
-    keywords: ["energy", "vitality", "stamina", "memory", "brain", "weakness", "nuts", "maghaz", "almond", "shahi"],
+    keywords: [
+      "energy",
+      "vitality",
+      "stamina",
+      "memory",
+      "brain",
+      "weakness",
+      "nuts",
+      "maghaz",
+      "almond",
+      "shahi",
+      "taqat",
+      "dimagh",
+    ],
   },
   {
     id: "respiratory",
-    name: "Cough, Sinus & Chest",
-    keywords: ["cough", "throat", "allergy", "sinus", "chest", "mucus", "asthma", "juniper", "arar"],
+    name: "Cough, Sinus & Chest Care",
+    keywords: [
+      "cough",
+      "throat",
+      "allergy",
+      "sinus",
+      "chest",
+      "mucus",
+      "asthma",
+      "juniper",
+      "arar",
+      "khansi",
+      "nazla",
+      "zukam",
+    ],
   },
   {
     id: "skin-hair",
-    name: "Skin Repair & Hair Care",
-    keywords: ["skin", "burns", "cracked", "heels", "hair", "scalp", "dandruff", "shampoo", "marham", "shikakai"],
+    name: "Skin Repair & Hair Strength",
+    keywords: [
+      "skin",
+      "burns",
+      "cracked",
+      "heels",
+      "hair",
+      "scalp",
+      "dandruff",
+      "shampoo",
+      "marham",
+      "shikakai",
+      "baal",
+      "jild",
+    ],
   },
   {
     id: "heart-mood",
     name: "Heart Strength & Mood Tonic",
-    keywords: ["heart", "mood", "palpitation", "apple", "behi", "quince", "safarjal", "carrot", "gajar"],
+    keywords: [
+      "heart",
+      "mood",
+      "palpitation",
+      "apple",
+      "behi",
+      "quince",
+      "safarjal",
+      "carrot",
+      "gajar",
+      "dil",
+      "ghabrahath",
+    ],
   },
 ];
 
@@ -81,21 +173,21 @@ const MIZAJ_OPTIONS = [
   { id: "all", label: "All Temperaments" },
   {
     id: "cooling",
-    label: "Cooling & Hydrating",
+    label: "Cooling (Sard / Mohtadil)",
     icon: Snowflake,
     keywords: ["cooling", "cold", "sard", "hydrating", "soothing"],
   },
   {
     id: "warm",
-    label: "Warm & Invigorating",
+    label: "Warm & Invigorating (Garm)",
     icon: Flame,
     keywords: ["warm", "garm", "bitter", "clearing", "invigorating"],
   },
   {
     id: "balanced",
-    label: "Balanced (Mohtadil)",
+    label: "Balanced (Mo'tadil)",
     icon: Scale,
-    keywords: ["balanced", "mohtadil", "nourishing", "energizing", "refreshing", "gentle", "nutrient"],
+    keywords: ["balanced", "mo'tadil", "mohtadil", "nourishing", "energizing", "gentle"],
   },
 ];
 
@@ -107,14 +199,52 @@ const RATING_OPTIONS = [
 ];
 
 function ProductsContent() {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const initialCategory = searchParams.get("category") || "all";
 
-  // Products & Categories from API
+  // 1. Initial State hydrated from URL query parameters (Two-way sync)
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    searchParams.get("category") || "all"
+  );
+  const [selectedConcern, setSelectedConcern] = useState<string>(
+    searchParams.get("concern") || "all"
+  );
+  const [selectedPriceRange, setSelectedPriceRange] = useState<string>(
+    searchParams.get("price") || "all"
+  );
+  const [selectedMizaj, setSelectedMizaj] = useState<string>(
+    searchParams.get("mizaj") || "all"
+  );
+  const [selectedRating, setSelectedRating] = useState<string>(
+    searchParams.get("rating") || "all"
+  );
+  const [inStockOnly, setInStockOnly] = useState<boolean>(
+    searchParams.get("inStock") === "true"
+  );
+  const [onSaleOnly, setOnSaleOnly] = useState<boolean>(
+    searchParams.get("onSale") === "true"
+  );
+  const [bestSellersOnly, setBestSellersOnly] = useState<boolean>(
+    searchParams.get("featured") === "true"
+  );
+  const [searchQuery, setSearchQuery] = useState<string>(
+    searchParams.get("q") || ""
+  );
+  const [sortBy, setSortBy] = useState<string>(
+    searchParams.get("sort") || "featured"
+  );
+  const [viewMode, setViewMode] = useState<"grid" | "list">(
+    (searchParams.get("view") as "grid" | "list") || "grid"
+  );
+
+  // Live Database Catalog
   const [productsList, setProductsList] = useState<Product[]>([]);
   const [categoriesList, setCategoriesList] = useState<CategoryInfo[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
+  // Fetch live products & categories from API
   useEffect(() => {
     async function loadCatalog() {
       setIsLoading(true);
@@ -123,12 +253,14 @@ function ProductsContent() {
           fetch("/api/products"),
           fetch("/api/categories"),
         ]);
+
         if (prodRes.ok) {
           const prodData = await prodRes.json();
           if (prodData.success && Array.isArray(prodData.data)) {
             setProductsList(prodData.data);
           }
         }
+
         if (catRes.ok) {
           const catData = await catRes.json();
           if (catData.success && Array.isArray(catData.data)) {
@@ -136,7 +268,7 @@ function ProductsContent() {
           }
         }
       } catch (err) {
-        console.error("Failed to fetch live catalog:", err);
+        console.error("Failed to load live apothecary catalog:", err);
       } finally {
         setIsLoading(false);
       }
@@ -144,42 +276,101 @@ function ProductsContent() {
     loadCatalog();
   }, []);
 
-  // Filter States
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
-  const [selectedConcern, setSelectedConcern] = useState<string>("all");
-  const [selectedPriceRange, setSelectedPriceRange] = useState<string>("all");
-  const [selectedMizaj, setSelectedMizaj] = useState<string>("all");
-  const [selectedRating, setSelectedRating] = useState<string>("all");
-  const [inStockOnly, setInStockOnly] = useState<boolean>(false);
-  const [onSaleOnly, setOnSaleOnly] = useState<boolean>(false);
-  const [bestSellersOnly, setBestSellersOnly] = useState<boolean>(false);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [sortBy, setSortBy] = useState<string>("featured");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  // Synchronize filter changes back into URL query params (Two-way synchronization)
+  const updateUrlParams = useCallback(() => {
+    const params = new URLSearchParams();
 
-  // Compute filtered & sorted product list
+    if (selectedCategory && selectedCategory !== "all") {
+      params.set("category", selectedCategory);
+    }
+    if (selectedConcern && selectedConcern !== "all") {
+      params.set("concern", selectedConcern);
+    }
+    if (selectedPriceRange && selectedPriceRange !== "all") {
+      params.set("price", selectedPriceRange);
+    }
+    if (selectedMizaj && selectedMizaj !== "all") {
+      params.set("mizaj", selectedMizaj);
+    }
+    if (selectedRating && selectedRating !== "all") {
+      params.set("rating", selectedRating);
+    }
+    if (inStockOnly) {
+      params.set("inStock", "true");
+    }
+    if (onSaleOnly) {
+      params.set("onSale", "true");
+    }
+    if (bestSellersOnly) {
+      params.set("featured", "true");
+    }
+    if (searchQuery.trim()) {
+      params.set("q", searchQuery.trim());
+    }
+    if (sortBy !== "featured") {
+      params.set("sort", sortBy);
+    }
+    if (viewMode !== "grid") {
+      params.set("view", viewMode);
+    }
+
+    const queryString = params.toString();
+    const newUrl = queryString ? `${pathname}?${queryString}` : pathname;
+    router.replace(newUrl, { scroll: false });
+  }, [
+    selectedCategory,
+    selectedConcern,
+    selectedPriceRange,
+    selectedMizaj,
+    selectedRating,
+    inStockOnly,
+    onSaleOnly,
+    bestSellersOnly,
+    searchQuery,
+    sortBy,
+    viewMode,
+    pathname,
+    router,
+  ]);
+
+  useEffect(() => {
+    updateUrlParams();
+  }, [updateUrlParams]);
+
+  // Dynamic Filtering Logic across multi-dimensions
   const filteredProducts = useMemo(() => {
     let list = [...productsList];
 
-    // 1. Category filter
+    // 1. Category / Formulation
     if (selectedCategory !== "all") {
-      const activeCat = categoriesList.find((c) => c.id === selectedCategory || c.slug === selectedCategory);
-      list = list.filter((p) => p.category === selectedCategory || (activeCat && (p.category === activeCat.id || p.category === activeCat.slug)));
+      const activeCat = categoriesList.find(
+        (c) => c.id === selectedCategory || c.slug === selectedCategory
+      );
+      list = list.filter((p) => {
+        const catMatch =
+          p.category === selectedCategory ||
+          p.categoryId === selectedCategory ||
+          (activeCat &&
+            (p.category === activeCat.id ||
+              p.category === activeCat.slug ||
+              p.categoryId === activeCat.id ||
+              p.categoryId === activeCat.slug));
+        return Boolean(catMatch);
+      });
     }
 
-    // 2. Health concern filter
+    // 2. Health Concern
     if (selectedConcern !== "all") {
       const concern = HEALTH_CONCERNS.find((c) => c.id === selectedConcern);
       if (concern && concern.keywords) {
         list = list.filter((p) => {
-          const content = `${p.name} ${p.shortDescription} ${p.traditionalPurpose} ${p.benefits.join(" ")} ${p.badge || ""}`.toLowerCase();
+          const content = `${p.name} ${p.shortDescription} ${p.fullDescription} ${p.traditionalPurpose} ${(p.benefits || []).join(" ")} ${p.badge || ""}`.toLowerCase();
           return concern.keywords.some((kw) => content.includes(kw));
         });
       }
     }
 
-    // 3. Price range filter
+    // 3. Price Range
     if (selectedPriceRange !== "all") {
       const range = PRICE_RANGES.find((r) => r.id === selectedPriceRange);
       if (range) {
@@ -187,7 +378,7 @@ function ProductsContent() {
       }
     }
 
-    // 4. Mizaj / Temperament filter
+    // 4. Mizaj / Temperament
     if (selectedMizaj !== "all") {
       const mizajObj = MIZAJ_OPTIONS.find((m) => m.id === selectedMizaj);
       if (mizajObj && mizajObj.keywords) {
@@ -198,44 +389,56 @@ function ProductsContent() {
       }
     }
 
-    // 5. Customer Rating filter
+    // 5. Customer Rating
     if (selectedRating !== "all") {
       const ratingObj = RATING_OPTIONS.find((r) => r.id === selectedRating);
       if (ratingObj) {
-        list = list.filter((p) => p.rating >= ratingObj.min);
+        list = list.filter((p) => (p.rating || 5.0) >= ratingObj.min);
       }
     }
 
-    // 6. In stock only filter
+    // 6. In Stock Only
     if (inStockOnly) {
       list = list.filter((p) => p.inStock);
     }
 
-    // 7. On Sale filter
+    // 7. On Sale / Discounted
     if (onSaleOnly) {
-      list = list.filter((p) => p.discountPercentage && p.discountPercentage > 0);
+      list = list.filter(
+        (p) =>
+          (p.discountPercentage && p.discountPercentage > 0) ||
+          (p.originalPrice && p.originalPrice > p.price)
+      );
     }
 
-    // 8. Best Sellers & Featured filter
+    // 8. Best Sellers & Featured
     if (bestSellersOnly) {
-      list = list.filter((p) => p.featured || (p.badge && p.badge.toLowerCase().includes("best")));
+      list = list.filter(
+        (p) => p.featured || (p.badge && p.badge.toLowerCase().includes("best"))
+      );
     }
 
-    // 9. Search query filter
+    // 9. Full text search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       list = list.filter(
         (p) =>
           p.name.toLowerCase().includes(q) ||
+          (p.urduName && p.urduName.includes(q)) ||
           p.shortDescription.toLowerCase().includes(q) ||
           p.traditionalPurpose.toLowerCase().includes(q) ||
           (p.mizaj && p.mizaj.toLowerCase().includes(q)) ||
-          p.benefits.some((b) => b.toLowerCase().includes(q)) ||
-          p.ingredients.some((ing) => ing.name.toLowerCase().includes(q))
+          (p.benefits && p.benefits.some((b) => b.toLowerCase().includes(q))) ||
+          (p.ingredients &&
+            p.ingredients.some(
+              (ing) =>
+                ing.name.toLowerCase().includes(q) ||
+                (ing.urdu && ing.urdu.includes(q))
+            ))
       );
     }
 
-    // Sorting
+    // Sorting Modes
     if (sortBy === "price-low") {
       list.sort((a, b) => a.price - b.price);
     } else if (sortBy === "price-high") {
@@ -245,14 +448,18 @@ function ProductsContent() {
     } else if (sortBy === "name-asc") {
       list.sort((a, b) => a.name.localeCompare(b.name));
     } else if (sortBy === "discount") {
-      list.sort((a, b) => (b.discountPercentage || 0) - (a.discountPercentage || 0));
+      list.sort(
+        (a, b) => (b.discountPercentage || 0) - (a.discountPercentage || 0)
+      );
     } else {
-      // featured & best seller default
+      // Default: Featured first, then newest
       list.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
     }
 
     return list;
   }, [
+    productsList,
+    categoriesList,
     selectedCategory,
     selectedConcern,
     selectedPriceRange,
@@ -265,13 +472,29 @@ function ProductsContent() {
     sortBy,
   ]);
 
-  const activeCategoryInfo = categoriesList.find((c) => c.id === selectedCategory || c.slug === selectedCategory);
-  const activeConcernInfo = HEALTH_CONCERNS.find((c) => c.id === selectedConcern);
+  // Recommended remedies for zero-result fallback
+  const recommendedProducts = useMemo(() => {
+    return productsList
+      .filter((p) => p.inStock)
+      .sort(
+        (a, b) =>
+          (b.featured ? 1 : 0) - (a.featured ? 1 : 0) || b.rating - a.rating
+      )
+      .slice(0, 4);
+  }, [productsList]);
+
+  // Information objects for active tags
+  const activeCategoryInfo = categoriesList.find(
+    (c) => c.id === selectedCategory || c.slug === selectedCategory
+  );
+  const activeConcernInfo = HEALTH_CONCERNS.find(
+    (c) => c.id === selectedConcern
+  );
   const activePriceInfo = PRICE_RANGES.find((r) => r.id === selectedPriceRange);
   const activeMizajInfo = MIZAJ_OPTIONS.find((m) => m.id === selectedMizaj);
   const activeRatingInfo = RATING_OPTIONS.find((r) => r.id === selectedRating);
 
-  // Active filter count
+  // Active filters count
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (selectedCategory !== "all") count++;
@@ -311,850 +534,613 @@ function ProductsContent() {
   };
 
   return (
-    <div className="bg-[#faf8f5] min-h-screen">
-      {/* ─── 1. COMPACT APOTHECARY HERO BANNER ─── */}
-      <section className="relative py-6 sm:py-8 bg-[#11351e] text-white border-b border-[#143e23] overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#1b502e]/60 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-[#c59b27]/10 blur-3xl pointer-events-none" />
-
+    <div className="bg-[#FAF9F6] min-h-screen text-stone-900 selection:bg-[#14281D] selection:text-white pb-20">
+      {/* ═══════════════════════════════════════════════════════════════════════
+          1. EDITORIAL APOTHECARY HERO BANNER
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section className="relative bg-[#14281D] text-white pt-8 pb-10 sm:pt-12 sm:pb-14 border-b border-stone-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          {/* Breadcrumb navigation */}
-          <div className="flex items-center gap-2 text-xs text-[#e3ded6] mb-3">
-            <Link href="/" className="hover:text-[#c59b27] flex items-center gap-1 transition-colors">
+          {/* Breadcrumb Navigation */}
+          <nav className="flex items-center gap-1.5 text-xs text-stone-400 mb-4 tracking-wide">
+            <Link
+              href="/"
+              className="hover:text-white transition-colors flex items-center gap-1"
+            >
               <Home className="w-3.5 h-3.5" />
               <span>Home</span>
             </Link>
-            <ChevronRight className="w-3 h-3 text-[#a59f95]" />
-            <span className="text-[#c59b27] font-semibold">Shop Herbal Remedies</span>
-          </div>
+            <ChevronRight className="w-3 h-3 text-stone-600" />
+            <span className="text-[#9E7D3B] font-medium">The Apothecary</span>
+          </nav>
 
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <span className="inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest font-semibold text-[#c59b27]">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Tameer-e-Sehat Apothecary</span>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+            <div className="max-w-3xl space-y-2">
+              <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] font-semibold text-[#9E7D3B]">
+                <Sparkles className="w-3 h-3" />
+                <span>Tameer-e-Sehat Classical Formulary</span>
               </span>
-              <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white mt-1 leading-tight">
-                Classical Herbal Remedies &amp; Formulations
+              <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight text-white leading-tight">
+                Authentic Herbal Remedies
               </h1>
-              <p className="text-xs sm:text-sm text-[#f4eee5]/80 max-w-2xl mt-1 leading-relaxed">
-                Hand-prepared under licensed Hakim supervision in Karachi using clean botanicals, pure honey, and classical hydro-distillation.
+              <p className="text-xs sm:text-sm text-stone-300 font-light leading-relaxed max-w-2xl pt-1">
+                Handcrafted in Karachi under licensed Hakim supervision using classical Unani hydro-distillation, pure wildcrafted botanicals, and raw mountain honey.
               </p>
             </div>
 
-            {/* Quick Guarantees Badge Group */}
-            <div className="flex flex-wrap items-center gap-2 shrink-0 text-[11px]">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-xs rounded-lg border border-white/15 text-[#e8c76a] font-medium">
-                <Truck className="w-3.5 h-3.5" /> Free Delivery over ₨ 2,000
+            {/* Guarantees Badges */}
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0 text-[11px] text-stone-300">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-xs font-light">
+                <Truck className="w-3.5 h-3.5 text-[#9E7D3B]" /> Free Delivery over ₨ 2,000
               </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-xs rounded-lg border border-white/15 text-white font-medium">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#c59b27]" /> 100% Pure &amp; Lab-Clean
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-xs font-light">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> 100% Botanical Purity
               </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ─── 2. QUICK CATEGORY PILLS STRIP (HORIZONTAL 1-CLICK BAR) ─── */}
-      <div className="bg-white border-b border-[#e6dfd5] sticky top-14 z-30 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth">
-            <button
-              onClick={() => setSelectedCategory("all")}
-              className={`shrink-0 text-xs px-3.5 py-1.5 rounded-full font-semibold transition-all ${
-                selectedCategory === "all"
-                  ? "bg-[#22623a] text-white shadow-xs"
-                  : "bg-[#faf8f5] text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a] hover:text-[#22623a]"
-              }`}
-            >
-              All Remedies ({productsList.length})
-            </button>
-
-            {categoriesList.map((cat) => {
-              const isSelected = selectedCategory === cat.id || selectedCategory === cat.slug;
-              const count = productsList.filter((p) => p.category === cat.id || p.category === cat.slug).length;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.slug || cat.id)}
-                  className={`shrink-0 text-xs px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 ${
-                    isSelected
-                      ? "bg-[#22623a] text-white shadow-xs"
-                      : "bg-[#faf8f5] text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a] hover:text-[#22623a]"
-                  }`}
+      {/* ═══════════════════════════════════════════════════════════════════════
+          2. HORIZONTAL FLOATING / STICKY FILTER BAR
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <div className="sticky top-0 z-30 bg-[#FAF9F6]/95 backdrop-blur-md border-b border-stone-200/80 shadow-2xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            {/* Left: Quick Dropdown Filters */}
+            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5">
+              {/* Formulations Filter Dropdown */}
+              <div className="relative shrink-0">
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="appearance-none bg-white border border-stone-200/90 text-stone-800 text-xs font-medium pl-3 pr-8 py-2 rounded-lg hover:border-stone-400 focus:outline-none focus:ring-1 focus:ring-[#14281D] transition-colors cursor-pointer"
                 >
-                  <span>{cat.name}</span>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                      isSelected ? "bg-white/20 text-white" : "bg-[#e6dfd5] text-[#59534b]"
-                    }`}
-                  >
-                    {count}
+                  <option value="all">All Formulations ({productsList.length})</option>
+                  {categoriesList.map((cat) => (
+                    <option key={cat.id} value={cat.slug || cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-stone-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+
+              {/* Health Concern Filter Dropdown */}
+              <div className="relative shrink-0">
+                <select
+                  value={selectedConcern}
+                  onChange={(e) => setSelectedConcern(e.target.value)}
+                  className="appearance-none bg-white border border-stone-200/90 text-stone-800 text-xs font-medium pl-3 pr-8 py-2 rounded-lg hover:border-stone-400 focus:outline-none focus:ring-1 focus:ring-[#14281D] transition-colors cursor-pointer"
+                >
+                  {HEALTH_CONCERNS.map((hc) => (
+                    <option key={hc.id} value={hc.id}>
+                      {hc.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-stone-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+
+              {/* Deep Filters Drawer Trigger */}
+              <button
+                type="button"
+                onClick={() => setIsFilterDrawerOpen(true)}
+                className={`shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                  activeFilterCount > 0
+                    ? "bg-[#14281D] text-white border-[#14281D]"
+                    : "bg-white text-stone-700 border-stone-200/90 hover:border-stone-400"
+                }`}
+              >
+                <SlidersHorizontal className="w-3.5 h-3.5" />
+                <span>Filters</span>
+                {activeFilterCount > 0 && (
+                  <span className="w-4 h-4 rounded-full bg-[#9E7D3B] text-white text-[10px] font-bold flex items-center justify-center">
+                    {activeFilterCount}
                   </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ─── 3. MAIN CATALOG BODY ─── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 xl:gap-8 items-start">
-
-          {/* ─── A. DESKTOP FILTER SIDEBAR (INDEPENDENTLY SCROLLABLE STICKY PANEL) ─── */}
-          <aside className="hidden lg:block lg:col-span-3 sticky top-28 max-h-[calc(100vh-8rem)]">
-            <div className="bg-white rounded-2xl border border-[#e6dfd5] shadow-xs flex flex-col max-h-[calc(100vh-8rem)] overflow-hidden">
-
-              {/* Sidebar Header (Fixed at top of panel) */}
-              <div className="p-4 pb-3 border-b border-[#f4eee5] flex items-center justify-between shrink-0 bg-white">
-                <div className="flex items-center gap-2 text-[#22623a] font-bold text-sm">
-                  <Filter className="w-4 h-4 text-[#c59b27]" />
-                  <span>Filters</span>
-                  {activeFilterCount > 0 && (
-                    <span className="w-5 h-5 rounded-full bg-[#c59b27] text-[#22623a] text-[10px] font-bold flex items-center justify-center">
-                      {activeFilterCount}
-                    </span>
-                  )}
-                </div>
-                {hasActiveFilters && (
-                  <button
-                    onClick={clearAllFilters}
-                    className="text-[11px] font-semibold text-[#8c6a15] hover:text-[#22623a] flex items-center gap-1 transition-colors"
-                  >
-                    <RotateCcw className="w-3 h-3" />
-                    <span>Reset</span>
-                  </button>
                 )}
-              </div>
+              </button>
 
-              {/* Sidebar Scrollable Body */}
-              <div className="flex-1 overflow-y-auto px-4 py-3.5 space-y-5 custom-scrollbar">
-
-                {/* 1. Health Concern Facet */}
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-[#22623a] uppercase tracking-wider flex items-center gap-1.5">
-                    <Stethoscope className="w-3.5 h-3.5 text-[#c59b27]" />
-                    <span>Health Concern</span>
-                  </label>
-                  <div className="space-y-1">
-                    {HEALTH_CONCERNS.map((concern) => {
-                      const isSelected = selectedConcern === concern.id;
-                      return (
-                        <button
-                          key={concern.id}
-                          onClick={() => setSelectedConcern(concern.id)}
-                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${
-                            isSelected
-                              ? "bg-[#22623a] text-white font-semibold shadow-2xs"
-                              : "text-[#59534b] hover:bg-[#faf8f5] hover:text-[#22623a]"
-                          }`}
-                        >
-                          <span className="truncate pr-2">{concern.name}</span>
-                          {isSelected && <Check className="w-3 h-3 shrink-0" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 2. Category / Formulation Type */}
-                <div className="space-y-2 pt-3.5 border-t border-[#f4eee5]">
-                  <label className="text-xs font-bold text-[#22623a] uppercase tracking-wider flex items-center gap-1.5">
-                    <Package className="w-3.5 h-3.5 text-[#c59b27]" />
-                    <span>Formulation</span>
-                  </label>
-                  <div className="space-y-1">
-                    <button
-                      onClick={() => setSelectedCategory("all")}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${
-                        selectedCategory === "all"
-                          ? "bg-[#22623a] text-white font-semibold shadow-2xs"
-                          : "text-[#59534b] hover:bg-[#faf8f5] hover:text-[#22623a]"
-                      }`}
-                    >
-                      <span>All Formulations</span>
-                      <span className={`text-[10px] ${selectedCategory === "all" ? "text-white/80" : "text-[#7a7268]"}`}>
-                        {productsList.length}
-                      </span>
-                    </button>
-
-                    {categoriesList.map((cat) => {
-                      const isSelected = selectedCategory === cat.id || selectedCategory === cat.slug;
-                      const count = productsList.filter((p) => p.category === cat.id || p.category === cat.slug).length;
-                      return (
-                        <button
-                          key={cat.id}
-                          onClick={() => setSelectedCategory(cat.slug || cat.id)}
-                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${
-                            isSelected
-                              ? "bg-[#22623a] text-white font-semibold shadow-2xs"
-                              : "text-[#59534b] hover:bg-[#faf8f5] hover:text-[#22623a]"
-                          }`}
-                        >
-                          <span className="truncate pr-2">{cat.name}</span>
-                          <span className={`text-[10px] ${isSelected ? "text-white/80" : "text-[#7a7268]"}`}>
-                            {count}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 3. Price Range Facet */}
-                <div className="space-y-2 pt-3.5 border-t border-[#f4eee5]">
-                  <label className="text-xs font-bold text-[#22623a] uppercase tracking-wider block">
-                    Price Range
-                  </label>
-                  <div className="space-y-1">
-                    {PRICE_RANGES.map((range) => {
-                      const isSelected = selectedPriceRange === range.id;
-                      return (
-                        <button
-                          key={range.id}
-                          onClick={() => setSelectedPriceRange(range.id)}
-                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${
-                            isSelected
-                              ? "bg-[#22623a] text-white font-semibold shadow-2xs"
-                              : "text-[#59534b] hover:bg-[#faf8f5] hover:text-[#22623a]"
-                          }`}
-                        >
-                          <span>{range.label}</span>
-                          {isSelected && <Check className="w-3 h-3 shrink-0" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 4. Mizaj / Temperament Facet */}
-                <div className="space-y-2 pt-3.5 border-t border-[#f4eee5]">
-                  <label className="text-xs font-bold text-[#22623a] uppercase tracking-wider block">
-                    Herbal Mizaj (Temperament)
-                  </label>
-                  <div className="space-y-1">
-                    {MIZAJ_OPTIONS.map((mizaj) => {
-                      const isSelected = selectedMizaj === mizaj.id;
-                      const Icon = mizaj.icon;
-                      return (
-                        <button
-                          key={mizaj.id}
-                          onClick={() => setSelectedMizaj(mizaj.id)}
-                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${
-                            isSelected
-                              ? "bg-[#22623a] text-white font-semibold shadow-2xs"
-                              : "text-[#59534b] hover:bg-[#faf8f5] hover:text-[#22623a]"
-                          }`}
-                        >
-                          <span className="flex items-center gap-1.5">
-                            {Icon && <Icon className="w-3 h-3 text-[#c59b27]" />}
-                            <span>{mizaj.label}</span>
-                          </span>
-                          {isSelected && <Check className="w-3 h-3 shrink-0" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 5. Customer Rating Facet */}
-                <div className="space-y-2 pt-3.5 border-t border-[#f4eee5]">
-                  <label className="text-xs font-bold text-[#22623a] uppercase tracking-wider block">
-                    Customer Rating
-                  </label>
-                  <div className="space-y-1">
-                    {RATING_OPTIONS.map((r) => {
-                      const isSelected = selectedRating === r.id;
-                      return (
-                        <button
-                          key={r.id}
-                          onClick={() => setSelectedRating(r.id)}
-                          className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${
-                            isSelected
-                              ? "bg-[#22623a] text-white font-semibold shadow-2xs"
-                              : "text-[#59534b] hover:bg-[#faf8f5] hover:text-[#22623a]"
-                          }`}
-                        >
-                          <span className="flex items-center gap-1">
-                            <Star className="w-3 h-3 fill-[#c59b27] text-[#c59b27]" />
-                            <span>{r.label}</span>
-                          </span>
-                          {isSelected && <Check className="w-3 h-3 shrink-0" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* 6. Quick Toggles (Stock & Specials) */}
-                <div className="space-y-2.5 pt-3.5 border-t border-[#f4eee5]">
-                  <label className="text-xs font-bold text-[#22623a] uppercase tracking-wider block">
-                    Special Offers &amp; Status
-                  </label>
-
-                  <label className="flex items-center gap-2.5 cursor-pointer text-xs text-[#22623a] font-medium hover:text-[#1b502e]">
-                    <input
-                      type="checkbox"
-                      checked={inStockOnly}
-                      onChange={(e) => setInStockOnly(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#22623a] focus:ring-[#22623a] border-[#e6dfd5]"
-                    />
-                    <span>Show In-Stock Only</span>
-                  </label>
-
-                  <label className="flex items-center gap-2.5 cursor-pointer text-xs text-[#22623a] font-medium hover:text-[#1b502e]">
-                    <input
-                      type="checkbox"
-                      checked={onSaleOnly}
-                      onChange={(e) => setOnSaleOnly(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#22623a] focus:ring-[#22623a] border-[#e6dfd5]"
-                    />
-                    <span className="flex items-center gap-1">
-                      <Percent className="w-3 h-3 text-[#c59b27]" />
-                      <span>On Sale / Discounted</span>
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2.5 cursor-pointer text-xs text-[#22623a] font-medium hover:text-[#1b502e]">
-                    <input
-                      type="checkbox"
-                      checked={bestSellersOnly}
-                      onChange={(e) => setBestSellersOnly(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#22623a] focus:ring-[#22623a] border-[#e6dfd5]"
-                    />
-                    <span className="flex items-center gap-1">
-                      <Sparkles className="w-3 h-3 text-[#c59b27]" />
-                      <span>Best Sellers &amp; Featured</span>
-                    </span>
-                  </label>
-                </div>
-
-              </div>
-
-              {/* Sidebar Footer Reset button if active */}
+              {/* Reset All Action */}
               {hasActiveFilters && (
-                <div className="p-3 bg-[#faf8f5] border-t border-[#f4eee5] shrink-0">
-                  <button
-                    onClick={clearAllFilters}
-                    className="w-full py-2 bg-white border border-[#e6dfd5] text-[#22623a] text-xs font-semibold rounded-xl hover:bg-[#f0eae1] transition-colors flex items-center justify-center gap-1.5"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Reset All Filters</span>
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={clearAllFilters}
+                  className="shrink-0 text-stone-500 hover:text-stone-900 text-xs font-medium flex items-center gap-1 px-2 py-1 transition-colors cursor-pointer"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  <span>Reset</span>
+                </button>
               )}
             </div>
-          </aside>
 
-          {/* ─── B. MAIN PRODUCTS STREAM (9 cols on lg) ─── */}
-          <main className="lg:col-span-9 space-y-5">
-
-            {/* Top Toolbar: Search, Sort, View Toggle & Mobile Filter Trigger */}
-            <div className="bg-white rounded-2xl border border-[#e6dfd5] p-3.5 sm:p-4 shadow-xs flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-              {/* Search Bar */}
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 text-[#7a7268] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            {/* Right: Search, Sorting & View Toggle */}
+            <div className="flex items-center gap-2.5 justify-between md:justify-end">
+              {/* Minimal Search Input */}
+              <div className="relative flex-1 md:w-56">
+                <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
+                  placeholder="Search botanical, condition..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search remedies, herbs, ingredients, or symptoms..."
-                  className="w-full pl-10 pr-4 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] placeholder-[#7a7268] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
+                  className="w-full pl-8 pr-8 py-1.5 text-xs bg-white border border-stone-200/90 rounded-lg text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-[#14281D] focus:border-[#14281D] transition-colors"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7a7268] hover:text-[#22623a]"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700 cursor-pointer"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-3 h-3" />
                   </button>
                 )}
               </div>
 
-              {/* Right Controls: Sort & Views */}
-              <div className="flex items-center gap-2 justify-between sm:justify-end">
-                {/* Mobile Filter Button */}
-                <button
-                  onClick={() => setIsMobileFilterOpen(true)}
-                  className="lg:hidden flex items-center gap-1.5 px-3 py-2 bg-[#22623a] text-white rounded-xl text-xs font-semibold shadow-xs active:scale-98"
+              {/* Sort By Dropdown */}
+              <div className="relative shrink-0">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="appearance-none bg-white border border-stone-200/90 text-stone-800 text-xs font-medium pl-3 pr-7 py-1.5 rounded-lg hover:border-stone-400 focus:outline-none focus:ring-1 focus:ring-[#14281D] transition-colors cursor-pointer"
                 >
-                  <Filter className="w-3.5 h-3.5 text-[#c59b27]" />
-                  <span>Filters {activeFilterCount > 0 ? `(${activeFilterCount})` : ""}</span>
+                  <option value="featured">Sort: Featured</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="rating">Highest Rated</option>
+                  <option value="discount">Biggest Discount</option>
+                  <option value="name-asc">Alphabetical (A–Z)</option>
+                </select>
+                <ChevronDown className="w-3.5 h-3.5 text-stone-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
+
+              {/* View Layout Toggle */}
+              <div className="hidden sm:flex items-center bg-stone-100 p-0.5 rounded-lg border border-stone-200 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("grid")}
+                  className={`p-1.5 rounded-md transition-colors cursor-pointer ${
+                    viewMode === "grid"
+                      ? "bg-white text-stone-900 shadow-2xs"
+                      : "text-stone-500 hover:text-stone-900"
+                  }`}
+                  title="Grid View"
+                  aria-label="Grid View"
+                >
+                  <LayoutGrid className="w-3.5 h-3.5" />
                 </button>
-
-                {/* Sort Dropdown */}
-                <div className="flex items-center gap-1.5 text-xs text-[#59534b]">
-                  <SlidersHorizontal className="w-3.5 h-3.5 text-[#7a7268] hidden sm:block" />
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="text-xs px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#22623a] font-semibold focus:outline-none focus:border-[#22623a]"
-                  >
-                    <option value="featured">Featured &amp; Best Sellers</option>
-                    <option value="rating">Highest Rated</option>
-                    <option value="price-low">Price: Low to High</option>
-                    <option value="price-high">Price: High to Low</option>
-                    <option value="discount">Biggest Discount</option>
-                    <option value="name-asc">Name: A to Z</option>
-                  </select>
-                </div>
-
-                {/* Grid / List View Toggle */}
-                <div className="flex items-center border border-[#e6dfd5] rounded-xl bg-[#faf8f5] p-0.5">
-                  <button
-                    onClick={() => setViewMode("grid")}
-                    className={`p-1.5 rounded-lg transition-colors ${
-                      viewMode === "grid"
-                        ? "bg-white text-[#22623a] shadow-2xs font-bold"
-                        : "text-[#7a7268] hover:text-[#22623a]"
-                    }`}
-                    title="Grid View"
-                    aria-label="Grid View"
-                  >
-                    <LayoutGrid className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => setViewMode("list")}
-                    className={`p-1.5 rounded-lg transition-colors ${
-                      viewMode === "list"
-                        ? "bg-white text-[#22623a] shadow-2xs font-bold"
-                        : "text-[#7a7268] hover:text-[#22623a]"
-                    }`}
-                    title="List View"
-                    aria-label="List View"
-                  >
-                    <List className="w-4 h-4" />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("list")}
+                  className={`p-1.5 rounded-md transition-colors cursor-pointer ${
+                    viewMode === "list"
+                      ? "bg-white text-stone-900 shadow-2xs"
+                      : "text-stone-500 hover:text-stone-900"
+                  }`}
+                  title="List View"
+                  aria-label="List View"
+                >
+                  <List className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
+          </div>
 
-            {/* Active Filter Chips Bar */}
-            {hasActiveFilters && (
-              <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#7a7268]">
-                  Active:
+          {/* Active Filter Badges Ribbon */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-2.5 mt-2 border-t border-stone-200/60 text-xs">
+              <span className="text-[11px] text-stone-400 font-medium mr-1">Active:</span>
+
+              {selectedCategory !== "all" && activeCategoryInfo && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white border border-stone-200 text-stone-800 text-[11px]">
+                  {activeCategoryInfo.name}
+                  <button onClick={() => setSelectedCategory("all")} className="hover:text-rose-600">
+                    <X className="w-3 h-3" />
+                  </button>
                 </span>
+              )}
 
-                {selectedCategory !== "all" && activeCategoryInfo && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#22623a] text-white rounded-full text-xs font-semibold shadow-2xs">
-                    <span>Type: {activeCategoryInfo.name}</span>
-                    <button
-                      onClick={() => setSelectedCategory("all")}
-                      className="hover:text-[#c59b27]"
-                      aria-label="Remove category filter"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
+              {selectedConcern !== "all" && activeConcernInfo && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white border border-stone-200 text-stone-800 text-[11px]">
+                  {activeConcernInfo.name}
+                  <button onClick={() => setSelectedConcern("all")} className="hover:text-rose-600">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
 
-                {selectedConcern !== "all" && activeConcernInfo && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#22623a] text-white rounded-full text-xs font-semibold shadow-2xs">
-                    <span>Concern: {activeConcernInfo.name}</span>
-                    <button
-                      onClick={() => setSelectedConcern("all")}
-                      className="hover:text-[#c59b27]"
-                      aria-label="Remove concern filter"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
+              {selectedPriceRange !== "all" && activePriceInfo && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white border border-stone-200 text-stone-800 text-[11px]">
+                  {activePriceInfo.label}
+                  <button onClick={() => setSelectedPriceRange("all")} className="hover:text-rose-600">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
 
-                {selectedPriceRange !== "all" && activePriceInfo && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#22623a] text-white rounded-full text-xs font-semibold shadow-2xs">
-                    <span>{activePriceInfo.label}</span>
-                    <button
-                      onClick={() => setSelectedPriceRange("all")}
-                      className="hover:text-[#c59b27]"
-                      aria-label="Remove price filter"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
+              {selectedMizaj !== "all" && activeMizajInfo && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white border border-stone-200 text-stone-800 text-[11px]">
+                  {activeMizajInfo.label}
+                  <button onClick={() => setSelectedMizaj("all")} className="hover:text-rose-600">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
 
-                {selectedMizaj !== "all" && activeMizajInfo && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#22623a] text-white rounded-full text-xs font-semibold shadow-2xs">
-                    <span>Mizaj: {activeMizajInfo.label}</span>
-                    <button
-                      onClick={() => setSelectedMizaj("all")}
-                      className="hover:text-[#c59b27]"
-                      aria-label="Remove mizaj filter"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
+              {selectedRating !== "all" && activeRatingInfo && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white border border-stone-200 text-stone-800 text-[11px]">
+                  {activeRatingInfo.label}
+                  <button onClick={() => setSelectedRating("all")} className="hover:text-rose-600">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
 
-                {selectedRating !== "all" && activeRatingInfo && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#22623a] text-white rounded-full text-xs font-semibold shadow-2xs">
-                    <span>{activeRatingInfo.label}</span>
-                    <button
-                      onClick={() => setSelectedRating("all")}
-                      className="hover:text-[#c59b27]"
-                      aria-label="Remove rating filter"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
+              {inStockOnly && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white border border-stone-200 text-stone-800 text-[11px]">
+                  In Stock Only
+                  <button onClick={() => setInStockOnly(false)} className="hover:text-rose-600">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
 
-                {inStockOnly && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#22623a] text-white rounded-full text-xs font-semibold shadow-2xs">
-                    <span>In-Stock Only</span>
-                    <button
-                      onClick={() => setInStockOnly(false)}
-                      className="hover:text-[#c59b27]"
-                      aria-label="Remove in stock filter"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
+              {onSaleOnly && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white border border-stone-200 text-stone-800 text-[11px]">
+                  On Sale
+                  <button onClick={() => setOnSaleOnly(false)} className="hover:text-rose-600">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
 
-                {onSaleOnly && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#22623a] text-white rounded-full text-xs font-semibold shadow-2xs">
-                    <span>On Sale</span>
-                    <button
-                      onClick={() => setOnSaleOnly(false)}
-                      className="hover:text-[#c59b27]"
-                      aria-label="Remove on sale filter"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
+              {bestSellersOnly && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white border border-stone-200 text-stone-800 text-[11px]">
+                  Featured &amp; Best Sellers
+                  <button onClick={() => setBestSellersOnly(false)} className="hover:text-rose-600">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
 
-                {bestSellersOnly && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#22623a] text-white rounded-full text-xs font-semibold shadow-2xs">
-                    <span>Best Sellers</span>
-                    <button
-                      onClick={() => setBestSellersOnly(false)}
-                      className="hover:text-[#c59b27]"
-                      aria-label="Remove best sellers filter"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-
-                {searchQuery && (
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#22623a] text-white rounded-full text-xs font-semibold shadow-2xs">
-                    <span>&quot;{searchQuery}&quot;</span>
-                    <button
-                      onClick={() => setSearchQuery("")}
-                      className="hover:text-[#c59b27]"
-                      aria-label="Remove search query filter"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-
-                <button
-                  onClick={clearAllFilters}
-                  className="text-xs font-semibold text-[#8c6a15] hover:text-[#22623a] underline underline-offset-2 ml-1"
-                >
-                  Clear All
-                </button>
-              </div>
-            )}
-
-            {/* Results Count Banner */}
-            <div className="flex items-center justify-between text-xs text-[#59534b] px-1">
-              <span>
-                Showing <strong>{filteredProducts.length}</strong> natural remedies
-              </span>
-              <span className="text-[11px] text-[#2d7648] font-semibold flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Direct from Karachi Dispensary
-              </span>
+              {searchQuery && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white border border-stone-200 text-stone-800 text-[11px]">
+                  &ldquo;{searchQuery}&rdquo;
+                  <button onClick={() => setSearchQuery("")} className="hover:text-rose-600">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
             </div>
-
-            {/* ─── Products List / Grid ─── */}
-            {filteredProducts.length === 0 ? (
-              <div className="py-16 text-center bg-white rounded-2xl border border-[#e6dfd5] p-8 space-y-4">
-                <div className="w-14 h-14 mx-auto rounded-full bg-[#faf8f5] border border-[#e6dfd5] flex items-center justify-center text-[#7a7268]">
-                  <Search className="w-6 h-6 opacity-40" />
-                </div>
-                <div className="space-y-1 max-w-md mx-auto">
-                  <h3 className="font-serif text-lg font-bold text-[#22623a]">
-                    No remedies found matching your filters
-                  </h3>
-                  <p className="text-xs text-[#59534b]">
-                    Try adjusting your criteria, clearing search keywords, or selecting another health concern.
-                  </p>
-                </div>
-                <button
-                  onClick={clearAllFilters}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#22623a] text-white text-xs font-semibold uppercase tracking-wider rounded-xl shadow-xs hover:bg-[#1b502e] transition-colors"
-                >
-                  <RotateCcw className="w-3.5 h-3.5" />
-                  <span>Reset All Filters</span>
-                </button>
-              </div>
-            ) : viewMode === "grid" ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 xl:gap-6">
-                {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} viewMode="grid" />
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} viewMode="list" />
-                ))}
-              </div>
-            )}
-
-            {/* Bottom Trust & Guarantee Banner */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4">
-              <div className="p-4 sm:p-5 bg-white rounded-2xl border border-[#e6dfd5] shadow-xs flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-[#22623a]/10 text-[#22623a] flex items-center justify-center shrink-0">
-                  <Truck className="w-5 h-5 text-[#22623a]" />
-                </div>
-                <div>
-                  <h4 className="font-serif text-sm font-bold text-[#22623a]">
-                    Free Delivery Nationwide
-                  </h4>
-                  <p className="text-xs text-[#59534b] mt-0.5">
-                    Orders above ₨ 2,000 qualify for free courier dispatch with Cash on Delivery (COD).
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-4 sm:p-5 bg-white rounded-2xl border border-[#e6dfd5] shadow-xs flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-[#22623a]/10 text-[#22623a] flex items-center justify-center shrink-0">
-                  <ShieldCheck className="w-5 h-5 text-[#c59b27]" />
-                </div>
-                <div>
-                  <h4 className="font-serif text-sm font-bold text-[#22623a]">
-                    100% Botanical Authenticity
-                  </h4>
-                  <p className="text-xs text-[#59534b] mt-0.5">
-                    Traditional formulas made with fresh herbs, zero synthetic steroids, and pure methods.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-          </main>
+          )}
         </div>
       </div>
 
-      {/* ─── C. MOBILE SLIDE-OVER FILTER DRAWER ─── */}
-      {isMobileFilterOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden overflow-hidden">
+      {/* ═══════════════════════════════════════════════════════════════════════
+          3. FULL-WIDTH EDITORIAL PRODUCT GRID
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+        {/* Count Bar */}
+        <div className="flex items-center justify-between pb-6 text-xs text-stone-500 font-light">
+          <div>
+            Showing <span className="font-semibold text-stone-900">{filteredProducts.length}</span> of {productsList.length} classical remedies
+          </div>
+        </div>
+
+        {/* Loading Skeleton */}
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+              <div
+                key={n}
+                className="bg-white rounded-xl border border-stone-200/60 p-4 space-y-3 animate-pulse"
+              >
+                <div className="aspect-square bg-stone-100 rounded-lg w-full" />
+                <div className="h-3 bg-stone-100 rounded w-1/3" />
+                <div className="h-4 bg-stone-200 rounded w-3/4" />
+                <div className="h-3 bg-stone-100 rounded w-1/2" />
+                <div className="h-8 bg-stone-100 rounded-lg w-full mt-4" />
+              </div>
+            ))}
+          </div>
+        ) : filteredProducts.length > 0 ? (
+          /* Products Grid / List */
           <div
-            onClick={() => setIsMobileFilterOpen(false)}
-            className="fixed inset-0 bg-[#0c2417]/50 backdrop-blur-xs transition-opacity"
+            className={
+              viewMode === "grid"
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 items-stretch"
+                : "flex flex-col gap-4"
+            }
+          >
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                viewMode={viewMode}
+              />
+            ))}
+          </div>
+        ) : (
+          /* Zero Results Fallback */
+          <div className="bg-white rounded-2xl border border-stone-200/80 p-8 sm:p-14 text-center max-w-2xl mx-auto space-y-6">
+            <div className="w-14 h-14 rounded-full bg-stone-100 text-stone-400 flex items-center justify-center mx-auto">
+              <Search className="w-6 h-6 text-stone-400" />
+            </div>
+
+            <div className="space-y-2">
+              <h2 className="font-serif text-2xl font-normal text-stone-900">
+                No matching remedies found
+              </h2>
+              <p className="text-xs sm:text-sm text-stone-500 leading-relaxed">
+                We couldn&apos;t find any remedies matching your selected combination. Try clearing some filters or searching with a different term.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs font-medium uppercase tracking-wider transition-colors cursor-pointer shadow-xs"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset All Filters</span>
+            </button>
+
+            {recommendedProducts.length > 0 && (
+              <div className="pt-8 border-t border-stone-100 text-left">
+                <div className="text-xs uppercase tracking-widest text-stone-400 font-medium mb-4">
+                  Recommended Herbal Formulations
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {recommendedProducts.map((p) => (
+                    <ProductCard key={p.id} product={p} viewMode="grid" />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          4. SLIDE-OVER FILTER SHEET (Off-canvas Deep Filter Drawer)
+      ═══════════════════════════════════════════════════════════════════════ */}
+      {isFilterDrawerOpen && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity duration-300"
+            onClick={() => setIsFilterDrawerOpen(false)}
           />
 
-          <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-            <div className="w-screen max-w-xs bg-white shadow-2xl flex flex-col h-full border-l border-[#e6dfd5]">
-              {/* Drawer Header */}
-              <div className="p-4 border-b border-[#e6dfd5] flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-bold text-[#22623a]">
-                  <Filter className="w-4 h-4 text-[#c59b27]" />
-                  <span>Filter Remedies</span>
-                  {activeFilterCount > 0 && (
-                    <span className="w-5 h-5 rounded-full bg-[#c59b27] text-[#22623a] text-[10px] font-bold flex items-center justify-center">
-                      {activeFilterCount}
-                    </span>
-                  )}
+          {/* Drawer Container */}
+          <div className="relative w-full max-w-md bg-white h-full shadow-2xl z-10 flex flex-col overflow-hidden animate-in slide-in-from-right duration-300">
+            {/* Drawer Header */}
+            <div className="px-6 py-4 border-b border-stone-100 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sliders className="w-4 h-4 text-[#9E7D3B]" />
+                <h2 className="font-serif text-lg font-semibold text-stone-900">
+                  Refine Formulation Catalog
+                </h2>
+              </div>
+              <button
+                onClick={() => setIsFilterDrawerOpen(false)}
+                className="p-1.5 rounded-full text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-colors cursor-pointer"
+                aria-label="Close Filter Drawer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Drawer Scrollable Content */}
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6 custom-scrollbar text-stone-800">
+              {/* 1. Health Concern */}
+              <div className="space-y-3">
+                <div className="text-xs font-semibold uppercase tracking-wider text-stone-400">
+                  Target Health Concern
                 </div>
-                <button
-                  onClick={() => setIsMobileFilterOpen(false)}
-                  className="p-1.5 rounded-full text-[#7a7268] hover:text-[#22623a]"
-                  aria-label="Close filters"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+                <div className="space-y-1.5">
+                  {HEALTH_CONCERNS.map((hc) => {
+                    const isSelected = selectedConcern === hc.id;
+                    return (
+                      <button
+                        key={hc.id}
+                        type="button"
+                        onClick={() => setSelectedConcern(hc.id)}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
+                          isSelected
+                            ? "bg-[#14281D] text-white font-medium shadow-xs"
+                            : "bg-stone-50 hover:bg-stone-100 text-stone-700"
+                        }`}
+                      >
+                        <span>{hc.name}</span>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-[#9E7D3B]" />}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              {/* Drawer Scrollable Body */}
-              <div className="flex-1 overflow-y-auto p-5 space-y-5 custom-scrollbar">
-
-                {/* 1. Health Concerns */}
-                <div className="space-y-2">
-                  <span className="text-xs font-bold text-[#22623a] uppercase tracking-wider block">
-                    Health Concern
-                  </span>
-                  <div className="space-y-1">
-                    {HEALTH_CONCERNS.map((c) => (
-                      <button
-                        key={c.id}
-                        onClick={() => setSelectedConcern(c.id)}
-                        className={`w-full text-left px-3 py-2 rounded-xl text-xs flex justify-between ${
-                          selectedConcern === c.id
-                            ? "bg-[#22623a] text-white font-semibold"
-                            : "text-[#59534b] hover:bg-[#faf8f5]"
-                        }`}
-                      >
-                        <span>{c.name}</span>
-                        {selectedConcern === c.id && <Check className="w-3.5 h-3.5" />}
-                      </button>
-                    ))}
-                  </div>
+              {/* 2. Formulation / Category */}
+              <div className="space-y-3 pt-3 border-t border-stone-100">
+                <div className="text-xs font-semibold uppercase tracking-wider text-stone-400">
+                  Classical Formulation Category
                 </div>
-
-                {/* 2. Formulation Types */}
-                <div className="space-y-2 pt-4 border-t border-[#f4eee5]">
-                  <span className="text-xs font-bold text-[#22623a] uppercase tracking-wider block">
-                    Formulation Type
-                  </span>
-                  <div className="space-y-1">
-                    <button
-                      onClick={() => setSelectedCategory("all")}
-                      className={`w-full text-left px-3 py-2 rounded-xl text-xs flex justify-between ${
-                        selectedCategory === "all"
-                          ? "bg-[#22623a] text-white font-semibold"
-                          : "text-[#59534b] hover:bg-[#faf8f5]"
-                      }`}
-                    >
-                      <span>All Types</span>
-                      <span className="text-[10px] opacity-75">{productsList.length}</span>
-                    </button>
-                    {categoriesList.map((cat) => (
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory("all")}
+                    className={`text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
+                      selectedCategory === "all"
+                        ? "bg-[#14281D] text-white font-medium shadow-xs"
+                        : "bg-stone-50 hover:bg-stone-100 text-stone-700"
+                    }`}
+                  >
+                    <span>All ({productsList.length})</span>
+                    {selectedCategory === "all" && <Check className="w-3 h-3 text-[#9E7D3B]" />}
+                  </button>
+                  {categoriesList.map((cat) => {
+                    const isSelected =
+                      selectedCategory === cat.id || selectedCategory === cat.slug;
+                    return (
                       <button
                         key={cat.id}
+                        type="button"
                         onClick={() => setSelectedCategory(cat.slug || cat.id)}
-                        className={`w-full text-left px-3 py-2 rounded-xl text-xs flex justify-between ${
-                          selectedCategory === cat.id || selectedCategory === cat.slug
-                            ? "bg-[#22623a] text-white font-semibold"
-                            : "text-[#59534b] hover:bg-[#faf8f5]"
+                        className={`text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
+                          isSelected
+                            ? "bg-[#14281D] text-white font-medium shadow-xs"
+                            : "bg-stone-50 hover:bg-stone-100 text-stone-700"
                         }`}
                       >
-                        <span>{cat.name}</span>
-                        <span className="text-[10px] opacity-75">
-                          {productsList.filter((p) => p.category === cat.id || p.category === cat.slug).length}
-                        </span>
+                        <span className="truncate">{cat.name}</span>
+                        {isSelected && <Check className="w-3 h-3 text-[#9E7D3B]" />}
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
+              </div>
 
-                {/* 3. Price Range */}
-                <div className="space-y-2 pt-4 border-t border-[#f4eee5]">
-                  <span className="text-xs font-bold text-[#22623a] uppercase tracking-wider block">
-                    Price Range
-                  </span>
-                  <div className="space-y-1">
-                    {PRICE_RANGES.map((r) => (
+              {/* 3. Unani Temperament (Mizaj) */}
+              <div className="space-y-3 pt-3 border-t border-stone-100">
+                <div className="text-xs font-semibold uppercase tracking-wider text-stone-400">
+                  Unani Energetic Mizaj (Temperament)
+                </div>
+                <div className="space-y-1.5">
+                  {MIZAJ_OPTIONS.map((mz) => {
+                    const isSelected = selectedMizaj === mz.id;
+                    const Icon = mz.icon;
+                    return (
                       <button
-                        key={r.id}
-                        onClick={() => setSelectedPriceRange(r.id)}
-                        className={`w-full text-left px-3 py-2 rounded-xl text-xs flex justify-between ${
-                          selectedPriceRange === r.id
-                            ? "bg-[#22623a] text-white font-semibold"
-                            : "text-[#59534b] hover:bg-[#faf8f5]"
+                        key={mz.id}
+                        type="button"
+                        onClick={() => setSelectedMizaj(mz.id)}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
+                          isSelected
+                            ? "bg-[#14281D] text-white font-medium shadow-xs"
+                            : "bg-stone-50 hover:bg-stone-100 text-stone-700"
                         }`}
                       >
-                        <span>{r.label}</span>
-                        {selectedPriceRange === r.id && <Check className="w-3.5 h-3.5" />}
+                        <div className="flex items-center gap-2">
+                          {Icon && <Icon className="w-3.5 h-3.5 text-[#9E7D3B]" />}
+                          <span>{mz.label}</span>
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-[#9E7D3B]" />}
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
+              </div>
 
-                {/* 4. Mizaj / Temperament */}
-                <div className="space-y-2 pt-4 border-t border-[#f4eee5]">
-                  <span className="text-xs font-bold text-[#22623a] uppercase tracking-wider block">
-                    Herbal Mizaj (Temperament)
-                  </span>
-                  <div className="space-y-1">
-                    {MIZAJ_OPTIONS.map((m) => (
+              {/* 4. Price Filter */}
+              <div className="space-y-3 pt-3 border-t border-stone-100">
+                <div className="text-xs font-semibold uppercase tracking-wider text-stone-400">
+                  Price Range
+                </div>
+                <div className="space-y-1.5">
+                  {PRICE_RANGES.map((pr) => {
+                    const isSelected = selectedPriceRange === pr.id;
+                    return (
                       <button
-                        key={m.id}
-                        onClick={() => setSelectedMizaj(m.id)}
-                        className={`w-full text-left px-3 py-2 rounded-xl text-xs flex justify-between ${
-                          selectedMizaj === m.id
-                            ? "bg-[#22623a] text-white font-semibold"
-                            : "text-[#59534b] hover:bg-[#faf8f5]"
+                        key={pr.id}
+                        type="button"
+                        onClick={() => setSelectedPriceRange(pr.id)}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
+                          isSelected
+                            ? "bg-[#14281D] text-white font-medium shadow-xs"
+                            : "bg-stone-50 hover:bg-stone-100 text-stone-700"
                         }`}
                       >
-                        <span>{m.label}</span>
-                        {selectedMizaj === m.id && <Check className="w-3.5 h-3.5" />}
+                        <span>{pr.label}</span>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-[#9E7D3B]" />}
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
+              </div>
 
-                {/* 5. Rating Filter */}
-                <div className="space-y-2 pt-4 border-t border-[#f4eee5]">
-                  <span className="text-xs font-bold text-[#22623a] uppercase tracking-wider block">
-                    Customer Rating
-                  </span>
-                  <div className="space-y-1">
-                    {RATING_OPTIONS.map((r) => (
+              {/* 5. Minimum Rating */}
+              <div className="space-y-3 pt-3 border-t border-stone-100">
+                <div className="text-xs font-semibold uppercase tracking-wider text-stone-400">
+                  Customer Score
+                </div>
+                <div className="space-y-1.5">
+                  {RATING_OPTIONS.map((ro) => {
+                    const isSelected = selectedRating === ro.id;
+                    return (
                       <button
-                        key={r.id}
-                        onClick={() => setSelectedRating(r.id)}
-                        className={`w-full text-left px-3 py-2 rounded-xl text-xs flex justify-between ${
-                          selectedRating === r.id
-                            ? "bg-[#22623a] text-white font-semibold"
-                            : "text-[#59534b] hover:bg-[#faf8f5]"
+                        key={ro.id}
+                        type="button"
+                        onClick={() => setSelectedRating(ro.id)}
+                        className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
+                          isSelected
+                            ? "bg-[#14281D] text-white font-medium shadow-xs"
+                            : "bg-stone-50 hover:bg-stone-100 text-stone-700"
                         }`}
                       >
-                        <span>{r.label}</span>
-                        {selectedRating === r.id && <Check className="w-3.5 h-3.5" />}
+                        <div className="flex items-center gap-1.5">
+                          <Star className="w-3.5 h-3.5 fill-[#9E7D3B] text-[#9E7D3B]" />
+                          <span>{ro.label}</span>
+                        </div>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-[#9E7D3B]" />}
                       </button>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
+              </div>
 
-                {/* 6. Special Toggles */}
-                <div className="space-y-2.5 pt-4 border-t border-[#f4eee5]">
-                  <span className="text-xs font-bold text-[#22623a] uppercase tracking-wider block">
-                    Availability &amp; Offers
-                  </span>
-                  <label className="flex items-center gap-2 text-xs font-medium text-[#22623a]">
+              {/* 6. Availability & Offers */}
+              <div className="space-y-3 pt-3 border-t border-stone-100">
+                <div className="text-xs font-semibold uppercase tracking-wider text-stone-400">
+                  Availability &amp; Badges
+                </div>
+                <div className="space-y-2">
+                  <label className="flex items-center justify-between p-2.5 rounded-lg bg-stone-50 hover:bg-stone-100 cursor-pointer transition-colors text-xs text-stone-700">
+                    <span>In Stock Only</span>
                     <input
                       type="checkbox"
                       checked={inStockOnly}
                       onChange={(e) => setInStockOnly(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#22623a]"
+                      className="w-4 h-4 rounded border-stone-300 text-[#14281D] focus:ring-[#14281D]"
                     />
-                    <span>In-Stock Only</span>
                   </label>
-                  <label className="flex items-center gap-2 text-xs font-medium text-[#22623a]">
+
+                  <label className="flex items-center justify-between p-2.5 rounded-lg bg-stone-50 hover:bg-stone-100 cursor-pointer transition-colors text-xs text-stone-700">
+                    <span>On Sale / Discounted</span>
                     <input
                       type="checkbox"
                       checked={onSaleOnly}
                       onChange={(e) => setOnSaleOnly(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#22623a]"
+                      className="w-4 h-4 rounded border-stone-300 text-[#14281D] focus:ring-[#14281D]"
                     />
-                    <span>On Sale / Discounted</span>
                   </label>
-                  <label className="flex items-center gap-2 text-xs font-medium text-[#22623a]">
+
+                  <label className="flex items-center justify-between p-2.5 rounded-lg bg-stone-50 hover:bg-stone-100 cursor-pointer transition-colors text-xs text-stone-700">
+                    <span>Featured &amp; Best Sellers</span>
                     <input
                       type="checkbox"
                       checked={bestSellersOnly}
                       onChange={(e) => setBestSellersOnly(e.target.checked)}
-                      className="w-4 h-4 rounded text-[#22623a]"
+                      className="w-4 h-4 rounded border-stone-300 text-[#14281D] focus:ring-[#14281D]"
                     />
-                    <span>Best Sellers &amp; Featured</span>
                   </label>
                 </div>
               </div>
+            </div>
 
-              {/* Drawer Footer */}
-              <div className="p-4 border-t border-[#e6dfd5] bg-[#faf8f5] flex gap-3">
-                <button
-                  onClick={clearAllFilters}
-                  className="flex-1 py-2.5 bg-white border border-[#e6dfd5] text-[#59534b] text-xs font-semibold rounded-xl"
-                >
-                  Reset
-                </button>
-                <button
-                  onClick={() => setIsMobileFilterOpen(false)}
-                  className="flex-1 py-2.5 bg-[#22623a] text-white text-xs font-semibold uppercase tracking-wider rounded-xl shadow-xs"
-                >
-                  Show ({filteredProducts.length})
-                </button>
-              </div>
+            {/* Drawer Bottom Bar */}
+            <div className="p-4 border-t border-stone-100 bg-stone-50 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={clearAllFilters}
+                className="w-1/3 py-2.5 text-xs font-semibold text-stone-600 hover:text-stone-900 border border-stone-200 rounded-xl transition-colors cursor-pointer"
+              >
+                Reset All
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsFilterDrawerOpen(false)}
+                className="flex-1 py-2.5 text-xs font-semibold bg-[#14281D] hover:bg-[#0c1b13] text-white rounded-xl transition-colors cursor-pointer shadow-xs"
+              >
+                Show {filteredProducts.length} Remedies
+              </button>
             </div>
           </div>
         </div>
@@ -1167,8 +1153,13 @@ export default function ProductsPage() {
   return (
     <Suspense
       fallback={
-        <div className="p-16 text-center text-xs text-[#59534b] bg-[#faf8f5] min-h-[50vh] flex items-center justify-center">
-          Loading Apothecary Remedies...
+        <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center p-8">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-8 h-8 rounded-full border-2 border-[#14281D] border-t-transparent animate-spin" />
+            <span className="text-xs text-stone-500 uppercase tracking-widest font-medium">
+              Loading Apothecary...
+            </span>
+          </div>
         </div>
       }
     >

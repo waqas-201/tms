@@ -17,6 +17,7 @@ import {
   Clock,
   Sparkles,
   ChevronRight,
+  ChevronDown,
   Leaf,
   HeartHandshake,
   CheckCircle2,
@@ -27,13 +28,11 @@ import {
   Minus,
   MessageSquare,
   BadgeCheck,
-  HelpCircle,
-  BookOpen,
-  Info,
-  Calendar,
   X,
   Send,
-  Lock,
+  Snowflake,
+  Flame,
+  Scale,
 } from "lucide-react";
 
 interface CustomerReview {
@@ -56,6 +55,22 @@ export default function ProductDetailPage({
   const [catalog, setCatalog] = useState<Product[]>([]);
   const [hasFetched, setHasFetched] = useState(false);
 
+  // Active accordion section states
+  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
+    overview: true,
+    ingredients: true,
+    dosage: false,
+    shipping: false,
+    reviews: true,
+  });
+
+  const toggleSection = (key: string) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
+
   // Load live product and catalog from API
   useEffect(() => {
     async function loadLiveProduct() {
@@ -70,9 +85,25 @@ export default function ProductDetailPage({
           if (json.success && json.data) {
             setProduct(json.data);
             setSelectedSize((prev) => {
-              if (!prev) return json.data.sizes[0] || { name: "Standard", weight: "250g", price: json.data.price || 0 };
-              const match = json.data.sizes.find((s: ProductSize) => s.id === prev.id || s.name === prev.name);
-              return match || json.data.sizes[0] || { name: "Standard", weight: "250g", price: json.data.price || 0 };
+              if (!prev)
+                return (
+                  json.data.sizes[0] || {
+                    name: "Standard",
+                    weight: "250g",
+                    price: json.data.price || 0,
+                  }
+                );
+              const match = json.data.sizes.find(
+                (s: ProductSize) => s.id === prev.id || s.name === prev.name
+              );
+              return (
+                match ||
+                json.data.sizes[0] || {
+                  name: "Standard",
+                  weight: "250g",
+                  price: json.data.price || 0,
+                }
+              );
             });
           }
         }
@@ -92,15 +123,14 @@ export default function ProductDetailPage({
     loadLiveProduct();
   }, [resolvedParams.slug]);
 
-  const { addToCart, wishlist, toggleWishlist, isInWishlist } = useCart();
+  const { addToCart, isInWishlist, toggleWishlist } = useCart();
   const isSaved = product ? isInWishlist(product.id) : false;
 
-  // States
+  // Local UI States
   const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(1);
   const [isAdded, setIsAdded] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "ingredients" | "dosage" | "shipping" | "reviews">("overview");
   const [isBundleAdded, setIsBundleAdded] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
@@ -116,62 +146,12 @@ export default function ProductDetailPage({
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewSuccessMsg, setReviewSuccessMsg] = useState<string | null>(null);
 
-  if (!product && hasFetched) {
-    notFound();
-  }
-
-  if (!product) {
-    return (
-      <div className="min-h-screen bg-[#faf8f5] flex items-center justify-center">
-        <div className="animate-pulse text-[#22623a] font-serif text-lg">Loading Remedy Guide...</div>
-      </div>
-    );
-  }
-
-  const activeSize: ProductSize =
-    selectedSize ||
-    product.sizes[0] || {
-      name: "Standard",
-      weight: "Standard",
-      price: product.price,
-    };
-
-  const isAvailable =
-    activeSize.available !== undefined ? activeSize.available > 0 : product.inStock;
-  const maxAvailable = activeSize.available !== undefined ? activeSize.available : 99;
-
-  // Compute dynamic ratings & review breakdown
-  const totalReviews = reviewsList.length;
-  const averageRating =
-    totalReviews > 0
-      ? (reviewsList.reduce((acc, r) => acc + r.rating, 0) / totalReviews).toFixed(1)
-      : (product.rating ? product.rating.toFixed(1) : "5.0");
-
-  const starBreakdown = [5, 4, 3, 2, 1].map((star) => {
-    const count = reviewsList.filter((r) => r.rating === star).length;
-    const percentage = totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0;
-    return { star, count, percentage };
-  });
-
-  // Pick complementary product for "Frequently Prescribed Together" bundle
-  const bundleProduct =
-    catalog.find(
-      (p) =>
-        p.id !== product.id &&
-        (p.category === product.category || p.category === "arqiyat" || p.featured)
-    ) ||
-    catalog.find((p) => p.id !== product.id) ||
-    null;
-
-  const bundleSize = bundleProduct?.sizes?.[0] || null;
-  const bundleTotalPrice = (activeSize.price || 0) + (bundleSize?.price || 0);
-  const bundleDiscountedPrice = Math.round(bundleTotalPrice * 0.95); // 5% bundle discount
-
-  // Load reviews dynamically from Database API
+  // Load reviews dynamically from Database API (Must be called before any early return)
   useEffect(() => {
     async function loadReviews() {
+      if (!product?.id) return;
       try {
-        const res = await fetch(`/api/reviews?productId=${product?.id}`);
+        const res = await fetch(`/api/reviews?productId=${product.id}`);
         if (res.ok) {
           const json = await res.json();
           if (json.data && Array.isArray(json.data)) {
@@ -198,10 +178,69 @@ export default function ProductDetailPage({
     loadReviews();
   }, [product?.id]);
 
+  if (!product && hasFetched) {
+    notFound();
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-full border-2 border-stone-300 border-t-[#14281D] animate-spin" />
+          <span className="text-xs uppercase tracking-[0.2em] text-stone-500 font-medium">
+            Preparing Remedy Dossier...
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  const activeSize: ProductSize =
+    selectedSize ||
+    product.sizes[0] || {
+      name: "Standard",
+      weight: "Standard",
+      price: product.price,
+    };
+
+  const isAvailable =
+    activeSize.available !== undefined ? activeSize.available > 0 : product.inStock;
+  const maxAvailable = activeSize.available !== undefined ? activeSize.available : 99;
+
+  // Compute dynamic ratings & review breakdown
+  const totalReviews = reviewsList.length;
+  const averageRating =
+    totalReviews > 0
+      ? (reviewsList.reduce((acc, r) => acc + r.rating, 0) / totalReviews).toFixed(1)
+      : product.rating
+      ? product.rating.toFixed(1)
+      : "5.0";
+
+  const starBreakdown = [5, 4, 3, 2, 1].map((star) => {
+    const count = reviewsList.filter((r) => r.rating === star).length;
+    const percentage = totalReviews > 0 ? Math.round((count / totalReviews) * 100) : 0;
+    return { star, count, percentage };
+  });
+
+  // Pick complementary product for "Frequently Prescribed Together" bundle
+  const bundleProduct =
+    catalog.find(
+      (p) =>
+        p.id !== product.id &&
+        (p.category === product.category || p.category === "arqiyat" || p.featured)
+    ) ||
+    catalog.find((p) => p.id !== product.id) ||
+    null;
+
+  const bundleSize = bundleProduct?.sizes?.[0] || null;
+  const bundleTotalPrice = (activeSize.price || 0) + (bundleSize?.price || 0);
+  const bundleDiscountedPrice = Math.round(bundleTotalPrice * 0.95); // 5% bundle discount
+
   const handleAddToCart = () => {
+    if (!isAvailable) return;
     addToCart(product, activeSize, quantity);
     setIsAdded(true);
-    setTimeout(() => setIsAdded(false), 2200);
+    setTimeout(() => setIsAdded(false), 2000);
   };
 
   const handleAddBundleToCart = () => {
@@ -209,7 +248,7 @@ export default function ProductDetailPage({
     addToCart(product, activeSize, 1);
     addToCart(bundleProduct, bundleSize, 1);
     setIsBundleAdded(true);
-    setTimeout(() => setIsBundleAdded(false), 2200);
+    setTimeout(() => setIsBundleAdded(false), 2000);
   };
 
   const handleShareLink = () => {
@@ -255,12 +294,12 @@ export default function ProductDetailPage({
           verified: true,
         };
         setReviewsList([newReviewObj, ...reviewsList]);
-        setReviewSuccessMsg("Thank you! Your verified review has been submitted successfully.");
+        setReviewSuccessMsg("Thank you! Your verified review has been published.");
         setReviewForm({ name: "", city: "Karachi", rating: 5, comment: "" });
         setTimeout(() => {
           setIsReviewModalOpen(false);
           setReviewSuccessMsg(null);
-        }, 2000);
+        }, 1800);
       }
     } catch (err) {
       console.error("Failed to submit review:", err);
@@ -274,118 +313,121 @@ export default function ProductDetailPage({
     .slice(0, 4);
 
   return (
-    <div className="bg-[#faf8f5] min-h-screen">
+    <div className="bg-[#FAF9F6] min-h-screen text-stone-900">
       {/* ─── 1. BREADCRUMBS BAR ─── */}
-      <div className="bg-white border-b border-[#e6dfd5] py-3 text-xs text-[#59534b]">
+      <div className="bg-white border-b border-stone-200/80 py-3 text-xs text-stone-500">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
-          <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap">
-            <Link href="/" className="hover:text-[#22623a]">
+          <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap text-[11px]">
+            <Link href="/" className="hover:text-stone-900 transition-colors">
               Home
             </Link>
-            <ChevronRight className="w-3.5 h-3.5 text-[#d7c9b8]" />
-            <Link href="/products" className="hover:text-[#22623a]">
-              Apothecary &amp; Store
+            <ChevronRight className="w-3 h-3 text-stone-300" />
+            <Link href="/products" className="hover:text-stone-900 transition-colors">
+              Apothecary
             </Link>
-            <ChevronRight className="w-3.5 h-3.5 text-[#d7c9b8]" />
+            <ChevronRight className="w-3 h-3 text-stone-300" />
             <Link
               href={`/products?category=${product.category}`}
-              className="hover:text-[#22623a]"
+              className="hover:text-stone-900 transition-colors"
             >
               {product.categoryLabel}
             </Link>
-            <ChevronRight className="w-3.5 h-3.5 text-[#d7c9b8]" />
-            <span className="text-[#22623a] font-semibold truncate">
+            <ChevronRight className="w-3 h-3 text-stone-300" />
+            <span className="text-stone-900 font-medium truncate">
               {product.name}
             </span>
           </div>
 
-          {/* Quick Actions */}
+          {/* Share & Wishlist quick actions */}
           <div className="hidden sm:flex items-center gap-3">
             <button
               onClick={handleShareLink}
-              className="inline-flex items-center gap-1.5 text-xs text-[#59534b] hover:text-[#22623a] transition-colors"
+              className="inline-flex items-center gap-1.5 text-[11px] text-stone-500 hover:text-stone-900 transition-colors cursor-pointer"
             >
               <Share2 className="w-3.5 h-3.5" />
-              <span>{isCopied ? "Link Copied!" : "Share Remedy"}</span>
+              <span>{isCopied ? "Link Copied" : "Share"}</span>
             </button>
-            <span className="text-[#e6dfd5]">|</span>
+            <span className="text-stone-200">|</span>
             <button
               onClick={() => toggleWishlist(product.id)}
-              className={`inline-flex items-center gap-1.5 text-xs transition-colors ${
-                isSaved ? "text-red-500 font-semibold" : "text-[#59534b] hover:text-red-500"
+              className={`inline-flex items-center gap-1.5 text-[11px] transition-colors cursor-pointer ${
+                isSaved ? "text-rose-500 font-medium" : "text-stone-500 hover:text-rose-500"
               }`}
             >
-              <Heart className={`w-3.5 h-3.5 ${isSaved ? "fill-red-500" : ""}`} />
-              <span>{isSaved ? "Saved in Wishlist" : "Save to Wishlist"}</span>
+              <Heart className={`w-3.5 h-3.5 ${isSaved ? "fill-rose-500" : ""}`} />
+              <span>{isSaved ? "Saved" : "Save"}</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* ─── 2. MAIN PRODUCT HERO SHOWCASE ─── */}
-      <section className="py-8 sm:py-12 border-b border-[#e6dfd5]">
+      <section className="py-8 sm:py-12 border-b border-stone-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
-
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start">
             {/* ── LEFT: PRODUCT IMAGERY (5 cols on lg) ── */}
-            <div className="lg:col-span-5 space-y-4">
+            <div className="lg:col-span-5 space-y-4 lg:sticky lg:top-24">
               {(() => {
-                const images = (product.gallery && product.gallery.length > 0)
-                  ? product.gallery
-                  : [product.image || "/images/placeholder.jpg"];
-                const currentImg = images[activeImageIndex] || images[0] || "/images/placeholder.jpg";
+                const images =
+                  product.gallery && product.gallery.length > 0
+                    ? product.gallery
+                    : [product.image || "/images/placeholder.jpg"];
+                const currentImg =
+                  images[activeImageIndex] || images[0] || "/images/placeholder.jpg";
 
                 return (
                   <>
-                    <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-white border border-[#e6dfd5] shadow-xs">
+                    <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[#F7F6F2] border border-stone-200/70 shadow-2xs group">
                       <Image
                         src={currentImg}
                         alt={product.name}
                         fill
-                        className="object-cover object-center transition-all duration-300"
+                        className="object-cover object-center group-hover:scale-103 transition-transform duration-500 ease-out"
                         priority
                       />
 
                       {/* Badges Overlay */}
                       <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10 pointer-events-none">
                         {product.badge && (
-                          <span className="bg-[#22623a] text-white text-[11px] font-semibold tracking-wider uppercase px-3 py-1 rounded shadow-xs">
+                          <span className="bg-[#14281D] text-white text-[9px] font-medium tracking-widest uppercase px-2.5 py-1 rounded shadow-2xs">
                             {product.badge}
                           </span>
                         )}
-                        {product.discountPercentage && product.discountPercentage > 0 && (
-                          <span className="bg-[#c59b27] text-white text-[11px] font-bold px-2.5 py-0.5 rounded shadow-xs">
+                        {product.discountPercentage && product.discountPercentage > 0 ? (
+                          <span className="bg-[#9E7D3B] text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-2xs">
                             -{product.discountPercentage}% OFF
                           </span>
-                        )}
+                        ) : null}
                       </div>
 
                       {/* Mobile Wishlist Toggle Button */}
                       <button
                         onClick={() => toggleWishlist(product.id)}
-                        className={`sm:hidden absolute top-4 right-4 p-2.5 rounded-full backdrop-blur-xs transition-colors shadow-xs z-10 ${
-                          isSaved ? "bg-white text-red-500" : "bg-white/90 text-[#59534b]"
+                        className={`sm:hidden absolute top-4 right-4 p-2.5 rounded-full backdrop-blur-xs transition-colors shadow-2xs z-10 ${
+                          isSaved
+                            ? "bg-white text-rose-500"
+                            : "bg-white/80 text-stone-600 hover:text-rose-500"
                         }`}
                         aria-label="Toggle Wishlist"
                       >
-                        <Heart className={`w-4 h-4 ${isSaved ? "fill-red-500" : ""}`} />
+                        <Heart className={`w-4 h-4 ${isSaved ? "fill-rose-500" : ""}`} />
                       </button>
                     </div>
 
                     {/* Multi-Image Gallery Thumbnails */}
                     {images.length > 1 && (
-                      <div className="flex items-center gap-2.5 overflow-x-auto pb-1 pt-0.5">
+                      <div className="flex items-center gap-2.5 overflow-x-auto pb-1 pt-0.5 no-scrollbar">
                         {images.map((img, idx) => {
-                          const isSelected = (activeImageIndex % images.length) === idx;
+                          const isSelected = activeImageIndex % images.length === idx;
                           return (
                             <button
                               key={`${img}-${idx}`}
                               type="button"
                               onClick={() => setActiveImageIndex(idx)}
-                              className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 bg-white transition-all shrink-0 ${
+                              className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border bg-white transition-all shrink-0 cursor-pointer ${
                                 isSelected
-                                  ? "border-[#22623a] ring-2 ring-[#22623a]/20 shadow-xs scale-102"
-                                  : "border-[#e6dfd5] hover:border-[#c59b27] opacity-80 hover:opacity-100"
+                                  ? "border-[#14281D] ring-2 ring-[#14281D]/15 shadow-xs scale-102"
+                                  : "border-stone-200 hover:border-stone-400 opacity-70 hover:opacity-100"
                               }`}
                             >
                               <Image
@@ -404,154 +446,210 @@ export default function ProductDetailPage({
               })()}
 
               {/* Purity & Batch Trust Indicators */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 bg-white rounded-xl border border-[#e6dfd5] shadow-xs flex items-center gap-2.5 text-xs text-[#59534b]">
-                  <Leaf className="w-4 h-4 text-[#2d7648] shrink-0" />
-                  <span className="leading-tight">100% Raw Botanical Extracts</span>
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="p-3 bg-white rounded-xl border border-stone-200/70 shadow-2xs flex items-center gap-2.5 text-xs text-stone-600">
+                  <Leaf className="w-4 h-4 text-emerald-700 shrink-0" />
+                  <span className="leading-tight text-[11px] font-medium">
+                    100% Pure Botanical Herbs
+                  </span>
                 </div>
-                <div className="p-3 bg-white rounded-xl border border-[#e6dfd5] shadow-xs flex items-center gap-2.5 text-xs text-[#59534b]">
-                  <ShieldCheck className="w-4 h-4 text-[#c59b27] shrink-0" />
-                  <span className="leading-tight">Zero Chemical Steroids</span>
+                <div className="p-3 bg-white rounded-xl border border-stone-200/70 shadow-2xs flex items-center gap-2.5 text-xs text-stone-600">
+                  <ShieldCheck className="w-4 h-4 text-[#9E7D3B] shrink-0" />
+                  <span className="leading-tight text-[11px] font-medium">
+                    Zero Chemical Steroids
+                  </span>
                 </div>
               </div>
 
               {/* Clinic Freshness Tag */}
-              <div className="p-3.5 bg-[#f4f9f5] rounded-xl border border-[#d8ecde] flex items-center justify-between text-xs text-[#22623a]">
+              <div className="p-3.5 bg-stone-100/70 rounded-xl border border-stone-200 flex items-center justify-between text-xs text-stone-700">
                 <div className="flex items-center gap-2">
-                  <BadgeCheck className="w-4 h-4 text-[#2d7648]" />
-                  <span className="font-semibold">Batch No: #TMS-2026B</span>
+                  <BadgeCheck className="w-4 h-4 text-[#14281D]" />
+                  <span className="font-semibold text-[11px]">Dispensary Batch: #TMS-2026B</span>
                 </div>
-                <span className="text-[11px] text-[#2d7648] font-medium">
-                  Prepared in Karachi Dispensary
+                <span className="text-[10px] text-stone-500 uppercase tracking-wider font-medium">
+                  Karachi Apothecary
                 </span>
               </div>
             </div>
 
             {/* ── RIGHT: BUYING & ACTION PANEL (7 cols on lg) ── */}
-            <div className="lg:col-span-7 space-y-5">
+            <div className="lg:col-span-7 space-y-6">
               {/* Category, Rating & Live Stock Status */}
-              <div className="space-y-1.5">
+              <div className="space-y-2">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-xs uppercase font-bold text-[#c59b27] tracking-wider">
+                  <span className="text-[10px] uppercase font-semibold tracking-[0.2em] text-[#9E7D3B]">
                     {product.categoryLabel}
                   </span>
+
                   {isAvailable ? (
                     activeSize.available !== undefined && activeSize.available <= 5 ? (
-                      <span className="text-amber-800 font-semibold bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded text-xs flex items-center gap-1">
-                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" /> Only {activeSize.available} units left in stock
+                      <span className="text-amber-800 font-medium bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-[11px] flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3 text-amber-600" /> Only {activeSize.available} units left
                       </span>
                     ) : (
-                      <span className="text-[#2d7648] font-semibold bg-[#f4f9f5] border border-[#d8ecde] px-2.5 py-0.5 rounded text-xs flex items-center gap-1">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> In Stock · Freshly Packed
+                      <span className="text-emerald-800 font-medium bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded text-[11px] flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> In Stock · Fresh Batch
                       </span>
                     )
                   ) : (
-                    <span className="text-red-700 font-semibold bg-red-50 border border-red-200 px-2.5 py-0.5 rounded text-xs flex items-center gap-1">
-                      <X className="w-3.5 h-3.5" /> Out of Stock · Restocking Soon
+                    <span className="text-rose-700 font-medium bg-rose-50 border border-rose-200 px-2 py-0.5 rounded text-[11px] flex items-center gap-1">
+                      <X className="w-3 h-3" /> Out of Stock
                     </span>
                   )}
                 </div>
 
-                {/* Title */}
-                <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#22623a] leading-tight">
-                  {product.name}
-                </h1>
+                {/* Title and Urdu Subtitle */}
+                <div className="flex flex-wrap items-baseline justify-between gap-3 pt-1">
+                  <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-semibold text-stone-900 tracking-tight leading-tight">
+                    {product.name}
+                  </h1>
+                  {product.urduName && (
+                    <span
+                      className="font-urdu text-xl sm:text-2xl text-[#9E7D3B] font-normal"
+                      dir="rtl"
+                    >
+                      {product.urduName}
+                    </span>
+                  )}
+                </div>
 
-                {/* Rating Bar with Jump-to-reviews link */}
-                <div className="flex items-center gap-3 text-xs pt-1">
-                  <div className="flex text-[#c59b27]">
+                {/* Rating Bar */}
+                <div className="flex items-center gap-3 text-xs pt-0.5">
+                  <div className="flex text-[#9E7D3B]">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-4 h-4 ${
+                        className={`w-3.5 h-3.5 ${
                           i < Math.floor(Number(averageRating))
-                            ? "fill-[#c59b27]"
-                            : "text-[#d7c9b8]"
+                            ? "fill-[#9E7D3B]"
+                            : "text-stone-300"
                         }`}
                       />
                     ))}
                   </div>
-                  <span className="font-bold text-[#1a1816]">
+                  <span className="font-semibold text-stone-800 text-[11px]">
                     {averageRating} / 5.0
                   </span>
-                  <button
-                    onClick={() => setActiveTab("reviews")}
-                    className="text-[#8c6a15] hover:text-[#22623a] font-medium underline underline-offset-2"
+                  <a
+                    href="#reviews-section"
+                    onClick={() =>
+                      setOpenSections((prev) => ({ ...prev, reviews: true }))
+                    }
+                    className="text-stone-500 hover:text-[#14281D] text-[11px] underline underline-offset-2 cursor-pointer transition-colors"
                   >
                     ({totalReviews} verified {totalReviews === 1 ? "review" : "reviews"})
-                  </button>
+                  </a>
                 </div>
               </div>
 
+              {/* Unani Mizaj (Temperament Energetics) Banner */}
+              {product.mizaj && (
+                <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200/80 flex items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    {(() => {
+                      const mz = product.mizaj.toLowerCase();
+                      if (mz.includes("sard") || mz.includes("cool")) {
+                        return <Snowflake className="w-4 h-4 text-sky-600 shrink-0" />;
+                      }
+                      if (
+                        mz.includes("garm") ||
+                        mz.includes("warm") ||
+                        mz.includes("haar")
+                      ) {
+                        return <Flame className="w-4 h-4 text-amber-600 shrink-0" />;
+                      }
+                      return <Scale className="w-4 h-4 text-emerald-700 shrink-0" />;
+                    })()}
+                    <div>
+                      <span className="font-semibold text-stone-900">
+                        Unani Mizaj (Temperament):
+                      </span>{" "}
+                      <span className="text-stone-600 font-medium">
+                        {product.mizaj}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] uppercase tracking-wider text-[#9E7D3B] font-semibold hidden sm:inline">
+                    Energetic Balance
+                  </span>
+                </div>
+              )}
+
               {/* Price Banner */}
-              <div className="p-4 bg-white rounded-2xl border border-[#e6dfd5] shadow-xs flex flex-wrap items-baseline justify-between gap-3">
+              <div className="p-4 bg-white rounded-2xl border border-stone-200/80 shadow-2xs flex flex-wrap items-baseline justify-between gap-3">
                 <div className="flex items-baseline gap-3">
-                  <span className="text-2xl sm:text-3xl font-bold text-[#22623a]">
+                  <span className="text-2xl sm:text-3xl font-serif font-bold text-stone-900">
                     ₨ {activeSize.price.toLocaleString()}
                   </span>
-                  {activeSize.originalPrice && activeSize.originalPrice > activeSize.price && (
-                    <span className="text-sm text-[#7a7268] line-through">
-                      ₨ {activeSize.originalPrice.toLocaleString()}
-                    </span>
-                  )}
-                  {product.discountPercentage && product.discountPercentage > 0 && (
-                    <span className="text-xs font-bold text-[#c59b27] bg-[#fdfbf3] px-2.5 py-0.5 rounded border border-[#fbf3dc]">
+                  {activeSize.originalPrice &&
+                    activeSize.originalPrice > activeSize.price && (
+                      <span className="text-sm text-stone-400 line-through">
+                        ₨ {activeSize.originalPrice.toLocaleString()}
+                      </span>
+                    )}
+                  {product.discountPercentage && product.discountPercentage > 0 ? (
+                    <span className="text-xs font-bold text-[#9E7D3B] bg-[#FAF6EE] px-2.5 py-0.5 rounded border border-[#ebdcc4]">
                       Save {product.discountPercentage}%
                     </span>
-                  )}
+                  ) : null}
                 </div>
 
-                <div className="text-[11px] text-[#2d7648] font-semibold flex items-center gap-1">
-                  <Truck className="w-3.5 h-3.5" /> Cash on Delivery (COD) Nationwide
+                <div className="text-[11px] text-emerald-800 font-medium flex items-center gap-1">
+                  <Truck className="w-3.5 h-3.5" /> Cash on Delivery Available
                 </div>
               </div>
 
               {/* Short Purpose Description */}
-              <p className="text-xs sm:text-sm text-[#59534b] leading-relaxed">
-                {product.traditionalPurpose}
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                {product.traditionalPurpose || product.shortDescription}
               </p>
 
               {/* Size Variant Selector */}
               <div className="space-y-2 pt-1">
                 <div className="flex items-center justify-between text-xs">
-                  <label className="font-bold text-[#22623a] uppercase tracking-wider">
-                    Select Packaging Size / Weight:
+                  <label className="font-semibold text-stone-900 text-[11px] uppercase tracking-wider">
+                    Select Packaging Size:
                   </label>
-                  <span className="text-[#7a7268]">
-                    Selected: <strong>{activeSize.weight}</strong>
+                  <span className="text-stone-500 text-xs">
+                    Weight: <strong>{activeSize.weight}</strong>
                   </span>
                 </div>
 
-                <div className="flex flex-wrap gap-2.5">
+                <div className="flex flex-wrap gap-2">
                   {product.sizes.map((size) => {
                     const isSelected = activeSize.name === size.name;
-                    const sizeInStock = size.available !== undefined ? size.available > 0 : true;
+                    const sizeInStock =
+                      size.available !== undefined ? size.available > 0 : true;
                     return (
                       <button
                         key={size.name}
                         onClick={() => {
                           setSelectedSize(size);
-                          if (size.available !== undefined && quantity > size.available) {
+                          if (
+                            size.available !== undefined &&
+                            quantity > size.available
+                          ) {
                             setQuantity(Math.max(1, size.available));
                           }
                         }}
-                        className={`px-4 py-2.5 rounded-xl border text-xs transition-all text-left relative ${
+                        className={`px-3.5 py-2 rounded-xl border text-xs transition-all text-left cursor-pointer ${
                           isSelected
-                            ? "bg-[#22623a] text-white border-[#22623a] shadow-xs font-medium"
-                            : "bg-white text-[#1a1816] border-[#e6dfd5] hover:border-[#22623a]"
-                        } ${!sizeInStock ? "opacity-60 border-dashed" : ""}`}
+                            ? "bg-[#14281D] text-white border-[#14281D] shadow-xs font-medium"
+                            : "bg-white text-stone-800 border-stone-200 hover:border-stone-400"
+                        } ${!sizeInStock ? "opacity-50 border-dashed" : ""}`}
                       >
-                        <div className="font-bold flex items-center gap-1.5">
+                        <div className="font-semibold flex items-center gap-1.5">
                           <span>{size.weight}</span>
                           {!sizeInStock && (
-                            <span className="text-[10px] text-red-700 bg-red-100 px-1 rounded font-normal">
-                              Sold Out
+                            <span className="text-[9px] text-rose-600 bg-rose-50 px-1 rounded">
+                              Out
                             </span>
                           )}
                         </div>
                         <div
-                          className={`text-[11px] ${
-                            isSelected ? "text-[#c59b27]" : "text-[#7a7268]"
+                          className={`text-[10px] ${
+                            isSelected ? "text-[#9E7D3B]" : "text-stone-500"
                           }`}
                         >
                           ₨ {size.price.toLocaleString()}
@@ -566,22 +664,24 @@ export default function ProductDetailPage({
               <div className="space-y-3 pt-2">
                 <div className="flex items-center gap-3">
                   {/* Quantity Counter */}
-                  <div className="flex items-center border border-[#e6dfd5] rounded-xl bg-white overflow-hidden shrink-0 shadow-2xs">
+                  <div className="flex items-center border border-stone-200 rounded-xl bg-white overflow-hidden shrink-0 shadow-2xs">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       disabled={!isAvailable || quantity <= 1}
-                      className="px-3.5 py-3 text-sm text-[#6a6660] hover:text-[#22623a] hover:bg-[#faf8f5] transition-colors disabled:opacity-40"
+                      className="px-3.5 py-3 text-sm text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition-colors disabled:opacity-30 cursor-pointer"
                       aria-label="Decrease quantity"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="px-3 font-bold text-xs text-[#1a1816]">
+                    <span className="px-3 font-semibold text-xs text-stone-900">
                       {quantity}
                     </span>
                     <button
-                      onClick={() => setQuantity(Math.min(maxAvailable, quantity + 1))}
+                      onClick={() =>
+                        setQuantity(Math.min(maxAvailable, quantity + 1))
+                      }
                       disabled={!isAvailable || quantity >= maxAvailable}
-                      className="px-3.5 py-3 text-sm text-[#6a6660] hover:text-[#22623a] hover:bg-[#faf8f5] transition-colors disabled:opacity-40"
+                      className="px-3.5 py-3 text-sm text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition-colors disabled:opacity-30 cursor-pointer"
                       aria-label="Increase quantity"
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -592,12 +692,12 @@ export default function ProductDetailPage({
                   <button
                     onClick={handleAddToCart}
                     disabled={!isAvailable}
-                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-xs font-bold tracking-wider uppercase transition-all duration-200 shadow-md hover:shadow-lg active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-xl text-xs font-semibold tracking-wider uppercase transition-all duration-200 shadow-xs hover:shadow-sm active:scale-98 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer ${
                       !isAvailable
-                        ? "bg-gray-200 text-gray-500"
+                        ? "bg-stone-200 text-stone-500"
                         : isAdded
                         ? "bg-[#2d7648] text-white"
-                        : "bg-[#22623a] hover:bg-[#1b502e] text-white"
+                        : "bg-[#14281D] hover:bg-[#0c1b13] text-white"
                     }`}
                   >
                     {!isAvailable ? (
@@ -609,9 +709,10 @@ export default function ProductDetailPage({
                       </>
                     ) : (
                       <>
-                        <ShoppingBag className="w-4 h-4 text-[#c59b27]" />
+                        <ShoppingBag className="w-4 h-4 text-[#9E7D3B]" />
                         <span>
-                          Add to Bag · ₨ {(activeSize.price * quantity).toLocaleString()}
+                          Add to Bag · ₨{" "}
+                          {(activeSize.price * quantity).toLocaleString()}
                         </span>
                       </>
                     )}
@@ -623,47 +724,46 @@ export default function ProductDetailPage({
                   href={generateDirectWhatsAppUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-semibold rounded-xl shadow-2xs transition-colors cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Order Directly via WhatsApp (Quick COD)</span>
+                  <span>Order via WhatsApp (Express COD Dispatch)</span>
                 </a>
               </div>
 
               {/* Delivery Guarantee Strip */}
-              <div className="pt-3 border-t border-[#e6dfd5] space-y-2 text-xs text-[#59534b]">
-                <div className="flex items-center gap-2">
-                  <Truck className="w-4 h-4 text-[#2d7648] shrink-0" />
+              <div className="pt-3 border-t border-stone-200/80 space-y-2 text-xs text-stone-600">
+                <div className="flex items-center gap-2 text-[11px]">
+                  <Truck className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                   <span>
-                    <strong>Free Nationwide Delivery</strong> on orders above ₨ 2,000 (Flat ₨ 200 otherwise).
+                    <strong>Free Delivery</strong> across Pakistan on orders above ₨ 2,000 (₨ 200 standard shipping).
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-[#c59b27] shrink-0" />
+                <div className="flex items-center gap-2 text-[11px]">
+                  <Clock className="w-3.5 h-3.5 text-[#9E7D3B] shrink-0" />
                   <span>Karachi delivery in 24-48 hours · Other cities in 2-4 business days.</span>
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* ─── 3. "FREQUENTLY PRESCRIBED TOGETHER" BUNDLE CROSS-SELL ─── */}
+      {/* ─── 3. FREQUENTLY PRESCRIBED TOGETHER BUNDLE ─── */}
       {bundleProduct && bundleSize && (
-        <section className="py-8 bg-[#faf8f5] border-b border-[#e6dfd5]">
+        <section className="py-8 bg-stone-50 border-b border-stone-200/80">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="bg-white rounded-2xl border border-[#e6dfd5] p-5 sm:p-7 shadow-xs">
-              <div className="flex items-center gap-2 text-[#22623a] font-serif text-lg font-bold pb-4 border-b border-[#f4eee5]">
-                <Sparkles className="w-4 h-4 text-[#c59b27]" />
-                <h2>Frequently Prescribed Together for Faster Relief</h2>
+            <div className="bg-white rounded-2xl border border-stone-200 p-5 sm:p-7 shadow-2xs">
+              <div className="flex items-center gap-2 text-stone-900 font-serif text-lg font-semibold pb-4 border-b border-stone-100">
+                <Sparkles className="w-4 h-4 text-[#9E7D3B]" />
+                <h2>Frequently Prescribed Together for Synergistic Relief</h2>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center pt-5">
                 {/* Products preview */}
                 <div className="lg:col-span-8 flex flex-col sm:flex-row items-center gap-4">
                   {/* Item 1 */}
-                  <div className="flex items-center gap-3 bg-[#faf8f5] p-3 rounded-xl border border-[#e6dfd5] flex-1 w-full">
+                  <div className="flex items-center gap-3 bg-stone-50 p-3 rounded-xl border border-stone-200/70 flex-1 w-full">
                     <div className="relative w-14 h-14 bg-white rounded-lg overflow-hidden shrink-0">
                       <Image
                         src={product.image}
@@ -673,16 +773,22 @@ export default function ProductDetailPage({
                       />
                     </div>
                     <div className="min-w-0 flex-1 text-xs">
-                      <div className="font-bold text-[#22623a] truncate">{product.name}</div>
-                      <div className="text-[11px] text-[#7a7268]">{activeSize.weight}</div>
-                      <div className="font-bold text-[#22623a] mt-0.5">₨ {activeSize.price}</div>
+                      <div className="font-semibold text-stone-900 truncate">
+                        {product.name}
+                      </div>
+                      <div className="text-[11px] text-stone-500">
+                        {activeSize.weight}
+                      </div>
+                      <div className="font-semibold text-stone-900 mt-0.5">
+                        ₨ {activeSize.price.toLocaleString()}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="text-xl font-bold text-[#c59b27] shrink-0">+</div>
+                  <div className="text-xl font-bold text-[#9E7D3B] shrink-0">+</div>
 
                   {/* Item 2 */}
-                  <div className="flex items-center gap-3 bg-[#faf8f5] p-3 rounded-xl border border-[#e6dfd5] flex-1 w-full">
+                  <div className="flex items-center gap-3 bg-stone-50 p-3 rounded-xl border border-stone-200/70 flex-1 w-full">
                     <div className="relative w-14 h-14 bg-white rounded-lg overflow-hidden shrink-0">
                       <Image
                         src={bundleProduct.image}
@@ -692,43 +798,49 @@ export default function ProductDetailPage({
                       />
                     </div>
                     <div className="min-w-0 flex-1 text-xs">
-                      <div className="font-bold text-[#22623a] truncate">{bundleProduct.name}</div>
-                      <div className="text-[11px] text-[#7a7268]">{bundleSize.weight}</div>
-                      <div className="font-bold text-[#22623a] mt-0.5">₨ {bundleSize.price}</div>
+                      <div className="font-semibold text-stone-900 truncate">
+                        {bundleProduct.name}
+                      </div>
+                      <div className="text-[11px] text-stone-500">
+                        {bundleSize.weight}
+                      </div>
+                      <div className="font-semibold text-stone-900 mt-0.5">
+                        ₨ {bundleSize.price.toLocaleString()}
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Bundle Add CTA */}
-                <div className="lg:col-span-4 flex flex-col justify-center space-y-2 border-t lg:border-t-0 lg:border-l border-[#f4eee5] lg:pl-6 pt-4 lg:pt-0">
+                <div className="lg:col-span-4 flex flex-col justify-center space-y-2 border-t lg:border-t-0 lg:border-l border-stone-100 lg:pl-6 pt-4 lg:pt-0">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-xl font-bold text-[#22623a]">
+                    <span className="text-xl font-serif font-bold text-stone-900">
                       ₨ {bundleDiscountedPrice.toLocaleString()}
                     </span>
-                    <span className="text-xs text-[#7a7268] line-through">
+                    <span className="text-xs text-stone-400 line-through">
                       ₨ {bundleTotalPrice.toLocaleString()}
                     </span>
-                    <span className="text-[10px] font-bold text-[#2d7648] bg-[#f4f9f5] px-2 py-0.5 rounded">
-                      5% Bundle Saving
+                    <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      5% Bundle Savings
                     </span>
                   </div>
 
                   <button
                     onClick={handleAddBundleToCart}
-                    className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-xs ${
+                    className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-200 shadow-2xs cursor-pointer ${
                       isBundleAdded
                         ? "bg-[#2d7648] text-white"
-                        : "bg-[#22623a] hover:bg-[#1b502e] text-white"
+                        : "bg-[#14281D] hover:bg-[#0c1b13] text-white"
                     }`}
                   >
                     {isBundleAdded ? (
                       <>
                         <Check className="w-4 h-4" />
-                        <span>Both Items Added to Bag</span>
+                        <span>Both Remedies Added</span>
                       </>
                     ) : (
                       <>
-                        <ShoppingBag className="w-4 h-4 text-[#c59b27]" />
+                        <ShoppingBag className="w-4 h-4 text-[#9E7D3B]" />
                         <span>Add Both to Bag</span>
                       </>
                     )}
@@ -740,373 +852,426 @@ export default function ProductDetailPage({
         </section>
       )}
 
-      {/* ─── 4. TABBED CLINICAL INFORMATION & REVIEWS ─── */}
-      <section className="py-12 bg-white border-b border-[#e6dfd5]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-
-          {/* Navigation Tabs Header */}
-          <div className="flex items-center gap-2 border-b border-[#e6dfd5] overflow-x-auto whitespace-nowrap pb-px">
-            <button
-              onClick={() => setActiveTab("overview")}
-              className={`flex items-center gap-2 px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all ${
-                activeTab === "overview"
-                  ? "border-[#22623a] text-[#22623a]"
-                  : "border-transparent text-[#7a7268] hover:text-[#22623a]"
-              }`}
-            >
-              <Sparkles className="w-4 h-4 text-[#c59b27]" />
-              <span>Clinical Overview</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("ingredients")}
-              className={`flex items-center gap-2 px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all ${
-                activeTab === "ingredients"
-                  ? "border-[#22623a] text-[#22623a]"
-                  : "border-transparent text-[#7a7268] hover:text-[#22623a]"
-              }`}
-            >
-              <Leaf className="w-4 h-4 text-[#2d7648]" />
-              <span>Botanical Ingredients &amp; Mizaj</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("dosage")}
-              className={`flex items-center gap-2 px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all ${
-                activeTab === "dosage"
-                  ? "border-[#22623a] text-[#22623a]"
-                  : "border-transparent text-[#7a7268] hover:text-[#22623a]"
-              }`}
-            >
-              <HeartHandshake className="w-4 h-4 text-[#22623a]" />
-              <span>Hakim&apos;s Dosage &amp; Parhez</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("shipping")}
-              className={`flex items-center gap-2 px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all ${
-                activeTab === "shipping"
-                  ? "border-[#22623a] text-[#22623a]"
-                  : "border-transparent text-[#7a7268] hover:text-[#22623a]"
-              }`}
-            >
-              <Truck className="w-4 h-4 text-[#c59b27]" />
-              <span>Delivery &amp; Storage</span>
-            </button>
-
-            <button
-              onClick={() => setActiveTab("reviews")}
-              className={`flex items-center gap-2 px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all ${
-                activeTab === "reviews"
-                  ? "border-[#22623a] text-[#22623a]"
-                  : "border-transparent text-[#7a7268] hover:text-[#22623a]"
-              }`}
-            >
-              <Star className="w-4 h-4 text-[#c59b27]" />
-              <span>Verified Reviews ({totalReviews})</span>
-            </button>
+      {/* ─── 4. CLINICAL ACCORDIONS & VERIFIED REVIEWS ─── */}
+      <section className="py-12 bg-white border-b border-stone-200/80">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+          <div className="text-center pb-4">
+            <span className="text-[10px] uppercase font-semibold tracking-[0.2em] text-[#9E7D3B]">
+              Clinical Dossier
+            </span>
+            <h2 className="font-serif text-2xl font-semibold text-stone-900 mt-1">
+              Therapeutic Specifications &amp; Usage
+            </h2>
           </div>
 
-          {/* TAB 1: CLINICAL OVERVIEW */}
-          {activeTab === "overview" && (
-            <div className="space-y-8 animate-fade-in">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="p-6 sm:p-8 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] space-y-3">
-                  <h3 className="font-serif text-lg font-bold text-[#22623a]">
-                    Traditional Unani Action &amp; Healing Mechanism
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[#59534b] leading-relaxed">
-                    {product.fullDescription}
-                  </p>
-                </div>
-
-                <div className="p-6 sm:p-8 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] space-y-3">
-                  <h3 className="font-serif text-lg font-bold text-[#22623a]">
-                    Target Indications &amp; Primary Symptoms Treated
-                  </h3>
-                  <p className="text-xs sm:text-sm text-[#59534b] leading-relaxed">
-                    {product.traditionalPurpose}
-                  </p>
-                </div>
-              </div>
-
-              {/* Key Benefits Grid */}
-              <div className="space-y-4">
-                <h3 className="font-serif text-xl font-bold text-[#22623a]">
-                  Documented Therapeutic Benefits
+          {/* ACCORDION 1: CLINICAL OVERVIEW & BENEFITS */}
+          <div className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] transition-all">
+            <button
+              type="button"
+              onClick={() => toggleSection("overview")}
+              className="w-full p-5 sm:p-6 flex items-center justify-between text-left cursor-pointer hover:bg-stone-100/60 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Sparkles className="w-4 h-4 text-[#9E7D3B]" />
+                <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900">
+                  Traditional Unani Action &amp; Indications
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {product.benefits.map((b, i) => (
-                    <div
-                      key={i}
-                      className="flex items-start gap-3 p-4 bg-[#faf8f5] rounded-xl border border-[#e6dfd5]"
-                    >
-                      <div className="w-5 h-5 rounded-full bg-[#22623a] text-[#c59b27] flex items-center justify-center shrink-0 mt-0.5 text-xs font-bold">
-                        ✓
-                      </div>
-                      <span className="text-xs sm:text-sm text-[#1e1c19] font-medium">
-                        {b}
-                      </span>
-                    </div>
-                  ))}
-                </div>
               </div>
-            </div>
-          )}
+              <ChevronDown
+                className={`w-4 h-4 text-stone-400 transition-transform duration-300 ${
+                  openSections.overview ? "rotate-180" : ""
+                }`}
+              />
+            </button>
 
-          {/* TAB 2: BOTANICAL INGREDIENTS & MIZAJ */}
-          {activeTab === "ingredients" && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="p-5 bg-[#faf8f5] rounded-xl border border-[#e6dfd5] flex flex-wrap items-center justify-between gap-4 text-xs">
-                <div>
-                  <span className="font-bold text-[#22623a]">Temperament (Mizaj):</span>{" "}
-                  <span className="text-[#59534b]">
-                    {product.mizaj || "Mo'tadil (Balanced) — Suitable for all body types"}
-                  </span>
-                </div>
-                <div className="text-[#2d7648] font-semibold">
-                  ✓ 100% Free of synthetic chemicals, lead, and mercury
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs text-left bg-white border border-[#e6dfd5] rounded-xl overflow-hidden">
-                  <thead className="bg-[#faf8f5] text-[#22623a] font-bold border-b border-[#e6dfd5] uppercase tracking-wider">
-                    <tr>
-                      <th className="p-4">Botanical / Herb Name</th>
-                      <th className="p-4">Clinical Action in This Formulation</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#f4eee5]">
-                    {product.ingredients.map((ing, i) => (
-                      <tr key={i} className="hover:bg-[#faf8f5]/60 transition-colors">
-                        <td className="p-4 font-bold text-[#1a1816]">{ing.name}</td>
-                        <td className="p-4 text-[#59534b] leading-relaxed">{ing.role}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 3: HAKIM'S USAGE GUIDE & PARHEZ */}
-          {activeTab === "dosage" && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="p-6 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] space-y-4">
-                  <h3 className="font-serif text-lg font-bold text-[#22623a] flex items-center gap-2">
-                    <HeartHandshake className="w-5 h-5 text-[#2d7648]" />
-                    <span>Recommended Dosage &amp; Timing</span>
-                  </h3>
-                  <div className="space-y-2 text-xs sm:text-sm text-[#59534b]">
-                    <p>
-                      <strong>Dosage:</strong> {product.dosage}
+            {openSections.overview && (
+              <div className="px-5 pb-6 sm:px-6 space-y-6 pt-1 border-t border-stone-200/60">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-white rounded-xl border border-stone-200/70 space-y-2">
+                    <h4 className="font-semibold text-xs text-stone-900 uppercase tracking-wider">
+                      Healing Mechanism
+                    </h4>
+                    <p className="text-xs text-stone-600 leading-relaxed">
+                      {product.fullDescription || product.shortDescription}
                     </p>
-                    <p>
-                      <strong>How to take:</strong> {product.howToUse}
-                    </p>
-                    <p className="pt-2 border-t border-[#e6dfd5]/60">
-                      <strong>Hakim&apos;s Advice:</strong> {product.hakimAdvice}
+                  </div>
+
+                  <div className="p-4 bg-white rounded-xl border border-stone-200/70 space-y-2">
+                    <h4 className="font-semibold text-xs text-stone-900 uppercase tracking-wider">
+                      Target Indications
+                    </h4>
+                    <p className="text-xs text-stone-600 leading-relaxed">
+                      {product.traditionalPurpose}
                     </p>
                   </div>
                 </div>
 
-                <div className="p-6 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] space-y-4">
-                  <h3 className="font-serif text-lg font-bold text-[#22623a] flex items-center gap-2">
-                    <AlertCircle className="w-5 h-5 text-[#c59b27]" />
-                    <span>Dietary Precautions (Parhez)</span>
-                  </h3>
-                  <ul className="space-y-2 text-xs sm:text-sm text-[#59534b] list-disc list-inside">
-                    <li>Avoid refrigerated cold water; drink room temperature or warm water.</li>
-                    <li>Avoid deep-fried and excessively spicy street food during treatment course.</li>
-                    <li>Keep a minimum 30-minute gap between heavy meals and taking this remedy.</li>
-                    <li>For customized dosage for pregnant or nursing mothers, consult Hakim sahib on WhatsApp.</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 4: DELIVERY, COD & STORAGE */}
-          {activeTab === "shipping" && (
-            <div className="space-y-6 animate-fade-in">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div className="p-5 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] space-y-2 text-xs">
-                  <Truck className="w-5 h-5 text-[#22623a]" />
-                  <h4 className="font-bold text-[#22623a] text-sm">Delivery Timelines</h4>
-                  <p className="text-[#59534b] leading-relaxed">
-                    Karachi: 24 to 48 hours.<br />
-                    Lahore, Islamabad, Rawalpindi, Peshawar, Multan, Faisalabad &amp; other cities: 2 to 4 business days via courier.
-                  </p>
-                </div>
-
-                <div className="p-5 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] space-y-2 text-xs">
-                  <ShieldCheck className="w-5 h-5 text-[#c59b27]" />
-                  <h4 className="font-bold text-[#22623a] text-sm">Cash on Delivery (COD)</h4>
-                  <p className="text-[#59534b] leading-relaxed">
-                    Pay cash in PKR directly to the courier rider upon parcel delivery. Free delivery on orders above ₨ 2,000.
-                  </p>
-                </div>
-
-                <div className="p-5 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] space-y-2 text-xs">
-                  <Leaf className="w-5 h-5 text-[#2d7648]" />
-                  <h4 className="font-bold text-[#22623a] text-sm">Storage Instructions</h4>
-                  <p className="text-[#59534b] leading-relaxed">
-                    Store in a cool, dry place away from direct sunlight. Keep the lid tightly closed after each use. Avoid wet spoons in herbal preserves.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 5: VERIFIED REVIEWS & SUBMISSION */}
-          {activeTab === "reviews" && (
-            <div className="space-y-8 animate-fade-in">
-              {/* Rating Summary Bar */}
-              <div className="p-6 sm:p-8 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                {/* Score */}
-                <div className="md:col-span-4 text-center md:text-left space-y-1">
-                  <div className="text-4xl sm:text-5xl font-serif font-bold text-[#22623a]">
-                    {averageRating}
-                  </div>
-                  <div className="flex justify-center md:justify-start text-[#c59b27]">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-4 h-4 ${
-                          i < Math.floor(Number(averageRating))
-                            ? "fill-[#c59b27]"
-                            : "text-[#d7c9b8]"
-                        }`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-xs text-[#6a6660]">
-                    Based on {totalReviews} verified {totalReviews === 1 ? "experience" : "experiences"}
-                  </p>
-                </div>
-
-                {/* Star breakdown bars */}
-                <div className="md:col-span-5 space-y-1.5 text-xs text-[#59534b]">
-                  {starBreakdown.map((item) => (
-                    <div key={item.star} className="flex items-center gap-2">
-                      <span className="w-12 text-[11px] font-medium">{item.star} Stars</span>
-                      <div className="flex-1 h-2 bg-[#e6dfd5] rounded-full overflow-hidden">
+                {/* Benefits List */}
+                {product.benefits && product.benefits.length > 0 && (
+                  <div className="space-y-3">
+                    <h4 className="font-semibold text-xs text-stone-900 uppercase tracking-wider">
+                      Documented Therapeutic Benefits
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {product.benefits.map((b, i) => (
                         <div
-                          className="h-full bg-[#c59b27] rounded-full transition-all duration-500"
-                          style={{ width: `${item.percentage}%` }}
-                        />
-                      </div>
-                      <span className="w-8 text-right text-[11px] text-[#7a7268]">{item.percentage}%</span>
+                          key={i}
+                          className="flex items-start gap-2.5 p-3 bg-white rounded-lg border border-stone-200/60 text-xs text-stone-700"
+                        >
+                          <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5 text-[10px] font-bold">
+                            ✓
+                          </div>
+                          <span>{b}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ACCORDION 2: BOTANICAL INGREDIENTS & MIZAJ */}
+          <div className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] transition-all">
+            <button
+              type="button"
+              onClick={() => toggleSection("ingredients")}
+              className="w-full p-5 sm:p-6 flex items-center justify-between text-left cursor-pointer hover:bg-stone-100/60 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Leaf className="w-4 h-4 text-emerald-700" />
+                <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900">
+                  Botanical Ingredients &amp; Temperament (Mizaj)
+                </h3>
+              </div>
+              <ChevronDown
+                className={`w-4 h-4 text-stone-400 transition-transform duration-300 ${
+                  openSections.ingredients ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {openSections.ingredients && (
+              <div className="px-5 pb-6 sm:px-6 space-y-4 pt-1 border-t border-stone-200/60">
+                <div className="p-4 bg-white rounded-xl border border-stone-200/70 flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div>
+                    <span className="font-semibold text-stone-900">Mizaj (Temperament):</span>{" "}
+                    <span className="text-stone-600 font-medium">
+                      {product.mizaj || "Mo'tadil (Balanced) — Well tolerated by all constitutions"}
+                    </span>
+                  </div>
+                  <div className="text-emerald-800 font-medium text-[11px]">
+                    ✓ 100% Free of synthetic chemicals, heavy metals &amp; steroids
+                  </div>
                 </div>
 
-                {/* Write Review Button */}
-                <div className="md:col-span-3 text-center md:text-right">
-                  <button
-                    onClick={() => setIsReviewModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-5 py-3 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-colors shadow-xs"
-                  >
-                    <MessageSquare className="w-4 h-4 text-[#c59b27]" />
-                    <span>Write a Review</span>
-                  </button>
+                {product.ingredients && product.ingredients.length > 0 && (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs text-left bg-white border border-stone-200 rounded-xl overflow-hidden">
+                      <thead className="bg-stone-50 text-stone-900 font-semibold border-b border-stone-200 text-[11px] uppercase tracking-wider">
+                        <tr>
+                          <th className="p-3.5">Botanical / Herb Name</th>
+                          <th className="p-3.5">Clinical Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-stone-100">
+                        {product.ingredients.map((ing, i) => (
+                          <tr key={i} className="hover:bg-stone-50/70 transition-colors">
+                            <td className="p-3.5 font-semibold text-stone-900">{ing.name}</td>
+                            <td className="p-3.5 text-stone-600 leading-relaxed">{ing.role}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ACCORDION 3: HAKIM'S DOSAGE & PARHEZ */}
+          <div className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] transition-all">
+            <button
+              type="button"
+              onClick={() => toggleSection("dosage")}
+              className="w-full p-5 sm:p-6 flex items-center justify-between text-left cursor-pointer hover:bg-stone-100/60 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <HeartHandshake className="w-4 h-4 text-[#14281D]" />
+                <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900">
+                  Hakim&apos;s Dosage &amp; Dietary Guidelines (Parhez)
+                </h3>
+              </div>
+              <ChevronDown
+                className={`w-4 h-4 text-stone-400 transition-transform duration-300 ${
+                  openSections.dosage ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {openSections.dosage && (
+              <div className="px-5 pb-6 sm:px-6 space-y-4 pt-1 border-t border-stone-200/60">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-white rounded-xl border border-stone-200/70 space-y-3">
+                    <h4 className="font-semibold text-xs text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <HeartHandshake className="w-3.5 h-3.5 text-emerald-700" />
+                      <span>Recommended Dosage</span>
+                    </h4>
+                    <div className="space-y-1.5 text-xs text-stone-600">
+                      <p>
+                        <strong>Dosage:</strong> {product.dosage}
+                      </p>
+                      <p>
+                        <strong>Timing:</strong> {product.howToUse}
+                      </p>
+                      {product.hakimAdvice && (
+                        <p className="pt-2 border-t border-stone-100 text-stone-700">
+                          <strong>Hakim&apos;s Clinical Advice:</strong> {product.hakimAdvice}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-white rounded-xl border border-stone-200/70 space-y-3">
+                    <h4 className="font-semibold text-xs text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
+                      <AlertCircle className="w-3.5 h-3.5 text-[#9E7D3B]" />
+                      <span>Dietary Precautions (Parhez)</span>
+                    </h4>
+                    <ul className="space-y-1.5 text-xs text-stone-600 list-disc list-inside">
+                      <li>Avoid refrigerated cold water; drink room temperature water.</li>
+                      <li>Avoid deep-fried and excessively spicy foods during treatment.</li>
+                      <li>Keep a minimum 30-minute interval between heavy meals and dosage.</li>
+                      <li>For customized guidance during pregnancy, consult Hakim sahib on WhatsApp.</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
+            )}
+          </div>
 
-              {/* Reviews List or Honest Zero State */}
-              {reviewsList.length === 0 ? (
-                <div className="p-8 sm:p-12 bg-white rounded-2xl border border-[#e6dfd5] text-center space-y-4 shadow-xs">
-                  <div className="w-12 h-12 rounded-full bg-[#f4f9f5] border border-[#d8ecde] text-[#22623a] flex items-center justify-center mx-auto">
-                    <Star className="w-6 h-6 text-[#c59b27]" />
-                  </div>
-                  <div className="space-y-1 max-w-md mx-auto">
-                    <h4 className="font-serif text-lg font-bold text-[#22623a]">No Reviews Yet</h4>
-                    <p className="text-xs sm:text-sm text-[#59534b]">
-                      Have you used {product.name}? Share your genuine recovery experience to help other patients make informed health choices.
+          {/* ACCORDION 4: DELIVERY & STORAGE */}
+          <div className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] transition-all">
+            <button
+              type="button"
+              onClick={() => toggleSection("shipping")}
+              className="w-full p-5 sm:p-6 flex items-center justify-between text-left cursor-pointer hover:bg-stone-100/60 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Truck className="w-4 h-4 text-[#9E7D3B]" />
+                <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900">
+                  Delivery Timelines &amp; Storage Guidelines
+                </h3>
+              </div>
+              <ChevronDown
+                className={`w-4 h-4 text-stone-400 transition-transform duration-300 ${
+                  openSections.shipping ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {openSections.shipping && (
+              <div className="px-5 pb-6 sm:px-6 space-y-4 pt-1 border-t border-stone-200/60">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="p-4 bg-white rounded-xl border border-stone-200/70 space-y-1.5 text-xs">
+                    <Truck className="w-4 h-4 text-[#14281D]" />
+                    <h4 className="font-semibold text-stone-900">Courier Dispatch</h4>
+                    <p className="text-stone-600 leading-relaxed text-[11px]">
+                      Karachi: 24–48 hours. Nationwide cities: 2–4 business days via registered courier.
                     </p>
                   </div>
-                  <button
-                    onClick={() => setIsReviewModalOpen(true)}
-                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs"
-                  >
-                    <MessageSquare className="w-4 h-4 text-[#c59b27]" />
-                    <span>Be the First to Review</span>
-                  </button>
+
+                  <div className="p-4 bg-white rounded-xl border border-stone-200/70 space-y-1.5 text-xs">
+                    <ShieldCheck className="w-4 h-4 text-[#9E7D3B]" />
+                    <h4 className="font-semibold text-stone-900">Cash on Delivery</h4>
+                    <p className="text-stone-600 leading-relaxed text-[11px]">
+                      Pay cash directly upon parcel delivery. Free delivery on orders above ₨ 2,000.
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-white rounded-xl border border-stone-200/70 space-y-1.5 text-xs">
+                    <Leaf className="w-4 h-4 text-emerald-700" />
+                    <h4 className="font-semibold text-stone-900">Dispensary Storage</h4>
+                    <p className="text-stone-600 leading-relaxed text-[11px]">
+                      Store in a dry place away from heat. Keep container tightly closed; use clean dry spoons.
+                    </p>
+                  </div>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {reviewsList.map((rev) => (
-                    <div
-                      key={rev.id}
-                      className="p-5 sm:p-6 bg-white rounded-2xl border border-[#e6dfd5] shadow-xs space-y-3"
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-sm text-[#22623a]">
-                              {rev.name}
-                            </span>
-                            {rev.verified && (
-                              <span className="inline-flex items-center gap-1 text-[10px] text-[#2d7648] bg-[#f4f9f5] border border-[#d8ecde] px-2 py-0.5 rounded font-semibold">
-                                <BadgeCheck className="w-3 h-3 text-[#2d7648]" />
-                                <span>Verified Customer</span>
-                              </span>
-                            )}
-                          </div>
-                          <div className="text-[11px] text-[#7a7268]">{rev.city}</div>
-                        </div>
+              </div>
+            )}
+          </div>
 
-                        <div className="text-right">
-                          <div className="flex text-[#c59b27]">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-3.5 h-3.5 ${
-                                  i < rev.rating ? "fill-[#c59b27]" : "text-[#e6dfd5]"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span className="text-[10px] text-[#a59f95]">{rev.date}</span>
+          {/* ACCORDION 5: PATIENT EXPERIENCES & REVIEWS */}
+          <div
+            id="reviews-section"
+            className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] transition-all"
+          >
+            <button
+              type="button"
+              onClick={() => toggleSection("reviews")}
+              className="w-full p-5 sm:p-6 flex items-center justify-between text-left cursor-pointer hover:bg-stone-100/60 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <Star className="w-4 h-4 text-[#9E7D3B]" />
+                <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900">
+                  Verified Patient Reviews ({totalReviews})
+                </h3>
+              </div>
+              <ChevronDown
+                className={`w-4 h-4 text-stone-400 transition-transform duration-300 ${
+                  openSections.reviews ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+
+            {openSections.reviews && (
+              <div className="px-5 pb-6 sm:px-6 space-y-6 pt-1 border-t border-stone-200/60">
+                {/* Score Summary Box */}
+                <div className="p-5 sm:p-6 bg-white rounded-xl border border-stone-200/70 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                  <div className="md:col-span-4 text-center md:text-left space-y-1">
+                    <div className="text-3xl sm:text-4xl font-serif font-bold text-stone-900">
+                      {averageRating}
+                    </div>
+                    <div className="flex justify-center md:justify-start text-[#9E7D3B]">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-3.5 h-3.5 ${
+                            i < Math.floor(Number(averageRating))
+                              ? "fill-[#9E7D3B]"
+                              : "text-stone-200"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className="text-[11px] text-stone-500">
+                      {totalReviews} verified {totalReviews === 1 ? "review" : "reviews"}
+                    </p>
+                  </div>
+
+                  {/* Star breakdown */}
+                  <div className="md:col-span-5 space-y-1 text-xs text-stone-600">
+                    {starBreakdown.map((item) => (
+                      <div key={item.star} className="flex items-center gap-2">
+                        <span className="w-12 text-[10px] font-medium">{item.star} Stars</span>
+                        <div className="flex-1 h-1.5 bg-stone-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-[#9E7D3B] rounded-full transition-all duration-500"
+                            style={{ width: `${item.percentage}%` }}
+                          />
                         </div>
+                        <span className="w-8 text-right text-[10px] text-stone-400">
+                          {item.percentage}%
+                        </span>
                       </div>
+                    ))}
+                  </div>
 
-                      <p className="text-xs sm:text-sm text-[#59534b] leading-relaxed">
-                        &quot;{rev.comment}&quot;
+                  {/* Write review button */}
+                  <div className="md:col-span-3 text-center md:text-right">
+                    <button
+                      type="button"
+                      onClick={() => setIsReviewModalOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors shadow-2xs cursor-pointer"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5 text-[#9E7D3B]" />
+                      <span>Write Review</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Reviews List */}
+                {reviewsList.length === 0 ? (
+                  <div className="p-8 bg-white rounded-xl border border-stone-200/70 text-center space-y-3">
+                    <Star className="w-6 h-6 text-[#9E7D3B] mx-auto opacity-60" />
+                    <div className="space-y-1 max-w-sm mx-auto">
+                      <h4 className="font-serif text-base font-semibold text-stone-900">
+                        No Patient Reviews Yet
+                      </h4>
+                      <p className="text-xs text-stone-500 leading-relaxed">
+                        Have you used {product.name}? Share your honest experience to guide fellow seekers of natural health.
                       </p>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                    <button
+                      type="button"
+                      onClick={() => setIsReviewModalOpen(true)}
+                      className="inline-flex items-center gap-1.5 px-5 py-2 bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-2xs cursor-pointer"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5 text-[#9E7D3B]" />
+                      <span>Be the First to Review</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {reviewsList.map((rev) => (
+                      <div
+                        key={rev.id}
+                        className="p-4 sm:p-5 bg-white rounded-xl border border-stone-200/70 space-y-2 shadow-2xs"
+                      >
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-xs text-stone-900">
+                                {rev.name}
+                              </span>
+                              {rev.verified && (
+                                <span className="inline-flex items-center gap-1 text-[9px] text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded font-medium border border-emerald-200">
+                                  <BadgeCheck className="w-2.5 h-2.5 text-emerald-700" />
+                                  <span>Verified Customer</span>
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[10px] text-stone-400">{rev.city}</div>
+                          </div>
 
+                          <div className="text-right">
+                            <div className="flex text-[#9E7D3B]">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-3 h-3 ${
+                                    i < rev.rating ? "fill-[#9E7D3B]" : "text-stone-200"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-[10px] text-stone-400">{rev.date}</span>
+                          </div>
+                        </div>
+
+                        <p className="text-xs text-stone-600 leading-relaxed">
+                          &quot;{rev.comment}&quot;
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </section>
 
       {/* ─── 5. RELATED REMEDIES SECTION ─── */}
       {relatedProducts.length > 0 && (
-        <section className="py-14 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <section className="py-12 sm:py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-xs uppercase font-bold text-[#c59b27] tracking-wider">
-                Complementary Formulations
+              <span className="text-[10px] uppercase font-semibold text-[#9E7D3B] tracking-[0.2em]">
+                Complementary Remedies
               </span>
-              <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#22623a]">
-                More Remedies in {product.categoryLabel}
+              <h2 className="font-serif text-xl sm:text-2xl font-semibold text-stone-900 mt-0.5">
+                More in {product.categoryLabel}
               </h2>
             </div>
             <Link
               href={`/products?category=${product.category}`}
-              className="text-xs font-bold uppercase tracking-wider text-[#22623a] hover:text-[#c59b27] transition-colors"
+              className="text-xs font-semibold uppercase tracking-wider text-stone-700 hover:text-[#14281D] transition-colors"
             >
-              View All Category &rarr;
+              View Category &rarr;
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {relatedProducts.map((p) => (
               <ProductCard key={p.id} product={p} />
             ))}
@@ -1119,67 +1284,70 @@ export default function ProductDetailPage({
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div
             onClick={() => setIsReviewModalOpen(false)}
-            className="fixed inset-0 bg-[#0c2417]/60 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-[#0c1b13]/60 backdrop-blur-xs transition-opacity"
           />
 
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-6">
-            <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all w-full max-w-lg border border-[#e6dfd5]">
-              <div className="p-6 border-b border-[#e6dfd5] flex items-center justify-between bg-[#faf8f5]">
+            <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all w-full max-w-lg border border-stone-200">
+              <div className="p-5 border-b border-stone-200 flex items-center justify-between bg-stone-50">
                 <div className="space-y-0.5">
-                  <h3 className="font-serif text-lg font-bold text-[#22623a]">
-                    Share Your Experience
+                  <h3 className="font-serif text-base font-semibold text-stone-900">
+                    Share Your Health Outcome
                   </h3>
-                  <p className="text-xs text-[#6a6660]">
+                  <p className="text-xs text-stone-500">
                     Reviewing: <strong>{product.name}</strong>
                   </p>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setIsReviewModalOpen(false)}
-                  className="p-2 rounded-full text-[#7a7268] hover:text-[#22623a]"
+                  className="p-1.5 rounded-full text-stone-400 hover:text-stone-700 cursor-pointer"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <form onSubmit={handleReviewSubmit} className="p-6 space-y-4">
+              <form onSubmit={handleReviewSubmit} className="p-5 space-y-4">
                 {reviewSuccessMsg && (
-                  <div className="p-3.5 bg-green-50 border border-green-200 text-green-800 text-xs rounded-xl flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-green-600" />
+                  <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                     <span>{reviewSuccessMsg}</span>
                   </div>
                 )}
 
                 {/* Rating Picker */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-[#22623a] block">
-                    Your Overall Rating:
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-stone-900 block">
+                    Overall Experience:
                   </label>
-                  <div className="flex items-center gap-2 text-[#c59b27]">
+                  <div className="flex items-center gap-1.5 text-[#9E7D3B]">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         type="button"
-                        onClick={() => setReviewForm({ ...reviewForm, rating: star })}
-                        className="p-1 hover:scale-110 transition-transform"
+                        onClick={() =>
+                          setReviewForm({ ...reviewForm, rating: star })
+                        }
+                        className="p-1 hover:scale-110 transition-transform cursor-pointer"
                       >
                         <Star
-                          className={`w-6 h-6 ${
+                          className={`w-5 h-5 ${
                             star <= reviewForm.rating
-                              ? "fill-[#c59b27] text-[#c59b27]"
-                              : "text-[#e6dfd5]"
+                              ? "fill-[#9E7D3B] text-[#9E7D3B]"
+                              : "text-stone-200"
                           }`}
                         />
                       </button>
                     ))}
-                    <span className="text-xs font-semibold text-[#59534b] ml-2">
+                    <span className="text-xs font-medium text-stone-600 ml-2">
                       {reviewForm.rating} of 5 Stars
                     </span>
                   </div>
                 </div>
 
                 {/* Name */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-[#22623a] block">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-stone-900 block">
                     Your Name:
                   </label>
                   <input
@@ -1187,38 +1355,44 @@ export default function ProductDetailPage({
                     required
                     placeholder="e.g. Tariq Mehmood"
                     value={reviewForm.name}
-                    onChange={(e) => setReviewForm({ ...reviewForm, name: e.target.value })}
-                    className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                    onChange={(e) =>
+                      setReviewForm({ ...reviewForm, name: e.target.value })
+                    }
+                    className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-[#14281D] focus:bg-white"
                   />
                 </div>
 
                 {/* City */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-[#22623a] block">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-stone-900 block">
                     Your City / Area:
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Karachi (Gulshan-e-Iqbal) or Lahore"
+                    placeholder="e.g. Karachi or Lahore"
                     value={reviewForm.city}
-                    onChange={(e) => setReviewForm({ ...reviewForm, city: e.target.value })}
-                    className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                    onChange={(e) =>
+                      setReviewForm({ ...reviewForm, city: e.target.value })
+                    }
+                    className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-[#14281D] focus:bg-white"
                   />
                 </div>
 
                 {/* Comment */}
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-[#22623a] block">
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-stone-900 block">
                     Your Review &amp; Health Outcome:
                   </label>
                   <textarea
                     required
                     rows={4}
-                    placeholder="Describe how this natural remedy helped your health, ease of use, taste, and packaging quality..."
+                    placeholder="Share how this remedy supported your health, ease of use, taste, or packaging..."
                     value={reviewForm.comment}
-                    onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
-                    className="w-full text-xs p-3.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                    onChange={(e) =>
+                      setReviewForm({ ...reviewForm, comment: e.target.value })
+                    }
+                    className="w-full text-xs p-3.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-[#14281D] focus:bg-white"
                   />
                 </div>
 
@@ -1226,10 +1400,14 @@ export default function ProductDetailPage({
                   <button
                     type="submit"
                     disabled={isSubmittingReview}
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md disabled:opacity-50"
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-xs disabled:opacity-50 cursor-pointer"
                   >
-                    <Send className="w-3.5 h-3.5 text-[#c59b27]" />
-                    <span>{isSubmittingReview ? "Submitting Review..." : "Submit Customer Review"}</span>
+                    <Send className="w-3.5 h-3.5 text-[#9E7D3B]" />
+                    <span>
+                      {isSubmittingReview
+                        ? "Publishing Review..."
+                        : "Submit Verified Review"}
+                    </span>
                   </button>
                 </div>
               </form>
@@ -1237,6 +1415,53 @@ export default function ProductDetailPage({
           </div>
         </div>
       )}
+
+      {/* ─── 7. STICKY MOBILE BOTTOM PURCHASE BAR ─── */}
+      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 px-4 py-3 shadow-lg flex items-center justify-between gap-3">
+        <div className="space-y-0.5 min-w-0">
+          <div className="text-[11px] text-stone-500 truncate font-medium">
+            {product.name} ({activeSize.weight})
+          </div>
+          <div className="font-semibold text-sm text-stone-900">
+            ₨ {activeSize.price.toLocaleString()}
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={!isAvailable}
+            className={`px-4 py-2 text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-2xs flex items-center gap-1.5 disabled:opacity-40 cursor-pointer ${
+              !isAvailable
+                ? "bg-stone-200 text-stone-500"
+                : isAdded
+                ? "bg-[#2d7648] text-white"
+                : "bg-[#14281D] text-white"
+            }`}
+          >
+            {isAdded ? (
+              <>
+                <Check className="w-3 h-3" />
+                <span>Added</span>
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-3 h-3 text-[#9E7D3B]" />
+                <span>Add</span>
+              </>
+            )}
+          </button>
+          <a
+            href={generateDirectWhatsAppUrl()}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 bg-[#25D366] text-white rounded-xl shadow-2xs hover:bg-[#20bd5a] flex items-center justify-center cursor-pointer"
+            aria-label="Order on WhatsApp"
+          >
+            <MessageCircle className="w-4 h-4" />
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

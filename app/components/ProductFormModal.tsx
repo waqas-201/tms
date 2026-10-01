@@ -87,6 +87,7 @@ interface UnitItem {
 interface CategoryItem {
   id: string;
   name: string;
+  slug?: string;
   urduName?: string;
 }
 
@@ -678,15 +679,20 @@ export default function ProductFormModal({
         }
       }
 
+      const resolvedCatId =
+        initialProduct.categoryId || (initialProduct as any).category || "murabbajaat";
+      const resolvedCatLabel =
+        initialProduct.categoryLabel ||
+        categories.find((c) => c.id === resolvedCatId || c.slug === resolvedCatId)?.name ||
+        DEFAULT_CATEGORIES.find((c) => c.id === resolvedCatId)?.name ||
+        "Herbal Preserves (Murabba)";
+
       setFormData({
         name: initialProduct.name || "",
         urduName: initialProduct.urduName || "",
         slug: initialProduct.slug || "",
-        categoryId: initialProduct.categoryId || "murabbajaat",
-        categoryLabel:
-          initialProduct.categoryLabel ||
-          DEFAULT_CATEGORIES.find((c) => c.id === initialProduct.categoryId)?.name ||
-          "Herbal Preserves (Murabba)",
+        categoryId: resolvedCatId,
+        categoryLabel: resolvedCatLabel,
         badge: initialProduct.badge || "",
         mizaj: initialProduct.mizaj || "Mo'tadil (Balanced)",
         shortDescription: initialProduct.shortDescription || "",

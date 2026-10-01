@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut } from "@/lib/auth-client";
 import { useCart } from "@/app/context/CartContext";
-import { PRODUCTS } from "@/app/data/products";
+import { Product } from "@/app/data/products";
 import { isStaffRole } from "@/lib/rbac-base";
 import {
   User,
@@ -35,8 +35,26 @@ export default function AccountPage() {
   const [activeTab, setActiveTab] = useState<"orders" | "wishlist" | "consultations" | "profile">("orders");
   const [orders, setOrders] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [reorderMessage, setReorderMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadCatalog() {
+      try {
+        const res = await fetch("/api/products");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            setCatalogProducts(json.data);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching products catalog for account:", err);
+      }
+    }
+    loadCatalog();
+  }, []);
 
   useEffect(() => {
     if (sessionData?.user) {
@@ -72,8 +90,8 @@ export default function AccountPage() {
     let addedCount = 0;
     order.items.forEach((item: any) => {
       // Find matching product in catalog
-      const matchedProduct = PRODUCTS.find((p) => p.id === item.productId || p.name === item.productName);
-      if (matchedProduct) {
+      const matchedProduct = catalogProducts.find((p) => p.id === item.productId || p.name === item.productName);
+      if (matchedProduct && matchedProduct.sizes && matchedProduct.sizes.length > 0) {
         const matchedSize = matchedProduct.sizes.find((s) => s.name === item.sizeName || s.weight === item.sizeWeight) || matchedProduct.sizes[0];
         addToCart(matchedProduct, matchedSize, item.quantity || 1);
         addedCount++;
@@ -85,7 +103,7 @@ export default function AccountPage() {
   };
 
   // Get wishlist products
-  const wishlistProducts = PRODUCTS.filter((p) => wishlist.includes(p.id));
+  const wishlistProducts = catalogProducts.filter((p) => wishlist.includes(p.id));
 
   // Loading state
   if (isPending) {
@@ -185,7 +203,7 @@ export default function AccountPage() {
             )}
             <button
               onClick={() => signOut()}
-              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#faf8f5] hover:bg-red-50 text-[#59534b] hover:text-red-700 border border-[#e6dfd5] hover:border-red-200 rounded-xl text-xs font-semibold transition-colors"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#faf8f5] hover:bg-red-50 text-[#59534b] hover:text-red-700 border border-[#e6dfd5] hover:border-red-200 rounded-xl text-xs font-semibold transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span>Sign Out</span>
@@ -209,7 +227,7 @@ export default function AccountPage() {
         <div className="flex border-b border-[#e6dfd5] space-x-2 sm:space-x-8 overflow-x-auto text-xs sm:text-sm font-semibold">
           <button
             onClick={() => setActiveTab("orders")}
-            className={`pb-3 px-2 border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap ${
+            className={`pb-3 px-2 border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer ${
               activeTab === "orders"
                 ? "border-[#22623a] text-[#22623a] font-bold"
                 : "border-transparent text-[#7a7268] hover:text-[#22623a]"
@@ -221,7 +239,7 @@ export default function AccountPage() {
 
           <button
             onClick={() => setActiveTab("wishlist")}
-            className={`pb-3 px-2 border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap ${
+            className={`pb-3 px-2 border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer ${
               activeTab === "wishlist"
                 ? "border-[#22623a] text-[#22623a] font-bold"
                 : "border-transparent text-[#7a7268] hover:text-[#22623a]"
@@ -233,7 +251,7 @@ export default function AccountPage() {
 
           <button
             onClick={() => setActiveTab("consultations")}
-            className={`pb-3 px-2 border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap ${
+            className={`pb-3 px-2 border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer ${
               activeTab === "consultations"
                 ? "border-[#22623a] text-[#22623a] font-bold"
                 : "border-transparent text-[#7a7268] hover:text-[#22623a]"
@@ -245,7 +263,7 @@ export default function AccountPage() {
 
           <button
             onClick={() => setActiveTab("profile")}
-            className={`pb-3 px-2 border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap ${
+            className={`pb-3 px-2 border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer ${
               activeTab === "profile"
                 ? "border-[#22623a] text-[#22623a] font-bold"
                 : "border-transparent text-[#7a7268] hover:text-[#22623a]"
@@ -369,7 +387,7 @@ export default function AccountPage() {
                     </span>
                     <button
                       onClick={() => handleReorder(order)}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#22623a] hover:text-[#c59b27] transition-colors"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#22623a] hover:text-[#c59b27] transition-colors cursor-pointer"
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
                       <span>Reorder All Items</span>
@@ -418,7 +436,9 @@ export default function AccountPage() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {wishlistProducts.map((product) => {
-                  const defaultSize = product.sizes[0];
+                  const defaultSize = (product.sizes && product.sizes.length > 0)
+                    ? product.sizes[0]
+                    : { name: "Default", weight: "Standard", price: product.price, available: 10 };
                   return (
                     <div
                       key={product.id}
@@ -435,7 +455,7 @@ export default function AccountPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <span className="text-[10px] font-bold text-[#c59b27] uppercase tracking-wider block">
-                            {product.category}
+                            {product.categoryLabel || product.category}
                           </span>
                           <Link
                             href={`/products/${product.slug}`}
@@ -452,13 +472,13 @@ export default function AccountPage() {
                       <div className="flex gap-2 pt-2 border-t border-[#f4eee5]">
                         <button
                           onClick={() => addToCart(product, defaultSize, 1)}
-                          className="flex-1 py-2 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold rounded-xl transition-colors shadow-xs"
+                          className="flex-1 py-2 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold rounded-xl transition-colors shadow-xs cursor-pointer"
                         >
                           + Add to Bag
                         </button>
                         <button
                           onClick={() => removeFromWishlist(product.id)}
-                          className="p-2 border border-[#e6dfd5] hover:bg-red-50 hover:border-red-200 text-[#7a7268] hover:text-red-600 rounded-xl transition-colors"
+                          className="p-2 border border-[#e6dfd5] hover:bg-red-50 hover:border-red-200 text-[#7a7268] hover:text-red-600 rounded-xl transition-colors cursor-pointer"
                           aria-label="Remove from wishlist"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -601,7 +621,7 @@ export default function AccountPage() {
               </span>
               <button
                 onClick={() => signOut()}
-                className="px-4 py-2 bg-[#faf8f5] hover:bg-red-50 text-red-700 border border-[#e6dfd5] rounded-xl text-xs font-bold transition-colors"
+                className="px-4 py-2 bg-[#faf8f5] hover:bg-red-50 text-red-700 border border-[#e6dfd5] rounded-xl text-xs font-bold transition-colors cursor-pointer"
               >
                 Sign Out
               </button>

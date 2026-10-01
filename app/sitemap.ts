@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
-import { PRODUCTS } from "@/app/data/products";
+import prisma from "@/lib/prisma";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://tameeresehat.com";
   const now = new Date();
 
@@ -45,13 +45,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // Dynamic Product Pages
-  const productRoutes: MetadataRoute.Sitemap = PRODUCTS.map((product) => ({
-    url: `${baseUrl}/products/${product.slug}`,
-    lastModified: now,
-    changeFrequency: "weekly",
-    priority: 0.8,
-  }));
+  let productRoutes: MetadataRoute.Sitemap = [];
+  try {
+    const products = await prisma.product.findMany({
+      select: {
+        slug: true,
+        updatedAt: true,
+      },
+    });
+
+    productRoutes = products.map((product) => ({
+      url: `${baseUrl}/products/${product.slug}`,
+      lastModified: product.updatedAt || now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    }));
+  } catch (err) {
+    console.error("Error generating sitemap products:", err);
+  }
 
   return [...staticRoutes, ...productRoutes];
 }

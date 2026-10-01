@@ -1,15 +1,31 @@
 import type { Metadata } from "next";
 import React from "react";
-import { PRODUCTS } from "@/app/data/products";
+import prisma from "@/lib/prisma";
 
 type Props = {
   params: Promise<{ slug: string }>;
   children: React.ReactNode;
 };
 
+async function getProductBySlugOrId(slug: string) {
+  try {
+    return await prisma.product.findFirst({
+      where: {
+        OR: [{ slug }, { id: slug }],
+      },
+      include: {
+        sizes: true,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching product for layout metadata:", error);
+    return null;
+  }
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const product = PRODUCTS.find((p) => p.slug === slug);
+  const product = await getProductBySlugOrId(slug);
 
   if (!product) {
     return {
@@ -21,12 +37,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const title = `${product.name} | Tameer-e-Sehat`;
   const description =
     product.shortDescription ||
-    `${product.name} - 100% natural Unani formulation for ${product.traditionalPurpose}. Handcrafted in Karachi, Pakistan.`;
+    `${product.name} - 100% natural Unani formulation for ${product.traditionalPurpose || "holistic wellness"}. Handcrafted in Karachi, Pakistan.`;
 
   const canonicalUrl = `https://tameeresehat.com/products/${product.slug}`;
-  const imageUrl = product.image.startsWith("http")
-    ? product.image
-    : `https://tameeresehat.com${product.image}`;
+  let primaryImage = product.image;
+  try {
+    if (primaryImage.startsWith("[")) {
+      const parsed = JSON.parse(primaryImage);
+      if (Array.isArray(parsed) && parsed.length > 0) primaryImage = parsed[0];
+    }
+  } catch {}
+
+  const imageUrl = primaryImage.startsWith("http")
+    ? primaryImage
+    : `https://tameeresehat.com${primaryImage}`;
 
   return {
     title,
@@ -64,14 +88,22 @@ export default async function ProductDetailLayout({
   children,
 }: Props) {
   const { slug } = await params;
-  const product = PRODUCTS.find((p) => p.slug === slug);
+  const product = await getProductBySlugOrId(slug);
 
   if (!product) return <>{children}</>;
 
   const productUrl = `https://tameeresehat.com/products/${product.slug}`;
-  const imageUrl = product.image.startsWith("http")
-    ? product.image
-    : `https://tameeresehat.com${product.image}`;
+  let primaryImage = product.image;
+  try {
+    if (primaryImage.startsWith("[")) {
+      const parsed = JSON.parse(primaryImage);
+      if (Array.isArray(parsed) && parsed.length > 0) primaryImage = parsed[0];
+    }
+  } catch {}
+
+  const imageUrl = primaryImage.startsWith("http")
+    ? primaryImage
+    : `https://tameeresehat.com${primaryImage}`;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -100,8 +132,8 @@ export default async function ProductDetailLayout({
     },
     aggregateRating: {
       "@type": "AggregateRating",
-      ratingValue: product.rating || 4.9,
-      reviewCount: product.reviewCount || 15,
+      ratingValue: product.rating || 5.0,
+      reviewCount: product.reviewCount || 1,
       bestRating: "5",
       worstRating: "1",
     },

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/app/context/CartContext";
-import { PRODUCTS } from "@/app/data/products";
+import { Product } from "@/app/data/products";
 import {
   X,
   Trash2,
@@ -46,6 +46,24 @@ export default function CartDrawer() {
     success: boolean;
     message: string;
   } | null>(null);
+  const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const res = await fetch("/api/products");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            setCatalogProducts(json.data);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load catalog for cart recommendations:", err);
+      }
+    }
+    loadProducts();
+  }, []);
 
   // Close on Escape key
   useEffect(() => {
@@ -76,7 +94,9 @@ export default function CartDrawer() {
 
   // Cross-sell recommendations: products not in cart
   const cartProductIds = cart.map((i) => i.product.id);
-  const crossSellProducts = PRODUCTS.filter((p) => !cartProductIds.includes(p.id)).slice(0, 2);
+  const crossSellProducts = catalogProducts
+    .filter((p) => !cartProductIds.includes(p.id) && p.sizes && p.sizes.length > 0)
+    .slice(0, 2);
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -274,6 +294,7 @@ export default function CartDrawer() {
                     <div className="space-y-2">
                       {crossSellProducts.map((crossProduct) => {
                         const defaultSize = crossProduct.sizes[0];
+                        if (!defaultSize) return null;
                         return (
                           <div
                             key={crossProduct.id}
@@ -300,7 +321,7 @@ export default function CartDrawer() {
 
                             <button
                               onClick={() => addToCart(crossProduct, defaultSize, 1)}
-                              className="px-2.5 py-1.5 bg-[#f4f9f5] hover:bg-[#22623a] text-[#22623a] hover:text-white border border-[#d8ecde] hover:border-[#22623a] rounded-lg text-[11px] font-bold transition-colors shrink-0"
+                              className="px-2.5 py-1.5 bg-[#f4f9f5] hover:bg-[#22623a] text-[#22623a] hover:text-white border border-[#d8ecde] hover:border-[#22623a] rounded-lg text-[11px] font-bold transition-colors shrink-0 cursor-pointer"
                             >
                               + Add
                             </button>
@@ -331,7 +352,7 @@ export default function CartDrawer() {
                     </div>
                     <button
                       onClick={removeCoupon}
-                      className="text-xs text-red-600 hover:underline font-semibold"
+                      className="text-xs text-red-600 hover:underline font-semibold cursor-pointer"
                     >
                       Remove
                     </button>
@@ -350,7 +371,7 @@ export default function CartDrawer() {
                     </div>
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold uppercase rounded-xl transition-colors shrink-0"
+                      className="px-4 py-2 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold uppercase rounded-xl transition-colors shrink-0 cursor-pointer"
                     >
                       Apply
                     </button>

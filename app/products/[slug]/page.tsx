@@ -4,7 +4,7 @@ import React, { useState, useEffect, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PRODUCTS, Product, ProductSize, CLINIC_INFO } from "@/app/data/products";
+import { Product, ProductSize, CLINIC_INFO } from "@/app/data/products";
 import { useCart } from "@/app/context/CartContext";
 import ProductCard from "@/app/components/ProductCard";
 import {
@@ -52,24 +52,35 @@ export default function ProductDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const resolvedParams = use(params);
-  const initialProduct = PRODUCTS.find((p) => p.slug === resolvedParams.slug) || null;
-  const [product, setProduct] = useState<Product | null>(initialProduct);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [catalog, setCatalog] = useState<Product[]>([]);
   const [hasFetched, setHasFetched] = useState(false);
 
-  // Load live product from API
+  // Load live product and catalog from API
   useEffect(() => {
     async function loadLiveProduct() {
       try {
-        const res = await fetch(`/api/products/${resolvedParams.slug}`);
-        if (res.ok) {
-          const json = await res.json();
+        const [productRes, catalogRes] = await Promise.all([
+          fetch(`/api/products/${resolvedParams.slug}`),
+          fetch(`/api/products`),
+        ]);
+
+        if (productRes.ok) {
+          const json = await productRes.json();
           if (json.success && json.data) {
             setProduct(json.data);
             setSelectedSize((prev) => {
-              if (!prev) return json.data.sizes[0];
+              if (!prev) return json.data.sizes[0] || { name: "Standard", weight: "250g", price: json.data.price || 0 };
               const match = json.data.sizes.find((s: ProductSize) => s.id === prev.id || s.name === prev.name);
-              return match || json.data.sizes[0];
+              return match || json.data.sizes[0] || { name: "Standard", weight: "250g", price: json.data.price || 0 };
             });
+          }
+        }
+
+        if (catalogRes.ok) {
+          const catJson = await catalogRes.json();
+          if (catJson.success && Array.isArray(catJson.data)) {
+            setCatalog(catJson.data);
           }
         }
       } catch (err) {
@@ -85,9 +96,7 @@ export default function ProductDetailPage({
   const isSaved = product ? isInWishlist(product.id) : false;
 
   // States
-  const [selectedSize, setSelectedSize] = useState<ProductSize>(
-    initialProduct?.sizes[0] || { name: "Standard", weight: "250g", price: initialProduct?.price || 0 }
-  );
+  const [selectedSize, setSelectedSize] = useState<ProductSize | null>(null);
   const [activeImageIndex, setActiveImageIndex] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(1);
   const [isAdded, setIsAdded] = useState(false);
@@ -119,9 +128,17 @@ export default function ProductDetailPage({
     );
   }
 
+  const activeSize: ProductSize =
+    selectedSize ||
+    product.sizes[0] || {
+      name: "Standard",
+      weight: "Standard",
+      price: product.price,
+    };
+
   const isAvailable =
-    selectedSize?.available !== undefined ? selectedSize.available > 0 : product.inStock;
-  const maxAvailable = selectedSize?.available !== undefined ? selectedSize.available : 99;
+    activeSize.available !== undefined ? activeSize.available > 0 : product.inStock;
+  const maxAvailable = activeSize.available !== undefined ? activeSize.available : 99;
 
   // Compute dynamic ratings & review breakdown
   const totalReviews = reviewsList.length;
@@ -137,12 +154,17 @@ export default function ProductDetailPage({
   });
 
   // Pick complementary product for "Frequently Prescribed Together" bundle
-  const bundleProduct = PRODUCTS.find(
-    (p) => p.id !== product.id && (p.category === product.category || p.category === "arqiyat" || p.featured)
-  ) || PRODUCTS[0];
+  const bundleProduct =
+    catalog.find(
+      (p) =>
+        p.id !== product.id &&
+        (p.category === product.category || p.category === "arqiyat" || p.featured)
+    ) ||
+    catalog.find((p) => p.id !== product.id) ||
+    null;
 
-  const bundleSize = bundleProduct.sizes[0];
-  const bundleTotalPrice = selectedSize.price + bundleSize.price;
+  const bundleSize = bundleProduct?.sizes?.[0] || null;
+  const bundleTotalPrice = (activeSize.price || 0) + (bundleSize?.price || 0);
   const bundleDiscountedPrice = Math.round(bundleTotalPrice * 0.95); // 5% bundle discount
 
   // Load reviews dynamically from Database API
@@ -177,13 +199,14 @@ export default function ProductDetailPage({
   }, [product?.id]);
 
   const handleAddToCart = () => {
-    addToCart(product, selectedSize, quantity);
+    addToCart(product, activeSize, quantity);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 2200);
   };
 
   const handleAddBundleToCart = () => {
-    addToCart(product, selectedSize, 1);
+    if (!bundleProduct || !bundleSize) return;
+    addToCart(product, activeSize, 1);
     addToCart(bundleProduct, bundleSize, 1);
     setIsBundleAdded(true);
     setTimeout(() => setIsBundleAdded(false), 2200);
@@ -198,7 +221,7 @@ export default function ProductDetailPage({
   };
 
   const generateDirectWhatsAppUrl = () => {
-    const text = `*Assalam-o-Alaikum Tameer-e-Sehat,*\nI would like to order:\n\n*Product:* ${product.name}\n*Selected Size:* ${selectedSize.weight} (₨ ${selectedSize.price.toLocaleString()})\n*Quantity:* ${quantity}\n*Total:* ₨ ${(selectedSize.price * quantity).toLocaleString()}\n\nPlease confirm availability and Cash on Delivery dispatch to my city. JazakAllah!`;
+    const text = `*Assalam-o-Alaikum Tameer-e-Sehat,*\nI would like to order:\n\n*Product:* ${product.name}\n*Selected Size:* ${activeSize.weight} (₨ ${activeSize.price.toLocaleString()})\n*Quantity:* ${quantity}\n*Total:* ₨ ${(activeSize.price * quantity).toLocaleString()}\n\nPlease confirm availability and Cash on Delivery dispatch to my city. JazakAllah!`;
     return `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(text)}`;
   };
 
@@ -246,9 +269,9 @@ export default function ProductDetailPage({
     }
   };
 
-  const relatedProducts = PRODUCTS.filter(
-    (p) => p.category === product.category && p.id !== product.id
-  ).slice(0, 4);
+  const relatedProducts = catalog
+    .filter((p) => p.category === product.category && p.id !== product.id)
+    .slice(0, 4);
 
   return (
     <div className="bg-[#faf8f5] min-h-screen">
@@ -413,9 +436,9 @@ export default function ProductDetailPage({
                     {product.categoryLabel}
                   </span>
                   {isAvailable ? (
-                    selectedSize.available !== undefined && selectedSize.available <= 5 ? (
+                    activeSize.available !== undefined && activeSize.available <= 5 ? (
                       <span className="text-amber-800 font-semibold bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded text-xs flex items-center gap-1">
-                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" /> Only {selectedSize.available} units left in stock
+                        <AlertCircle className="w-3.5 h-3.5 text-amber-600" /> Only {activeSize.available} units left in stock
                       </span>
                     ) : (
                       <span className="text-[#2d7648] font-semibold bg-[#f4f9f5] border border-[#d8ecde] px-2.5 py-0.5 rounded text-xs flex items-center gap-1">
@@ -464,11 +487,11 @@ export default function ProductDetailPage({
               <div className="p-4 bg-white rounded-2xl border border-[#e6dfd5] shadow-xs flex flex-wrap items-baseline justify-between gap-3">
                 <div className="flex items-baseline gap-3">
                   <span className="text-2xl sm:text-3xl font-bold text-[#22623a]">
-                    ₨ {selectedSize.price.toLocaleString()}
+                    ₨ {activeSize.price.toLocaleString()}
                   </span>
-                  {selectedSize.originalPrice && selectedSize.originalPrice > selectedSize.price && (
+                  {activeSize.originalPrice && activeSize.originalPrice > activeSize.price && (
                     <span className="text-sm text-[#7a7268] line-through">
-                      ₨ {selectedSize.originalPrice.toLocaleString()}
+                      ₨ {activeSize.originalPrice.toLocaleString()}
                     </span>
                   )}
                   {product.discountPercentage && product.discountPercentage > 0 && (
@@ -495,13 +518,13 @@ export default function ProductDetailPage({
                     Select Packaging Size / Weight:
                   </label>
                   <span className="text-[#7a7268]">
-                    Selected: <strong>{selectedSize.weight}</strong>
+                    Selected: <strong>{activeSize.weight}</strong>
                   </span>
                 </div>
 
                 <div className="flex flex-wrap gap-2.5">
                   {product.sizes.map((size) => {
-                    const isSelected = selectedSize.name === size.name;
+                    const isSelected = activeSize.name === size.name;
                     const sizeInStock = size.available !== undefined ? size.available > 0 : true;
                     return (
                       <button
@@ -588,7 +611,7 @@ export default function ProductDetailPage({
                       <>
                         <ShoppingBag className="w-4 h-4 text-[#c59b27]" />
                         <span>
-                          Add to Bag · ₨ {(selectedSize.price * quantity).toLocaleString()}
+                          Add to Bag · ₨ {(activeSize.price * quantity).toLocaleString()}
                         </span>
                       </>
                     )}
@@ -627,93 +650,95 @@ export default function ProductDetailPage({
       </section>
 
       {/* ─── 3. "FREQUENTLY PRESCRIBED TOGETHER" BUNDLE CROSS-SELL ─── */}
-      <section className="py-8 bg-[#faf8f5] border-b border-[#e6dfd5]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-2xl border border-[#e6dfd5] p-5 sm:p-7 shadow-xs">
-            <div className="flex items-center gap-2 text-[#22623a] font-serif text-lg font-bold pb-4 border-b border-[#f4eee5]">
-              <Sparkles className="w-4 h-4 text-[#c59b27]" />
-              <h2>Frequently Prescribed Together for Faster Relief</h2>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center pt-5">
-              {/* Products preview */}
-              <div className="lg:col-span-8 flex flex-col sm:flex-row items-center gap-4">
-                {/* Item 1 */}
-                <div className="flex items-center gap-3 bg-[#faf8f5] p-3 rounded-xl border border-[#e6dfd5] flex-1 w-full">
-                  <div className="relative w-14 h-14 bg-white rounded-lg overflow-hidden shrink-0">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1 text-xs">
-                    <div className="font-bold text-[#22623a] truncate">{product.name}</div>
-                    <div className="text-[11px] text-[#7a7268]">{selectedSize.weight}</div>
-                    <div className="font-bold text-[#22623a] mt-0.5">₨ {selectedSize.price}</div>
-                  </div>
-                </div>
-
-                <div className="text-xl font-bold text-[#c59b27] shrink-0">+</div>
-
-                {/* Item 2 */}
-                <div className="flex items-center gap-3 bg-[#faf8f5] p-3 rounded-xl border border-[#e6dfd5] flex-1 w-full">
-                  <div className="relative w-14 h-14 bg-white rounded-lg overflow-hidden shrink-0">
-                    <Image
-                      src={bundleProduct.image}
-                      alt={bundleProduct.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1 text-xs">
-                    <div className="font-bold text-[#22623a] truncate">{bundleProduct.name}</div>
-                    <div className="text-[11px] text-[#7a7268]">{bundleSize.weight}</div>
-                    <div className="font-bold text-[#22623a] mt-0.5">₨ {bundleSize.price}</div>
-                  </div>
-                </div>
+      {bundleProduct && bundleSize && (
+        <section className="py-8 bg-[#faf8f5] border-b border-[#e6dfd5]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-white rounded-2xl border border-[#e6dfd5] p-5 sm:p-7 shadow-xs">
+              <div className="flex items-center gap-2 text-[#22623a] font-serif text-lg font-bold pb-4 border-b border-[#f4eee5]">
+                <Sparkles className="w-4 h-4 text-[#c59b27]" />
+                <h2>Frequently Prescribed Together for Faster Relief</h2>
               </div>
 
-              {/* Bundle Add CTA */}
-              <div className="lg:col-span-4 flex flex-col justify-center space-y-2 border-t lg:border-t-0 lg:border-l border-[#f4eee5] lg:pl-6 pt-4 lg:pt-0">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xl font-bold text-[#22623a]">
-                    ₨ {bundleDiscountedPrice.toLocaleString()}
-                  </span>
-                  <span className="text-xs text-[#7a7268] line-through">
-                    ₨ {bundleTotalPrice.toLocaleString()}
-                  </span>
-                  <span className="text-[10px] font-bold text-[#2d7648] bg-[#f4f9f5] px-2 py-0.5 rounded">
-                    5% Bundle Saving
-                  </span>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center pt-5">
+                {/* Products preview */}
+                <div className="lg:col-span-8 flex flex-col sm:flex-row items-center gap-4">
+                  {/* Item 1 */}
+                  <div className="flex items-center gap-3 bg-[#faf8f5] p-3 rounded-xl border border-[#e6dfd5] flex-1 w-full">
+                    <div className="relative w-14 h-14 bg-white rounded-lg overflow-hidden shrink-0">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1 text-xs">
+                      <div className="font-bold text-[#22623a] truncate">{product.name}</div>
+                      <div className="text-[11px] text-[#7a7268]">{activeSize.weight}</div>
+                      <div className="font-bold text-[#22623a] mt-0.5">₨ {activeSize.price}</div>
+                    </div>
+                  </div>
+
+                  <div className="text-xl font-bold text-[#c59b27] shrink-0">+</div>
+
+                  {/* Item 2 */}
+                  <div className="flex items-center gap-3 bg-[#faf8f5] p-3 rounded-xl border border-[#e6dfd5] flex-1 w-full">
+                    <div className="relative w-14 h-14 bg-white rounded-lg overflow-hidden shrink-0">
+                      <Image
+                        src={bundleProduct.image}
+                        alt={bundleProduct.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1 text-xs">
+                      <div className="font-bold text-[#22623a] truncate">{bundleProduct.name}</div>
+                      <div className="text-[11px] text-[#7a7268]">{bundleSize.weight}</div>
+                      <div className="font-bold text-[#22623a] mt-0.5">₨ {bundleSize.price}</div>
+                    </div>
+                  </div>
                 </div>
 
-                <button
-                  onClick={handleAddBundleToCart}
-                  className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-xs ${
-                    isBundleAdded
-                      ? "bg-[#2d7648] text-white"
-                      : "bg-[#22623a] hover:bg-[#1b502e] text-white"
-                  }`}
-                >
-                  {isBundleAdded ? (
-                    <>
-                      <Check className="w-4 h-4" />
-                      <span>Both Items Added to Bag</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingBag className="w-4 h-4 text-[#c59b27]" />
-                      <span>Add Both to Bag</span>
-                    </>
-                  )}
-                </button>
+                {/* Bundle Add CTA */}
+                <div className="lg:col-span-4 flex flex-col justify-center space-y-2 border-t lg:border-t-0 lg:border-l border-[#f4eee5] lg:pl-6 pt-4 lg:pt-0">
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-xl font-bold text-[#22623a]">
+                      ₨ {bundleDiscountedPrice.toLocaleString()}
+                    </span>
+                    <span className="text-xs text-[#7a7268] line-through">
+                      ₨ {bundleTotalPrice.toLocaleString()}
+                    </span>
+                    <span className="text-[10px] font-bold text-[#2d7648] bg-[#f4f9f5] px-2 py-0.5 rounded">
+                      5% Bundle Saving
+                    </span>
+                  </div>
+
+                  <button
+                    onClick={handleAddBundleToCart}
+                    className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-xs ${
+                      isBundleAdded
+                        ? "bg-[#2d7648] text-white"
+                        : "bg-[#22623a] hover:bg-[#1b502e] text-white"
+                    }`}
+                  >
+                    {isBundleAdded ? (
+                      <>
+                        <Check className="w-4 h-4" />
+                        <span>Both Items Added to Bag</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag className="w-4 h-4 text-[#c59b27]" />
+                        <span>Add Both to Bag</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ─── 4. TABBED CLINICAL INFORMATION & REVIEWS ─── */}
       <section className="py-12 bg-white border-b border-[#e6dfd5]">

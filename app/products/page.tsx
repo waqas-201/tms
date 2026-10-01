@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { PRODUCTS, CATEGORIES, Product } from "@/app/data/products";
+import { Product, CategoryInfo } from "@/app/data/products";
 import ProductCard from "@/app/components/ProductCard";
 import {
   Search,
@@ -110,28 +110,38 @@ function ProductsContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || "all";
 
-  // Products from API
-  const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
-  const [isLoading, setIsLoading] = useState(false);
+  // Products & Categories from API
+  const [productsList, setProductsList] = useState<Product[]>([]);
+  const [categoriesList, setCategoriesList] = useState<CategoryInfo[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    async function loadLiveProducts() {
+    async function loadCatalog() {
       setIsLoading(true);
       try {
-        const res = await fetch("/api/products");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success && Array.isArray(data.data) && data.data.length > 0) {
-            setProductsList(data.data);
+        const [prodRes, catRes] = await Promise.all([
+          fetch("/api/products"),
+          fetch("/api/categories"),
+        ]);
+        if (prodRes.ok) {
+          const prodData = await prodRes.json();
+          if (prodData.success && Array.isArray(prodData.data)) {
+            setProductsList(prodData.data);
+          }
+        }
+        if (catRes.ok) {
+          const catData = await catRes.json();
+          if (catData.success && Array.isArray(catData.data)) {
+            setCategoriesList(catData.data);
           }
         }
       } catch (err) {
-        console.error("Failed to fetch live products catalog:", err);
+        console.error("Failed to fetch live catalog:", err);
       } finally {
         setIsLoading(false);
       }
     }
-    loadLiveProducts();
+    loadCatalog();
   }, []);
 
   // Filter States
@@ -154,7 +164,8 @@ function ProductsContent() {
 
     // 1. Category filter
     if (selectedCategory !== "all") {
-      list = list.filter((p) => p.category === selectedCategory);
+      const activeCat = categoriesList.find((c) => c.id === selectedCategory || c.slug === selectedCategory);
+      list = list.filter((p) => p.category === selectedCategory || (activeCat && (p.category === activeCat.id || p.category === activeCat.slug)));
     }
 
     // 2. Health concern filter
@@ -254,7 +265,7 @@ function ProductsContent() {
     sortBy,
   ]);
 
-  const activeCategoryInfo = CATEGORIES.find((c) => c.id === selectedCategory);
+  const activeCategoryInfo = categoriesList.find((c) => c.id === selectedCategory || c.slug === selectedCategory);
   const activeConcernInfo = HEALTH_CONCERNS.find((c) => c.id === selectedConcern);
   const activePriceInfo = PRICE_RANGES.find((r) => r.id === selectedPriceRange);
   const activeMizajInfo = MIZAJ_OPTIONS.find((m) => m.id === selectedMizaj);
@@ -356,16 +367,16 @@ function ProductsContent() {
                   : "bg-[#faf8f5] text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a] hover:text-[#22623a]"
               }`}
             >
-              All Remedies ({PRODUCTS.length})
+              All Remedies ({productsList.length})
             </button>
 
-            {CATEGORIES.map((cat) => {
-              const isSelected = selectedCategory === cat.id;
-              const count = PRODUCTS.filter((p) => p.category === cat.id).length;
+            {categoriesList.map((cat) => {
+              const isSelected = selectedCategory === cat.id || selectedCategory === cat.slug;
+              const count = productsList.filter((p) => p.category === cat.id || p.category === cat.slug).length;
               return (
                 <button
                   key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
+                  onClick={() => setSelectedCategory(cat.slug || cat.id)}
                   className={`shrink-0 text-xs px-3.5 py-1.5 rounded-full font-semibold transition-all flex items-center gap-1.5 ${
                     isSelected
                       ? "bg-[#22623a] text-white shadow-xs"
@@ -464,17 +475,17 @@ function ProductsContent() {
                     >
                       <span>All Formulations</span>
                       <span className={`text-[10px] ${selectedCategory === "all" ? "text-white/80" : "text-[#7a7268]"}`}>
-                        {PRODUCTS.length}
+                        {productsList.length}
                       </span>
                     </button>
 
-                    {CATEGORIES.map((cat) => {
-                      const isSelected = selectedCategory === cat.id;
-                      const count = PRODUCTS.filter((p) => p.category === cat.id).length;
+                    {categoriesList.map((cat) => {
+                      const isSelected = selectedCategory === cat.id || selectedCategory === cat.slug;
+                      const count = productsList.filter((p) => p.category === cat.id || p.category === cat.slug).length;
                       return (
                         <button
                           key={cat.id}
-                          onClick={() => setSelectedCategory(cat.id)}
+                          onClick={() => setSelectedCategory(cat.slug || cat.id)}
                           className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs transition-colors flex items-center justify-between ${
                             isSelected
                               ? "bg-[#22623a] text-white font-semibold shadow-2xs"
@@ -1006,19 +1017,19 @@ function ProductsContent() {
                       <span>All Types</span>
                       <span className="text-[10px] opacity-75">{productsList.length}</span>
                     </button>
-                    {CATEGORIES.map((cat) => (
+                    {categoriesList.map((cat) => (
                       <button
                         key={cat.id}
-                        onClick={() => setSelectedCategory(cat.id)}
+                        onClick={() => setSelectedCategory(cat.slug || cat.id)}
                         className={`w-full text-left px-3 py-2 rounded-xl text-xs flex justify-between ${
-                          selectedCategory === cat.id
+                          selectedCategory === cat.id || selectedCategory === cat.slug
                             ? "bg-[#22623a] text-white font-semibold"
                             : "text-[#59534b] hover:bg-[#faf8f5]"
                         }`}
                       >
                         <span>{cat.name}</span>
                         <span className="text-[10px] opacity-75">
-                          {productsList.filter((p) => p.category === cat.id).length}
+                          {productsList.filter((p) => p.category === cat.id || p.category === cat.slug).length}
                         </span>
                       </button>
                     ))}

@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { PRODUCTS, Product } from "@/app/data/products";
-import { Search, X, ArrowRight, Sparkles } from "lucide-react";
+import { Product } from "@/app/data/products";
+import { Search, X, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 
 interface SearchModalProps {
   isOpen: boolean;
@@ -14,21 +14,25 @@ interface SearchModalProps {
 export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Product[]>([]);
-  const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
+  const [productsList, setProductsList] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     async function loadCatalog() {
+      setIsLoading(true);
       try {
         const res = await fetch("/api/products");
         if (res.ok) {
           const json = await res.json();
-          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          if (json.success && Array.isArray(json.data)) {
             setProductsList(json.data);
           }
         }
       } catch (err) {
         console.error("Failed to load catalog for search:", err);
+      } finally {
+        setIsLoading(false);
       }
     }
     if (isOpen) {
@@ -61,9 +65,11 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
     const q = query.toLowerCase();
     const filtered = productsList.filter((item) => {
       return (
-        item.name.toLowerCase().includes(q) ||
-        item.shortDescription.toLowerCase().includes(q) ||
-        item.categoryLabel.toLowerCase().includes(q) ||
+        item.name?.toLowerCase().includes(q) ||
+        item.urduName?.includes(q) ||
+        item.shortDescription?.toLowerCase().includes(q) ||
+        item.categoryLabel?.toLowerCase().includes(q) ||
+        item.traditionalPurpose?.toLowerCase().includes(q) ||
         item.benefits?.some((b) => b.toLowerCase().includes(q)) ||
         item.ingredients?.some((ing) => ing.name.toLowerCase().includes(q))
       );
@@ -109,14 +115,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="p-1 text-[#6a6660] hover:text-[#22623a] mr-1"
+              className="p-1 text-[#6a6660] hover:text-[#22623a] mr-1 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           )}
           <button
             onClick={onClose}
-            className="text-xs font-semibold text-[#22623a] bg-[#f4eee5] px-2.5 py-1 rounded hover:bg-[#e8ded2] transition-colors shrink-0"
+            className="text-xs font-semibold text-[#22623a] bg-[#f4eee5] px-2.5 py-1 rounded hover:bg-[#e8ded2] transition-colors shrink-0 cursor-pointer"
           >
             ESC
           </button>
@@ -144,7 +150,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <button
                   key={chip}
                   onClick={() => setQuery(chip)}
-                  className="text-xs px-3 py-1.5 bg-white border border-[#e6dfd5] rounded-full text-[#22623a] hover:bg-[#22623a] hover:text-white hover:border-[#22623a] transition-all"
+                  className="text-xs px-3 py-1.5 bg-white border border-[#e6dfd5] rounded-full text-[#22623a] hover:bg-[#22623a] hover:text-white hover:border-[#22623a] transition-all cursor-pointer"
                 >
                   {chip}
                 </button>
@@ -162,7 +168,12 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         {/* Results */}
         {query.trim() && (
           <div className="max-h-96 overflow-y-auto p-4 divide-y divide-[#e6dfd5]/60">
-            {results.length === 0 ? (
+            {isLoading ? (
+              <div className="py-12 text-center text-xs text-[#6a6660]">
+                <Loader2 className="w-6 h-6 animate-spin text-[#22623a] mx-auto mb-2" />
+                <span>Searching dispensary database...</span>
+              </div>
+            ) : results.length === 0 ? (
               <div className="py-12 text-center text-xs text-[#6a6660]">
                 No remedies found matching &ldquo;<span className="font-semibold text-[#1a1816]">{query}</span>&rdquo;.
                 <p className="mt-2 text-[11px]">
@@ -195,7 +206,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] uppercase font-semibold text-[#c59b27] tracking-wider">
-                        {product.categoryLabel}
+                        {product.categoryLabel || product.category}
                       </span>
                       {product.badge && (
                         <span className="text-[9px] px-1.5 py-0.5 bg-[#22623a]/10 text-[#22623a] rounded">
@@ -207,7 +218,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                       {product.name}
                     </h4>
                     <p className="text-xs text-[#6a6660] truncate">
-                      {product.traditionalPurpose}
+                      {product.traditionalPurpose || product.shortDescription}
                     </p>
                   </div>
                   <div className="text-right shrink-0">

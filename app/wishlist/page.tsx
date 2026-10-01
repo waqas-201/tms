@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
-import { PRODUCTS, CLINIC_INFO, Product, ProductSize } from "@/app/data/products";
+import { CLINIC_INFO, Product, ProductSize } from "@/app/data/products";
 import ProductCard from "@/app/components/ProductCard";
 import {
   Heart,
@@ -20,6 +20,7 @@ import {
   Stethoscope,
   ExternalLink,
   Star,
+  Loader2,
 } from "lucide-react";
 
 export default function WishlistPage() {
@@ -30,10 +31,11 @@ export default function WishlistPage() {
     showToast,
   } = useCart();
 
-  const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
+  const [productsList, setProductsList] = useState<Product[]>([]);
   const [selectedSizes, setSelectedSizes] = useState<Record<string, ProductSize>>({});
   const [addedStates, setAddedStates] = useState<Record<string, boolean>>({});
   const [isSharing, setIsSharing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
@@ -41,12 +43,14 @@ export default function WishlistPage() {
         const prodRes = await fetch("/api/products");
         if (prodRes.ok) {
           const data = await prodRes.json();
-          if (data.success && Array.isArray(data.data) && data.data.length > 0) {
+          if (data.success && Array.isArray(data.data)) {
             setProductsList(data.data);
           }
         }
       } catch (err) {
         console.error("Failed to fetch products for wishlist:", err);
+      } finally {
+        setIsLoading(false);
       }
     }
     loadData();
@@ -81,6 +85,7 @@ export default function WishlistPage() {
 
     wishlistProducts.forEach((product) => {
       const size = selectedSizes[product.id] || product.sizes[0];
+      if (!size) return;
       const inStock = size.available !== undefined ? size.available > 0 : product.inStock;
       if (inStock) {
         addToCart(product, size, 1);
@@ -101,14 +106,16 @@ export default function WishlistPage() {
 
     const productLines = wishlistProducts.map((p, idx) => {
       const s = selectedSizes[p.id] || p.sizes[0];
-      return `${idx + 1}. *${p.name}* (${s.weight}) - Rs. ${s.price.toLocaleString()}`;
+      const weight = s ? s.weight : "Standard";
+      const price = s ? s.price : p.price;
+      return `${idx + 1}. *${p.name}* (${weight}) - Rs. ${price.toLocaleString()}`;
     });
 
     const combinedList = productLines.join("\n");
 
     const totalEstimate = wishlistProducts.reduce((sum, p) => {
       const s = selectedSizes[p.id] || p.sizes[0];
-      return sum + s.price;
+      return sum + (s ? s.price : p.price);
     }, 0);
 
     const message = encodeURIComponent(
@@ -195,7 +202,12 @@ export default function WishlistPage() {
       {/* ─── 3. MAIN WISHLIST CONTENT ─── */}
       <section className="py-8 sm:py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {totalSavedCount === 0 ? (
+          {isLoading ? (
+            <div className="py-16 text-center">
+              <Loader2 className="w-8 h-8 text-[#22623a] animate-spin mx-auto mb-2" />
+              <p className="text-xs text-[#7a7268]">Loading your saved remedies...</p>
+            </div>
+          ) : totalSavedCount === 0 ? (
             /* Empty State */
             <div className="bg-white rounded-3xl border border-[#e6dfd5] p-8 sm:p-14 text-center max-w-2xl mx-auto space-y-6 shadow-xs">
               <div className="w-20 h-20 bg-[#faf8f5] rounded-full flex items-center justify-center mx-auto border border-[#e6dfd5]">
@@ -239,7 +251,9 @@ export default function WishlistPage() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {wishlistProducts.map((product) => {
-                      const currentSelectedSize = selectedSizes[product.id] || product.sizes[0];
+                      const currentSelectedSize = (product.sizes && product.sizes.length > 0)
+                        ? selectedSizes[product.id] || product.sizes[0]
+                        : { name: "Default", weight: "Standard", price: product.price, available: product.inStock ? 10 : 0 };
                       const inStock =
                         currentSelectedSize.available !== undefined
                           ? currentSelectedSize.available > 0
@@ -307,10 +321,10 @@ export default function WishlistPage() {
                                     <Star className="w-3 h-3 fill-current" />
                                   </div>
                                   <span className="font-bold text-[#22623a] text-[11px]">
-                                    {product.rating}
+                                    {product.rating || 5.0}
                                   </span>
                                   <span className="text-[10px] text-[#7a7268]">
-                                    ({product.reviewCount})
+                                    ({product.reviewCount || 0})
                                   </span>
                                 </div>
                               </div>
@@ -322,33 +336,35 @@ export default function WishlistPage() {
                             </p>
 
                             {/* Size / Weight Selector */}
-                            <div className="space-y-1.5 pt-2 border-t border-[#f4eee5]">
-                              <div className="flex items-center justify-between text-[11px]">
-                                <span className="text-[#7a7268] font-medium">Select Packaging:</span>
-                                <span className="text-[#22623a] font-bold">
-                                  Rs. {currentSelectedSize.price.toLocaleString()}
-                                </span>
-                              </div>
+                            {product.sizes && product.sizes.length > 0 && (
+                              <div className="space-y-1.5 pt-2 border-t border-[#f4eee5]">
+                                <div className="flex items-center justify-between text-[11px]">
+                                  <span className="text-[#7a7268] font-medium">Select Packaging:</span>
+                                  <span className="text-[#22623a] font-bold">
+                                    Rs. {currentSelectedSize.price.toLocaleString()}
+                                  </span>
+                                </div>
 
-                              <div className="flex flex-wrap gap-1.5">
-                                {product.sizes.map((size) => {
-                                  const isSelected = currentSelectedSize.name === size.name;
-                                  return (
-                                    <button
-                                      key={size.name}
-                                      onClick={() => handleSizeChange(product.id, size)}
-                                      className={`px-2.5 py-1 text-[11px] rounded-lg border transition-all cursor-pointer ${
-                                        isSelected
-                                          ? "bg-[#22623a] text-white border-[#22623a] font-bold shadow-2xs"
-                                          : "bg-white text-[#59534b] border-[#e6dfd5] hover:border-[#22623a]"
-                                      }`}
-                                    >
-                                      {size.weight}
-                                    </button>
-                                  );
-                                })}
+                                <div className="flex flex-wrap gap-1.5">
+                                  {product.sizes.map((size) => {
+                                    const isSelected = currentSelectedSize.name === size.name;
+                                    return (
+                                      <button
+                                        key={size.name}
+                                        onClick={() => handleSizeChange(product.id, size)}
+                                        className={`px-2.5 py-1 text-[11px] rounded-lg border transition-all cursor-pointer ${
+                                          isSelected
+                                            ? "bg-[#22623a] text-white border-[#22623a] font-bold shadow-2xs"
+                                            : "bg-white text-[#59534b] border-[#e6dfd5] hover:border-[#22623a]"
+                                        }`}
+                                      >
+                                        {size.weight}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
                               </div>
-                            </div>
+                            )}
                           </div>
 
                           {/* Action Footer */}

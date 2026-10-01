@@ -2,30 +2,45 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { PRODUCTS, CATEGORIES, Product } from "@/app/data/products";
+import { Product, CategoryInfo } from "@/app/data/products";
 import ProductCard from "./ProductCard";
 import Reveal from "./motion/Reveal";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Loader2 } from "lucide-react";
 
 export default function FeaturedProductsSection() {
   const [activeCategory, setActiveCategory] = useState<string>("all");
-  const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
+  const [productsList, setProductsList] = useState<Product[]>([]);
+  const [categoriesList, setCategoriesList] = useState<CategoryInfo[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    async function loadFeatured() {
+    async function loadFeaturedData() {
       try {
-        const res = await fetch("/api/products");
-        if (res.ok) {
-          const json = await res.json();
-          if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        const [prodRes, catRes] = await Promise.all([
+          fetch("/api/products"),
+          fetch("/api/categories"),
+        ]);
+
+        if (prodRes.ok) {
+          const json = await prodRes.json();
+          if (json.success && Array.isArray(json.data)) {
             setProductsList(json.data);
+          }
+        }
+
+        if (catRes.ok) {
+          const catJson = await catRes.json();
+          if (catJson.success && Array.isArray(catJson.data)) {
+            setCategoriesList(catJson.data);
           }
         }
       } catch (err) {
         console.error("Failed to load featured live products:", err);
+      } finally {
+        setIsLoading(false);
       }
     }
-    loadFeatured();
+    loadFeaturedData();
   }, []);
 
   const filteredProducts =
@@ -56,46 +71,66 @@ export default function FeaturedProductsSection() {
             href="/products"
             className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#22623a] hover:text-[#c59b27] transition-colors self-start md:self-auto group"
           >
-            <span>View All Products ({productsList.length}+)</span>
+            <span>View All Products {productsList.length > 0 ? `(${productsList.length})` : ""}</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </Reveal>
 
         {/* Category Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
-          <button
-            onClick={() => setActiveCategory("all")}
-            className={`text-xs px-4 py-2 rounded-full font-medium transition-all shrink-0 ${
-              activeCategory === "all"
-                ? "bg-[#22623a] text-white shadow-xs"
-                : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a]"
-            }`}
-          >
-            All Products
-          </button>
-          {CATEGORIES.map((cat) => (
+        {categoriesList.length > 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
             <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`text-xs px-4 py-2 rounded-full font-medium transition-all shrink-0 ${
-                activeCategory === cat.id
+              onClick={() => setActiveCategory("all")}
+              className={`text-xs px-4 py-2 rounded-full font-medium transition-all shrink-0 cursor-pointer ${
+                activeCategory === "all"
                   ? "bg-[#22623a] text-white shadow-xs"
                   : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a]"
               }`}
             >
-              <span>{cat.name}</span>
+              All Products
             </button>
-          ))}
-        </div>
+            {categoriesList.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`text-xs px-4 py-2 rounded-full font-medium transition-all shrink-0 cursor-pointer ${
+                  activeCategory === cat.id
+                    ? "bg-[#22623a] text-white shadow-xs"
+                    : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a]"
+                }`}
+              >
+                <span>{cat.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((product, index) => (
-            <Reveal key={product.id} delay={index * 0.06} className="h-full">
-              <ProductCard product={product} />
-            </Reveal>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="py-16 text-center">
+            <Loader2 className="w-8 h-8 text-[#22623a] animate-spin mx-auto mb-2" />
+            <p className="text-xs text-[#7a7268]">Loading featured remedies from dispensary...</p>
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="py-12 bg-white rounded-2xl border border-[#e6dfd5] text-center p-6 space-y-3">
+            <p className="text-xs text-[#59534b]">No products available in this category yet.</p>
+            <Link
+              href="/products"
+              className="inline-flex items-center gap-2 text-xs font-bold text-[#22623a] hover:underline"
+            >
+              <span>Explore All Catalog</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filteredProducts.map((product, index) => (
+              <Reveal key={product.id} delay={index * 0.06} className="h-full">
+                <ProductCard product={product} />
+              </Reveal>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

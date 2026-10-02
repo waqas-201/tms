@@ -27,6 +27,12 @@ import {
   Building2,
   Calendar,
   RotateCcw,
+  PlusCircle,
+  HeartPulse,
+  PenLine,
+  FileText,
+  X,
+  Search,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Reveal from "@/app/components/motion/Reveal";
@@ -40,6 +46,17 @@ interface SymptomCategory {
   icon: typeof Activity;
   whatsappMessage: string;
 }
+
+const COMMON_CUSTOM_SUGGESTIONS = [
+  { label: "Kidney Stones (گردے کی پتھری)", urdu: "گردے کی پتھری اور پیشاب کی جلن" },
+  { label: "Diabetes Support (شوگر)", urdu: "ذیابیطس اور شوگر کنٹرول" },
+  { label: "Blood Pressure (بلڈ پریشر)", urdu: "بلڈ پریشر اور دل کی صحت" },
+  { label: "Asthma & Cough (دمہ اور نزلہ)", urdu: "دمہ، دائمی نزلہ اور کھانسی" },
+  { label: "Migraine & Sinus (درد شقیقہ)", urdu: "آدھے سر کا درد اور سائنس" },
+  { label: "Thyroid & Hormones (تھائرائڈ)", urdu: "تھائرائڈ اور ہارمونل توازن" },
+  { label: "Weight & Obesity (موٹاپا)", urdu: "موٹاپا اور چربی پگھلانا" },
+  { label: "Piles / Hemorrhoids (بواسیر)", urdu: "بواسیر اور مقعد کی جلن" },
+];
 
 const SYMPTOM_CATEGORIES: SymptomCategory[] = [
   {
@@ -108,6 +125,13 @@ export default function ConsultationPage() {
   const [selectedCategory, setSelectedCategory] = useState<SymptomCategory>(SYMPTOM_CATEGORIES[0]);
   const [consultMethod, setConsultMethod] = useState<ConsultationMethod>("WHATSAPP");
 
+  // Custom Condition State
+  const [isCustomExpanded, setIsCustomExpanded] = useState(false);
+  const [customTitle, setCustomTitle] = useState("");
+  const [customUrdu, setCustomUrdu] = useState("");
+  const [customDetails, setCustomDetails] = useState("");
+  const [customError, setCustomError] = useState<string | null>(null);
+
   // Physical Clinic Booking state
   const [clinicName, setClinicName] = useState(sessionData?.user?.name || "");
   const [clinicPhone, setClinicPhone] = useState((sessionData?.user as any)?.phone || "");
@@ -128,7 +152,45 @@ export default function ConsultationPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
   const handleSelectCategory = (cat: SymptomCategory) => {
+    setIsCustomExpanded(false);
     setSelectedCategory(cat);
+    setCurrentStep(2);
+  };
+
+  const handleOpenCustom = () => {
+    setIsCustomExpanded(true);
+    setCustomError(null);
+  };
+
+  const handleSelectSuggestion = (sug: { label: string; urdu: string }) => {
+    setCustomTitle(sug.label);
+    setCustomUrdu(sug.urdu);
+    setCustomError(null);
+  };
+
+  const handleCustomSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customTitle.trim()) {
+      setCustomError("Please enter your health condition or choose a suggestion below.");
+      return;
+    }
+
+    const cleanTitle = customTitle.trim();
+    const cleanUrdu = customUrdu.trim() || "دیگر طبی مسئلہ";
+    const cleanDetails = customDetails.trim();
+
+    const customCategory: SymptomCategory = {
+      id: "custom",
+      title: cleanTitle,
+      urduTitle: cleanUrdu,
+      subtitle: cleanDetails || "Patient-specified custom health concern",
+      symptoms: [cleanTitle, ...(cleanDetails ? [cleanDetails] : [])],
+      icon: HeartPulse,
+      whatsappMessage: `Assalam-o-Alaikum Hakim Sahib, I need herbal guidance regarding: ${cleanTitle}.${cleanDetails ? ` Additional symptoms/notes: ${cleanDetails}` : ""}`,
+    };
+
+    setSelectedCategory(customCategory);
+    setCustomError(null);
     setCurrentStep(2);
   };
 
@@ -140,9 +202,13 @@ export default function ConsultationPage() {
   };
 
   const getWhatsAppUrl = () => {
-    const text = `*Assalam-o-Alaikum Hakim Muhammad Tariq Sahib (Tameer-e-Sehat)*\n\n` +
+    const text =
+      `*Assalam-o-Alaikum Hakim Muhammad Tariq Sahib (Tameer-e-Sehat)*\n\n` +
       `*Health Concern:* ${selectedCategory.title} (${selectedCategory.urduTitle})\n` +
-      `*Specific Inquiry:* ${selectedCategory.whatsappMessage}\n\n` +
+      (selectedCategory.id === "custom" && customDetails.trim()
+        ? `*Specific Symptoms/Notes:* ${customDetails.trim()}\n`
+        : "") +
+      `*Inquiry:* ${selectedCategory.whatsappMessage}\n\n` +
       `_I would like your herbal advice, dietary guidance, and authentic remedy recommendations._`;
     return `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(text)}`;
   };
@@ -153,6 +219,11 @@ export default function ConsultationPage() {
     setSubmissionError(null);
 
     try {
+      const concernDetail =
+        selectedCategory.id === "custom" && customDetails.trim()
+          ? `${selectedCategory.title} (${customDetails.trim()})`
+          : selectedCategory.title;
+
       const res = await fetch("/api/consultations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -160,7 +231,7 @@ export default function ConsultationPage() {
           fullName: clinicName,
           phone: clinicPhone,
           city: "Karachi",
-          primarySymptoms: `[Karachi Clinic In-Person Booking] Date: ${clinicDate}, Slot: ${clinicSlot}. Concern: ${selectedCategory.title}`,
+          primarySymptoms: `[Karachi Clinic In-Person Booking] Date: ${clinicDate}, Slot: ${clinicSlot}. Concern: ${concernDetail}`,
           age: 35,
           gender: "Not Specified",
           duration: "New Appointment",
@@ -187,7 +258,12 @@ export default function ConsultationPage() {
     setSubmissionError(null);
 
     try {
-      const symptoms = `[Callback Request] Concern: ${selectedCategory.title}. ${callbackNotes ? `Notes: ${callbackNotes}` : ""}`;
+      const concernDetail =
+        selectedCategory.id === "custom" && customDetails.trim()
+          ? `${selectedCategory.title} (${customDetails.trim()})`
+          : selectedCategory.title;
+
+      const symptoms = `[Callback Request] Concern: ${concernDetail}. ${callbackNotes ? `Notes: ${callbackNotes}` : ""}`;
       const res = await fetch("/api/consultations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -333,8 +409,8 @@ export default function ConsultationPage() {
                           key={cat.id}
                           type="button"
                           onClick={() => handleSelectCategory(cat)}
-                          className={`p-4 rounded-2xl border text-left transition-all relative group flex flex-col justify-between hover:shadow-md ${
-                            isSelected
+                          className={`p-4 rounded-2xl border text-left transition-all relative group flex flex-col justify-between hover:shadow-md cursor-pointer ${
+                            isSelected && !isCustomExpanded
                               ? "bg-[#eef7f1] border-[#22623a] shadow-xs"
                               : "bg-[#faf8f5] hover:bg-white border-[#e6dfd5]"
                           }`}
@@ -342,7 +418,7 @@ export default function ConsultationPage() {
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                                isSelected ? "bg-[#22623a] text-white" : "bg-white text-[#22623a] border border-[#e6dfd5]"
+                                isSelected && !isCustomExpanded ? "bg-[#22623a] text-white" : "bg-white text-[#22623a] border border-[#e6dfd5]"
                               }`}>
                                 <Icon className="w-5 h-5" />
                               </div>
@@ -368,7 +444,185 @@ export default function ConsultationPage() {
                         </button>
                       );
                     })}
+
+                    {/* 7th Card: Custom / Other Health Condition */}
+                    <button
+                      type="button"
+                      onClick={handleOpenCustom}
+                      className={`p-4 rounded-2xl border text-left transition-all relative group flex flex-col justify-between hover:shadow-md cursor-pointer ${
+                        isCustomExpanded || selectedCategory.id === "custom"
+                          ? "bg-[#fdf8ed] border-[#c59b27] shadow-sm ring-2 ring-[#c59b27]/20"
+                          : "bg-gradient-to-br from-[#faf8f5] to-[#f5efe4] hover:bg-white border-[#dfd4c3] border-dashed"
+                      }`}
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                              isCustomExpanded || selectedCategory.id === "custom"
+                                ? "bg-[#8c6a15] text-white"
+                                : "bg-white text-[#8c6a15] border border-[#dfd4c3]"
+                            }`}
+                          >
+                            <HeartPulse className="w-5 h-5" />
+                          </div>
+                          <span className="text-xs font-serif text-[#8c6a15] font-bold" dir="rtl">
+                            دیگر طبی مسئلہ / رپورٹس
+                          </span>
+                        </div>
+
+                        <div>
+                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#8c6a15]/10 text-[#8c6a15] text-[9px] font-bold uppercase tracking-wider mb-1">
+                            <PenLine className="w-2.5 h-2.5" />
+                            <span>Custom Concern</span>
+                          </div>
+                          <h3 className="font-bold text-sm text-[#1a1816] group-hover:text-[#8c6a15] transition-colors">
+                            Other / Custom Condition
+                          </h3>
+                          <p className="text-[11px] text-[#6a6660] mt-0.5 line-clamp-2">
+                            Kidney, Diabetes, Blood Pressure, Asthma, Allergy, or any specific illness
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="pt-3 mt-3 border-t border-[#dfd4c3]/60 flex items-center justify-between text-xs font-bold text-[#8c6a15]">
+                        <span>{isCustomExpanded ? "Writing Details..." : "Enter Condition"}</span>
+                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </button>
                   </div>
+
+                  {/* Expandable Custom Condition Form Drawer */}
+                  <AnimatePresence>
+                    {isCustomExpanded && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0, y: -10 }}
+                        animate={{ opacity: 1, height: "auto", y: 0 }}
+                        exit={{ opacity: 0, height: 0, y: -10 }}
+                        transition={{ duration: 0.25 }}
+                        className="p-5 sm:p-6 bg-gradient-to-br from-[#fdfbf7] to-[#f8f3ea] rounded-2xl border-2 border-[#c59b27]/40 shadow-md space-y-4 overflow-hidden"
+                      >
+                        <div className="flex items-center justify-between border-b border-[#e6dfd5] pb-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-lg bg-[#8c6a15] text-white flex items-center justify-center">
+                              <PenLine className="w-4 h-4" />
+                            </div>
+                            <div>
+                              <h4 className="font-serif font-bold text-sm sm:text-base text-[#1a1816]">
+                                Describe Your Specific Health Concern
+                              </h4>
+                              <p className="text-[11px] text-[#6a6660]">
+                                اپنا طبی مسئلہ یا بیماری تحریر فرمائیں یا نیچے دیئے گئے بٹن پر کلک کریں
+                              </p>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsCustomExpanded(false);
+                              setCustomError(null);
+                            }}
+                            className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {/* Quick 1-tap Common Condition Suggestion Chips */}
+                        <div className="space-y-1.5">
+                          <label className="text-[11px] font-bold text-[#8c6a15] uppercase tracking-wider block">
+                            Quick 1-Tap Popular Suggestions:
+                          </label>
+                          <div className="flex flex-wrap gap-2">
+                            {COMMON_CUSTOM_SUGGESTIONS.map((sug, sIdx) => {
+                              const isPicked = customTitle === sug.label;
+                              return (
+                                <button
+                                  key={sIdx}
+                                  type="button"
+                                  onClick={() => handleSelectSuggestion(sug)}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
+                                    isPicked
+                                      ? "bg-[#8c6a15] text-white border-[#8c6a15] shadow-xs scale-[1.02]"
+                                      : "bg-white text-[#59534b] border-[#e6dfd5] hover:border-[#8c6a15] hover:text-[#8c6a15]"
+                                  }`}
+                                >
+                                  <span>{sug.label}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <form onSubmit={handleCustomSubmit} className="space-y-3.5 pt-1">
+                          {customError && (
+                            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
+                              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+                              <span>{customError}</span>
+                            </div>
+                          )}
+
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold text-[#1a1816] flex items-center justify-between">
+                              <span>
+                                Primary Health Condition or Disease Name <strong className="text-rose-600">*</strong>
+                              </span>
+                              <span className="text-[10px] text-[#8c6a15] font-normal" dir="rtl">
+                                بیماری یا مسئلے کا نام
+                              </span>
+                            </label>
+                            <input
+                              type="text"
+                              required
+                              value={customTitle}
+                              onChange={(e) => {
+                                setCustomTitle(e.target.value);
+                                setCustomError(null);
+                              }}
+                              placeholder="e.g. Kidney stones (گردے کی پتھری), Chronic Sinus, Blood Pressure, High Uric Acid..."
+                              className="w-full text-xs sm:text-sm px-4 py-3 bg-white border border-[#dfd4c3] rounded-xl text-[#1a1816] placeholder:text-stone-400 focus:outline-none focus:border-[#8c6a15] focus:ring-2 focus:ring-[#8c6a15]/10"
+                            />
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-xs font-bold text-[#1a1816] flex items-center justify-between">
+                              <span>Specific Symptoms, Duration, or Test Reports (Optional)</span>
+                              <span className="text-[10px] text-stone-500 font-normal">اختیاری تفصیلات</span>
+                            </label>
+                            <textarea
+                              rows={2}
+                              value={customDetails}
+                              onChange={(e) => setCustomDetails(e.target.value)}
+                              placeholder="e.g. Pain in left side for 3 weeks, ultrasound report shows 6mm stone, taking medication..."
+                              className="w-full text-xs sm:text-sm px-4 py-2.5 bg-white border border-[#dfd4c3] rounded-xl text-[#1a1816] placeholder:text-stone-400 focus:outline-none focus:border-[#8c6a15] focus:ring-2 focus:ring-[#8c6a15]/10"
+                            />
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsCustomExpanded(false);
+                                setCustomError(null);
+                              }}
+                              className="text-xs font-semibold text-stone-500 hover:text-stone-800 order-2 sm:order-1 cursor-pointer"
+                            >
+                              Cancel &amp; Select Standard Category
+                            </button>
+
+                            <button
+                              type="submit"
+                              className="w-full sm:w-auto px-6 py-3 bg-[#8c6a15] hover:bg-[#725510] text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer order-1 sm:order-2"
+                            >
+                              <span>Continue with Custom Condition</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </form>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   {/* Reassurance Footer */}
                   <div className="p-3.5 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] flex flex-wrap items-center justify-center gap-4 text-xs text-[#59534b]">
@@ -398,27 +652,37 @@ export default function ConsultationPage() {
                   className="space-y-4"
                 >
                   {/* Selected Issue Review Bar */}
-                  <div className="p-3 rounded-2xl bg-[#eef7f1] border border-[#cde4d6] flex items-center justify-between gap-3">
+                  <div className="p-3.5 rounded-2xl bg-[#eef7f1] border border-[#cde4d6] flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-8 h-8 rounded-lg bg-[#22623a] text-white flex items-center justify-center shrink-0">
-                        {React.createElement(selectedCategory.icon, { className: "w-4 h-4" })}
+                      <div className="w-9 h-9 rounded-xl bg-[#22623a] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                        {React.createElement(selectedCategory.icon, { className: "w-5 h-5" })}
                       </div>
                       <div className="min-w-0">
                         <span className="text-[10px] uppercase tracking-wider font-bold text-[#8c6a15] block">
-                          Selected Concern
+                          {selectedCategory.id === "custom" ? "Custom Health Concern" : "Selected Concern"}
                         </span>
                         <span className="text-xs sm:text-sm font-bold text-[#22623a] block truncate">
-                          {selectedCategory.title} ({selectedCategory.urduTitle})
+                          {selectedCategory.title} {selectedCategory.urduTitle ? `(${selectedCategory.urduTitle})` : ""}
                         </span>
+                        {selectedCategory.id === "custom" && customDetails.trim() && (
+                          <span className="text-[11px] text-[#59534b] block truncate mt-0.5 font-normal">
+                            Note: {customDetails.trim()}
+                          </span>
+                        )}
                       </div>
                     </div>
 
                     <button
                       type="button"
-                      onClick={() => setCurrentStep(1)}
-                      className="text-xs font-bold text-[#22623a] hover:underline flex items-center gap-1 shrink-0 bg-white px-2.5 py-1 rounded-lg border border-[#cde4d6]"
+                      onClick={() => {
+                        if (selectedCategory.id === "custom") {
+                          setIsCustomExpanded(true);
+                        }
+                        setCurrentStep(1);
+                      }}
+                      className="text-xs font-bold text-[#22623a] hover:underline flex items-center gap-1 shrink-0 bg-white px-3 py-1.5 rounded-xl border border-[#cde4d6] shadow-2xs cursor-pointer"
                     >
-                      <RotateCcw className="w-3 h-3" />
+                      <RotateCcw className="w-3.5 h-3.5" />
                       <span>Change</span>
                     </button>
                   </div>

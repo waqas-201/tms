@@ -4,9 +4,24 @@ import React, { useState, useEffect, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { Product, ProductSize, CLINIC_INFO } from "@/app/data/products";
 import { useCart } from "@/app/context/CartContext";
 import ProductCard from "@/app/components/ProductCard";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import {
   ShoppingBag,
   Star,
@@ -17,7 +32,6 @@ import {
   Clock,
   Sparkles,
   ChevronRight,
-  ChevronDown,
   Leaf,
   HeartHandshake,
   CheckCircle2,
@@ -54,22 +68,6 @@ export default function ProductDetailPage({
   const [product, setProduct] = useState<Product | null>(null);
   const [catalog, setCatalog] = useState<Product[]>([]);
   const [hasFetched, setHasFetched] = useState(false);
-
-  // Active accordion section states
-  const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
-    overview: true,
-    ingredients: true,
-    dosage: false,
-    shipping: false,
-    reviews: true,
-  });
-
-  const toggleSection = (key: string) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
 
   // Load live product and catalog from API
   useEffect(() => {
@@ -134,7 +132,7 @@ export default function ProductDetailPage({
   const [isBundleAdded, setIsBundleAdded] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
 
-  // Review Modal State
+  // Radix Dialog Review Modal State
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [reviewsList, setReviewsList] = useState<CustomerReview[]>([]);
   const [reviewForm, setReviewForm] = useState({
@@ -146,7 +144,7 @@ export default function ProductDetailPage({
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [reviewSuccessMsg, setReviewSuccessMsg] = useState<string | null>(null);
 
-  // Load reviews dynamically from Database API (Must be called before any early return)
+  // Load reviews dynamically from Database API
   useEffect(() => {
     async function loadReviews() {
       if (!product?.id) return;
@@ -312,6 +310,12 @@ export default function ProductDetailPage({
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
+  const images =
+    product.gallery && product.gallery.length > 0
+      ? product.gallery
+      : [product.image || "/images/placeholder.jpg"];
+  const currentImg = images[activeImageIndex] || images[0] || "/images/placeholder.jpg";
+
   return (
     <div className="bg-[#FAF9F6] min-h-screen text-stone-900">
       {/* ─── 1. BREADCRUMBS BAR ─── */}
@@ -361,89 +365,87 @@ export default function ProductDetailPage({
         </div>
       </div>
 
-      {/* ─── 2. MAIN PRODUCT HERO SHOWCASE ─── */}
+      {/* ─── 2. MAIN PRODUCT HERO SHOWCASE (SPLIT-SCREEN) ─── */}
       <section className="py-8 sm:py-12 border-b border-stone-200/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start">
             {/* ── LEFT: PRODUCT IMAGERY (5 cols on lg) ── */}
             <div className="lg:col-span-5 space-y-4 lg:sticky lg:top-24">
-              {(() => {
-                const images =
-                  product.gallery && product.gallery.length > 0
-                    ? product.gallery
-                    : [product.image || "/images/placeholder.jpg"];
-                const currentImg =
-                  images[activeImageIndex] || images[0] || "/images/placeholder.jpg";
+              <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[#F7F6F2] border border-stone-200/70 shadow-2xs group">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentImg}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="relative w-full h-full"
+                  >
+                    <Image
+                      src={currentImg}
+                      alt={product.name}
+                      fill
+                      className="object-cover object-center group-hover:scale-103 transition-transform duration-500 ease-out"
+                      priority
+                    />
+                  </motion.div>
+                </AnimatePresence>
 
-                return (
-                  <>
-                    <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-[#F7F6F2] border border-stone-200/70 shadow-2xs group">
-                      <Image
-                        src={currentImg}
-                        alt={product.name}
-                        fill
-                        className="object-cover object-center group-hover:scale-103 transition-transform duration-500 ease-out"
-                        priority
-                      />
+                {/* Badges Overlay */}
+                <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10 pointer-events-none">
+                  {product.badge && (
+                    <Badge variant="default" className="text-[10px] uppercase tracking-wider">
+                      {product.badge}
+                    </Badge>
+                  )}
+                  {product.discountPercentage && product.discountPercentage > 0 ? (
+                    <Badge variant="gold" className="text-[10px] font-bold">
+                      -{product.discountPercentage}% OFF
+                    </Badge>
+                  ) : null}
+                </div>
 
-                      {/* Badges Overlay */}
-                      <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10 pointer-events-none">
-                        {product.badge && (
-                          <span className="bg-[#14281D] text-white text-[9px] font-medium tracking-widest uppercase px-2.5 py-1 rounded shadow-2xs">
-                            {product.badge}
-                          </span>
-                        )}
-                        {product.discountPercentage && product.discountPercentage > 0 ? (
-                          <span className="bg-[#9E7D3B] text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-2xs">
-                            -{product.discountPercentage}% OFF
-                          </span>
-                        ) : null}
-                      </div>
+                {/* Mobile Wishlist Toggle Button */}
+                <button
+                  onClick={() => toggleWishlist(product.id)}
+                  className={`sm:hidden absolute top-4 right-4 p-2.5 rounded-full backdrop-blur-xs transition-colors shadow-2xs z-10 ${
+                    isSaved
+                      ? "bg-white text-rose-500"
+                      : "bg-white/80 text-stone-600 hover:text-rose-500"
+                  }`}
+                  aria-label="Toggle Wishlist"
+                >
+                  <Heart className={`w-4 h-4 ${isSaved ? "fill-rose-500" : ""}`} />
+                </button>
+              </div>
 
-                      {/* Mobile Wishlist Toggle Button */}
+              {/* Multi-Image Gallery Thumbnails */}
+              {images.length > 1 && (
+                <div className="flex items-center gap-2.5 overflow-x-auto pb-1 pt-0.5 no-scrollbar">
+                  {images.map((img, idx) => {
+                    const isSelected = activeImageIndex % images.length === idx;
+                    return (
                       <button
-                        onClick={() => toggleWishlist(product.id)}
-                        className={`sm:hidden absolute top-4 right-4 p-2.5 rounded-full backdrop-blur-xs transition-colors shadow-2xs z-10 ${
-                          isSaved
-                            ? "bg-white text-rose-500"
-                            : "bg-white/80 text-stone-600 hover:text-rose-500"
+                        key={`${img}-${idx}`}
+                        type="button"
+                        onClick={() => setActiveImageIndex(idx)}
+                        className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border bg-white transition-all shrink-0 cursor-pointer ${
+                          isSelected
+                            ? "border-[#14281D] ring-2 ring-[#14281D]/15 shadow-xs scale-102"
+                            : "border-stone-200 hover:border-stone-400 opacity-70 hover:opacity-100"
                         }`}
-                        aria-label="Toggle Wishlist"
                       >
-                        <Heart className={`w-4 h-4 ${isSaved ? "fill-rose-500" : ""}`} />
+                        <Image
+                          src={img}
+                          alt={`${product.name} thumbnail ${idx + 1}`}
+                          fill
+                          className="object-cover object-center p-0.5"
+                        />
                       </button>
-                    </div>
-
-                    {/* Multi-Image Gallery Thumbnails */}
-                    {images.length > 1 && (
-                      <div className="flex items-center gap-2.5 overflow-x-auto pb-1 pt-0.5 no-scrollbar">
-                        {images.map((img, idx) => {
-                          const isSelected = activeImageIndex % images.length === idx;
-                          return (
-                            <button
-                              key={`${img}-${idx}`}
-                              type="button"
-                              onClick={() => setActiveImageIndex(idx)}
-                              className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border bg-white transition-all shrink-0 cursor-pointer ${
-                                isSelected
-                                  ? "border-[#14281D] ring-2 ring-[#14281D]/15 shadow-xs scale-102"
-                                  : "border-stone-200 hover:border-stone-400 opacity-70 hover:opacity-100"
-                              }`}
-                            >
-                              <Image
-                                src={img}
-                                alt={`${product.name} thumbnail ${idx + 1}`}
-                                fill
-                                className="object-cover object-center p-0.5"
-                              />
-                            </button>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
+                    );
+                  })}
+                </div>
+              )}
 
               {/* Purity & Batch Trust Indicators */}
               <div className="grid grid-cols-2 gap-3 pt-1">
@@ -533,9 +535,6 @@ export default function ProductDetailPage({
                   </span>
                   <a
                     href="#reviews-section"
-                    onClick={() =>
-                      setOpenSections((prev) => ({ ...prev, reviews: true }))
-                    }
                     className="text-stone-500 hover:text-[#14281D] text-[11px] underline underline-offset-2 cursor-pointer transition-colors"
                   >
                     ({totalReviews} verified {totalReviews === 1 ? "review" : "reviews"})
@@ -673,7 +672,7 @@ export default function ProductDetailPage({
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="px-3 font-semibold text-xs text-stone-900">
+                    <span className="px-3 font-semibold text-xs text-stone-900 min-w-[24px] text-center">
                       {quantity}
                     </span>
                     <button
@@ -854,8 +853,8 @@ export default function ProductDetailPage({
 
       {/* ─── 4. CLINICAL ACCORDIONS & VERIFIED REVIEWS ─── */}
       <section className="py-12 bg-white border-b border-stone-200/80">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-          <div className="text-center pb-4">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+          <div className="text-center pb-2">
             <span className="text-[10px] uppercase font-semibold tracking-[0.2em] text-[#9E7D3B]">
               Clinical Dossier
             </span>
@@ -864,28 +863,25 @@ export default function ProductDetailPage({
             </h2>
           </div>
 
-          {/* ACCORDION 1: CLINICAL OVERVIEW & BENEFITS */}
-          <div className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] transition-all">
-            <button
-              type="button"
-              onClick={() => toggleSection("overview")}
-              className="w-full p-5 sm:p-6 flex items-center justify-between text-left cursor-pointer hover:bg-stone-100/60 transition-colors"
+          <Accordion
+            type="multiple"
+            defaultValue={["overview", "ingredients", "dosage", "reviews"]}
+            className="space-y-4"
+          >
+            {/* ACCORDION 1: CLINICAL OVERVIEW & BENEFITS */}
+            <AccordionItem
+              value="overview"
+              className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] shadow-2xs px-5 sm:px-6"
             >
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-4 h-4 text-[#9E7D3B]" />
-                <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900">
-                  Traditional Unani Action &amp; Indications
-                </h3>
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-stone-400 transition-transform duration-300 ${
-                  openSections.overview ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {openSections.overview && (
-              <div className="px-5 pb-6 sm:px-6 space-y-6 pt-1 border-t border-stone-200/60">
+              <AccordionTrigger className="py-5 sm:py-6 hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="w-4 h-4 text-[#9E7D3B]" />
+                  <span className="font-serif text-base sm:text-lg font-semibold text-stone-900">
+                    Traditional Unani Action &amp; Indications
+                  </span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pb-6 space-y-6 pt-2 border-t border-stone-200/60">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 bg-white rounded-xl border border-stone-200/70 space-y-2">
                     <h4 className="font-semibold text-xs text-stone-900 uppercase tracking-wider">
@@ -927,32 +923,23 @@ export default function ProductDetailPage({
                     </div>
                   </div>
                 )}
-              </div>
-            )}
-          </div>
+              </AccordionContent>
+            </AccordionItem>
 
-          {/* ACCORDION 2: BOTANICAL INGREDIENTS & MIZAJ */}
-          <div className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] transition-all">
-            <button
-              type="button"
-              onClick={() => toggleSection("ingredients")}
-              className="w-full p-5 sm:p-6 flex items-center justify-between text-left cursor-pointer hover:bg-stone-100/60 transition-colors"
+            {/* ACCORDION 2: BOTANICAL INGREDIENTS & MIZAJ */}
+            <AccordionItem
+              value="ingredients"
+              className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] shadow-2xs px-5 sm:px-6"
             >
-              <div className="flex items-center gap-3">
-                <Leaf className="w-4 h-4 text-emerald-700" />
-                <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900">
-                  Botanical Ingredients &amp; Temperament (Mizaj)
-                </h3>
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-stone-400 transition-transform duration-300 ${
-                  openSections.ingredients ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {openSections.ingredients && (
-              <div className="px-5 pb-6 sm:px-6 space-y-4 pt-1 border-t border-stone-200/60">
+              <AccordionTrigger className="py-5 sm:py-6 hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <Leaf className="w-4 h-4 text-emerald-700" />
+                  <span className="font-serif text-base sm:text-lg font-semibold text-stone-900">
+                    Botanical Ingredients &amp; Temperament (Mizaj)
+                  </span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pb-6 space-y-4 pt-2 border-t border-stone-200/60">
                 <div className="p-4 bg-white rounded-xl border border-stone-200/70 flex flex-wrap items-center justify-between gap-3 text-xs">
                   <div>
                     <span className="font-semibold text-stone-900">Mizaj (Temperament):</span>{" "}
@@ -985,32 +972,23 @@ export default function ProductDetailPage({
                     </table>
                   </div>
                 )}
-              </div>
-            )}
-          </div>
+              </AccordionContent>
+            </AccordionItem>
 
-          {/* ACCORDION 3: HAKIM'S DOSAGE & PARHEZ */}
-          <div className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] transition-all">
-            <button
-              type="button"
-              onClick={() => toggleSection("dosage")}
-              className="w-full p-5 sm:p-6 flex items-center justify-between text-left cursor-pointer hover:bg-stone-100/60 transition-colors"
+            {/* ACCORDION 3: HAKIM'S DOSAGE & PARHEZ */}
+            <AccordionItem
+              value="dosage"
+              className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] shadow-2xs px-5 sm:px-6"
             >
-              <div className="flex items-center gap-3">
-                <HeartHandshake className="w-4 h-4 text-[#14281D]" />
-                <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900">
-                  Hakim&apos;s Dosage &amp; Dietary Guidelines (Parhez)
-                </h3>
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-stone-400 transition-transform duration-300 ${
-                  openSections.dosage ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {openSections.dosage && (
-              <div className="px-5 pb-6 sm:px-6 space-y-4 pt-1 border-t border-stone-200/60">
+              <AccordionTrigger className="py-5 sm:py-6 hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <HeartHandshake className="w-4 h-4 text-[#14281D]" />
+                  <span className="font-serif text-base sm:text-lg font-semibold text-stone-900">
+                    Hakim&apos;s Dosage &amp; Dietary Guidelines (Parhez)
+                  </span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pb-6 space-y-4 pt-2 border-t border-stone-200/60">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 bg-white rounded-xl border border-stone-200/70 space-y-3">
                     <h4 className="font-semibold text-xs text-stone-900 uppercase tracking-wider flex items-center gap-1.5">
@@ -1045,32 +1023,23 @@ export default function ProductDetailPage({
                     </ul>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              </AccordionContent>
+            </AccordionItem>
 
-          {/* ACCORDION 4: DELIVERY & STORAGE */}
-          <div className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] transition-all">
-            <button
-              type="button"
-              onClick={() => toggleSection("shipping")}
-              className="w-full p-5 sm:p-6 flex items-center justify-between text-left cursor-pointer hover:bg-stone-100/60 transition-colors"
+            {/* ACCORDION 4: DELIVERY & STORAGE */}
+            <AccordionItem
+              value="shipping"
+              className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] shadow-2xs px-5 sm:px-6"
             >
-              <div className="flex items-center gap-3">
-                <Truck className="w-4 h-4 text-[#9E7D3B]" />
-                <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900">
-                  Delivery Timelines &amp; Storage Guidelines
-                </h3>
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-stone-400 transition-transform duration-300 ${
-                  openSections.shipping ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {openSections.shipping && (
-              <div className="px-5 pb-6 sm:px-6 space-y-4 pt-1 border-t border-stone-200/60">
+              <AccordionTrigger className="py-5 sm:py-6 hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <Truck className="w-4 h-4 text-[#9E7D3B]" />
+                  <span className="font-serif text-base sm:text-lg font-semibold text-stone-900">
+                    Delivery Timelines &amp; Storage Guidelines
+                  </span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pb-6 space-y-4 pt-2 border-t border-stone-200/60">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="p-4 bg-white rounded-xl border border-stone-200/70 space-y-1.5 text-xs">
                     <Truck className="w-4 h-4 text-[#14281D]" />
@@ -1096,35 +1065,24 @@ export default function ProductDetailPage({
                     </p>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              </AccordionContent>
+            </AccordionItem>
 
-          {/* ACCORDION 5: PATIENT EXPERIENCES & REVIEWS */}
-          <div
-            id="reviews-section"
-            className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] transition-all"
-          >
-            <button
-              type="button"
-              onClick={() => toggleSection("reviews")}
-              className="w-full p-5 sm:p-6 flex items-center justify-between text-left cursor-pointer hover:bg-stone-100/60 transition-colors"
+            {/* ACCORDION 5: PATIENT EXPERIENCES & REVIEWS */}
+            <AccordionItem
+              value="reviews"
+              id="reviews-section"
+              className="border border-stone-200 rounded-2xl overflow-hidden bg-[#FAF9F6] shadow-2xs px-5 sm:px-6"
             >
-              <div className="flex items-center gap-3">
-                <Star className="w-4 h-4 text-[#9E7D3B]" />
-                <h3 className="font-serif text-base sm:text-lg font-semibold text-stone-900">
-                  Verified Patient Reviews ({totalReviews})
-                </h3>
-              </div>
-              <ChevronDown
-                className={`w-4 h-4 text-stone-400 transition-transform duration-300 ${
-                  openSections.reviews ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {openSections.reviews && (
-              <div className="px-5 pb-6 sm:px-6 space-y-6 pt-1 border-t border-stone-200/60">
+              <AccordionTrigger className="py-5 sm:py-6 hover:no-underline">
+                <div className="flex items-center gap-3">
+                  <Star className="w-4 h-4 text-[#9E7D3B]" />
+                  <span className="font-serif text-base sm:text-lg font-semibold text-stone-900">
+                    Verified Patient Reviews ({totalReviews})
+                  </span>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pb-6 space-y-6 pt-2 border-t border-stone-200/60">
                 {/* Score Summary Box */}
                 <div className="p-5 sm:p-6 bg-white rounded-xl border border-stone-200/70 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
                   <div className="md:col-span-4 text-center md:text-left space-y-1">
@@ -1245,9 +1203,9 @@ export default function ProductDetailPage({
                     ))}
                   </div>
                 )}
-              </div>
-            )}
-          </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </section>
 
@@ -1279,142 +1237,124 @@ export default function ProductDetailPage({
         </section>
       )}
 
-      {/* ─── 6. WRITE A REVIEW MODAL DIALOG ─── */}
-      {isReviewModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
-          <div
-            onClick={() => setIsReviewModalOpen(false)}
-            className="fixed inset-0 bg-[#0c1b13]/60 backdrop-blur-xs transition-opacity"
-          />
+      {/* ─── 6. WRITE A REVIEW RADIX DIALOG ─── */}
+      <Dialog open={isReviewModalOpen} onOpenChange={setIsReviewModalOpen}>
+        <DialogContent className="max-w-lg p-0 overflow-hidden bg-white border-stone-200 shadow-2xl">
+          <DialogHeader className="p-5 border-b border-stone-200 bg-stone-50">
+            <DialogTitle className="font-serif text-base font-semibold text-stone-900">
+              Share Your Health Outcome
+            </DialogTitle>
+            <DialogDescription className="text-xs text-stone-500">
+              Reviewing: <strong>{product.name}</strong>
+            </DialogDescription>
+          </DialogHeader>
 
-          <div className="flex min-h-full items-center justify-center p-4 text-center sm:p-6">
-            <div className="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all w-full max-w-lg border border-stone-200">
-              <div className="p-5 border-b border-stone-200 flex items-center justify-between bg-stone-50">
-                <div className="space-y-0.5">
-                  <h3 className="font-serif text-base font-semibold text-stone-900">
-                    Share Your Health Outcome
-                  </h3>
-                  <p className="text-xs text-stone-500">
-                    Reviewing: <strong>{product.name}</strong>
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsReviewModalOpen(false)}
-                  className="p-1.5 rounded-full text-stone-400 hover:text-stone-700 cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
+          <form onSubmit={handleReviewSubmit} className="p-5 space-y-4">
+            {reviewSuccessMsg && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>{reviewSuccessMsg}</span>
               </div>
+            )}
 
-              <form onSubmit={handleReviewSubmit} className="p-5 space-y-4">
-                {reviewSuccessMsg && (
-                  <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-xl flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <span>{reviewSuccessMsg}</span>
-                  </div>
-                )}
-
-                {/* Rating Picker */}
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-stone-900 block">
-                    Overall Experience:
-                  </label>
-                  <div className="flex items-center gap-1.5 text-[#9E7D3B]">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() =>
-                          setReviewForm({ ...reviewForm, rating: star })
-                        }
-                        className="p-1 hover:scale-110 transition-transform cursor-pointer"
-                      >
-                        <Star
-                          className={`w-5 h-5 ${
-                            star <= reviewForm.rating
-                              ? "fill-[#9E7D3B] text-[#9E7D3B]"
-                              : "text-stone-200"
-                          }`}
-                        />
-                      </button>
-                    ))}
-                    <span className="text-xs font-medium text-stone-600 ml-2">
-                      {reviewForm.rating} of 5 Stars
-                    </span>
-                  </div>
-                </div>
-
-                {/* Name */}
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-stone-900 block">
-                    Your Name:
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Tariq Mehmood"
-                    value={reviewForm.name}
-                    onChange={(e) =>
-                      setReviewForm({ ...reviewForm, name: e.target.value })
-                    }
-                    className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-[#14281D] focus:bg-white"
-                  />
-                </div>
-
-                {/* City */}
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-stone-900 block">
-                    Your City / Area:
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. Karachi or Lahore"
-                    value={reviewForm.city}
-                    onChange={(e) =>
-                      setReviewForm({ ...reviewForm, city: e.target.value })
-                    }
-                    className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-[#14281D] focus:bg-white"
-                  />
-                </div>
-
-                {/* Comment */}
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-stone-900 block">
-                    Your Review &amp; Health Outcome:
-                  </label>
-                  <textarea
-                    required
-                    rows={4}
-                    placeholder="Share how this remedy supported your health, ease of use, taste, or packaging..."
-                    value={reviewForm.comment}
-                    onChange={(e) =>
-                      setReviewForm({ ...reviewForm, comment: e.target.value })
-                    }
-                    className="w-full text-xs p-3.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-[#14281D] focus:bg-white"
-                  />
-                </div>
-
-                <div className="pt-2">
+            {/* Rating Picker */}
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-stone-900 block">
+                Overall Experience:
+              </label>
+              <div className="flex items-center gap-1.5 text-[#9E7D3B]">
+                {[1, 2, 3, 4, 5].map((star) => (
                   <button
-                    type="submit"
-                    disabled={isSubmittingReview}
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+                    key={star}
+                    type="button"
+                    onClick={() =>
+                      setReviewForm({ ...reviewForm, rating: star })
+                    }
+                    className="p-1 hover:scale-110 transition-transform cursor-pointer"
                   >
-                    <Send className="w-3.5 h-3.5 text-[#9E7D3B]" />
-                    <span>
-                      {isSubmittingReview
-                        ? "Publishing Review..."
-                        : "Submit Verified Review"}
-                    </span>
+                    <Star
+                      className={`w-5 h-5 ${
+                        star <= reviewForm.rating
+                          ? "fill-[#9E7D3B] text-[#9E7D3B]"
+                          : "text-stone-200"
+                      }`}
+                    />
                   </button>
-                </div>
-              </form>
+                ))}
+                <span className="text-xs font-medium text-stone-600 ml-2">
+                  {reviewForm.rating} of 5 Stars
+                </span>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+
+            {/* Name */}
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-stone-900 block">
+                Your Name:
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Tariq Mehmood"
+                value={reviewForm.name}
+                onChange={(e) =>
+                  setReviewForm({ ...reviewForm, name: e.target.value })
+                }
+                className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-[#14281D] focus:bg-white transition-all"
+              />
+            </div>
+
+            {/* City */}
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-stone-900 block">
+                Your City / Area:
+              </label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Karachi or Lahore"
+                value={reviewForm.city}
+                onChange={(e) =>
+                  setReviewForm({ ...reviewForm, city: e.target.value })
+                }
+                className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-[#14281D] focus:bg-white transition-all"
+              />
+            </div>
+
+            {/* Comment */}
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-stone-900 block">
+                Your Review &amp; Health Outcome:
+              </label>
+              <textarea
+                required
+                rows={4}
+                placeholder="Share how this remedy supported your health, ease of use, taste, or packaging..."
+                value={reviewForm.comment}
+                onChange={(e) =>
+                  setReviewForm({ ...reviewForm, comment: e.target.value })
+                }
+                className="w-full text-xs p-3.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-[#14281D] focus:bg-white transition-all"
+              />
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isSubmittingReview}
+                className="w-full flex items-center justify-center gap-2 py-3 bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-xs disabled:opacity-50 cursor-pointer"
+              >
+                <Send className="w-3.5 h-3.5 text-[#9E7D3B]" />
+                <span>
+                  {isSubmittingReview
+                    ? "Publishing Review..."
+                    : "Submit Verified Review"}
+                </span>
+              </button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* ─── 7. STICKY MOBILE BOTTOM PURCHASE BAR ─── */}
       <div className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 px-4 py-3 shadow-lg flex items-center justify-between gap-3">

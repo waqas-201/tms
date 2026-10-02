@@ -3,6 +3,10 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { ROLES } from "@/lib/rbac";
 import { getAvailableStock, reserveStockForOrder } from "@/lib/inventory";
+import {
+  sendOrderConfirmationEmail,
+  sendAdminOrderNotificationEmail,
+} from "@/lib/email";
 
 export async function GET(request: NextRequest) {
   try {
@@ -257,6 +261,56 @@ export async function POST(request: NextRequest) {
         return createdOrder;
       },
       { maxWait: 20000, timeout: 30000 }
+    );
+
+    // Trigger transactional emails in background (non-blocking)
+    const targetEmail = email || session?.user?.email;
+    const emailItems = resolvedItems.map((i) => ({
+      productName: i.productName,
+      sizeWeight: i.sizeWeight,
+      price: i.price,
+      quantity: i.quantity,
+      total: i.total,
+    }));
+
+    if (targetEmail) {
+      sendOrderConfirmationEmail({
+        to: targetEmail,
+        customerName,
+        orderNumber: order.orderNumber,
+        phone,
+        city,
+        address,
+        deliveryNotes: finalDeliveryNotes,
+        paymentMethod: paymentMethod === "COD" ? "Cash on Delivery (COD)" : paymentMethod,
+        items: emailItems,
+        subtotal,
+        shippingFee,
+        discountAmount: finalDiscount,
+        total,
+        createdAt: order.createdAt,
+      }).catch((err) =>
+        console.error("[Order Confirmation Email Async Error]:", err)
+      );
+    }
+
+    sendAdminOrderNotificationEmail({
+      to: "admin",
+      customerName,
+      orderNumber: order.orderNumber,
+      phone,
+      city,
+      address,
+      deliveryNotes: finalDeliveryNotes,
+      paymentMethod: paymentMethod === "COD" ? "Cash on Delivery (COD)" : paymentMethod,
+      items: emailItems,
+      subtotal,
+      shippingFee,
+      discountAmount: finalDiscount,
+      total,
+      createdAt: order.createdAt,
+    }).catch((err) =>
+      console.error("[Admin Order Notification Email Async Error]:", err)
     );
 
     return NextResponse.json(

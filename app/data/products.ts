@@ -77,7 +77,7 @@ export const CLINIC_INFO = {
   country: "Pakistan",
   phone: "0318-2311310",
   phoneFormatted: "+92 318 2311310",
-  whatsappNumber: "923182311310",
+  whatsappNumber: "923353547888",
   whatsappDisplay: "+92 318 2311310",
   email: "hello@tameeresehat.com",
   timings: "Monday – Saturday: 10:00 AM – 9:00 PM (PKT)",

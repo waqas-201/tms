@@ -167,7 +167,10 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
 
         {/* Results */}
         {query.trim() && (
-          <div className="max-h-96 overflow-y-auto p-4 divide-y divide-[#e6dfd5]/60">
+          <div
+            data-lenis-prevent
+            className="max-h-96 overflow-y-auto p-4 divide-y divide-[#e6dfd5]/60"
+          >
             {isLoading ? (
               <div className="py-12 text-center text-xs text-[#6a6660]">
                 <Loader2 className="w-6 h-6 animate-spin text-[#22623a] mx-auto mb-2" />

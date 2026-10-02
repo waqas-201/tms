@@ -96,7 +96,7 @@ export default function AdjustStockModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto p-4 flex items-center justify-center">
+    <div data-lenis-prevent className="fixed inset-0 z-50 overflow-y-auto p-4 flex items-center justify-center">
       <div
         onClick={onClose}
         className="fixed inset-0 bg-[#22623a]/60 backdrop-blur-xs transition-opacity animate-fade-in"

@@ -203,7 +203,7 @@ export default function ConsultationModal({
             </div>
 
             {/* Modal Body */}
-            <div className="p-5 sm:p-6 overflow-y-auto space-y-4">
+            <div data-lenis-prevent className="p-5 sm:p-6 overflow-y-auto space-y-4">
               {mode === "WHATSAPP" ? (
                 /* Mode A: Fast WhatsApp 2-Tap Triage */
                 <div className="space-y-4">

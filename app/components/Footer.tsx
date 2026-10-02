@@ -3,7 +3,9 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { CLINIC_INFO } from "@/app/data/products";
+import { useLenis } from "./SmoothScroll";
 import {
   MapPin,
   Phone,
@@ -17,6 +19,20 @@ import {
 } from "lucide-react";
 
 export default function Footer() {
+  const pathname = usePathname();
+  const lenis = useLenis();
+
+  const handleHomeClick = (e: React.MouseEvent) => {
+    if (pathname === "/") {
+      e.preventDefault();
+      if (lenis) {
+        lenis.scrollTo(0, { duration: 1.2 });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+  };
+
   return (
     <footer className="bg-[#22623a] text-[#f4eee5] border-t border-[#143e23] pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
@@ -83,7 +99,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand Col (2 spans) */}
           <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              onClick={handleHomeClick}
+              className="flex items-center gap-3 group inline-flex"
+            >
               <div className="relative w-12 h-12 rounded-full overflow-hidden bg-white p-1">
                 <Image
                   src="/images/cropped-logo.png"
@@ -93,14 +113,14 @@ export default function Footer() {
                 />
               </div>
               <div>
-                <span className="font-serif text-xl font-bold tracking-tight text-white">
+                <span className="font-serif text-xl font-bold tracking-tight text-white group-hover:text-[#c59b27] transition-colors">
                   Tameer-e-Sehat
                 </span>
                 <span className="block text-xs text-[#c59b27] font-medium tracking-wide">
-                  Herbal Clinic & Natural Remedies
+                  Herbal Clinic &amp; Natural Remedies
                 </span>
               </div>
-            </div>
+            </Link>
 
             <p className="text-xs text-[#f4eee5]/80 leading-relaxed max-w-sm">
               Established in 1990 in Karachi, Tameer-e-Sehat is a trusted herbal clinic and remedy center. We use pure, natural herbs and time-tested recipes to provide honest, gentle remedies for you and your family.
@@ -132,7 +152,11 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs text-[#f4eee5]/80">
               <li>
-                <Link href="/" className="hover:text-white transition-colors">
+                <Link
+                  href="/"
+                  onClick={handleHomeClick}
+                  className="hover:text-white transition-colors"
+                >
                   Home
                 </Link>
               </li>

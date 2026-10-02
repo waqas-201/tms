@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import { useCart } from "@/app/context/CartContext";
 import { useSession, signOut } from "@/lib/auth-client";
 import { CLINIC_INFO } from "@/app/data/products";
+import { useLenis } from "./SmoothScroll";
 import SearchModal from "./SearchModal";
 import ConsultationModal from "./ConsultationModal";
 import { isStaffRole } from "@/lib/rbac-base";
@@ -31,6 +32,7 @@ import {
 
 export default function Header() {
   const pathname = usePathname();
+  const lenis = useLenis();
   const { totalItems, setIsCartOpen, wishlist } = useCart();
   const { data: session } = useSession();
 
@@ -100,7 +102,31 @@ export default function Header() {
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsUserMenuOpen(false);
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
   }, [pathname]);
+
+  const handleNavClick = (href: string, e: React.MouseEvent) => {
+    if (pathname === href) {
+      e.preventDefault();
+      if (lenis) {
+        lenis.scrollTo(0, { duration: 1.2 });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+  };
+
+  const handleMobileNavClick = (href: string, e: React.MouseEvent) => {
+    closeMobileMenu();
+    if (pathname === href) {
+      e.preventDefault();
+      if (lenis) {
+        lenis.scrollTo(0, { duration: 1.2 });
+      } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    }
+  };
 
   useEffect(() => {
     const onResize = () => {
@@ -222,7 +248,11 @@ export default function Header() {
                 )}
               </button>
 
-              <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group min-w-0">
+              <Link
+                href="/"
+                onClick={(e) => handleNavClick("/", e)}
+                className="flex items-center gap-2.5 sm:gap-3 group min-w-0"
+              >
                 <div className="relative h-8 sm:h-10 w-auto shrink-0 overflow-hidden rounded-md border border-[#e6dfd5]/80 bg-white p-0.5 group-hover:border-[#22623a]/50 transition-colors shadow-2xs">
                   <Image
                     src="/images/cropped-logo.png"
@@ -253,6 +283,7 @@ export default function Header() {
                   <Link
                     key={link.name}
                     href={link.href}
+                    onClick={(e) => handleNavClick(link.href, e)}
                     className={`text-sm font-medium transition-colors duration-150 relative py-1 flex items-center gap-1.5 ${
                       isActive
                         ? "text-[#22623a]"
@@ -491,7 +522,11 @@ export default function Header() {
               className="w-screen max-w-sm bg-[#faf8f5] shadow-drawer flex flex-col h-full border-l border-[#e6dfd5] animate-slide-in-right"
             >
               <div className="p-4 border-b border-[#e6dfd5] bg-white flex items-center justify-between shrink-0">
-                <div className="flex items-center gap-2.5 min-w-0">
+                <Link
+                  href="/"
+                  onClick={(e) => handleMobileNavClick("/", e)}
+                  className="flex items-center gap-2.5 min-w-0"
+                >
                   <div className="relative h-8 w-auto shrink-0 overflow-hidden rounded-md border border-[#e6dfd5] bg-white p-0.5">
                     <Image
                       src="/images/cropped-logo.png"
@@ -509,7 +544,7 @@ export default function Header() {
                       Menu
                     </p>
                   </div>
-                </div>
+                </Link>
                 <button
                   ref={closeMenuRef}
                   type="button"
@@ -521,7 +556,10 @@ export default function Header() {
                 </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-5">
+              <div
+                data-lenis-prevent
+                className="flex-1 overflow-y-auto p-4 space-y-5"
+              >
                 <button
                   type="button"
                   onClick={openConsult}
@@ -539,7 +577,7 @@ export default function Header() {
                       <Link
                         key={link.name}
                         href={link.href}
-                        onClick={closeMobileMenu}
+                        onClick={(e) => handleMobileNavClick(link.href, e)}
                         className={`flex items-center gap-3 py-2.5 px-3 text-sm font-semibold rounded-xl transition-colors ${
                           isActive
                             ? "bg-[#eef7f1] text-[#22623a] font-bold"

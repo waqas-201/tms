@@ -139,7 +139,7 @@ export default function StockMovementsDrawer({
         </div>
 
         {/* Drawer Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+        <div data-lenis-prevent className="flex-1 overflow-y-auto p-6 space-y-4">
           {error && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center gap-2 text-xs">
               <AlertCircle className="w-4 h-4 shrink-0" />

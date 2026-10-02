@@ -83,7 +83,7 @@ export default function OrderInvoiceModal({
   )}`;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto p-3 sm:p-6 md:p-8 flex items-center justify-center">
+    <div data-lenis-prevent className="fixed inset-0 z-50 overflow-y-auto p-3 sm:p-6 md:p-8 flex items-center justify-center">
       {/* Backdrop */}
       <div
         onClick={onClose}

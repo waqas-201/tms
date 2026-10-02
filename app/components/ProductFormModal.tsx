@@ -1337,7 +1337,7 @@ export default function ProductFormModal({
         </div>
 
         {/* Scrollable Wizard Body */}
-        <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-5">
+        <div data-lenis-prevent ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto p-5 sm:p-6 space-y-5">
           {/* Error Banner */}
           {error && (
             <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-rose-800 flex items-center gap-2.5 text-xs sm:text-sm animate-fade-in">

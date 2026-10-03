@@ -37,13 +37,25 @@ export const AVAILABLE_COUPONS: Record<string, AppliedCoupon> = {
     discountValue: 200,
     minSubtotal: 1500,
   },
+  RAMADAN15: {
+    code: "RAMADAN15",
+    description: "15% Special Seasonal Discount",
+    discountType: "percentage",
+    discountValue: 15,
+  },
+  TAMEER50: {
+    code: "TAMEER50",
+    description: "₨ 50 Off First Order",
+    discountType: "fixed",
+    discountValue: 50,
+  },
 };
 
 interface CartContextType {
   cart: CartItem[];
   addToCart: (product: Product, selectedSize?: ProductSize, quantity?: number) => void;
-  removeFromCart: (productId: string, sizeName: string) => void;
-  updateQuantity: (productId: string, sizeName: string, quantity: number) => void;
+  removeFromCart: (productId: string, sizeIdentifier?: string) => void;
+  updateQuantity: (productId: string, sizeIdentifier: string, quantity: number) => void;
   clearCart: () => void;
   isCartOpen: boolean;
   setIsCartOpen: (open: boolean) => void;
@@ -75,6 +87,30 @@ interface CartContextType {
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
+
+// Helper function to match cart items robustly across id, name, or weight
+function matchesItemSize(
+  item: CartItem,
+  productId: string,
+  sizeIdentifier?: string
+): boolean {
+  if (item.product.id !== productId) return false;
+  if (!sizeIdentifier) return true;
+
+  // Match by size id
+  if (item.selectedSize.id && item.selectedSize.id === sizeIdentifier) {
+    return true;
+  }
+  // Match by size name
+  if (item.selectedSize.name && item.selectedSize.name === sizeIdentifier) {
+    return true;
+  }
+  // Match by size weight
+  if (item.selectedSize.weight && item.selectedSize.weight === sizeIdentifier) {
+    return true;
+  }
+  return false;
+}
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -160,19 +196,31 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     selectedSize?: ProductSize,
     quantity: number = 1
   ) => {
-    const size = selectedSize || product.sizes[0];
+    const size =
+      selectedSize ||
+      (product.sizes && product.sizes.length > 0
+        ? product.sizes[0]
+        : {
+            name: "Standard",
+            weight: "250g",
+            price: product.price || 0,
+            available: product.inStock ? 100 : 0,
+          });
 
     // Check available stock
     if (size.available !== undefined && size.available <= 0) {
-      showToast(`Sorry, "${product.name} (${size.weight})" is currently out of stock.`);
+      showToast(`Sorry, "${product.name} (${size.weight || size.name})" is out of stock.`);
       return;
     }
 
     setCart((prev) => {
-      const existingIndex = prev.findIndex(
-        (item) =>
+      const existingIndex = prev.findIndex((item) =>
+        item.product.id === product.id &&
+        (
           (size.id && item.selectedSize.id ? item.selectedSize.id === size.id : false) ||
-          (item.product.id === product.id && item.selectedSize.name === size.name)
+          item.selectedSize.name === size.name ||
+          item.selectedSize.weight === size.weight
+        )
       );
 
       if (existingIndex > -1) {
@@ -181,11 +229,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
         if (size.available !== undefined && newQty > size.available) {
           newQty = size.available;
-          showToast(`Stock limit: Maximum ${size.available} available units added.`);
+          showToast(`Stock limit: Maximum ${size.available} units added.`);
         }
 
         const updated = [...prev];
-        updated[existingIndex].quantity = newQty;
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          selectedSize: size,
+          quantity: newQty,
+        };
         return updated;
       } else {
         let finalQty = quantity;
@@ -196,43 +248,37 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       }
     });
 
-    showToast(`Added "${product.name} (${size.weight})" to cart.`);
+    showToast(`Added "${product.name} (${size.weight || size.name})" to shopping bag.`);
     setIsCartOpen(true);
   };
 
-  const removeFromCart = (productId: string, sizeName: string) => {
-    setCart((prev) =>
-      prev.filter(
-        (item) =>
-          !(
-            item.product.id === productId &&
-            (item.selectedSize.id ? item.selectedSize.id === sizeName : item.selectedSize.name === sizeName)
-          )
-      )
-    );
+  const removeFromCart = (productId: string, sizeIdentifier?: string) => {
+    setCart((prev) => {
+      const target = prev.find((item) => matchesItemSize(item, productId, sizeIdentifier));
+      if (target) {
+        showToast(`Removed "${target.product.name} (${target.selectedSize.weight || target.selectedSize.name})" from bag.`);
+      }
+      return prev.filter((item) => !matchesItemSize(item, productId, sizeIdentifier));
+    });
   };
 
   const updateQuantity = (
     productId: string,
-    sizeName: string,
+    sizeIdentifier: string,
     quantity: number
   ) => {
     if (quantity <= 0) {
-      removeFromCart(productId, sizeName);
+      removeFromCart(productId, sizeIdentifier);
       return;
     }
 
     setCart((prev) =>
       prev.map((item) => {
-        const isMatch =
-          item.product.id === productId &&
-          (item.selectedSize.id ? item.selectedSize.id === sizeName : item.selectedSize.name === sizeName);
-
-        if (isMatch) {
+        if (matchesItemSize(item, productId, sizeIdentifier)) {
           let finalQty = quantity;
           if (item.selectedSize.available !== undefined && finalQty > item.selectedSize.available) {
             finalQty = Math.max(1, item.selectedSize.available);
-            showToast(`Maximum available stock reached (${item.selectedSize.available} units).`);
+            showToast(`Maximum stock reached (${item.selectedSize.available} units).`);
           }
           return { ...item, quantity: finalQty };
         }
@@ -244,6 +290,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const clearCart = () => {
     setCart([]);
     setAppliedCoupon(null);
+    showToast("Shopping bag cleared.");
   };
 
   // Wishlist actions
@@ -339,7 +386,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }) => {
     const itemList = cart
       .map((item, idx) => {
-        return `${idx + 1}. *${item.product.name}* (${item.selectedSize.name} - ${item.selectedSize.weight})\n   Qty: ${
+        return `${idx + 1}. *${item.product.name}* (${item.selectedSize.name || ""} - ${item.selectedSize.weight || ""})\n   Qty: ${
           item.quantity
         } x ₨ ${item.selectedSize.price} = ₨ ${(
           item.selectedSize.price * item.quantity

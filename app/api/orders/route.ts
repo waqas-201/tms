@@ -80,6 +80,35 @@ export async function POST(request: NextRequest) {
       headers: request.headers,
     });
 
+    if (!session || !session.user) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Authentication required. Please sign in or register an account to place an order.",
+          authRequired: true,
+        },
+        { status: 401 }
+      );
+    }
+
+    // Authoritatively check database for fresh emailVerified status
+    const dbUser = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, email: true, emailVerified: true, name: true, role: true },
+    });
+
+    if (!dbUser || !dbUser.emailVerified) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Email verification required. Please verify your email address (${dbUser?.email || session.user.email}) before placing an order. Check your inbox for the activation link or request a new one.`,
+          emailUnverified: true,
+          email: dbUser?.email || session.user.email,
+        },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const {
       customerName,

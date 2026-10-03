@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback, Suspense } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,6 +28,9 @@ import {
   Star,
   Home,
   ChevronRight,
+  ChevronLeft,
+  ChevronsLeft,
+  ChevronsRight,
   ChevronDown,
   Sliders,
   Filter,
@@ -144,10 +147,55 @@ const RATING_OPTIONS = [
 
 const DEFAULT_MAX_PRICE = 5000;
 
+function getPaginationRange(
+  currentPage: number,
+  totalPages: number,
+  siblingCount = 1
+): (number | string)[] {
+  const totalPageNumbers = siblingCount * 2 + 5;
+
+  if (totalPages <= totalPageNumbers) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+
+  const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
+  const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages);
+
+  const shouldShowLeftDots = leftSiblingIndex > 2;
+  const shouldShowRightDots = rightSiblingIndex < totalPages - 1;
+
+  if (!shouldShowLeftDots && shouldShowRightDots) {
+    const leftItemCount = 3 + 2 * siblingCount;
+    const leftRange = Array.from({ length: leftItemCount }, (_, i) => i + 1);
+    return [...leftRange, "...", totalPages];
+  }
+
+  if (shouldShowLeftDots && !shouldShowRightDots) {
+    const rightItemCount = 3 + 2 * siblingCount;
+    const rightRange = Array.from(
+      { length: rightItemCount },
+      (_, i) => totalPages - rightItemCount + 1 + i
+    );
+    return [1, "...", ...rightRange];
+  }
+
+  if (shouldShowLeftDots && shouldShowRightDots) {
+    const middleRange = Array.from(
+      { length: rightSiblingIndex - leftSiblingIndex + 1 },
+      (_, i) => leftSiblingIndex + i
+    );
+    return [1, "...", ...middleRange, "...", totalPages];
+  }
+
+  return Array.from({ length: totalPages }, (_, i) => i + 1);
+}
+
 function ProductsContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const catalogTopRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
 
   // Dynamic Data State
   const [productsList, setProductsList] = useState<Product[]>([]);
@@ -165,6 +213,11 @@ function ProductsContent() {
   // Initial URL Parameter hydration
   const initialMin = Number(searchParams.get("minPrice")) || 0;
   const initialMax = Number(searchParams.get("maxPrice")) || DEFAULT_MAX_PRICE;
+  const initialPage = Math.max(1, Number(searchParams.get("page")) || 1);
+  const initialPageSize =
+    Number(searchParams.get("pageSize")) ||
+    Number(searchParams.get("limit")) ||
+    24;
 
   const [selectedCategory, setSelectedCategory] = useState<string>(
     searchParams.get("category") || "all"
@@ -191,6 +244,8 @@ function ProductsContent() {
   const [viewMode, setViewMode] = useState<"grid" | "list">(
     (searchParams.get("view") as "grid" | "list") || "grid"
   );
+  const [currentPage, setCurrentPage] = useState<number>(initialPage);
+  const [pageSize, setPageSize] = useState<number>(initialPageSize);
 
   // Fetch Live Database Products & Categories
   useEffect(() => {
@@ -251,6 +306,24 @@ function ProductsContent() {
     [pathname, router, searchParams]
   );
 
+  // Reset page to 1 whenever search, categories, or filters change
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setCurrentPage(1);
+  }, [
+    selectedCategory,
+    priceRange,
+    selectedRating,
+    inStockOnly,
+    onSaleOnly,
+    searchQuery,
+    sortBy,
+    pageSize,
+  ]);
+
   // Sync state changes to URL
   useEffect(() => {
     updateUrlParams({
@@ -263,6 +336,8 @@ function ProductsContent() {
       q: searchQuery.trim() || null,
       sort: sortBy !== "featured" ? sortBy : null,
       view: viewMode !== "grid" ? viewMode : null,
+      page: currentPage > 1 ? currentPage : null,
+      pageSize: pageSize !== 24 ? pageSize : null,
     });
   }, [
     selectedCategory,
@@ -274,6 +349,8 @@ function ProductsContent() {
     searchQuery,
     sortBy,
     viewMode,
+    currentPage,
+    pageSize,
     updateUrlParams,
   ]);
 
@@ -454,6 +531,26 @@ function ProductsContent() {
 
   const hasActiveFilters = activeFiltersCount > 0;
 
+  // Pagination Math & Slicing
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / pageSize));
+  const safePage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (safePage - 1) * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, filteredProducts.length);
+
+  const paginatedProducts = useMemo(() => {
+    return filteredProducts.slice(startIndex, endIndex);
+  }, [filteredProducts, startIndex, endIndex]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages || newPage === safePage) return;
+    setCurrentPage(newPage);
+    if (catalogTopRef.current) {
+      catalogTopRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 380, behavior: "smooth" });
+    }
+  };
+
   const clearAllFilters = () => {
     setSelectedCategory("all");
     setPriceRange([0, maxCatalogPrice]);
@@ -461,6 +558,7 @@ function ProductsContent() {
     setInStockOnly(false);
     setOnSaleOnly(false);
     setSearchQuery("");
+    setCurrentPage(1);
   };
 
   const isCategoryAvatarActive = useCallback(
@@ -482,6 +580,7 @@ function ProductsContent() {
 
   const handleCategoryAvatarClick = useCallback(
     (catItem: (typeof VISUAL_CATEGORIES)[0]) => {
+      setCurrentPage(1);
       if (catItem.type === "deals") {
         setOnSaleOnly(true);
         setSelectedCategory("all");
@@ -900,6 +999,8 @@ function ProductsContent() {
               CATALOG CONTENT AREA (9 cols on lg, 12 cols on mobile)
           ───────────────────────────────────────────────────────────────── */}
           <div className="lg:col-span-9 space-y-6">
+            <div ref={catalogTopRef} className="scroll-mt-28" />
+
             {/* Top Controls: Search, Sort, View Toggle, and Mobile Filter Trigger */}
             <div className="bg-white p-4 rounded-2xl border border-stone-200/80 shadow-2xs space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1086,10 +1187,49 @@ function ProductsContent() {
               </AnimatePresence>
             </div>
 
-            {/* Results Count Bar */}
-            <div className="flex items-center justify-between text-xs text-stone-500">
-              <div>
-                Showing <span className="font-semibold text-stone-900">{filteredProducts.length}</span> of {productsList.length} remedies
+            {/* Results Count & Items Per Page Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-stone-500 bg-white/60 backdrop-blur-xs px-4 py-2.5 rounded-2xl border border-stone-200/70 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <span>
+                  Showing{" "}
+                  <span className="font-semibold text-stone-900">
+                    {filteredProducts.length > 0 ? startIndex + 1 : 0}–{endIndex}
+                  </span>{" "}
+                  of{" "}
+                  <span className="font-semibold text-stone-900">
+                    {filteredProducts.length}
+                  </span>{" "}
+                  remedies
+                </span>
+                {totalPages > 1 && (
+                  <span className="text-stone-400 font-medium">
+                    (Page {safePage} of {totalPages})
+                  </span>
+                )}
+              </div>
+
+              {/* Items Per Page Selector */}
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] text-stone-400 font-medium">Per page:</span>
+                <div className="flex items-center gap-1 bg-stone-100 p-0.5 rounded-lg border border-stone-200">
+                  {[12, 24, 36, 48].map((size) => (
+                    <button
+                      key={size}
+                      type="button"
+                      onClick={() => {
+                        setPageSize(size);
+                        setCurrentPage(1);
+                      }}
+                      className={`px-2 py-0.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                        pageSize === size
+                          ? "bg-white text-stone-900 shadow-2xs"
+                          : "text-stone-500 hover:text-stone-900"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -1109,23 +1249,135 @@ function ProductsContent() {
                   </div>
                 ))}
               </div>
-            ) : filteredProducts.length > 0 ? (
-              <motion.div
-                layout
-                className={
-                  viewMode === "grid"
-                    ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch"
-                    : "flex flex-col gap-4"
-                }
-              >
-                {filteredProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    viewMode={viewMode}
-                  />
-                ))}
-              </motion.div>
+            ) : paginatedProducts.length > 0 ? (
+              <>
+                <motion.div
+                  layout
+                  className={
+                    viewMode === "grid"
+                      ? "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch"
+                      : "flex flex-col gap-4"
+                  }
+                >
+                  {paginatedProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      viewMode={viewMode}
+                    />
+                  ))}
+                </motion.div>
+
+                {/* Apothecary Classical Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="pt-6 pb-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-stone-200/80 mt-8">
+                    <div className="text-xs text-stone-500 order-2 sm:order-1">
+                      Showing{" "}
+                      <span className="font-semibold text-stone-900">
+                        {startIndex + 1}–{endIndex}
+                      </span>{" "}
+                      of{" "}
+                      <span className="font-semibold text-stone-900">
+                        {filteredProducts.length}
+                      </span>{" "}
+                      remedies · Page{" "}
+                      <span className="font-semibold text-[#14281D]">
+                        {safePage}
+                      </span>{" "}
+                      of {totalPages}
+                    </div>
+
+                    <nav
+                      className="flex items-center gap-1.5 order-1 sm:order-2"
+                      aria-label="Apothecary Catalog Pagination"
+                    >
+                      {/* First Page */}
+                      <button
+                        type="button"
+                        onClick={() => handlePageChange(1)}
+                        disabled={safePage <= 1}
+                        className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-xl border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-stone-900 disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer shadow-2xs"
+                        aria-label="First page"
+                        title="First page"
+                      >
+                        <ChevronsLeft className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Previous Page */}
+                      <button
+                        type="button"
+                        onClick={() => handlePageChange(safePage - 1)}
+                        disabled={safePage <= 1}
+                        className="inline-flex items-center gap-1 px-3 h-8 rounded-xl border border-stone-200 bg-white text-stone-700 hover:bg-stone-50 hover:text-stone-900 disabled:opacity-30 disabled:pointer-events-none text-xs font-semibold transition-all cursor-pointer shadow-2xs"
+                        aria-label="Previous page"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                        <span className="hidden xs:inline">Prev</span>
+                      </button>
+
+                      {/* Page Numbers */}
+                      <div className="flex items-center gap-1">
+                        {getPaginationRange(safePage, totalPages).map((page, idx) => {
+                          if (page === "...") {
+                            return (
+                              <span
+                                key={`dots-${idx}`}
+                                className="w-8 h-8 flex items-center justify-center text-xs text-stone-400 font-medium select-none"
+                              >
+                                •••
+                              </span>
+                            );
+                          }
+
+                          const pageNum = Number(page);
+                          const isActive = pageNum === safePage;
+
+                          return (
+                            <button
+                              key={pageNum}
+                              type="button"
+                              onClick={() => handlePageChange(pageNum)}
+                              className={`w-8 h-8 rounded-xl text-xs font-semibold flex items-center justify-center transition-all cursor-pointer ${
+                                isActive
+                                  ? "bg-[#14281D] text-white shadow-md ring-1 ring-[#9E7D3B]"
+                                  : "bg-white text-stone-700 border border-stone-200 hover:bg-stone-50 hover:border-stone-300 hover:text-stone-900 shadow-2xs"
+                              }`}
+                              aria-current={isActive ? "page" : undefined}
+                              aria-label={`Page ${pageNum}`}
+                            >
+                              {pageNum}
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Next Page */}
+                      <button
+                        type="button"
+                        onClick={() => handlePageChange(safePage + 1)}
+                        disabled={safePage >= totalPages}
+                        className="inline-flex items-center gap-1 px-3 h-8 rounded-xl border border-stone-200 bg-white text-stone-700 hover:bg-stone-50 hover:text-stone-900 disabled:opacity-30 disabled:pointer-events-none text-xs font-semibold transition-all cursor-pointer shadow-2xs"
+                        aria-label="Next page"
+                      >
+                        <span className="hidden xs:inline">Next</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Last Page */}
+                      <button
+                        type="button"
+                        onClick={() => handlePageChange(totalPages)}
+                        disabled={safePage >= totalPages}
+                        className="hidden sm:inline-flex items-center justify-center w-8 h-8 rounded-xl border border-stone-200 bg-white text-stone-600 hover:bg-stone-50 hover:text-stone-900 disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer shadow-2xs"
+                        aria-label="Last page"
+                        title="Last page"
+                      >
+                        <ChevronsRight className="w-3.5 h-3.5" />
+                      </button>
+                    </nav>
+                  </div>
+                )}
+              </>
             ) : (
               /* Zero Results State */
               <div className="bg-white rounded-2xl border border-stone-200/80 p-8 sm:p-14 text-center max-w-xl mx-auto space-y-5 shadow-2xs">

@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import { getAvailableStock } from "@/lib/inventory";
-import { Product, ProductSize } from "@/app/data/products";
+import { Product, ProductSize, PRODUCTS } from "@/app/data/products";
 
 function safeJsonParse<T>(val: any, fallback: T): T {
   if (Array.isArray(val) || (typeof val === "object" && val !== null)) {
@@ -125,36 +125,76 @@ export async function getLiveCatalog(options: {
     orderBy = { rating: "desc" };
   }
 
-  const products = await prisma.product.findMany({
-    where,
-    orderBy,
-    include: {
-      sizes: {
-        include: { unit: true },
-        orderBy: { price: "asc" },
+  try {
+    const products = await prisma.product.findMany({
+      where,
+      orderBy,
+      include: {
+        sizes: {
+          include: { unit: true },
+          orderBy: { price: "asc" },
+        },
       },
-    },
-  });
+    });
 
-  return products.map(formatProductRecord);
+    if (products.length > 0) {
+      return products.map(formatProductRecord);
+    }
+  } catch (err) {
+    console.warn("Database unavailable, falling back to local catalog data:", err);
+  }
+
+  // Fallback to static migrated products
+  let filtered = [...PRODUCTS];
+  if (options.category && options.category !== "all") {
+    filtered = filtered.filter((p) => p.category === options.category || p.categoryId === options.category);
+  }
+  if (options.featured) {
+    filtered = filtered.filter((p) => p.featured);
+  }
+  if (options.search && options.search.trim()) {
+    const q = options.search.trim().toLowerCase();
+    filtered = filtered.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.shortDescription.toLowerCase().includes(q) ||
+        p.categoryLabel.toLowerCase().includes(q)
+    );
+  }
+  if (options.sort === "price-low") {
+    filtered.sort((a, b) => a.price - b.price);
+  } else if (options.sort === "price-high") {
+    filtered.sort((a, b) => b.price - a.price);
+  } else if (options.sort === "rating") {
+    filtered.sort((a, b) => b.rating - a.rating);
+  }
+  return filtered;
 }
 
 export async function getLiveProductBySlug(slug: string): Promise<Product | null> {
-  const product = await prisma.product.findFirst({
-    where: {
-      OR: [{ slug }, { id: slug }],
-    },
-    include: {
-      sizes: {
-        include: { unit: true },
-        orderBy: { price: "asc" },
+  try {
+    const product = await prisma.product.findFirst({
+      where: {
+        OR: [{ slug }, { id: slug }],
       },
-      reviews: {
-        orderBy: { createdAt: "desc" },
+      include: {
+        sizes: {
+          include: { unit: true },
+          orderBy: { price: "asc" },
+        },
+        reviews: {
+          orderBy: { createdAt: "desc" },
+        },
       },
-    },
-  });
+    });
 
-  if (!product) return null;
-  return formatProductRecord(product);
+    if (product) {
+      return formatProductRecord(product);
+    }
+  } catch (err) {
+    console.warn("Database unavailable for product slug lookup:", err);
+  }
+
+  const fallback = PRODUCTS.find((p) => p.slug === slug || p.id === slug);
+  return fallback || null;
 }

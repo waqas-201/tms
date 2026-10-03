@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireRole, ROLES } from "@/lib/rbac";
 import { formatProductRecord } from "@/lib/catalog";
+import { PRODUCTS } from "@/app/data/products";
 
 export async function GET(request: NextRequest) {
   try {
@@ -40,20 +41,52 @@ export async function GET(request: NextRequest) {
       orderBy = { rating: "desc" };
     }
 
-    const products = await prisma.product.findMany({
-      where,
-      orderBy,
-      include: {
-        sizes: {
-          include: { unit: true },
-          orderBy: { price: "asc" },
+    try {
+      const products = await prisma.product.findMany({
+        where,
+        orderBy,
+        include: {
+          sizes: {
+            include: { unit: true },
+            orderBy: { price: "asc" },
+          },
         },
-      },
-    });
+      });
 
-    const formatted = products.map(formatProductRecord);
+      if (products.length > 0) {
+        const formatted = products.map(formatProductRecord);
+        return NextResponse.json({ success: true, data: formatted });
+      }
+    } catch (dbErr) {
+      console.warn("Database unavailable in /api/products, serving fallback catalog:", dbErr);
+    }
 
-    return NextResponse.json({ success: true, data: formatted });
+    // Fallback static catalog
+    let fallback = [...PRODUCTS];
+    if (category && category !== "all") {
+      fallback = fallback.filter((p) => p.category === category || p.categoryId === category);
+    }
+    if (featured === "true") {
+      fallback = fallback.filter((p) => p.featured);
+    }
+    if (search && search.trim()) {
+      const q = search.trim().toLowerCase();
+      fallback = fallback.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.shortDescription.toLowerCase().includes(q) ||
+          p.categoryLabel.toLowerCase().includes(q)
+      );
+    }
+    if (sort === "price-low") {
+      fallback.sort((a, b) => a.price - b.price);
+    } else if (sort === "price-high") {
+      fallback.sort((a, b) => b.price - a.price);
+    } else if (sort === "rating") {
+      fallback.sort((a, b) => b.rating - a.rating);
+    }
+
+    return NextResponse.json({ success: true, data: fallback });
   } catch (error) {
     console.error("Error fetching products:", error);
     return NextResponse.json(

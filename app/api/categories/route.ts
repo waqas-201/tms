@@ -1,31 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireRole, ROLES } from "@/lib/rbac";
+import { CATEGORIES } from "@/app/data/products";
 
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
-      include: {
-        _count: {
-          select: { products: true },
+    try {
+      const categories = await prisma.category.findMany({
+        include: {
+          _count: {
+            select: { products: true },
+          },
         },
-      },
-      orderBy: { name: "asc" },
-    });
+        orderBy: { name: "asc" },
+      });
 
-    const formatted = categories.map((c) => ({
-      id: c.id,
-      slug: c.slug,
-      name: c.name,
-      urduName: c.urduName,
-      description: c.description || "",
-      heroImage: c.heroImage || "",
-      productCount: c._count.products,
-      createdAt: c.createdAt,
-      updatedAt: c.updatedAt,
-    }));
+      if (categories.length > 0) {
+        const formatted = categories.map((c) => ({
+          id: c.id,
+          slug: c.slug,
+          name: c.name,
+          urduName: c.urduName,
+          description: c.description || "",
+          heroImage: c.heroImage || "",
+          productCount: c._count.products,
+          createdAt: c.createdAt,
+          updatedAt: c.updatedAt,
+        }));
 
-    return NextResponse.json({ success: true, data: formatted });
+        return NextResponse.json({ success: true, data: formatted });
+      }
+    } catch (dbErr) {
+      console.warn("Database unavailable in /api/categories, serving fallback:", dbErr);
+    }
+
+    return NextResponse.json({ success: true, data: CATEGORIES });
   } catch (error) {
     console.error("Error fetching categories:", error);
     return NextResponse.json(

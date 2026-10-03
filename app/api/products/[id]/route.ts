@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireRole, ROLES } from "@/lib/rbac";
 import { formatProductRecord } from "@/lib/catalog";
+import { PRODUCTS } from "@/app/data/products";
 
 export async function GET(
   request: NextRequest,
@@ -10,31 +11,39 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const product = await prisma.product.findFirst({
-      where: {
-        OR: [{ id }, { slug: id }],
-      },
-      include: {
-        sizes: {
-          include: { unit: true },
-          orderBy: { price: "asc" },
+    try {
+      const product = await prisma.product.findFirst({
+        where: {
+          OR: [{ id }, { slug: id }],
         },
-        reviews: {
-          orderBy: { createdAt: "desc" },
+        include: {
+          sizes: {
+            include: { unit: true },
+            orderBy: { price: "asc" },
+          },
+          reviews: {
+            orderBy: { createdAt: "desc" },
+          },
         },
-      },
-    });
+      });
 
-    if (!product) {
-      return NextResponse.json(
-        { success: false, error: "Product not found." },
-        { status: 404 }
-      );
+      if (product) {
+        const formatted = formatProductRecord(product);
+        return NextResponse.json({ success: true, data: formatted });
+      }
+    } catch (dbErr) {
+      console.warn("Database unavailable in /api/products/[id], checking fallback:", dbErr);
     }
 
-    const formatted = formatProductRecord(product);
+    const fallback = PRODUCTS.find((p) => p.id === id || p.slug === id);
+    if (fallback) {
+      return NextResponse.json({ success: true, data: fallback });
+    }
 
-    return NextResponse.json({ success: true, data: formatted });
+    return NextResponse.json(
+      { success: false, error: "Product not found." },
+      { status: 404 }
+    );
   } catch (error) {
     console.error("Error fetching product detail:", error);
     return NextResponse.json(

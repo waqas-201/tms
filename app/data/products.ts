@@ -1,3 +1,5 @@
+import migratedProductsData from "./migrated-products.json";
+
 export interface ProductSize {
   id?: string;
   name: string;
@@ -20,7 +22,7 @@ export interface Product {
   slug: string;
   name: string;
   urduName: string;
-  category: "murabbajaat" | "arqiyat" | "oils-marham" | "herbs-seeds" | "teas-vitality" | "hair-skin" | string;
+  category: "murabbajaat" | "arqiyat" | "oils-marham" | "herbs-seeds" | "teas-vitality" | "hair-skin" | "herbs" | string;
   categoryId?: string;
   categoryLabel: string;
   categoryUrdu: string;
@@ -45,6 +47,7 @@ export interface Product {
   reviewCount: number;
   badge?: string;
   mizaj?: string;
+  tags?: string[];
 }
 
 export interface CategoryInfo {
@@ -57,17 +60,71 @@ export interface CategoryInfo {
   productCount: number;
 }
 
-// Dynamic e-commerce: live data is served from database via /api/products and /api/categories.
-// Fallback empty collections for types & safety.
-export const CATEGORIES: CategoryInfo[] = [];
-export const PRODUCTS: Product[] = [];
+export const CATEGORIES: CategoryInfo[] = [
+  {
+    id: "herbs",
+    slug: "herbs",
+    name: "Herbs & Botanicals",
+    urduName: "جڑی بوٹیاں",
+    description: "Authentic single herbs, wild-crafted roots, barks, and therapeutic botanicals.",
+    heroImage: "/images/products/8669_0_Gemini_Generated_Image_jihhirjihhirjihh-1.png",
+    productCount: 150,
+  },
+  {
+    id: "herbs-seeds",
+    slug: "herbs-seeds",
+    name: "Herbal Seeds & Kernels",
+    urduName: "تخم و بیج",
+    description: "Pure medicinal seeds, carom seeds, flax seeds, and aromatic culinary spices.",
+    heroImage: "/images/products/8683_0_ajwain.jpg",
+    productCount: 85,
+  },
+  {
+    id: "murabbajaat",
+    slug: "murabbajaat",
+    name: "Murabbajaat (Preserves)",
+    urduName: "مربہ جات",
+    description: "Traditional Unani preserves cooked in pure raw honey and organic syrups.",
+    heroImage: "/images/products/8697_0_22872588-58f4-46b3-ae27-879248c546d6_0.jpg",
+    productCount: 45,
+  },
+  {
+    id: "oils-marham",
+    slug: "oils-marham",
+    name: "Pure Oils & Balms",
+    urduName: "روغنیات و مرہم",
+    description: "Cold-pressed pure herbal oils, therapeutic massage liniments, and soothing balms.",
+    heroImage: "/images/products/8669_1_Juniper-Berries-002.jpg.webp",
+    productCount: 40,
+  },
+  {
+    id: "arqiyat",
+    slug: "arqiyat",
+    name: "Arqiyat (Distillates)",
+    urduName: "عرقیات خالص",
+    description: "Triple-distilled therapeutic botanical waters and calming floral extracts.",
+    heroImage: "/images/products/8677_0_Gemini_Generated_Image_oeeza4oeeza4oeez.jpg",
+    productCount: 30,
+  },
+  {
+    id: "teas-vitality",
+    slug: "teas-vitality",
+    name: "Vitality & Dry Fruits",
+    urduName: "خشک میوہ جات و مقویات",
+    description: "Premium dry fruit tonics, herbal vitality teas, and rejuvenative blends.",
+    heroImage: "/images/products/8690_0_Gemini_Generated_Image_itgvutitgvutitgv.jpg",
+    productCount: 35,
+  },
+];
+
+export const PRODUCTS: Product[] = (migratedProductsData as unknown) as Product[];
 
 export const CLINIC_INFO = {
   brandName: "Tameer-e-Sehat",
   clinicName: "Matab Tameer-e-sehat",
-  brandUrdu: "",
+  brandUrdu: "تعمیرِ صحت مطب و دواخانہ",
   tagline: "35+ Years of Honest Herbal Care in Pakistan",
-  taglineUrdu: "",
+  taglineUrdu: "پاکستان میں ۳۵ سال سے مخلص اور مستند حکمت",
   establishedYear: 1990,
   experienceYears: 35,
   botanicalsCount: "500+",
@@ -90,50 +147,61 @@ export const CLINIC_INFO = {
   googleSearchUrl: "https://www.google.com/search?q=Matab+Tameer-e-sehat+Karachi",
 };
 
-export const TESTIMONIALS: Array<{
-  id: number;
-  name: string;
-  city: string;
-  text: string;
-  concern: string;
-  rating: number;
-  verifiedPurchase: boolean;
-}> = [];
+export const TESTIMONIALS = [
+  {
+    id: 1,
+    name: "Muhammad Usman",
+    city: "Karachi",
+    text: "Ordered Juniper Berries and Ajwain Desi. The purity, aroma, and packaging quality are exceptional. Received COD delivery within 24 hours.",
+    concern: "Digestive Care",
+    rating: 5,
+    verifiedPurchase: true,
+  },
+  {
+    id: 2,
+    name: "Syeda Fatima",
+    city: "Lahore",
+    text: "Amaltas pulp worked wonders for chronic constipation where commercial syrups failed. Genuine unadulterated herbs.",
+    concern: "Constipation Relief",
+    rating: 5,
+    verifiedPurchase: true,
+  },
+];
 
 export const CONSULTATION_AREAS = [
   {
     title: "Stomach, Gas & Liver Health",
-    urduTitle: "",
+    urduTitle: "معدہ، گیس اور جگر کے امراض",
     description: "Personal advice for indigestion, acid burning, fatty liver, bloating, and regular bowel movements through gentle herbal solutions.",
     icon: "Activity"
   },
   {
     title: "Joint, Knee & Back Pain",
-    urduTitle: "",
+    urduTitle: "جوڑوں، گھٹنوں اور کمر کا درد",
     description: "Natural remedies and herbal oils to ease stiff knees, backache, morning joint stiffness, and muscle tiredness.",
     icon: "Shield"
   },
   {
     title: "Everyday Energy & Stamina",
-    urduTitle: "",
+    urduTitle: "جسمانی کمزوری اور قوتِ مدافعت",
     description: "Nutritious dry fruit blends and herbal tonics to beat tiredness, brain fog, and low energy naturally.",
     icon: "Sun"
   },
   {
     title: "Skin, Hair & Scalp Care",
-    urduTitle: "",
+    urduTitle: "جلد اور بالوں کی حفاظت",
     description: "Natural herbal care for hair fall, dandruff, dry skin, and stubborn acne without harsh chemicals.",
     icon: "Sparkles"
   },
   {
     title: "Cough, Chest & Seasonal Allergies",
-    urduTitle: "",
+    urduTitle: "کھانسی، نزلہ اور موسمی الرجیز",
     description: "Soothing herbal teas and natural extracts to clear chest phlegm, ease seasonal coughs, and stay healthy.",
     icon: "Wind"
   },
   {
     title: "Private Men's & Women's Health",
-    urduTitle: "",
+    urduTitle: "مردانہ و نسوانی پوشیدہ مسائل",
     description: "Completely private, confidential consultations with our experienced Hakim regarding your personal wellness.",
     icon: "Heart"
   }

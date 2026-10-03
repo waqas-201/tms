@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import prisma from "@/lib/prisma";
+import { PRODUCTS } from "@/app/data/products";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://tameeresehat.com";
@@ -54,14 +55,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
     });
 
-    productRoutes = products.map((product) => ({
+    if (products.length > 0) {
+      productRoutes = products.map((product) => ({
+        url: `${baseUrl}/products/${product.slug}`,
+        lastModified: product.updatedAt || now,
+        changeFrequency: "weekly",
+        priority: 0.8,
+      }));
+    }
+  } catch (err) {
+    // Graceful fallback to static catalog products
+    productRoutes = PRODUCTS.map((product) => ({
       url: `${baseUrl}/products/${product.slug}`,
-      lastModified: product.updatedAt || now,
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.8,
     }));
-  } catch (err) {
-    console.error("Error generating sitemap products:", err);
   }
 
   return [...staticRoutes, ...productRoutes];

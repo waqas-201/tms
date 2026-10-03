@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 import { CLINIC_INFO } from "@/app/data/products";
 import { useSession } from "@/lib/auth-client";
 import {
@@ -14,25 +15,23 @@ import {
   AlertCircle,
   MapPin,
   HeartHandshake,
-  Mic,
   Activity,
   Flame,
   Zap,
   Lock,
   ArrowRight,
   ArrowLeft,
-  Navigation,
-  HelpCircle,
-  ChevronDown,
-  Building2,
-  Calendar,
+  Calendar as CalendarIcon,
   RotateCcw,
   PlusCircle,
   HeartPulse,
-  PenLine,
-  FileText,
-  X,
-  Search,
+  Mail,
+  Video,
+  Building2,
+  User,
+  Info,
+  ChevronRight,
+  Check,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Reveal from "@/app/components/motion/Reveal";
@@ -115,15 +114,22 @@ const SYMPTOM_CATEGORIES: SymptomCategory[] = [
   },
 ];
 
-type ConsultationMethod = "WHATSAPP" | "PHYSICAL" | "CALLBACK";
+interface TimeSlot {
+  slot: string;
+  startTime: string;
+  endTime: string;
+  available: boolean;
+  capacityRemaining: number;
+  maxCapacity: number;
+  bookedCount: number;
+}
 
 export default function ConsultationPage() {
   const { data: sessionData } = useSession();
 
-  // Wizard State
-  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+  // Stepper State (1: Concern, 2: Channel, 3: Booking Form, 4: Confirmed)
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(1);
   const [selectedCategory, setSelectedCategory] = useState<SymptomCategory>(SYMPTOM_CATEGORIES[0]);
-  const [consultMethod, setConsultMethod] = useState<ConsultationMethod>("WHATSAPP");
 
   // Custom Condition State
   const [isCustomExpanded, setIsCustomExpanded] = useState(false);
@@ -132,18 +138,31 @@ export default function ConsultationPage() {
   const [customDetails, setCustomDetails] = useState("");
   const [customError, setCustomError] = useState<string | null>(null);
 
-  // Physical Clinic Booking state
-  const [clinicName, setClinicName] = useState(sessionData?.user?.name || "");
-  const [clinicPhone, setClinicPhone] = useState((sessionData?.user as any)?.phone || "");
-  const [clinicDate, setClinicDate] = useState("Tomorrow");
-  const [clinicSlot, setClinicSlot] = useState("Evening (05:00 PM - 09:00 PM)");
+  // Appointment Booking State
+  const [consultationType, setConsultationType] = useState<"ONLINE" | "IN_PERSON">("ONLINE");
+  const [selectedDate, setSelectedDate] = useState<string>("");
+  const [selectedSlot, setSelectedSlot] = useState<string>("");
+  const [slotsLoading, setSlotsLoading] = useState(false);
+  const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
+  const [dateAvailabilityInfo, setDateAvailabilityInfo] = useState<any>(null);
 
-  // Callback form state
-  const [callbackName, setCallbackName] = useState(sessionData?.user?.name || "");
-  const [callbackPhone, setCallbackPhone] = useState((sessionData?.user as any)?.phone || "");
-  const [callbackNotes, setCallbackNotes] = useState("");
+  // Patient Form Fields
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    email: "",
+    city: "Karachi",
+    age: "35",
+    gender: "Male",
+    duration: "1 to 3 Months",
+    previousTreatments: "",
+    currentMedications: "",
+    digestiveState: "Normal",
+    sleepEnergyState: "Normal",
+    additionalNotes: "",
+  });
 
-  // Submission state
+  // Submission State
   const [submitting, setSubmitting] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState<any | null>(null);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
@@ -151,15 +170,86 @@ export default function ConsultationPage() {
   // FAQ open states
   const [openFaq, setOpenFaq] = useState<number | null>(0);
 
+  // Generate next 14 days dates list
+  const next14Days = React.useMemo(() => {
+    const days: { dateStr: string; dayName: string; formatted: string; isSunday: boolean }[] = [];
+    const today = new Date();
+    for (let i = 0; i < 14; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const date = String(d.getDate()).padStart(2, "0");
+      const dateStr = `${year}-${month}-${date}`;
+      const dayName = d.toLocaleDateString("en-US", { weekday: "short" });
+      const formatted = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+      days.push({
+        dateStr,
+        dayName: i === 0 ? "Today" : i === 1 ? "Tmrw" : dayName,
+        formatted,
+        isSunday: d.getDay() === 0,
+      });
+    }
+    return days;
+  }, []);
+
+  // Set default initial date to today or tomorrow if Sunday
+  useEffect(() => {
+    if (!selectedDate && next14Days.length > 0) {
+      const firstActive = next14Days.find((d) => !d.isSunday) || next14Days[0];
+      setSelectedDate(firstActive.dateStr);
+    }
+  }, [next14Days, selectedDate]);
+
+  // Pre-fill user details when logged in
+  useEffect(() => {
+    if (sessionData?.user) {
+      setFormData((prev) => ({
+        ...prev,
+        fullName: prev.fullName || sessionData.user.name || "",
+        email: prev.email || sessionData.user.email || "",
+        phone: prev.phone || (sessionData.user as any)?.phone || "",
+        city: prev.city || (sessionData.user as any)?.city || "Karachi",
+      }));
+    }
+  }, [sessionData]);
+
+  // Fetch slots whenever selectedDate changes
+  const fetchSlotsForDate = useCallback(async (dateStr: string) => {
+    setSlotsLoading(true);
+    setSelectedSlot("");
+    try {
+      const res = await fetch(`/api/consultations/availability?date=${dateStr}`);
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setDateAvailabilityInfo(json.data);
+        setAvailableSlots(json.data.slots || []);
+        // Auto-select first available slot if any
+        const firstAvail = (json.data.slots || []).find((s: TimeSlot) => s.available);
+        if (firstAvail) {
+          setSelectedSlot(firstAvail.slot);
+        }
+      } else {
+        setAvailableSlots([]);
+        setDateAvailabilityInfo(null);
+      }
+    } catch {
+      setAvailableSlots([]);
+    } finally {
+      setSlotsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (selectedDate && currentStep === 3) {
+      fetchSlotsForDate(selectedDate);
+    }
+  }, [selectedDate, currentStep, fetchSlotsForDate]);
+
   const handleSelectCategory = (cat: SymptomCategory) => {
     setIsCustomExpanded(false);
     setSelectedCategory(cat);
     setCurrentStep(2);
-  };
-
-  const handleOpenCustom = () => {
-    setIsCustomExpanded(true);
-    setCustomError(null);
   };
 
   const handleSelectSuggestion = (sug: { label: string; urdu: string }) => {
@@ -194,99 +284,78 @@ export default function ConsultationPage() {
     setCurrentStep(2);
   };
 
-  const handleSelectMethod = (method: ConsultationMethod) => {
-    setConsultMethod(method);
-    setSubmissionSuccess(null);
-    setSubmissionError(null);
-    setCurrentStep(3);
-  };
-
   const getWhatsAppUrl = () => {
+    const concernDetail =
+      selectedCategory.id === "custom" && customDetails.trim()
+        ? `${selectedCategory.title} (${customDetails.trim()})`
+        : selectedCategory.title;
+
     const text =
       `*Assalam-o-Alaikum Hakim Muhammad Tariq Sahib (Tameer-e-Sehat)*\n\n` +
-      `*Health Concern:* ${selectedCategory.title} (${selectedCategory.urduTitle})\n` +
-      (selectedCategory.id === "custom" && customDetails.trim()
-        ? `*Specific Symptoms/Notes:* ${customDetails.trim()}\n`
-        : "") +
+      `*Primary Health Concern:* ${concernDetail} (${selectedCategory.urduTitle})\n` +
+      `*Consultation Mode:* Instant WhatsApp Consultation\n` +
       `*Inquiry:* ${selectedCategory.whatsappMessage}\n\n` +
-      `_I would like your herbal advice, dietary guidance, and authentic remedy recommendations._`;
+      `_I would like your herbal guidance, pulse evaluation, and authentic Unani remedy recommendations. JazakAllah._`;
     return `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(text)}`;
   };
 
-  const handlePhysicalSubmit = async (e: React.FormEvent) => {
+  const handleAppointmentBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setSubmissionError(null);
 
     try {
+      if (!formData.fullName.trim() || !formData.phone.trim() || !formData.email.trim()) {
+        throw new Error("Please provide your full name, phone number, and email address.");
+      }
+
+      if (!selectedSlot) {
+        throw new Error("Please select an available appointment time slot.");
+      }
+
       const concernDetail =
         selectedCategory.id === "custom" && customDetails.trim()
           ? `${selectedCategory.title} (${customDetails.trim()})`
           : selectedCategory.title;
 
+      const fullSymptoms =
+        `[${consultationType === "ONLINE" ? "Online Telehealth" : "In-Person Clinic Visit"}] ` +
+        `Concern: ${concernDetail}. ` +
+        (formData.additionalNotes ? `Notes: ${formData.additionalNotes.trim()}` : "");
+
       const res = await fetch("/api/consultations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fullName: clinicName,
-          phone: clinicPhone,
-          city: "Karachi",
-          primarySymptoms: `[Karachi Clinic In-Person Booking] Date: ${clinicDate}, Slot: ${clinicSlot}. Concern: ${concernDetail}`,
-          age: 35,
-          gender: "Not Specified",
-          duration: "New Appointment",
-          preferredContact: "PHONE",
+          fullName: formData.fullName.trim(),
+          phone: formData.phone.trim(),
+          email: formData.email.trim(),
+          city: formData.city.trim(),
+          age: Number(formData.age) || 35,
+          gender: formData.gender,
+          primarySymptoms: fullSymptoms,
+          duration: formData.duration,
+          previousTreatments: formData.previousTreatments || null,
+          currentMedications: formData.currentMedications || null,
+          digestiveState: formData.digestiveState || null,
+          sleepEnergyState: formData.sleepEnergyState || null,
+          channel: "EMAIL",
+          consultationType,
+          appointmentDate: selectedDate,
+          appointmentSlot: selectedSlot,
+          preferredContact: "EMAIL",
         }),
       });
 
       const json = await res.json();
       if (!res.ok || !json.success) {
-        throw new Error(json.error || "Failed to reserve slot.");
+        throw new Error(json.error || "Failed to book appointment.");
       }
 
       setSubmissionSuccess(json.data);
+      setCurrentStep(4);
     } catch (err: any) {
-      setSubmissionError(err.message || "Failed to book clinic slot. Please reach out on WhatsApp.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleCallbackSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    setSubmissionError(null);
-
-    try {
-      const concernDetail =
-        selectedCategory.id === "custom" && customDetails.trim()
-          ? `${selectedCategory.title} (${customDetails.trim()})`
-          : selectedCategory.title;
-
-      const symptoms = `[Callback Request] Concern: ${concernDetail}. ${callbackNotes ? `Notes: ${callbackNotes}` : ""}`;
-      const res = await fetch("/api/consultations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName: callbackName,
-          phone: callbackPhone,
-          city: "Pakistan",
-          primarySymptoms: symptoms,
-          age: 35,
-          gender: "Not Specified",
-          duration: "Recent",
-          preferredContact: "PHONE",
-        }),
-      });
-
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || "Failed to submit callback request.");
-      }
-
-      setSubmissionSuccess(json.data);
-    } catch (err: any) {
-      setSubmissionError(err.message || "Failed to request callback. Please reach out via WhatsApp.");
+      setSubmissionError(err.message || "An error occurred while booking your appointment.");
     } finally {
       setSubmitting(false);
     }
@@ -294,20 +363,20 @@ export default function ConsultationPage() {
 
   const FAQS = [
     {
+      q: "What is the difference between WhatsApp and Email Appointment Booking?",
+      a: "Instant WhatsApp connects you immediately to Hakim Sahib for real-time voice notes, chat, and quick photo/report sharing. Email Appointment Booking reserves a dedicated clinical time slot (Online Telehealth or Physical Clinic Visit in Karachi), sends an official ticket with confirmation emails, and locks your appointment in the clinic ledger.",
+    },
+    {
       q: "Is the consultation with Hakim Sahib really 100% free?",
       a: "Yes. In authentic Eastern Tibb tradition, pulse diagnosis, symptom evaluation, and initial lifestyle/dietary guidance are completely free (Bila-Muawza). You only pay if you decide to purchase specific prepared botanical remedies.",
     },
     {
-      q: "Can I send an audio voice note or photos of medical test reports?",
-      a: "Absolutely! We encourage patients to send voice notes in Urdu, Sindhi, or English explaining their symptoms in their own words, as well as blood reports, ultrasound scans, or previous prescriptions on WhatsApp.",
-    },
-    {
-      q: "How soon will Hakim Sahib or the clinic reply on WhatsApp?",
-      a: "During clinical hours (10:00 AM – 09:00 PM PKT, Monday to Saturday), we typically review and respond within 15 to 45 minutes.",
-    },
-    {
       q: "Where is your physical clinic located in Karachi?",
-      a: `Our physical dispensary & Matab is at ${CLINIC_INFO.address}. Walk-ins for pulse diagnosis (Nabz) are welcome during opening hours.`,
+      a: `Our physical dispensary & Matab is at ${CLINIC_INFO.address}. Walk-ins for pulse diagnosis (Nabz) and booked in-person patients are welcome during clinical hours (10:00 AM – 09:00 PM, Mon to Sat).`,
+    },
+    {
+      q: "Can I send medical test reports or previous prescriptions?",
+      a: "Yes! You can reply directly to your appointment confirmation email with scanned test reports or send voice notes and ultrasound images on WhatsApp quoting your ticket reference.",
     },
     {
       q: "Do your remedies contain any steroids, chemicals, or additives?",
@@ -317,24 +386,24 @@ export default function ConsultationPage() {
 
   return (
     <div className="min-h-screen bg-[#faf8f5] text-[#1a1816]">
-      {/* ─── 1. Wizard Anchor Section (Centered, high-focus single viewport) ─── */}
+      {/* ─── 1. Wizard Section (Centered, high-focus single viewport) ─── */}
       <section className="pt-6 sm:pt-10 pb-12 sm:pb-16 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto">
         {/* Wizard Container Card */}
         <div className="bg-white rounded-3xl border border-[#e6dfd5] shadow-xl overflow-hidden">
 
           {/* Stepper Progress Header */}
-          <div className="bg-[#22623a] text-white p-5 sm:p-6 relative">
+          <div className="bg-[#14281D] text-white p-5 sm:p-6 relative">
             <div className="flex items-center justify-between gap-3 mb-4">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#143e23] border border-[#2d7648] text-[11px] font-bold text-[#c59b27] uppercase tracking-wider">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#1e3d2c] border border-[#2d5c43] text-[11px] font-bold text-[#c59b27] uppercase tracking-wider">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>Free Consultation · Bila-Muawza</span>
               </div>
 
-              {currentStep > 1 && (
+              {currentStep > 1 && currentStep < 4 && (
                 <button
                   type="button"
                   onClick={() => setCurrentStep((prev) => (prev - 1) as any)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#f4eee5] hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#f4eee5] hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full transition-colors cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
                   <span>Previous Step</span>
@@ -344,14 +413,16 @@ export default function ConsultationPage() {
 
             <div className="space-y-1">
               <h1 className="font-serif text-xl sm:text-2xl lg:text-3xl font-bold">
-                {currentStep === 1 && "Step 1: What is your primary health concern?"}
-                {currentStep === 2 && "Step 2: How would you like to consult?"}
-                {currentStep === 3 && "Step 3: Direct Connection with Hakim Sahib"}
+                {currentStep === 1 && "Step 1: Select Your Health Concern"}
+                {currentStep === 2 && "Step 2: Choose Consultation Channel"}
+                {currentStep === 3 && "Step 3: Schedule Appointment & Details"}
+                {currentStep === 4 && "Appointment Confirmed & Ticket Issued"}
               </h1>
               <p className="text-xs sm:text-sm text-[#f4eee5]/80">
-                {currentStep === 1 && "Tap your condition below for personalized herbal guidance · 1-Tap start"}
-                {currentStep === 2 && `Selected: ${selectedCategory.title} · Choose your preferred consultation channel`}
-                {currentStep === 3 && "Zero forms, zero hassle · Direct guidance via WhatsApp, Clinic or Call"}
+                {currentStep === 1 && "Tap your condition below for personalized Unani guidance"}
+                {currentStep === 2 && `Selected: ${selectedCategory.title} · Choose between Instant WhatsApp or Email Appointment`}
+                {currentStep === 3 && "Select your preferred date, available clinical hours, and patient information"}
+                {currentStep === 4 && "Your clinical dossier is booked. Check your email for full confirmation"}
               </p>
             </div>
 
@@ -366,13 +437,13 @@ export default function ConsultationPage() {
               <div className="space-y-1.5">
                 <div className={`h-1.5 rounded-full transition-all ${currentStep >= 2 ? "bg-[#c59b27]" : "bg-white/20"}`} />
                 <span className="text-[10px] sm:text-[11px] font-semibold text-[#f4eee5]/90 block truncate">
-                  2. Choose Method
+                  2. Channel Choice
                 </span>
               </div>
               <div className="space-y-1.5">
                 <div className={`h-1.5 rounded-full transition-all ${currentStep >= 3 ? "bg-[#c59b27]" : "bg-white/20"}`} />
                 <span className="text-[10px] sm:text-[11px] font-semibold text-[#f4eee5]/90 block truncate">
-                  3. Connect Direct
+                  3. Slot &amp; Details
                 </span>
               </div>
             </div>
@@ -383,7 +454,7 @@ export default function ConsultationPage() {
             <AnimatePresence mode="wait">
 
               {/* ─────────────────────────────────────────────────────────────
-                  STEP 1: 6 Large Visual Concern Cards (1-Tap Auto-Advance)
+                  STEP 1: Health Concern Selection
                  ───────────────────────────────────────────────────────────── */}
               {currentStep === 1 && (
                 <motion.div
@@ -392,255 +463,171 @@ export default function ConsultationPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-4"
+                  className="space-y-6"
                 >
-                  <div className="text-center sm:text-left">
+                  <div>
                     <p className="text-xs font-bold text-[#8c6a15] uppercase tracking-wider">
                       Please select your condition:
+                    </p>
+                    <p className="text-xs text-[#6a6660] mt-0.5">
+                      Choose from our common Unani specialties or specify your custom concern below.
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
                     {SYMPTOM_CATEGORIES.map((cat) => {
                       const Icon = cat.icon;
-                      const isSelected = selectedCategory.id === cat.id;
+                      const isSelected = selectedCategory.id === cat.id && !isCustomExpanded;
                       return (
                         <button
                           key={cat.id}
                           type="button"
                           onClick={() => handleSelectCategory(cat)}
-                          className={`p-4 rounded-2xl border text-left transition-all relative group flex flex-col justify-between hover:shadow-md cursor-pointer ${
-                            isSelected && !isCustomExpanded
-                              ? "bg-[#eef7f1] border-[#22623a] shadow-xs"
-                              : "bg-[#faf8f5] hover:bg-white border-[#e6dfd5]"
+                          className={`text-left p-4 rounded-2xl border transition-all cursor-pointer group flex flex-col justify-between relative ${
+                            isSelected
+                              ? "border-[#14281D] bg-emerald-50/50 shadow-md ring-2 ring-[#14281D]/20"
+                              : "border-[#e6dfd5] bg-[#faf8f5] hover:border-[#14281D]/60 hover:bg-white hover:shadow-sm"
                           }`}
                         >
                           <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                                isSelected && !isCustomExpanded ? "bg-[#22623a] text-white" : "bg-white text-[#22623a] border border-[#e6dfd5]"
-                              }`}>
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="w-9 h-9 rounded-xl bg-white border border-[#e6dfd5] flex items-center justify-center text-[#14281D] group-hover:bg-[#14281D] group-hover:text-white transition-colors shadow-xs">
                                 <Icon className="w-5 h-5" />
                               </div>
-                              <span className="text-xs font-serif text-[#8c6a15] font-bold" dir="rtl">
+                              <span className="font-serif text-sm font-semibold text-[#8c6a15] dir-rtl text-right">
                                 {cat.urduTitle}
                               </span>
                             </div>
 
                             <div>
-                              <h3 className="font-bold text-sm text-[#1a1816] group-hover:text-[#22623a] transition-colors">
+                              <h3 className="font-serif text-sm font-bold text-[#1a1816] group-hover:text-[#14281D] transition-colors">
                                 {cat.title}
                               </h3>
-                              <p className="text-[11px] text-[#6a6660] mt-0.5 line-clamp-2">
+                              <p className="text-[11px] text-[#6a6660] mt-0.5 line-clamp-2 leading-relaxed">
                                 {cat.subtitle}
                               </p>
                             </div>
                           </div>
 
-                          <div className="pt-3 mt-3 border-t border-[#e6dfd5]/60 flex items-center justify-between text-xs font-bold text-[#22623a]">
-                            <span>Select &amp; Continue</span>
+                          <div className="pt-3 mt-3 border-t border-[#e6dfd5]/60 flex items-center justify-between text-[11px] font-semibold text-[#14281D]">
+                            <span>Select &amp; Proceed</span>
                             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                           </div>
                         </button>
                       );
                     })}
-
-                    {/* 7th Card: Custom / Other Health Condition */}
-                    <button
-                      type="button"
-                      onClick={handleOpenCustom}
-                      className={`p-4 rounded-2xl border text-left transition-all relative group flex flex-col justify-between hover:shadow-md cursor-pointer ${
-                        isCustomExpanded || selectedCategory.id === "custom"
-                          ? "bg-[#fdf8ed] border-[#c59b27] shadow-sm ring-2 ring-[#c59b27]/20"
-                          : "bg-gradient-to-br from-[#faf8f5] to-[#f5efe4] hover:bg-white border-[#dfd4c3] border-dashed"
-                      }`}
-                    >
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                              isCustomExpanded || selectedCategory.id === "custom"
-                                ? "bg-[#8c6a15] text-white"
-                                : "bg-white text-[#8c6a15] border border-[#dfd4c3]"
-                            }`}
-                          >
-                            <HeartPulse className="w-5 h-5" />
-                          </div>
-                          <span className="text-xs font-serif text-[#8c6a15] font-bold" dir="rtl">
-                            دیگر طبی مسئلہ / رپورٹس
-                          </span>
-                        </div>
-
-                        <div>
-                          <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#8c6a15]/10 text-[#8c6a15] text-[9px] font-bold uppercase tracking-wider mb-1">
-                            <PenLine className="w-2.5 h-2.5" />
-                            <span>Custom Concern</span>
-                          </div>
-                          <h3 className="font-bold text-sm text-[#1a1816] group-hover:text-[#8c6a15] transition-colors">
-                            Other / Custom Condition
-                          </h3>
-                          <p className="text-[11px] text-[#6a6660] mt-0.5 line-clamp-2">
-                            Kidney, Diabetes, Blood Pressure, Asthma, Allergy, or any specific illness
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="pt-3 mt-3 border-t border-[#dfd4c3]/60 flex items-center justify-between text-xs font-bold text-[#8c6a15]">
-                        <span>{isCustomExpanded ? "Writing Details..." : "Enter Condition"}</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </button>
                   </div>
 
-                  {/* Expandable Custom Condition Form Drawer */}
-                  <AnimatePresence>
-                    {isCustomExpanded && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0, y: -10 }}
-                        animate={{ opacity: 1, height: "auto", y: 0 }}
-                        exit={{ opacity: 0, height: 0, y: -10 }}
-                        transition={{ duration: 0.25 }}
-                        className="p-5 sm:p-6 bg-gradient-to-br from-[#fdfbf7] to-[#f8f3ea] rounded-2xl border-2 border-[#c59b27]/40 shadow-md space-y-4 overflow-hidden"
+                  {/* Custom Condition Accordion */}
+                  <div className="border border-[#e6dfd5] rounded-2xl p-4 sm:p-5 bg-white">
+                    {!isCustomExpanded ? (
+                      <button
+                        type="button"
+                        onClick={() => setIsCustomExpanded(true)}
+                        className="w-full flex items-center justify-between text-left cursor-pointer group"
                       >
-                        <div className="flex items-center justify-between border-b border-[#e6dfd5] pb-3">
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-[#8c6a15] text-white flex items-center justify-center">
-                              <PenLine className="w-4 h-4" />
-                            </div>
-                            <div>
-                              <h4 className="font-serif font-bold text-sm sm:text-base text-[#1a1816]">
-                                Describe Your Specific Health Concern
-                              </h4>
-                              <p className="text-[11px] text-[#6a6660]">
-                                اپنا طبی مسئلہ یا بیماری تحریر فرمائیں یا نیچے دیئے گئے بٹن پر کلک کریں
-                              </p>
-                            </div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 flex items-center justify-center">
+                            <PlusCircle className="w-4 h-4" />
                           </div>
-
+                          <div>
+                            <h4 className="text-xs sm:text-sm font-bold text-[#1a1816] group-hover:text-[#14281D]">
+                              Have another illness or specific diagnosis? (دیگر طبی مسئلہ)
+                            </h4>
+                            <p className="text-[11px] text-[#6a6660]">
+                              Type your symptoms or select from common conditions.
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-xs font-semibold text-[#14281D] underline shrink-0 ml-2">
+                          Specify Custom
+                        </span>
+                      </button>
+                    ) : (
+                      <form onSubmit={handleCustomSubmit} className="space-y-3.5">
+                        <div className="flex items-center justify-between pb-2 border-b border-[#e6dfd5]">
+                          <span className="text-xs font-bold text-[#14281D] flex items-center gap-1.5">
+                            <HeartPulse className="w-4 h-4" />
+                            <span>Custom Health Issue (اپنا طبی مسئلہ درج کریں)</span>
+                          </span>
                           <button
                             type="button"
-                            onClick={() => {
-                              setIsCustomExpanded(false);
-                              setCustomError(null);
-                            }}
-                            className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-200/50 rounded-lg transition-colors cursor-pointer"
+                            onClick={() => setIsCustomExpanded(false)}
+                            className="text-[11px] text-[#8c6a15] hover:underline"
                           >
-                            <X className="w-4 h-4" />
+                            Close
                           </button>
                         </div>
 
-                        {/* Quick 1-tap Common Condition Suggestion Chips */}
-                        <div className="space-y-1.5">
-                          <label className="text-[11px] font-bold text-[#8c6a15] uppercase tracking-wider block">
-                            Quick 1-Tap Popular Suggestions:
+                        {customError && (
+                          <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4 shrink-0" />
+                            <span>{customError}</span>
+                          </div>
+                        )}
+
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-[#1a1816]">
+                            Health Issue / Diagnosis Name <span className="text-red-500">*</span>
                           </label>
-                          <div className="flex flex-wrap gap-2">
-                            {COMMON_CUSTOM_SUGGESTIONS.map((sug, sIdx) => {
-                              const isPicked = customTitle === sug.label;
-                              return (
-                                <button
-                                  key={sIdx}
-                                  type="button"
-                                  onClick={() => handleSelectSuggestion(sug)}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all cursor-pointer flex items-center gap-1.5 ${
-                                    isPicked
-                                      ? "bg-[#8c6a15] text-white border-[#8c6a15] shadow-xs scale-[1.02]"
-                                      : "bg-white text-[#59534b] border-[#e6dfd5] hover:border-[#8c6a15] hover:text-[#8c6a15]"
-                                  }`}
-                                >
-                                  <span>{sug.label}</span>
-                                </button>
-                              );
-                            })}
+                          <input
+                            type="text"
+                            value={customTitle}
+                            onChange={(e) => setCustomTitle(e.target.value)}
+                            placeholder="e.g. Kidney Stones, High Blood Pressure, Migraine..."
+                            className="w-full px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                          />
+                        </div>
+
+                        {/* Quick suggestions pills */}
+                        <div className="space-y-1.5">
+                          <span className="text-[11px] text-[#6a6660] font-medium">Quick suggestions:</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {COMMON_CUSTOM_SUGGESTIONS.map((sug) => (
+                              <button
+                                key={sug.label}
+                                type="button"
+                                onClick={() => handleSelectSuggestion(sug)}
+                                className={`text-[11px] px-2.5 py-1 rounded-lg border transition-colors cursor-pointer ${
+                                  customTitle === sug.label
+                                    ? "bg-[#14281D] text-white border-[#14281D]"
+                                    : "bg-[#faf8f5] text-[#44403C] border-[#e6dfd5] hover:border-[#14281D]"
+                                }`}
+                              >
+                                {sug.label}
+                              </button>
+                            ))}
                           </div>
                         </div>
 
-                        <form onSubmit={handleCustomSubmit} className="space-y-3.5 pt-1">
-                          {customError && (
-                            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
-                              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
-                              <span>{customError}</span>
-                            </div>
-                          )}
+                        <div className="space-y-1">
+                          <label className="text-xs font-semibold text-[#1a1816]">
+                            Briefly describe your symptoms (Optional)
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={customDetails}
+                            onChange={(e) => setCustomDetails(e.target.value)}
+                            placeholder="How long have you had this? Any specific pain or severity..."
+                            className="w-full px-3.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white resize-none"
+                          />
+                        </div>
 
-                          <div className="space-y-1">
-                            <label className="text-xs font-bold text-[#1a1816] flex items-center justify-between">
-                              <span>
-                                Primary Health Condition or Disease Name <strong className="text-rose-600">*</strong>
-                              </span>
-                              <span className="text-[10px] text-[#8c6a15] font-normal" dir="rtl">
-                                بیماری یا مسئلے کا نام
-                              </span>
-                            </label>
-                            <input
-                              type="text"
-                              required
-                              value={customTitle}
-                              onChange={(e) => {
-                                setCustomTitle(e.target.value);
-                                setCustomError(null);
-                              }}
-                              placeholder="e.g. Kidney stones (گردے کی پتھری), Chronic Sinus, Blood Pressure, High Uric Acid..."
-                              className="w-full text-xs sm:text-sm px-4 py-3 bg-white border border-[#dfd4c3] rounded-xl text-[#1a1816] placeholder:text-stone-400 focus:outline-none focus:border-[#8c6a15] focus:ring-2 focus:ring-[#8c6a15]/10"
-                            />
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-xs font-bold text-[#1a1816] flex items-center justify-between">
-                              <span>Specific Symptoms, Duration, or Test Reports (Optional)</span>
-                              <span className="text-[10px] text-stone-500 font-normal">اختیاری تفصیلات</span>
-                            </label>
-                            <textarea
-                              rows={2}
-                              value={customDetails}
-                              onChange={(e) => setCustomDetails(e.target.value)}
-                              placeholder="e.g. Pain in left side for 3 weeks, ultrasound report shows 6mm stone, taking medication..."
-                              className="w-full text-xs sm:text-sm px-4 py-2.5 bg-white border border-[#dfd4c3] rounded-xl text-[#1a1816] placeholder:text-stone-400 focus:outline-none focus:border-[#8c6a15] focus:ring-2 focus:ring-[#8c6a15]/10"
-                            />
-                          </div>
-
-                          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setIsCustomExpanded(false);
-                                setCustomError(null);
-                              }}
-                              className="text-xs font-semibold text-stone-500 hover:text-stone-800 order-2 sm:order-1 cursor-pointer"
-                            >
-                              Cancel &amp; Select Standard Category
-                            </button>
-
-                            <button
-                              type="submit"
-                              className="w-full sm:w-auto px-6 py-3 bg-[#8c6a15] hover:bg-[#725510] text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer order-1 sm:order-2"
-                            >
-                              <span>Continue with Custom Condition</span>
-                              <ArrowRight className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </form>
-                      </motion.div>
+                        <button
+                          type="submit"
+                          className="w-full py-2.5 bg-[#14281D] hover:bg-[#1e3d2c] text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                        >
+                          <span>Proceed to Consultation Channels</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </button>
+                      </form>
                     )}
-                  </AnimatePresence>
-
-                  {/* Reassurance Footer */}
-                  <div className="p-3.5 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] flex flex-wrap items-center justify-center gap-4 text-xs text-[#59534b]">
-                    <span className="flex items-center gap-1.5 font-medium">
-                      <ShieldCheck className="w-4 h-4 text-[#22623a]" /> 100% Free &amp; Confidential
-                    </span>
-                    <span className="flex items-center gap-1.5 font-medium">
-                      <Mic className="w-4 h-4 text-[#25D366]" /> Voice Notes Welcome
-                    </span>
-                    <span className="flex items-center gap-1.5 font-medium">
-                      <HeartHandshake className="w-4 h-4 text-[#8c6a15]" /> Zero Pressure to Buy
-                    </span>
                   </div>
                 </motion.div>
               )}
 
               {/* ─────────────────────────────────────────────────────────────
-                  STEP 2: Select Consultation Channel (1-Tap Auto-Advance)
+                  STEP 2: Dual Consultation Channel Selector (WhatsApp vs Email)
                  ───────────────────────────────────────────────────────────── */}
               {currentStep === 2 && (
                 <motion.div
@@ -649,147 +636,143 @@ export default function ConsultationPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-4"
+                  className="space-y-6"
                 >
-                  {/* Selected Issue Review Bar */}
-                  <div className="p-3.5 rounded-2xl bg-[#eef7f1] border border-[#cde4d6] flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="w-9 h-9 rounded-xl bg-[#22623a] text-white flex items-center justify-center shrink-0 shadow-2xs">
-                        {React.createElement(selectedCategory.icon, { className: "w-5 h-5" })}
+                  <div className="p-4 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl flex items-center justify-between gap-3 text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-xl bg-[#14281D] text-white flex items-center justify-center shrink-0">
+                        <Sparkles className="w-4 h-4" />
                       </div>
-                      <div className="min-w-0">
-                        <span className="text-[10px] uppercase tracking-wider font-bold text-[#8c6a15] block">
-                          {selectedCategory.id === "custom" ? "Custom Health Concern" : "Selected Concern"}
+                      <div>
+                        <span className="text-[11px] font-bold text-[#14281D] uppercase tracking-wider">
+                          Selected Condition:
                         </span>
-                        <span className="text-xs sm:text-sm font-bold text-[#22623a] block truncate">
-                          {selectedCategory.title} {selectedCategory.urduTitle ? `(${selectedCategory.urduTitle})` : ""}
-                        </span>
-                        {selectedCategory.id === "custom" && customDetails.trim() && (
-                          <span className="text-[11px] text-[#59534b] block truncate mt-0.5 font-normal">
-                            Note: {customDetails.trim()}
-                          </span>
-                        )}
+                        <h4 className="font-serif text-sm font-bold text-[#1a1816]">
+                          {selectedCategory.title} ({selectedCategory.urduTitle})
+                        </h4>
                       </div>
                     </div>
-
                     <button
                       type="button"
-                      onClick={() => {
-                        if (selectedCategory.id === "custom") {
-                          setIsCustomExpanded(true);
-                        }
-                        setCurrentStep(1);
-                      }}
-                      className="text-xs font-bold text-[#22623a] hover:underline flex items-center gap-1 shrink-0 bg-white px-3 py-1.5 rounded-xl border border-[#cde4d6] shadow-2xs cursor-pointer"
+                      onClick={() => setCurrentStep(1)}
+                      className="text-xs font-semibold text-[#14281D] hover:underline shrink-0"
                     >
-                      <RotateCcw className="w-3.5 h-3.5" />
-                      <span>Change</span>
+                      Change
                     </button>
                   </div>
 
-                  <p className="text-xs font-bold text-[#8c6a15] uppercase tracking-wider pt-1">
-                    Select how you would like to connect:
-                  </p>
+                  <div>
+                    <h3 className="font-serif text-base sm:text-lg font-bold text-[#1a1816]">
+                      Choose Your Preferred Consultation Method:
+                    </h3>
+                    <p className="text-xs text-[#6a6660] mt-0.5">
+                      Connect immediately via WhatsApp or schedule an official Email &amp; Time-Slot appointment.
+                    </p>
+                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-                    {/* Method 1: WhatsApp Chat */}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectMethod("WHATSAPP")}
-                      className="p-5 rounded-2xl border border-[#e6dfd5] bg-[#faf8f5] hover:bg-white hover:border-[#25D366] hover:shadow-md transition-all text-left space-y-3 group flex flex-col justify-between"
-                    >
-                      <div className="space-y-2">
-                        <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#25D366]/15 text-[#1e7e34] text-[10px] font-bold uppercase tracking-wider">
-                          <Sparkles className="w-3 h-3" />
-                          <span>Recommended · Fast</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* CHANNEL 1: Instant WhatsApp Consultation */}
+                    <div className="p-6 rounded-3xl border-2 border-emerald-500 bg-white shadow-lg flex flex-col justify-between space-y-5 hover:border-emerald-600 transition-all relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 px-3 py-1 bg-emerald-500 text-white text-[10px] font-bold uppercase tracking-wider rounded-bl-xl">
+                        Fastest · Instant Reply
+                      </div>
+
+                      <div className="space-y-3">
+                        <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
+                          <MessageCircle className="w-6 h-6" />
                         </div>
-
-                        <div className="w-10 h-10 rounded-xl bg-[#25D366] text-white flex items-center justify-center">
-                          <MessageCircle className="w-5 h-5" />
+                        <div>
+                          <h4 className="font-serif text-lg font-bold text-[#14281D]">
+                            Instant WhatsApp Consultation
+                          </h4>
+                          <p className="text-xs font-semibold text-[#8c6a15] dir-rtl">
+                            فوری واٹس ایپ رابطہ (براہِ راست حکیم صاحب)
+                          </p>
                         </div>
-
-                        <h3 className="font-bold text-sm sm:text-base text-[#1a1816] group-hover:text-[#1e7e34] transition-colors">
-                          WhatsApp Chat
-                        </h3>
-
-                        <p className="text-xs text-[#6a6660] leading-relaxed">
-                          Direct chat with Hakim Sahib. Send voice notes or pictures of medical reports easily.
+                        <p className="text-xs text-[#59534b] leading-relaxed">
+                          Connect directly with Hakim Muhammad Tariq. Send voice notes in your own words, share medical reports, or chat in real-time.
                         </p>
+                        <ul className="space-y-1.5 text-xs text-[#44403C] pt-2">
+                          <li className="flex items-center gap-2">
+                            <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>Voice notes &amp; photo reports accepted</span>
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>15 – 45 min response during clinic hours</span>
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            <span>100% Free pulse evaluation &amp; advice</span>
+                          </li>
+                        </ul>
                       </div>
 
-                      <div className="pt-3 border-t border-[#e6dfd5]/60 flex items-center justify-between text-xs font-bold text-[#1e7e34]">
-                        <span>Open WhatsApp</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                      <a
+                        href={getWhatsAppUrl()}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer text-center"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        <span>Chat on WhatsApp Now</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </a>
+                    </div>
+
+                    {/* CHANNEL 2: Email & Appointment Booking */}
+                    <div className="p-6 rounded-3xl border-2 border-[#14281D] bg-[#faf8f5] shadow-lg flex flex-col justify-between space-y-5 hover:border-[#1e3d2c] transition-all relative overflow-hidden group">
+                      <div className="absolute top-0 right-0 px-3 py-1 bg-[#14281D] text-white text-[10px] font-bold uppercase tracking-wider rounded-bl-xl">
+                        Official Scheduled Slot
                       </div>
-                    </button>
 
-                    {/* Method 2: Physical Karachi Clinic Visit */}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectMethod("PHYSICAL")}
-                      className="p-5 rounded-2xl border border-[#e6dfd5] bg-[#faf8f5] hover:bg-white hover:border-[#22623a] hover:shadow-md transition-all text-left space-y-3 group flex flex-col justify-between"
-                    >
-                      <div className="space-y-2">
-                        <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#eef7f1] text-[#22623a] text-[10px] font-bold uppercase tracking-wider">
-                          <Building2 className="w-3 h-3 text-[#c59b27]" />
-                          <span>Korangi, Karachi</span>
+                      <div className="space-y-3">
+                        <div className="w-12 h-12 rounded-2xl bg-[#14281D]/10 text-[#14281D] flex items-center justify-center">
+                          <CalendarIcon className="w-6 h-6" />
                         </div>
-
-                        <div className="w-10 h-10 rounded-xl bg-[#22623a] text-white flex items-center justify-center">
-                          <Building2 className="w-5 h-5" />
+                        <div>
+                          <h4 className="font-serif text-lg font-bold text-[#14281D]">
+                            Email &amp; Appointment Booking
+                          </h4>
+                          <p className="text-xs font-semibold text-[#8c6a15] dir-rtl">
+                            ای میل اور اپوائنٹمنٹ بکنگ (مقررہ وقت)
+                          </p>
                         </div>
-
-                        <h3 className="font-bold text-sm sm:text-base text-[#1a1816] group-hover:text-[#22623a] transition-colors">
-                          Karachi Clinic Visit
-                        </h3>
-
-                        <p className="text-xs text-[#6a6660] leading-relaxed">
-                          In-person pulse diagnosis (Nabz) and freshly prepared botanical remedies at our Matab.
+                        <p className="text-xs text-[#59534b] leading-relaxed">
+                          Book a reserved time slot for Online Telehealth or In-Person Clinic Visit (Karachi). Receive official ticket and email confirmation.
                         </p>
+                        <ul className="space-y-1.5 text-xs text-[#44403C] pt-2">
+                          <li className="flex items-center gap-2">
+                            <Check className="w-3.5 h-3.5 text-[#14281D] shrink-0" />
+                            <span>Choose available date &amp; clinical hours</span>
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="w-3.5 h-3.5 text-[#14281D] shrink-0" />
+                            <span>Online Telehealth or Physical Clinic visit</span>
+                          </li>
+                          <li className="flex items-center gap-2">
+                            <Check className="w-3.5 h-3.5 text-[#14281D] shrink-0" />
+                            <span>Official ticket (`CON-2026-XXXX`) + email alerts</span>
+                          </li>
+                        </ul>
                       </div>
 
-                      <div className="pt-3 border-t border-[#e6dfd5]/60 flex items-center justify-between text-xs font-bold text-[#22623a]">
-                        <span>Reserve Clinic Slot</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </button>
-
-                    {/* Method 3: Request Phone Callback */}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectMethod("CALLBACK")}
-                      className="p-5 rounded-2xl border border-[#e6dfd5] bg-[#faf8f5] hover:bg-white hover:border-[#c59b27] hover:shadow-md transition-all text-left space-y-3 group flex flex-col justify-between"
-                    >
-                      <div className="space-y-2">
-                        <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#fdf8ed] text-[#8c6a15] text-[10px] font-bold uppercase tracking-wider">
-                          <Phone className="w-3 h-3" />
-                          <span>We Call You</span>
-                        </div>
-
-                        <div className="w-10 h-10 rounded-xl bg-[#8c6a15] text-white flex items-center justify-center">
-                          <Phone className="w-5 h-5" />
-                        </div>
-
-                        <h3 className="font-bold text-sm sm:text-base text-[#1a1816] group-hover:text-[#8c6a15] transition-colors">
-                          Request Callback
-                        </h3>
-
-                        <p className="text-xs text-[#6a6660] leading-relaxed">
-                          Leave your name and phone number. Our herbalist team will call you back shortly.
-                        </p>
-                      </div>
-
-                      <div className="pt-3 border-t border-[#e6dfd5]/60 flex items-center justify-between text-xs font-bold text-[#8c6a15]">
-                        <span>Leave Phone Number</span>
-                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </button>
+                      <button
+                        type="button"
+                        onClick={() => setCurrentStep(3)}
+                        className="w-full py-3.5 bg-[#14281D] hover:bg-[#1e3d2c] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer text-center"
+                      >
+                        <CalendarIcon className="w-4 h-4" />
+                        <span>Schedule Appointment</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               )}
 
               {/* ─────────────────────────────────────────────────────────────
-                  STEP 3: Action & Direct Connection
+                  STEP 3: Appointment Scheduling & Patient Dossier Form
                  ───────────────────────────────────────────────────────────── */}
               {currentStep === 3 && (
                 <motion.div
@@ -798,310 +781,394 @@ export default function ConsultationPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-5"
+                  className="space-y-6"
                 >
-                  {/* Summary Bar */}
-                  <div className="p-3.5 rounded-2xl bg-[#faf8f5] border border-[#e6dfd5] flex flex-wrap items-center justify-between gap-3 text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[#8c6a15] font-bold uppercase text-[10px]">Concern:</span>
-                      <strong className="text-[#22623a]">{selectedCategory.title}</strong>
+                  {/* Mode Selector Toggle */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[#1a1816] uppercase tracking-wider">
+                      1. Consultation Mode:
+                    </label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setConsultationType("ONLINE")}
+                        className={`p-4 rounded-2xl border text-left flex items-start gap-3 transition-all cursor-pointer ${
+                          consultationType === "ONLINE"
+                            ? "border-[#14281D] bg-emerald-50/60 ring-2 ring-[#14281D]/20 shadow-sm"
+                            : "border-[#e6dfd5] bg-[#faf8f5] hover:border-[#14281D]/60"
+                        }`}
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-white border border-[#e6dfd5] flex items-center justify-center text-[#14281D] shrink-0 mt-0.5">
+                          <Video className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-xs text-[#14281D]">
+                            Online Telehealth Consultation
+                          </h4>
+                          <p className="text-[11px] text-[#6a6660] mt-0.5">
+                            Follow-up via Video/Audio call &amp; Email. For patients across Pakistan &amp; Overseas.
+                          </p>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setConsultationType("IN_PERSON")}
+                        className={`p-4 rounded-2xl border text-left flex items-start gap-3 transition-all cursor-pointer ${
+                          consultationType === "IN_PERSON"
+                            ? "border-[#14281D] bg-emerald-50/60 ring-2 ring-[#14281D]/20 shadow-sm"
+                            : "border-[#e6dfd5] bg-[#faf8f5] hover:border-[#14281D]/60"
+                        }`}
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-white border border-[#e6dfd5] flex items-center justify-center text-[#14281D] shrink-0 mt-0.5">
+                          <Building2 className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-xs text-[#14281D]">
+                            In-Person Clinic Visit (Karachi)
+                          </h4>
+                          <p className="text-[11px] text-[#6a6660] mt-0.5">
+                            Physical Matab visit for traditional pulse diagnosis (Nabz) and botanical dispensary.
+                          </p>
+                        </div>
+                      </button>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[#8c6a15] font-bold uppercase text-[10px]">Method:</span>
-                      <strong className="text-[#1a1816]">
-                        {consultMethod === "WHATSAPP" && "WhatsApp Direct Chat"}
-                        {consultMethod === "PHYSICAL" && "In-Person Karachi Clinic"}
-                        {consultMethod === "CALLBACK" && "Phone Callback"}
-                      </strong>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setCurrentStep(2)}
-                      className="text-xs font-bold text-[#22623a] hover:underline flex items-center gap-1"
-                    >
-                      <RotateCcw className="w-3 h-3" />
-                      <span>Change</span>
-                    </button>
                   </div>
 
-                  {/* Mode 1: WhatsApp Launch Container */}
-                  {consultMethod === "WHATSAPP" && (
-                    <div className="space-y-4">
-                      {/* Pre-composed message review card */}
-                      <div className="p-4 bg-[#eef7f1] rounded-2xl border border-[#cde4d6] space-y-2">
-                        <div className="flex items-center gap-2 text-[#22623a] text-xs font-bold">
-                          <MessageCircle className="w-4 h-4 text-[#25D366]" />
-                          <span>Pre-Formatted Consultation Message:</span>
-                        </div>
-                        <p className="text-xs text-[#1a1816] italic bg-white p-3 rounded-xl border border-[#cde4d6] leading-relaxed">
-                          &quot;{selectedCategory.whatsappMessage}&quot;
-                        </p>
-                      </div>
+                  {/* 14-Day Date Strip */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[#1a1816] uppercase tracking-wider flex items-center justify-between">
+                      <span>2. Select Appointment Date:</span>
+                      <span className="text-[11px] font-normal text-[#6a6660]">
+                        Clinic Open: Mon – Sat (10:00 AM – 09:00 PM)
+                      </span>
+                    </label>
 
-                      {/* Voice Note Tip */}
-                      <div className="p-3.5 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-[#25D366] text-white flex items-center justify-center shrink-0">
-                          <Mic className="w-4.5 h-4.5" />
-                        </div>
-                        <div className="text-xs text-[#59534b] leading-tight">
-                          <strong className="text-[#1a1816] block mb-0.5">Voice Notes Welcome on WhatsApp</strong>
-                          <span>You can simply record an audio message in Urdu or English or send photos of your medical reports.</span>
-                        </div>
-                      </div>
+                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                      {next14Days.map((d) => {
+                        const isSelected = selectedDate === d.dateStr;
+                        return (
+                          <button
+                            key={d.dateStr}
+                            type="button"
+                            onClick={() => !d.isSunday && setSelectedDate(d.dateStr)}
+                            disabled={d.isSunday}
+                            className={`shrink-0 px-3.5 py-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                              d.isSunday
+                                ? "opacity-40 bg-gray-100 border-gray-200 cursor-not-allowed"
+                                : isSelected
+                                ? "bg-[#14281D] text-white border-[#14281D] shadow-md scale-102"
+                                : "bg-[#faf8f5] text-[#1a1816] border-[#e6dfd5] hover:border-[#14281D]/60 hover:bg-white"
+                            }`}
+                          >
+                            <span className="text-[10px] uppercase font-bold block opacity-80">
+                              {d.dayName}
+                            </span>
+                            <span className="text-xs font-bold block mt-0.5">
+                              {d.formatted}
+                            </span>
+                            {d.isSunday && (
+                              <span className="text-[9px] block text-red-500 font-semibold mt-0.5">
+                                Closed
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-                      {/* 1-Tap CTA */}
-                      <a
-                        href={getWhatsAppUrl()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full py-4 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-2xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 group"
-                      >
-                        <MessageCircle className="w-5 h-5" />
-                        <span>Open WhatsApp with Hakim Muhammad Tariq</span>
-                        <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
-                      </a>
+                  {/* Time Slots Grid */}
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-[#1a1816] uppercase tracking-wider flex items-center justify-between">
+                      <span>3. Select Available Time Slot (PKT):</span>
+                      {slotsLoading && (
+                        <span className="inline-flex items-center gap-1 text-[11px] text-[#8c6a15]">
+                          <Loader2 className="w-3 h-3 animate-spin" />
+                          <span>Checking slot capacity...</span>
+                        </span>
+                      )}
+                    </label>
 
-                      <div className="text-center pt-1">
-                        <span className="text-[11px] text-[#7a7268] inline-flex items-center gap-1.5">
-                          <ShieldCheck className="w-3.5 h-3.5 text-[#22623a]" />
-                          100% Free · Strictly Confidential · No Pressure to Buy Remedies
+                    {dateAvailabilityInfo?.isHoliday ? (
+                      <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-amber-700 shrink-0" />
+                        <span>
+                          The clinic is closed on {selectedDate} ({dateAvailabilityInfo.holidayReason || "Official Clinic Holiday"}). Please select another date.
                         </span>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Mode 2: In-Person Karachi Clinic Reservation */}
-                  {consultMethod === "PHYSICAL" && (
-                    <div className="space-y-4">
-                      {submissionSuccess ? (
-                        <div className="text-center space-y-3 py-6 bg-[#eef7f1] rounded-2xl border border-[#cde4d6] p-6">
-                          <div className="w-12 h-12 rounded-full bg-[#22623a] text-white flex items-center justify-center mx-auto">
-                            <CheckCircle2 className="w-7 h-7" />
-                          </div>
-                          <h3 className="font-serif text-lg font-bold text-[#22623a]">
-                            Appointment Slot Reserved!
-                          </h3>
-                          <p className="text-xs text-[#59534b]">
-                            Reservation Ticket: <strong className="font-mono text-[#22623a]">{submissionSuccess.ticketNumber}</strong>
-                          </p>
-                          <p className="text-xs text-[#6a6660] max-w-sm mx-auto">
-                            We look forward to examining your pulse at our Korangi clinic. Please visit us during your reserved slot.
-                          </p>
-                          <div className="pt-2">
+                    ) : !dateAvailabilityInfo?.isOpen && !slotsLoading ? (
+                      <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-700">
+                        Clinic is off on this day. Please select Monday to Saturday.
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                        {availableSlots.map((slot) => {
+                          const isSelected = selectedSlot === slot.slot;
+                          return (
                             <button
+                              key={slot.slot}
                               type="button"
-                              onClick={() => {
-                                setSubmissionSuccess(null);
-                                setCurrentStep(1);
-                              }}
-                              className="px-6 py-2.5 bg-[#22623a] text-white text-xs font-bold rounded-xl"
+                              onClick={() => slot.available && setSelectedSlot(slot.slot)}
+                              disabled={!slot.available}
+                              className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                                !slot.available
+                                  ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed line-through"
+                                  : isSelected
+                                  ? "bg-[#14281D] text-white border-[#14281D] shadow-sm font-bold ring-2 ring-[#14281D]/20"
+                                  : "bg-[#faf8f5] text-[#1a1816] border-[#e6dfd5] hover:border-[#14281D] hover:bg-white text-xs font-medium"
+                              }`}
                             >
-                              Start New Consultation
+                              <span className="text-xs block">{slot.slot}</span>
+                              <span className={`text-[10px] block mt-0.5 ${
+                                !slot.available ? "text-red-500 font-semibold" : isSelected ? "text-[#c59b27]" : "text-[#166534]"
+                              }`}>
+                                {slot.available ? "✓ Available" : "Booked"}
+                              </span>
                             </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <form onSubmit={handlePhysicalSubmit} className="space-y-4">
-                          {submissionError && (
-                            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
-                              <AlertCircle className="w-4 h-4 shrink-0" />
-                              <span>{submissionError}</span>
-                            </div>
-                          )}
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                            <div className="space-y-1">
-                              <label className="text-xs font-semibold text-[#1a1816]">
-                                Your Name <span className="text-red-500">*</span>
-                              </label>
-                              <input
-                                type="text"
-                                required
-                                value={clinicName}
-                                onChange={(e) => setClinicName(e.target.value)}
-                                placeholder="e.g. Tariq Mehmood"
-                                className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
-                              />
-                            </div>
-
-                            <div className="space-y-1">
-                              <label className="text-xs font-semibold text-[#1a1816]">
-                                Phone / WhatsApp <span className="text-red-500">*</span>
-                              </label>
-                              <input
-                                type="tel"
-                                required
-                                value={clinicPhone}
-                                onChange={(e) => setClinicPhone(e.target.value)}
-                                placeholder="0300-1234567"
-                                className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                            <div className="space-y-1">
-                              <label className="text-xs font-semibold text-[#1a1816]">
-                                Preferred Day
-                              </label>
-                              <select
-                                value={clinicDate}
-                                onChange={(e) => setClinicDate(e.target.value)}
-                                className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
-                              >
-                                <option value="Today">Today</option>
-                                <option value="Tomorrow">Tomorrow</option>
-                                <option value="This Saturday">This Saturday</option>
-                                <option value="Next Week">Next Week</option>
-                              </select>
-                            </div>
-
-                            <div className="space-y-1">
-                              <label className="text-xs font-semibold text-[#1a1816]">
-                                Time Slot
-                              </label>
-                              <select
-                                value={clinicSlot}
-                                onChange={(e) => setClinicSlot(e.target.value)}
-                                className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
-                              >
-                                <option value="Morning (10:00 AM - 02:00 PM)">Morning (10:00 AM – 02:00 PM)</option>
-                                <option value="Evening (05:00 PM - 09:00 PM)">Evening (05:00 PM – 09:00 PM)</option>
-                              </select>
-                            </div>
-                          </div>
-
-                          {/* Clinic Info Box */}
-                          <div className="p-3.5 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] text-xs text-[#59534b] space-y-1">
-                            <p className="font-bold text-[#22623a]">Clinic: Korangi No. 4, Karachi</p>
-                            <p>Walk-ins welcome · Pulse diagnosis (Nabz) available on-the-spot.</p>
-                          </div>
-
-                          <button
-                            type="submit"
-                            disabled={submitting}
-                            className="w-full py-3.5 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
-                          >
-                            {submitting ? (
-                              <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span>Reserving Slot...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Calendar className="w-4 h-4 text-[#c59b27]" />
-                                <span>Confirm In-Person Clinic Slot</span>
-                              </>
-                            )}
-                          </button>
-                        </form>
+                  {/* Patient Details Form */}
+                  <form onSubmit={handleAppointmentBookingSubmit} className="space-y-4 pt-4 border-t border-[#e6dfd5]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-[#1a1816] uppercase tracking-wider">
+                        4. Patient Information:
+                      </span>
+                      {sessionData?.user && (
+                        <span className="text-[11px] text-[#166534] font-medium flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          <span>Logged in as {sessionData.user.name}</span>
+                        </span>
                       )}
                     </div>
-                  )}
 
-                  {/* Mode 3: Request Phone Callback */}
-                  {consultMethod === "CALLBACK" && (
-                    <div className="space-y-4">
-                      {submissionSuccess ? (
-                        <div className="text-center space-y-3 py-6 bg-[#eef7f1] rounded-2xl border border-[#cde4d6] p-6">
-                          <div className="w-12 h-12 rounded-full bg-[#22623a] text-white flex items-center justify-center mx-auto">
-                            <CheckCircle2 className="w-7 h-7" />
-                          </div>
-                          <h3 className="font-serif text-lg font-bold text-[#22623a]">
-                            Callback Request Received!
-                          </h3>
-                          <p className="text-xs text-[#59534b]">
-                            Ticket: <strong className="font-mono text-[#22623a]">{submissionSuccess.ticketNumber}</strong>
-                          </p>
-                          <p className="text-xs text-[#6a6660] max-w-sm mx-auto">
-                            Our herbalist staff will call you shortly on your provided phone number.
-                          </p>
-                          <div className="pt-2">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSubmissionSuccess(null);
-                                setCurrentStep(1);
-                              }}
-                              className="px-6 py-2.5 bg-[#22623a] text-white text-xs font-bold rounded-xl"
-                            >
-                              Done
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <form onSubmit={handleCallbackSubmit} className="space-y-4">
-                          {submissionError && (
-                            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
-                              <AlertCircle className="w-4 h-4 shrink-0" />
-                              <span>{submissionError}</span>
-                            </div>
-                          )}
+                    {submissionError && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                        <span>{submissionError}</span>
+                      </div>
+                    )}
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                            <div className="space-y-1">
-                              <label className="text-xs font-semibold text-[#1a1816]">
-                                Your Name <span className="text-red-500">*</span>
-                              </label>
-                              <input
-                                type="text"
-                                required
-                                value={callbackName}
-                                onChange={(e) => setCallbackName(e.target.value)}
-                                placeholder="e.g. Muhammad Bilal"
-                                className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
-                              />
-                            </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-[#1a1816]">
+                          Full Name <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.fullName}
+                          onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                          placeholder="e.g. Muhammad Bilal"
+                          className="w-full px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        />
+                      </div>
 
-                            <div className="space-y-1">
-                              <label className="text-xs font-semibold text-[#1a1816]">
-                                Phone Number <span className="text-red-500">*</span>
-                              </label>
-                              <input
-                                type="tel"
-                                required
-                                value={callbackPhone}
-                                onChange={(e) => setCallbackPhone(e.target.value)}
-                                placeholder="0300-1234567"
-                                className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-xs font-semibold text-[#1a1816]">
-                              Optional Notes for Hakim Sahib
-                            </label>
-                            <input
-                              type="text"
-                              value={callbackNotes}
-                              onChange={(e) => setCallbackNotes(e.target.value)}
-                              placeholder="e.g. Suffering from acidity since 2 weeks..."
-                              className="w-full text-xs px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
-                            />
-                          </div>
-
-                          <button
-                            type="submit"
-                            disabled={submitting}
-                            className="w-full py-3.5 bg-[#8c6a15] hover:bg-[#725510] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
-                          >
-                            {submitting ? (
-                              <>
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span>Submitting Request...</span>
-                              </>
-                            ) : (
-                              <>
-                                <Phone className="w-4 h-4" />
-                                <span>Request Free Phone Callback</span>
-                              </>
-                            )}
-                          </button>
-                        </form>
-                      )}
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-[#1a1816]">
+                          Phone / WhatsApp <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          value={formData.phone}
+                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                          placeholder="0300-1234567"
+                          className="w-full px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        />
+                      </div>
                     </div>
-                  )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+                      <div className="space-y-1 sm:col-span-2">
+                        <label className="text-xs font-semibold text-[#1a1816]">
+                          Email Address (for appointment confirmation ticket) <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={formData.email}
+                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                          placeholder="bilal@example.com"
+                          className="w-full px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-[#1a1816]">
+                          City
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.city}
+                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                          placeholder="Karachi, Lahore..."
+                          className="w-full px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-[#1a1816]">Age</label>
+                        <input
+                          type="number"
+                          value={formData.age}
+                          onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                          className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-[#1a1816]">Gender</label>
+                        <select
+                          value={formData.gender}
+                          onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                          className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        >
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-xs font-semibold text-[#1a1816]">Duration</label>
+                        <select
+                          value={formData.duration}
+                          onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                          className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        >
+                          <option value="Recent (< 1 Month)">Recent (&lt; 1 Month)</option>
+                          <option value="1 to 3 Months">1 to 3 Months</option>
+                          <option value="6+ Months">6+ Months</option>
+                          <option value="Chronic (1+ Year)">Chronic (1+ Year)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-[#1a1816]">
+                        Additional Symptoms or Current Medications (Optional)
+                      </label>
+                      <textarea
+                        rows={2}
+                        value={formData.additionalNotes}
+                        onChange={(e) => setFormData({ ...formData, additionalNotes: e.target.value })}
+                        placeholder="Mention any existing English medicines, past surgeries, or allergies..."
+                        className="w-full px-3.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white resize-none"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={submitting || !selectedSlot}
+                      className="w-full py-3.5 bg-[#14281D] hover:bg-[#1e3d2c] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-md disabled:opacity-50 cursor-pointer"
+                    >
+                      {submitting ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>Booking Your Appointment...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-4 h-4" />
+                          <span>Confirm &amp; Book Appointment</span>
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </motion.div>
+              )}
+
+              {/* ─────────────────────────────────────────────────────────────
+                  STEP 4: Booking Confirmation Screen
+                 ───────────────────────────────────────────────────────────── */}
+              {currentStep === 4 && submissionSuccess && (
+                <motion.div
+                  key="step-4"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-center space-y-6 py-4"
+                >
+                  <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto shadow-inner">
+                    <CheckCircle2 className="w-8 h-8" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <span className="inline-block px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-full text-xs font-bold text-[#166534] uppercase tracking-wider">
+                      Appointment Confirmed
+                    </span>
+                    <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#14281D]">
+                      JazakAllah Khair, {submissionSuccess.fullName}!
+                    </h2>
+                    <p className="text-xs sm:text-sm text-[#59534b] max-w-md mx-auto">
+                      Your consultation appointment with <strong>Hakim Muhammad Tariq</strong> has been successfully booked in our clinical ledger.
+                    </p>
+                  </div>
+
+                  {/* Summary Box */}
+                  <div className="max-w-md mx-auto bg-[#faf8f5] border border-[#e6dfd5] rounded-2xl p-5 text-left space-y-3">
+                    <div className="flex justify-between items-center pb-2 border-b border-[#e6dfd5]">
+                      <span className="text-xs text-[#78716C] uppercase font-semibold">Ticket Reference:</span>
+                      <strong className="text-sm font-mono text-[#14281D]">
+                        {submissionSuccess.ticketNumber}
+                      </strong>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <span className="text-[#78716C] block">Consultation Mode:</span>
+                        <strong className="text-[#14281D] font-semibold">
+                          {submissionSuccess.consultationType === "ONLINE" ? "Online Telehealth" : "Karachi Clinic Visit"}
+                        </strong>
+                      </div>
+                      <div>
+                        <span className="text-[#78716C] block">Scheduled Slot:</span>
+                        <strong className="text-[#14281D] font-semibold">
+                          {submissionSuccess.appointmentDate} · {submissionSuccess.appointmentSlot}
+                        </strong>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-[#e6dfd5] text-xs text-[#59534b]">
+                      <strong>Email Confirmation Sent to:</strong> {submissionSuccess.email}
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 max-w-md mx-auto text-left space-y-1">
+                    <h4 className="font-bold flex items-center gap-1.5 text-amber-950">
+                      <Info className="w-4 h-4" />
+                      <span>Next Steps:</span>
+                    </h4>
+                    <p className="text-[11px] leading-relaxed">
+                      Our dispensary team or Hakim Sahib will contact you via WhatsApp / Phone at <strong>{submissionSuccess.phone}</strong> during your designated time slot. You may reply to your email confirmation with test reports in advance.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+                    <Link
+                      href="/products"
+                      className="w-full sm:w-auto px-6 py-3 bg-[#14281D] hover:bg-[#1e3d2c] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md text-center"
+                    >
+                      Browse Botanical Apothecary
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCurrentStep(1);
+                        setSubmissionSuccess(null);
+                      }}
+                      className="w-full sm:w-auto px-6 py-3 bg-white text-[#14281D] border border-[#e6dfd5] hover:bg-[#faf8f5] text-xs font-bold uppercase tracking-wider rounded-xl transition-all text-center cursor-pointer"
+                    >
+                      Book Another Consultation
+                    </button>
+                  </div>
                 </motion.div>
               )}
 
@@ -1110,116 +1177,98 @@ export default function ConsultationPage() {
         </div>
       </section>
 
-      {/* ─── 2. Supporting Tray: Karachi Physical Clinic Details & Pulse Diagnosis ─── */}
-      <section className="py-12 sm:py-16 bg-white border-t border-[#e6dfd5]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-
-          {/* Physical Matab Card */}
-          <Reveal>
-            <div className="p-6 sm:p-8 rounded-3xl bg-[#faf8f5] border border-[#e6dfd5] space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#eef7f1] border border-[#cde4d6] text-[#22623a] text-xs font-semibold">
-                <Building2 className="w-3.5 h-3.5 text-[#c59b27]" />
-                <span>Physical Matab &amp; Dispensary in Karachi</span>
-              </div>
-
-              <div className="space-y-1.5">
-                <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#22623a]">
-                  Prefer In-Person Pulse Examination (Nabz)?
-                </h2>
-                <p className="text-xs sm:text-sm text-[#59534b]">
-                  Visit Hakim Muhammad Tariq at our established Korangi clinic in Karachi for classical pulse reading and on-the-spot botanical remedy compounding.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
-                <div className="p-4 rounded-2xl bg-white border border-[#e6dfd5] space-y-1.5">
-                  <div className="flex items-center gap-2 text-[#22623a] font-bold text-xs">
-                    <MapPin className="w-4 h-4 text-[#c59b27]" />
-                    <span>Clinic Address</span>
-                  </div>
-                  <p className="text-xs text-[#59534b] leading-relaxed">
-                    {CLINIC_INFO.address}
-                  </p>
-                  <a
-                    href={CLINIC_INFO.googleMapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-[11px] font-bold text-[#22623a] hover:underline pt-0.5"
-                  >
-                    <Navigation className="w-3 h-3 text-[#8c6a15]" />
-                    <span>Open in Google Maps →</span>
-                  </a>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-white border border-[#e6dfd5] space-y-1.5">
-                  <div className="flex items-center gap-2 text-[#22623a] font-bold text-xs">
-                    <Clock className="w-4 h-4 text-[#c59b27]" />
-                    <span>Consultation Hours</span>
-                  </div>
-                  <p className="text-xs text-[#59534b]">
-                    <strong>Mon – Sat:</strong> {CLINIC_INFO.timings}
-                  </p>
-                  <p className="text-xs text-[#8c6a15] font-semibold">
-                    <strong>Friday:</strong> {CLINIC_INFO.fridayTimings}
-                  </p>
-                  <p className="text-[10px] text-[#7a7268]">Walk-ins welcome during dispensary hours.</p>
-                </div>
-              </div>
-            </div>
-          </Reveal>
-
-          {/* ─── 3. FAQs Accordion ─── */}
-          <Reveal delay={0.1} className="space-y-4">
-            <div className="text-center space-y-1">
-              <span className="text-xs uppercase tracking-widest font-semibold text-[#8c6a15] flex items-center justify-center gap-1.5">
-                <HelpCircle className="w-3.5 h-3.5" />
-                <span>Frequently Asked Questions</span>
+      {/* ─── 2. Hakim Authority & Clinic Information Section ─── */}
+      <section className="py-12 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto space-y-8">
+        <div className="bg-white rounded-3xl border border-[#e6dfd5] p-6 sm:p-8 shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+            <div className="space-y-3">
+              <span className="text-[11px] font-bold text-[#8c6a15] uppercase tracking-wider">
+                Clinical Matab &amp; Dispensary
               </span>
-              <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#22623a]">
-                Everything You Need to Know
+              <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#14281D]">
+                Visit Matab Tameer-e-Sehat
               </h3>
+              <p className="text-xs text-[#59534b] leading-relaxed">
+                Experience authentic pulse diagnosis (Nabz) and classical compounding by certified Tabibs under Eastern Unani medicine tradition.
+              </p>
+              <div className="space-y-2 pt-2 text-xs text-[#44403C]">
+                <div className="flex items-start gap-2">
+                  <MapPin className="w-4 h-4 text-[#14281D] shrink-0 mt-0.5" />
+                  <span>{CLINIC_INFO.address}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-[#14281D] shrink-0" />
+                  <span>Mon – Sat: 10:00 AM – 09:00 PM (Sunday Closed)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-[#14281D] shrink-0" />
+                  <span>{CLINIC_INFO.phone} / WhatsApp: {CLINIC_INFO.whatsappNumber}</span>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-2.5">
-              {FAQS.map((faq, idx) => {
-                const isOpen = openFaq === idx;
-                return (
-                  <div
-                    key={idx}
-                    className="rounded-2xl border border-[#e6dfd5] bg-[#faf8f5] overflow-hidden transition-all"
+            <div className="bg-[#faf8f5] p-5 rounded-2xl border border-[#e6dfd5] space-y-3">
+              <h4 className="font-serif text-sm font-bold text-[#14281D]">
+                Tibb-e-Unani Consultation Principles
+              </h4>
+              <ul className="space-y-2 text-xs text-[#59534b]">
+                <li className="flex items-start gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#166534] shrink-0 mt-0.5" />
+                  <span><strong>Holistic Evaluation:</strong> We diagnose root temperamental imbalances (Mizaj) rather than masking symptoms.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#166534] shrink-0 mt-0.5" />
+                  <span><strong>Zero Chemical Additives:</strong> Compounded purely with therapeutic grade botanicals and hydro-distillates.</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#166534] shrink-0 mt-0.5" />
+                  <span><strong>Bila-Muawza Advice:</strong> Consultations and pulse assessment are free of charge.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* FAQs */}
+        <div className="space-y-4">
+          <div className="text-center space-y-1">
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#14281D]">
+              Frequently Asked Questions
+            </h3>
+            <p className="text-xs text-[#6a6660]">
+              Everything you need to know about our Unani consultations &amp; appointments.
+            </p>
+          </div>
+
+          <div className="space-y-2.5">
+            {FAQS.map((faq, idx) => {
+              const isOpen = openFaq === idx;
+              return (
+                <div
+                  key={idx}
+                  className="bg-white rounded-2xl border border-[#e6dfd5] overflow-hidden transition-all"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setOpenFaq(isOpen ? null : idx)}
+                    className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-3 cursor-pointer"
                   >
-                    <button
-                      type="button"
-                      onClick={() => setOpenFaq(isOpen ? null : idx)}
-                      className="w-full p-4 text-left flex items-center justify-between gap-3 text-xs sm:text-sm font-bold text-[#1a1816] hover:text-[#22623a] transition-colors"
-                    >
-                      <span>{faq.q}</span>
-                      <ChevronDown
-                        className={`w-4 h-4 text-[#8c6a15] shrink-0 transition-transform duration-200 ${
-                          isOpen ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-
-                    <AnimatePresence>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="px-4 pb-4 text-xs text-[#59534b] leading-relaxed border-t border-[#e6dfd5]/60 pt-3"
-                        >
-                          {faq.a}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
-            </div>
-          </Reveal>
-
+                    <span className="font-serif text-xs sm:text-sm font-bold text-[#1a1816]">
+                      {faq.q}
+                    </span>
+                    <span className={`text-xs font-bold transition-transform ${isOpen ? "rotate-180" : ""}`}>
+                      ▼
+                    </span>
+                  </button>
+                  {isOpen && (
+                    <div className="px-4 sm:px-5 pb-4 text-xs text-[#59534b] leading-relaxed border-t border-[#faf8f5] pt-3">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
     </div>

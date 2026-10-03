@@ -241,14 +241,43 @@ model ConsultationRequest {
   currentMedications  String?
   digestiveState      String?
   sleepEnergyState    String?
-  preferredContact    String   @default("WHATSAPP") // "WHATSAPP" | "PHONE" | "CLINIC"
-  status              String   @default("NEW") // "NEW" | "IN_REVIEW" | "CONTACTED" | "PRESCRIBED" | "COMPLETED"
+  channel             String   @default("EMAIL") // "EMAIL" | "WHATSAPP"
+  consultationType    String   @default("ONLINE") // "ONLINE" | "IN_PERSON"
+  appointmentDate     String?  // "YYYY-MM-DD" e.g. "2026-10-05"
+  appointmentSlot     String?  // "10:00 AM - 11:00 AM"
+  preferredContact    String   @default("EMAIL") // "EMAIL" | "WHATSAPP" | "PHONE"
+  status              String   @default("NEW") // "NEW" | "CONFIRMED" | "RESCHEDULED" | "PRESCRIBED" | "COMPLETED" | "CANCELLED"
   hakimNotes          String?
   prescribedTreatment String?
   userId              String?
   user                User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+}
+
+model ClinicSchedule {
+  id                String   @id @default(cuid())
+  dayOfWeek         Int      @unique // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  dayName           String   // "Sunday", "Monday", "Tuesday", etc.
+  isOpen            Boolean  @default(true)
+  openTime          String   @default("10:00") // "10:00" in 24h format
+  closeTime         String   @default("21:00") // "21:00" in 24h format
+  slotDurationMins  Int      @default(60) // 60 minutes
+  maxSlotsPerWindow Int      @default(1) // 1 patient per slot
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("clinic_schedule")
+}
+
+model ClinicHoliday {
+  id        String   @id @default(cuid())
+  date      String   @unique // "YYYY-MM-DD"
+  reason    String   // e.g. "Eid-ul-Fitr", "Clinic Maintenance"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("clinic_holiday")
 }
 
 model ContactInquiry {

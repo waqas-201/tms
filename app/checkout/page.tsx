@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
-import { useSession } from "@/lib/auth-client";
+import { useSession, sendVerificationEmail, getSession } from "@/lib/auth-client";
 import { CLINIC_INFO } from "@/app/data/products";
 import {
   Truck,
@@ -26,6 +26,9 @@ import {
   Building2,
   Mail,
   Receipt,
+  RefreshCw,
+  Lock,
+  ExternalLink,
 } from "lucide-react";
 
 const PAKISTAN_CITIES = [
@@ -91,6 +94,14 @@ export default function CheckoutPage() {
   const [orderConfirmed, setOrderConfirmed] = useState(false);
   const [createdOrder, setCreatedOrder] = useState<any>(null);
 
+  // Email verification state
+  const [resendingVerification, setResendingVerification] = useState(false);
+  const [resendVerificationSuccess, setResendVerificationSuccess] = useState(false);
+  const [refreshingStatus, setRefreshingStatus] = useState(false);
+
+  const isUserAuthenticated = Boolean(sessionData?.user);
+  const isEmailVerified = Boolean(sessionData?.user?.emailVerified);
+
   // Populate form with session user details if logged in
   useEffect(() => {
     if (sessionData?.user) {
@@ -103,6 +114,61 @@ export default function CheckoutPage() {
       }));
     }
   }, [sessionData]);
+
+  const handleResendVerification = async () => {
+    const targetEmail = sessionData?.user?.email || formData.email;
+    if (!targetEmail) return;
+
+    setResendingVerification(true);
+    setResendVerificationSuccess(false);
+    setError(null);
+
+    try {
+      if (typeof sendVerificationEmail === "function") {
+        const res = await sendVerificationEmail({
+          email: targetEmail.toLowerCase().trim(),
+          callbackURL: "/checkout",
+        });
+        if (res?.error) {
+          throw new Error(res.error.message || "Failed to dispatch verification email.");
+        }
+      } else {
+        const res = await fetch("/api/auth/send-verification-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: targetEmail.toLowerCase().trim(),
+            callbackURL: "/checkout",
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to dispatch verification email.");
+        }
+      }
+      setResendVerificationSuccess(true);
+      setTimeout(() => setResendVerificationSuccess(false), 8000);
+    } catch (err: any) {
+      setError(err.message || "Failed to resend verification email. Please try again.");
+    } finally {
+      setResendingVerification(false);
+    }
+  };
+
+  const handleRefreshVerificationStatus = async () => {
+    setRefreshingStatus(true);
+    setError(null);
+    try {
+      if (typeof getSession === "function") {
+        await getSession();
+      }
+      window.location.reload();
+    } catch (err: any) {
+      window.location.reload();
+    } finally {
+      setRefreshingStatus(false);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
@@ -125,6 +191,18 @@ export default function CheckoutPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    if (!isUserAuthenticated) {
+      setError("Please sign in or create an account before placing an order.");
+      setLoading(false);
+      return;
+    }
+
+    if (!isEmailVerified) {
+      setError(`Email verification required. Please verify your email (${sessionData?.user?.email || formData.email}) to place your order.`);
+      setLoading(false);
+      return;
+    }
 
     try {
       const orderPayload = {
@@ -333,6 +411,130 @@ export default function CheckoutPage() {
             Review your order, enter your Pakistan delivery address, and pay cash when the courier rider delivers your package.
           </p>
         </div>
+
+        {/* ── AUTHENTICATION & EMAIL VERIFICATION SECURITY BANNERS ── */}
+        {!isUserAuthenticated && (
+          <div className="p-5 bg-amber-50/90 border border-amber-300/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs shadow-xs">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+                <Lock className="w-4 h-4" />
+              </div>
+              <div>
+                <h3 className="font-bold text-amber-950 text-sm">Account &amp; Email Verification Required</h3>
+                <p className="text-amber-850 text-[11px] mt-0.5 leading-relaxed text-amber-900">
+                  To ensure genuine patient orders and real-time courier tracking across Pakistan, please sign in or register with a verified email address before placing an order.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+              <Link
+                href="/login?redirect=/checkout"
+                className="flex-1 sm:flex-initial text-center px-4 py-2 bg-[#14281D] hover:bg-[#0c1b13] text-white font-semibold rounded-xl text-xs transition-colors shadow-xs"
+              >
+                Sign In
+              </Link>
+              <Link
+                href="/register?redirect=/checkout"
+                className="flex-1 sm:flex-initial text-center px-4 py-2 bg-white hover:bg-amber-100/60 text-[#14281D] border border-amber-300 font-semibold rounded-xl text-xs transition-colors"
+              >
+                Register Account
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {isUserAuthenticated && !isEmailVerified && (
+          <div className="p-5 bg-amber-50/90 border-2 border-amber-400/90 rounded-2xl space-y-3 text-xs shadow-xs">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-amber-200/80 text-amber-900 flex items-center justify-center shrink-0 mt-0.5">
+                <AlertCircle className="w-5 h-5 text-amber-800" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-amber-950 text-sm">Email Verification Required</h3>
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-amber-200 text-amber-900 rounded-md">
+                    Pending Activation
+                  </span>
+                </div>
+                <p className="text-amber-900 text-[11px] mt-1 leading-relaxed">
+                  Your account email (<strong>{sessionData?.user?.email}</strong>) is not yet verified. An activation link was sent to your email inbox. Please click the link to verify your account and enable order placement.
+                </p>
+              </div>
+            </div>
+
+            {resendVerificationSuccess && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-700" />
+                <span>A fresh verification link has been dispatched to <strong>{sessionData?.user?.email}</strong>. Please check your inbox and spam folder.</span>
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={resendingVerification}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-amber-900 hover:bg-amber-950 text-white rounded-xl text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer shadow-xs"
+              >
+                {resendingVerification ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Sending Link...</span>
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Resend Verification Email</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleRefreshVerificationStatus}
+                disabled={refreshingStatus}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-amber-100/60 text-amber-950 border border-amber-300 rounded-xl text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer"
+              >
+                {refreshingStatus ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-800" />
+                    <span>Checking...</span>
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 text-amber-800" />
+                    <span>I&apos;ve Verified / Refresh Status</span>
+                  </>
+                )}
+              </button>
+
+              <Link
+                href="/verify-email"
+                className="text-[11px] text-amber-900 hover:underline inline-flex items-center gap-1 ml-auto font-medium"
+              >
+                <span>Manual Verification Code</span>
+                <ExternalLink className="w-3 h-3" />
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {isUserAuthenticated && isEmailVerified && (
+          <div className="p-3.5 bg-emerald-50/80 border border-emerald-200/80 rounded-2xl flex items-center justify-between text-xs text-emerald-950 shadow-xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                <Check className="w-3.5 h-3.5" />
+              </div>
+              <div>
+                <span className="font-bold text-emerald-900">Verified Patient Account</span>
+                <span className="text-emerald-700 text-[11px] ml-2">({sessionData?.user?.email})</span>
+              </div>
+            </div>
+            <span className="text-[11px] text-emerald-800 font-medium bg-emerald-100/60 px-2.5 py-0.5 rounded-full border border-emerald-300/60">
+              Ready for Instant Dispatch
+            </span>
+          </div>
+        )}
 
         {error && (
           <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
@@ -679,24 +881,70 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Submit Order Button */}
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex items-center justify-center gap-2 py-4 bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 active:scale-98 cursor-pointer"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Placing Your Order...</span>
-                  </>
-                ) : (
-                  <>
-                    <span>Confirm Cash on Delivery (₨ {total.toLocaleString()})</span>
-                    <ArrowRight className="w-4 h-4 text-[#9E7D3B]" />
-                  </>
-                )}
-              </button>
+              {/* Submit Order Action Button */}
+              {!isUserAuthenticated ? (
+                <div className="space-y-2">
+                  <Link
+                    href="/login?redirect=/checkout"
+                    className="w-full flex items-center justify-center gap-2 py-4 bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg text-center cursor-pointer"
+                  >
+                    <Lock className="w-4 h-4 text-[#9E7D3B]" />
+                    <span>Sign In &amp; Verify Email to Order (₨ {total.toLocaleString()})</span>
+                  </Link>
+                  <p className="text-[11px] text-stone-500 text-center">
+                    New patient? <Link href="/register?redirect=/checkout" className="text-[#14281D] font-bold underline">Create an account</Link> to place your order.
+                  </p>
+                </div>
+              ) : !isEmailVerified ? (
+                <div className="space-y-2.5">
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    disabled={resendingVerification}
+                    className="w-full flex items-center justify-center gap-2 py-4 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer"
+                  >
+                    {resendingVerification ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Dispatching Activation Email...</span>
+                      </>
+                    ) : (
+                      <>
+                        <AlertCircle className="w-4 h-4 text-amber-200" />
+                        <span>Verify Email to Place Order (₨ {total.toLocaleString()})</span>
+                      </>
+                    )}
+                  </button>
+                  <div className="flex items-center justify-between text-[11px] text-amber-900 px-1">
+                    <span>Email: <strong>{sessionData?.user?.email}</strong></span>
+                    <button
+                      type="button"
+                      onClick={handleRefreshVerificationStatus}
+                      className="underline font-bold hover:text-amber-950 cursor-pointer"
+                    >
+                      Refresh Status
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full flex items-center justify-center gap-2 py-4 bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 active:scale-98 cursor-pointer"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Placing Your Order...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Confirm Cash on Delivery (₨ {total.toLocaleString()})</span>
+                      <ArrowRight className="w-4 h-4 text-[#9E7D3B]" />
+                    </>
+                  )}
+                </button>
+              )}
 
               {/* Trust badges */}
               <div className="pt-2 text-[11px] text-stone-500 space-y-1.5 text-center">

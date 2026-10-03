@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useSession, signOut } from "@/lib/auth-client";
+import { useSession, signOut, sendVerificationEmail } from "@/lib/auth-client";
 import { useCart } from "@/app/context/CartContext";
 import { Product } from "@/app/data/products";
 import { isStaffRole } from "@/lib/rbac-base";
@@ -26,6 +26,8 @@ import {
   Phone,
   RefreshCw,
   Shield,
+  Mail,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function AccountPage() {
@@ -38,6 +40,48 @@ export default function AccountPage() {
   const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [reorderMessage, setReorderMessage] = useState<string | null>(null);
+
+  const [resendingVerification, setResendingVerification] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [resendError, setResendError] = useState<string | null>(null);
+
+  const handleResendVerification = async () => {
+    if (!sessionData?.user?.email) return;
+    setResendingVerification(true);
+    setResendSuccess(false);
+    setResendError(null);
+
+    try {
+      if (typeof sendVerificationEmail === "function") {
+        const res = await sendVerificationEmail({
+          email: sessionData.user.email,
+          callbackURL: "/account",
+        });
+        if (res?.error) {
+          throw new Error(res.error.message || "Failed to dispatch verification email.");
+        }
+      } else {
+        const res = await fetch("/api/auth/send-verification-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: sessionData.user.email,
+            callbackURL: "/account",
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || "Failed to dispatch verification email.");
+        }
+      }
+      setResendSuccess(true);
+      setTimeout(() => setResendSuccess(false), 8000);
+    } catch (err: any) {
+      setResendError(err.message || "Failed to resend verification email.");
+    } finally {
+      setResendingVerification(false);
+    }
+  };
 
   useEffect(() => {
     async function loadCatalog() {
@@ -210,6 +254,70 @@ export default function AccountPage() {
             </button>
           </div>
         </div>
+
+        {/* Email Verification Status Alert */}
+        {!user.emailVerified ? (
+          <div className="p-5 bg-amber-50/90 border-2 border-amber-300 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs shadow-xs">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-full bg-amber-200/80 text-amber-900 flex items-center justify-center shrink-0 mt-0.5">
+                <AlertCircle className="w-5 h-5 text-amber-800" />
+              </div>
+              <div className="space-y-0.5">
+                <h3 className="font-bold text-amber-950 text-sm">Account Email Not Verified</h3>
+                <p className="text-amber-900 text-[11px] leading-relaxed">
+                  Your email address (<strong>{user.email}</strong>) requires verification before you can place orders on the pharmacy store.
+                </p>
+                {resendSuccess && (
+                  <p className="text-emerald-800 text-[11px] font-semibold pt-1">
+                    ✓ Activation email dispatched! Please check your inbox.
+                  </p>
+                )}
+                {resendError && (
+                  <p className="text-rose-700 text-[11px] font-semibold pt-1">
+                    ✕ {resendError}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={resendingVerification}
+                className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-amber-900 hover:bg-amber-950 text-white rounded-xl text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer shadow-xs"
+              >
+                {resendingVerification ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Sending...</span>
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Resend Activation Email</span>
+                  </>
+                )}
+              </button>
+              <Link
+                href="/verify-email"
+                className="flex-1 sm:flex-initial text-center px-4 py-2 bg-white hover:bg-amber-100/60 text-amber-950 border border-amber-300 font-semibold rounded-xl text-xs transition-colors"
+              >
+                Verify Code
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="p-3.5 bg-emerald-50/80 border border-emerald-200/80 rounded-2xl flex items-center justify-between text-xs text-emerald-950 shadow-xs">
+            <div className="flex items-center gap-2.5">
+              <ShieldCheck className="w-5 h-5 text-emerald-700" />
+              <span className="font-bold text-emerald-900">Email Address Verified</span>
+              <span className="text-emerald-700 text-[11px]">({user.email})</span>
+            </div>
+            <span className="text-[11px] text-emerald-800 font-medium bg-emerald-100/60 px-2.5 py-0.5 rounded-full border border-emerald-300/60">
+              Active Account
+            </span>
+          </div>
+        )}
 
         {reorderMessage && (
           <div className="p-4 bg-[#f4f9f5] border border-[#bfeac7] rounded-xl text-xs text-[#22623a] flex items-center justify-between animate-fade-in font-medium">

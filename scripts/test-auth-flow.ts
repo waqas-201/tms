@@ -69,7 +69,10 @@ async function runAuthTestSuite() {
       activeSessionToken = signUpData.token;
 
       // Verify User in PostgreSQL Database
-      const dbUser = await prisma.user.findUnique({
+      if (!createdUserId) {
+        throw new Error("Missing createdUserId");
+      }
+      const dbUser = await (prisma.user as any).findUnique({
         where: { id: createdUserId },
         include: { accounts: true },
       });
@@ -78,8 +81,8 @@ async function runAuthTestSuite() {
         throw new Error("User record not found in PostgreSQL database");
       }
 
-      const hasCredentialAccount = dbUser.accounts.some(
-        (acc) => acc.providerId === "credential" && acc.password
+      const hasCredentialAccount = dbUser.accounts?.some(
+        (acc: any) => acc.providerId === "credential" && acc.password
       );
 
       const isUserRole = dbUser.role === "user";
@@ -145,24 +148,20 @@ async function runAuthTestSuite() {
     // ─────────────────────────────────────────────────────────────
     console.log("\n🧪 3. Testing Duplicate Email Registration Prevention...");
     try {
-      let duplicateErrorCaught = false;
-      try {
-        await auth.api.signUpEmail({
-          body: {
-            name: "Duplicate User Attempt",
-            email: testEmail, // Exact same email
-            password: "AnotherPassword123!",
-          } as any,
-        });
-      } catch {
-        duplicateErrorCaught = true;
-      }
+      const duplicateRes = await auth.api.signUpEmail({
+        body: {
+          name: "Duplicate User Attempt",
+          email: testEmail, // Exact same email
+          password: "AnotherPassword123!",
+        } as any,
+        asResponse: true,
+      });
 
-      if (duplicateErrorCaught) {
+      if (!duplicateRes.ok) {
         recordTest(
           "Duplicate Email Prevention",
           true,
-          "Better-Auth properly rejected duplicate email registration attempt"
+          `Better-Auth rejected duplicate registration with status ${duplicateRes.status}`
         );
       } else {
         throw new Error("Duplicate email was accepted when it should have failed");
@@ -176,23 +175,19 @@ async function runAuthTestSuite() {
     // ─────────────────────────────────────────────────────────────
     console.log("\n🧪 4. Testing Invalid Credentials Rejection...");
     try {
-      let invalidPassCaught = false;
-      try {
-        await auth.api.signInEmail({
-          body: {
-            email: testEmail,
-            password: "WrongPassword_999!",
-          },
-        });
-      } catch {
-        invalidPassCaught = true;
-      }
+      const invalidSignInRes = await auth.api.signInEmail({
+        body: {
+          email: testEmail,
+          password: "WrongPassword_999!",
+        },
+        asResponse: true,
+      });
 
-      if (invalidPassCaught) {
+      if (!invalidSignInRes.ok) {
         recordTest(
           "Invalid Password Rejection",
           true,
-          "Invalid credentials rejected successfully with 401/unauthorized"
+          `Invalid credentials rejected successfully with status ${invalidSignInRes.status}`
         );
       } else {
         throw new Error("Invalid password succeeded when it should have been rejected");

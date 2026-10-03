@@ -25,6 +25,7 @@ import {
   X,
   RotateCcw,
   Check,
+  Star,
   Home,
   ChevronRight,
   ChevronDown,
@@ -266,28 +267,49 @@ const VISUAL_CATEGORIES = [
   },
 ];
 
-const PRICE_RANGES = [
-  { id: "all", label: "All Prices", min: 0, max: 99999 },
-  { id: "under-300", label: "< ₨ 300", min: 0, max: 300 },
-  { id: "300-500", label: "₨ 300–500", min: 300, max: 500 },
-  { id: "500-1000", label: "₨ 500–1k", min: 500, max: 1000 },
-  { id: "over-1000", label: "₨ 1,000+", min: 1000, max: 99999 },
+const RATING_OPTIONS = [
+  { id: "all", label: "All Ratings", min: 0 },
+  { id: "4.8", label: "4.8★ & Above", min: 4.8 },
+  { id: "4.5", label: "4.5★ & Above", min: 4.5 },
+  { id: "4.0", label: "4.0★ & Above", min: 4.0 },
 ];
+
+const DEFAULT_MAX_PRICE = 5000;
 
 function ProductsContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // 1. Initial State hydrated from URL query parameters
+  // Dynamic Data State
+  const [productsList, setProductsList] = useState<Product[]>([]);
+  const [categoriesList, setCategoriesList] = useState<CategoryInfo[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState<boolean>(false);
+
+  // Compute dynamic max price from catalog
+  const maxCatalogPrice = useMemo(() => {
+    if (productsList.length === 0) return DEFAULT_MAX_PRICE;
+    const max = Math.max(...productsList.map((p) => p.price || 0));
+    return Math.max(Math.ceil(max / 500) * 500, 1000);
+  }, [productsList]);
+
+  // Initial URL Parameter hydration
+  const initialMin = Number(searchParams.get("minPrice")) || 0;
+  const initialMax = Number(searchParams.get("maxPrice")) || DEFAULT_MAX_PRICE;
+
   const [selectedCategory, setSelectedCategory] = useState<string>(
     searchParams.get("category") || "all"
   );
   const [selectedConcern, setSelectedConcern] = useState<string>(
     searchParams.get("concern") || "all"
   );
-  const [selectedPriceRange, setSelectedPriceRange] = useState<string>(
-    searchParams.get("price") || "all"
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    initialMin,
+    initialMax,
+  ]);
+  const [selectedRating, setSelectedRating] = useState<string>(
+    searchParams.get("rating") || "all"
   );
   const [inStockOnly, setInStockOnly] = useState<boolean>(
     searchParams.get("inStock") === "true"
@@ -304,12 +326,6 @@ function ProductsContent() {
   const [viewMode, setViewMode] = useState<"grid" | "list">(
     (searchParams.get("view") as "grid" | "list") || "grid"
   );
-
-  // Dynamic Data & UI Drawer State
-  const [productsList, setProductsList] = useState<Product[]>([]);
-  const [categoriesList, setCategoriesList] = useState<CategoryInfo[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState<boolean>(false);
 
   // Fetch Live Database Products & Categories
   useEffect(() => {
@@ -343,9 +359,19 @@ function ProductsContent() {
     loadCatalog();
   }, []);
 
+  // Sync price slider range bounds when maxCatalogPrice initializes
+  useEffect(() => {
+    if (!searchParams.get("maxPrice") && maxCatalogPrice > DEFAULT_MAX_PRICE) {
+      setPriceRange((prev) => [prev[0], maxCatalogPrice]);
+    }
+  }, [maxCatalogPrice, searchParams]);
+
+  const isPriceFiltered =
+    priceRange[0] > 0 || priceRange[1] < maxCatalogPrice;
+
   // Update URL Query Parameters on Filter Change
   const updateUrlParams = useCallback(
-    (params: Record<string, string | boolean | null>) => {
+    (params: Record<string, string | number | boolean | null>) => {
       const current = new URLSearchParams(searchParams.toString());
       Object.entries(params).forEach(([key, val]) => {
         if (val === null || val === "" || val === "all" || val === false) {
@@ -365,7 +391,9 @@ function ProductsContent() {
     updateUrlParams({
       category: selectedCategory !== "all" ? selectedCategory : null,
       concern: selectedConcern !== "all" ? selectedConcern : null,
-      price: selectedPriceRange !== "all" ? selectedPriceRange : null,
+      minPrice: priceRange[0] > 0 ? priceRange[0] : null,
+      maxPrice: priceRange[1] < maxCatalogPrice ? priceRange[1] : null,
+      rating: selectedRating !== "all" ? selectedRating : null,
       inStock: inStockOnly ? "true" : null,
       onSale: onSaleOnly ? "true" : null,
       q: searchQuery.trim() || null,
@@ -375,7 +403,9 @@ function ProductsContent() {
   }, [
     selectedCategory,
     selectedConcern,
-    selectedPriceRange,
+    priceRange,
+    maxCatalogPrice,
+    selectedRating,
     inStockOnly,
     onSaleOnly,
     searchQuery,
@@ -384,11 +414,11 @@ function ProductsContent() {
     updateUrlParams,
   ]);
 
-  // Streamlined Product Filtering Engine
+  // Product Filtering Engine
   const filteredProducts = useMemo(() => {
     return productsList
       .filter((product) => {
-        // 1. Category Filter (Driven primarily from top visual ribbon or direct link)
+        // 1. Category Filter
         if (selectedCategory !== "all") {
           const cat = (product.category || "").toLowerCase();
           const catId = ((product as any).categoryId || "").toLowerCase();
@@ -400,7 +430,6 @@ function ProductsContent() {
             catId === selectedCategory.toLowerCase() ||
             catLabel === selectedCategory.toLowerCase();
 
-          // Sub-category keyword matching fallback
           if (!catMatch) {
             if (selectedCategory === "spices") {
               catMatch =
@@ -496,26 +525,27 @@ function ProductsContent() {
           }
         }
 
-        // 3. Price Range Filter
-        if (selectedPriceRange !== "all") {
-          const priceObj = PRICE_RANGES.find((p) => p.id === selectedPriceRange);
-          if (priceObj) {
-            const price = product.price;
-            if (price < priceObj.min || price > priceObj.max) return false;
-          }
+        // 3. Price Range (Dynamic Min to Max Slider)
+        const price = product.price;
+        if (price < priceRange[0] || price > priceRange[1]) return false;
+
+        // 4. Rating Filter
+        if (selectedRating !== "all") {
+          const ratingObj = RATING_OPTIONS.find((r) => r.id === selectedRating);
+          if (ratingObj && (product.rating || 5) < ratingObj.min) return false;
         }
 
-        // 4. In-Stock Filter
+        // 5. In-Stock Filter
         if (inStockOnly && !product.inStock) return false;
 
-        // 5. On-Sale Filter
+        // 6. On-Sale Filter
         if (
           onSaleOnly &&
           (!product.discountPercentage || product.discountPercentage <= 0)
         )
           return false;
 
-        // 6. Free-form Search Query
+        // 7. Free-form Search Query
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase().trim();
           const searchable = `${product.name} ${product.urduName || ""} ${
@@ -549,19 +579,21 @@ function ProductsContent() {
     productsList,
     selectedCategory,
     selectedConcern,
-    selectedPriceRange,
+    priceRange,
+    selectedRating,
     inStockOnly,
     onSaleOnly,
     searchQuery,
     sortBy,
   ]);
 
-  // Active filter helper count
+  // Active filter count
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (selectedCategory !== "all") count++;
     if (selectedConcern !== "all") count++;
-    if (selectedPriceRange !== "all") count++;
+    if (isPriceFiltered) count++;
+    if (selectedRating !== "all") count++;
     if (inStockOnly) count++;
     if (onSaleOnly) count++;
     if (searchQuery.trim()) count++;
@@ -569,7 +601,8 @@ function ProductsContent() {
   }, [
     selectedCategory,
     selectedConcern,
-    selectedPriceRange,
+    isPriceFiltered,
+    selectedRating,
     inStockOnly,
     onSaleOnly,
     searchQuery,
@@ -580,7 +613,8 @@ function ProductsContent() {
   const clearAllFilters = () => {
     setSelectedCategory("all");
     setSelectedConcern("all");
-    setSelectedPriceRange("all");
+    setPriceRange([0, maxCatalogPrice]);
+    setSelectedRating("all");
     setInStockOnly(false);
     setOnSaleOnly(false);
     setSearchQuery("");
@@ -645,17 +679,224 @@ function ProductsContent() {
     ? { name: matchedVisualCat.label }
     : null;
   const activeConcernInfo = HEALTH_CONCERNS.find((c) => c.id === selectedConcern);
-  const activePriceInfo = PRICE_RANGES.find((p) => p.id === selectedPriceRange);
+  const activeRatingInfo = RATING_OPTIONS.find((r) => r.id === selectedRating);
 
   // Recommended products for zero results fallback
   const recommendedProducts = useMemo(() => {
     return productsList.filter((p) => p.featured).slice(0, 4);
   }, [productsList]);
 
-  // Simplified & Compact Filter Controls (Shared between Desktop Card & Mobile Drawer)
+  // Streamlined Filter Controls: 1. Price Range (Slider) -> 2. Rating -> 3. Availability -> 4. Health Concerns
   const renderFilterSections = () => (
     <div className="space-y-6">
-      {/* 1. Health Concern Radio List */}
+      {/* ─────────────────────────────────────────────────────────────
+          1. PRICE RANGE (INTERACTIVE DUAL SLIDER IN RANGE)
+      ───────────────────────────────────────────────────────────── */}
+      <div className="space-y-3.5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-900">
+            <SlidersHorizontal className="w-3.5 h-3.5 text-[#9E7D3B]" />
+            <span>Price Range</span>
+          </div>
+          {isPriceFiltered && (
+            <button
+              onClick={() => setPriceRange([0, maxCatalogPrice])}
+              className="text-[10px] text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
+            >
+              Reset
+            </button>
+          )}
+        </div>
+
+        {/* Dynamic Price Display */}
+        <div className="flex items-center justify-between text-xs font-semibold text-stone-900 bg-stone-50/80 px-3 py-2 rounded-xl border border-stone-200/60">
+          <div className="flex flex-col">
+            <span className="text-[9px] uppercase tracking-wider text-stone-400 font-medium">Min</span>
+            <span className="text-stone-900">₨ {priceRange[0].toLocaleString()}</span>
+          </div>
+          <span className="text-stone-300 font-light">—</span>
+          <div className="flex flex-col text-right">
+            <span className="text-[9px] uppercase tracking-wider text-stone-400 font-medium">Max</span>
+            <span className="text-stone-900">₨ {priceRange[1].toLocaleString()}</span>
+          </div>
+        </div>
+
+        {/* Dual Range Track & Thumbs */}
+        <div className="pt-2 px-1">
+          <div className="relative h-5 flex items-center">
+            {/* Background Rail */}
+            <div className="absolute w-full h-1.5 bg-stone-200/80 rounded-full" />
+
+            {/* Active Range Fill */}
+            <div
+              className="absolute h-1.5 bg-[#14281D] rounded-full transition-all"
+              style={{
+                left: `${Math.min(100, Math.max(0, (priceRange[0] / maxCatalogPrice) * 100))}%`,
+                right: `${Math.min(100, Math.max(0, 100 - (priceRange[1] / maxCatalogPrice) * 100))}%`,
+              }}
+            />
+
+            {/* Left Thumb (Min Price) */}
+            <input
+              type="range"
+              min={0}
+              max={maxCatalogPrice}
+              step={50}
+              value={priceRange[0]}
+              onChange={(e) => {
+                const val = Math.min(Number(e.target.value), priceRange[1] - 50);
+                setPriceRange([val, priceRange[1]]);
+              }}
+              className="absolute w-full appearance-none bg-transparent pointer-events-none z-20 cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#14281D] [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#14281D] [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
+              aria-label="Minimum price"
+            />
+
+            {/* Right Thumb (Max Price) */}
+            <input
+              type="range"
+              min={0}
+              max={maxCatalogPrice}
+              step={50}
+              value={priceRange[1]}
+              onChange={(e) => {
+                const val = Math.max(Number(e.target.value), priceRange[0] + 50);
+                setPriceRange([priceRange[0], val]);
+              }}
+              className="absolute w-full appearance-none bg-transparent pointer-events-none z-20 cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#14281D] [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-webkit-slider-thumb]:shadow-md [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-[#14281D] [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white [&::-moz-range-thumb]:shadow-md [&::-moz-range-thumb]:cursor-pointer"
+              aria-label="Maximum price"
+            />
+          </div>
+
+          <div className="flex justify-between text-[10px] text-stone-400 font-medium mt-1">
+            <span>₨ 0</span>
+            <span>₨ {maxCatalogPrice.toLocaleString()}+</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="h-px bg-stone-100" />
+
+      {/* ─────────────────────────────────────────────────────────────
+          2. CUSTOMER RATING
+      ───────────────────────────────────────────────────────────── */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-900">
+            <Star className="w-3.5 h-3.5 text-[#9E7D3B] fill-[#9E7D3B]" />
+            <span>Customer Rating</span>
+          </div>
+          {selectedRating !== "all" && (
+            <button
+              onClick={() => setSelectedRating("all")}
+              className="text-[10px] text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        <div className="space-y-1">
+          {RATING_OPTIONS.map((ro) => {
+            const isSelected = selectedRating === ro.id;
+            return (
+              <button
+                key={ro.id}
+                type="button"
+                onClick={() => setSelectedRating(isSelected ? "all" : ro.id)}
+                className={`group w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-colors cursor-pointer ${
+                  isSelected
+                    ? "bg-[#14281D]/5 text-[#14281D] font-semibold"
+                    : "text-stone-600 hover:bg-stone-50 hover:text-stone-900"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
+                      isSelected
+                        ? "border-[#14281D] bg-[#14281D]"
+                        : "border-stone-300 group-hover:border-stone-400 bg-white"
+                    }`}
+                  >
+                    {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-[#9E7D3B]" />}
+                  </div>
+                  {ro.id === "all" ? (
+                    <span className="text-xs">All Ratings</span>
+                  ) : (
+                    <div className="flex items-center gap-1.5 text-xs">
+                      <div className="flex items-center text-[#9E7D3B]">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`w-3 h-3 ${
+                              star <= Math.floor(ro.min)
+                                ? "fill-[#9E7D3B] text-[#9E7D3B]"
+                                : "text-stone-300 fill-stone-100"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-stone-700 text-[11px] font-medium">{ro.label}</span>
+                    </div>
+                  )}
+                </div>
+                {isSelected && <Check className="w-3.5 h-3.5 text-[#9E7D3B]" />}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="h-px bg-stone-100" />
+
+      {/* ─────────────────────────────────────────────────────────────
+          3. AVAILABILITY & OFFERS
+      ───────────────────────────────────────────────────────────── */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-900">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#9E7D3B]" />
+          <span>Availability</span>
+        </div>
+
+        <div className="space-y-2">
+          {/* In Stock Only */}
+          <label className="flex items-center justify-between py-1 px-1 rounded-md hover:bg-stone-50 cursor-pointer transition-colors group">
+            <span className="text-xs text-stone-700 group-hover:text-stone-900 font-medium">
+              In Stock Only
+            </span>
+            <div className="relative inline-flex items-center">
+              <input
+                type="checkbox"
+                checked={inStockOnly}
+                onChange={(e) => setInStockOnly(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-8 h-4 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#14281D]" />
+            </div>
+          </label>
+
+          {/* On Sale / Special Discounts */}
+          <label className="flex items-center justify-between py-1 px-1 rounded-md hover:bg-stone-50 cursor-pointer transition-colors group">
+            <span className="text-xs text-stone-700 group-hover:text-stone-900 font-medium">
+              On Sale / Deals
+            </span>
+            <div className="relative inline-flex items-center">
+              <input
+                type="checkbox"
+                checked={onSaleOnly}
+                onChange={(e) => setOnSaleOnly(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-8 h-4 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#9E7D3B]" />
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div className="h-px bg-stone-100" />
+
+      {/* ─────────────────────────────────────────────────────────────
+          4. TARGET HEALTH CONCERN
+      ───────────────────────────────────────────────────────────── */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-900">
@@ -665,7 +906,7 @@ function ProductsContent() {
           {selectedConcern !== "all" && (
             <button
               onClick={() => setSelectedConcern("all")}
-              className="text-[10px] text-stone-400 hover:text-rose-600 transition-colors"
+              className="text-[10px] text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
             >
               Clear
             </button>
@@ -687,7 +928,6 @@ function ProductsContent() {
                 }`}
               >
                 <div className="flex items-center gap-2.5 min-w-0">
-                  {/* Subtle Radio Indicator */}
                   <div
                     className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
                       isSelected
@@ -702,86 +942,6 @@ function ProductsContent() {
               </button>
             );
           })}
-        </div>
-      </div>
-
-      <div className="h-px bg-stone-100" />
-
-      {/* 2. Price Range (Compact Segmented Chips) */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-900">
-            <SlidersHorizontal className="w-3.5 h-3.5 text-[#9E7D3B]" />
-            <span>Price Range</span>
-          </div>
-          {selectedPriceRange !== "all" && (
-            <button
-              onClick={() => setSelectedPriceRange("all")}
-              className="text-[10px] text-stone-400 hover:text-rose-600 transition-colors"
-            >
-              Clear
-            </button>
-          )}
-        </div>
-
-        <div className="flex flex-wrap gap-1.5">
-          {PRICE_RANGES.map((pr) => {
-            const isSelected = selectedPriceRange === pr.id;
-            return (
-              <button
-                key={pr.id}
-                type="button"
-                onClick={() => setSelectedPriceRange(pr.id)}
-                className={`px-2.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer ${
-                  isSelected
-                    ? "bg-[#14281D] text-white font-medium shadow-2xs"
-                    : "bg-[#FAF9F6] text-stone-600 hover:bg-stone-100 hover:text-stone-900 border border-stone-200/70"
-                }`}
-              >
-                {pr.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="h-px bg-stone-100" />
-
-      {/* 3. Availability & Offers (Clean Minimal Toggles) */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-900">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#9E7D3B]" />
-          <span>Availability</span>
-        </div>
-
-        <div className="space-y-2">
-          {/* In Stock Only */}
-          <label className="flex items-center justify-between py-1 px-1 rounded-md hover:bg-stone-50 cursor-pointer transition-colors group">
-            <span className="text-xs text-stone-700 group-hover:text-stone-900">In Stock Only</span>
-            <div className="relative inline-flex items-center">
-              <input
-                type="checkbox"
-                checked={inStockOnly}
-                onChange={(e) => setInStockOnly(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-8 h-4 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#14281D]" />
-            </div>
-          </label>
-
-          {/* On Sale / Special Discounts */}
-          <label className="flex items-center justify-between py-1 px-1 rounded-md hover:bg-stone-50 cursor-pointer transition-colors group">
-            <span className="text-xs text-stone-700 group-hover:text-stone-900">On Sale / Deals</span>
-            <div className="relative inline-flex items-center">
-              <input
-                type="checkbox"
-                checked={onSaleOnly}
-                onChange={(e) => setOnSaleOnly(e.target.checked)}
-                className="sr-only peer"
-              />
-              <div className="w-8 h-4 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#9E7D3B]" />
-            </div>
-          </label>
         </div>
       </div>
     </div>
@@ -955,7 +1115,7 @@ function ProductsContent() {
                 )}
               </div>
 
-              {/* Simplified Filter Sections */}
+              {/* Simplified Filter Sections in Custom Order */}
               {renderFilterSections()}
             </div>
           </aside>
@@ -1077,11 +1237,13 @@ function ProductsContent() {
                       </span>
                     )}
 
-                    {selectedConcern !== "all" && activeConcernInfo && (
+                    {isPriceFiltered && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-[11px] font-medium">
-                        <span>Concern: {activeConcernInfo.name}</span>
+                        <span>
+                          Price: ₨ {priceRange[0].toLocaleString()} – ₨ {priceRange[1].toLocaleString()}
+                        </span>
                         <button
-                          onClick={() => setSelectedConcern("all")}
+                          onClick={() => setPriceRange([0, maxCatalogPrice])}
                           className="text-stone-400 hover:text-rose-600 ml-0.5 cursor-pointer"
                         >
                           <X className="w-3 h-3" />
@@ -1089,11 +1251,11 @@ function ProductsContent() {
                       </span>
                     )}
 
-                    {selectedPriceRange !== "all" && activePriceInfo && (
+                    {selectedRating !== "all" && activeRatingInfo && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-[11px] font-medium">
-                        <span>Price: {activePriceInfo.label}</span>
+                        <span>Rating: {activeRatingInfo.label}</span>
                         <button
-                          onClick={() => setSelectedPriceRange("all")}
+                          onClick={() => setSelectedRating("all")}
                           className="text-stone-400 hover:text-rose-600 ml-0.5 cursor-pointer"
                         >
                           <X className="w-3 h-3" />
@@ -1118,6 +1280,18 @@ function ProductsContent() {
                         <span>On Sale</span>
                         <button
                           onClick={() => setOnSaleOnly(false)}
+                          className="text-stone-400 hover:text-rose-600 ml-0.5 cursor-pointer"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    )}
+
+                    {selectedConcern !== "all" && activeConcernInfo && (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-[11px] font-medium">
+                        <span>Concern: {activeConcernInfo.name}</span>
+                        <button
+                          onClick={() => setSelectedConcern("all")}
                           className="text-stone-400 hover:text-rose-600 ml-0.5 cursor-pointer"
                         >
                           <X className="w-3 h-3" />
@@ -1200,7 +1374,7 @@ function ProductsContent() {
                     No matching remedies found
                   </h3>
                   <p className="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">
-                    We couldn&apos;t find any remedies matching your selected combination. Try clearing some filters or searching with a broader term.
+                    We couldn&apos;t find any remedies matching your selected combination. Try adjusting the price slider or clearing some filters.
                   </p>
                 </div>
 
@@ -1232,7 +1406,7 @@ function ProductsContent() {
       </main>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          3. MOBILE SLIDE-OVER FILTER SHEET (Powered by Radix UI & Framer Motion)
+          3. MOBILE SLIDE-OVER FILTER SHEET
       ═══════════════════════════════════════════════════════════════════════ */}
       <Sheet open={isFilterDrawerOpen} onOpenChange={setIsFilterDrawerOpen}>
         <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col h-full bg-[#FAF9F6] border-stone-200">
@@ -1241,7 +1415,7 @@ function ProductsContent() {
               <div className="flex items-center gap-2.5">
                 <Sliders className="w-4 h-4 text-[#9E7D3B]" />
                 <SheetTitle className="text-base font-serif font-bold text-stone-900">
-                  Filter Formulations
+                  Filter Catalog
                 </SheetTitle>
               </div>
               {hasActiveFilters && (
@@ -1255,7 +1429,7 @@ function ProductsContent() {
               )}
             </div>
             <SheetDescription className="text-xs text-stone-500">
-              Refine by health concern, price range, or current availability.
+              Refine by price range, customer rating, availability, or health concern.
             </SheetDescription>
           </SheetHeader>
 

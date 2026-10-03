@@ -40,138 +40,6 @@ import {
   Flame,
 } from "lucide-react";
 
-// Health concern mappings to product indications & botanicals
-const HEALTH_CONCERNS = [
-  { id: "all", name: "All Health Concerns" },
-  {
-    id: "digestion",
-    name: "Digestion, Acidity & Stomach",
-    keywords: [
-      "stomach",
-      "acidity",
-      "digestion",
-      "constipation",
-      "gas",
-      "gerd",
-      "gut",
-      "bel",
-      "bael",
-      "harar",
-      "reflux",
-      "hazim",
-      "pait",
-      "qabz",
-    ],
-  },
-  {
-    id: "joints",
-    name: "Joint Pain, Arthritis & Bones",
-    keywords: [
-      "joint",
-      "knee",
-      "pain",
-      "arthritis",
-      "backache",
-      "stiffness",
-      "bone",
-      "baans",
-      "bamboo",
-      "roghan",
-      "suranjan",
-      "jor",
-      "dard",
-    ],
-  },
-  {
-    id: "liver",
-    name: "Liver Detox & Body Heat",
-    keywords: [
-      "liver",
-      "heat",
-      "detox",
-      "jaundice",
-      "cooling",
-      "fatty",
-      "makoh",
-      "kasni",
-      "chicory",
-      "afsanteen",
-      "jigar",
-      "garmi",
-    ],
-  },
-  {
-    id: "vitality",
-    name: "Daily Energy, Brain & Stamina",
-    keywords: [
-      "energy",
-      "vitality",
-      "stamina",
-      "memory",
-      "brain",
-      "weakness",
-      "nuts",
-      "maghaz",
-      "almond",
-      "shahi",
-      "taqat",
-      "dimagh",
-    ],
-  },
-  {
-    id: "respiratory",
-    name: "Cough, Sinus & Chest Care",
-    keywords: [
-      "cough",
-      "throat",
-      "allergy",
-      "sinus",
-      "chest",
-      "mucus",
-      "asthma",
-      "juniper",
-      "arar",
-      "khansi",
-      "nazla",
-      "zukam",
-    ],
-  },
-  {
-    id: "skin-hair",
-    name: "Skin Repair & Hair Strength",
-    keywords: [
-      "skin",
-      "burns",
-      "cracked",
-      "heels",
-      "hair",
-      "scalp",
-      "dandruff",
-      "shampoo",
-      "marham",
-      "shikakai",
-      "baal",
-      "jild",
-    ],
-  },
-  {
-    id: "heart-mood",
-    name: "Heart Strength & Mood Tonic",
-    keywords: [
-      "heart",
-      "mood",
-      "palpitation",
-      "apple",
-      "behi",
-      "quince",
-      "safarjal",
-      "carrot",
-      "gajar",
-      "dil",
-      "ghabrahath",
-    ],
-  },
-];
 
 const VISUAL_CATEGORIES = [
   {
@@ -243,7 +111,7 @@ const VISUAL_CATEGORIES = [
     icon: Activity,
     bgGradient: "bg-sky-50 text-sky-900",
     badge: "Curated",
-    type: "concern",
+    type: "category",
   },
   {
     id: "oils-marham",
@@ -300,9 +168,6 @@ function ProductsContent() {
 
   const [selectedCategory, setSelectedCategory] = useState<string>(
     searchParams.get("category") || "all"
-  );
-  const [selectedConcern, setSelectedConcern] = useState<string>(
-    searchParams.get("concern") || "all"
   );
   const [priceRange, setPriceRange] = useState<[number, number]>([
     initialMin,
@@ -390,7 +255,6 @@ function ProductsContent() {
   useEffect(() => {
     updateUrlParams({
       category: selectedCategory !== "all" ? selectedCategory : null,
-      concern: selectedConcern !== "all" ? selectedConcern : null,
       minPrice: priceRange[0] > 0 ? priceRange[0] : null,
       maxPrice: priceRange[1] < maxCatalogPrice ? priceRange[1] : null,
       rating: selectedRating !== "all" ? selectedRating : null,
@@ -402,7 +266,6 @@ function ProductsContent() {
     });
   }, [
     selectedCategory,
-    selectedConcern,
     priceRange,
     maxCatalogPrice,
     selectedRating,
@@ -509,43 +372,27 @@ function ProductsContent() {
           if (!catMatch) return false;
         }
 
-        // 2. Health Concern Filter
-        if (selectedConcern !== "all") {
-          const concernObj = HEALTH_CONCERNS.find((c) => c.id === selectedConcern);
-          if (concernObj?.keywords) {
-            const fullText = `${product.name} ${product.traditionalPurpose || ""} ${
-              product.shortDescription || ""
-            } ${product.benefits?.join(" ") || ""} ${
-              product.ingredients?.map((i) => `${i.name} ${i.role}`).join(" ") || ""
-            }`.toLowerCase();
-            const matchesConcern = concernObj.keywords.some((kw) =>
-              fullText.includes(kw.toLowerCase())
-            );
-            if (!matchesConcern) return false;
-          }
-        }
-
-        // 3. Price Range (Dynamic Min to Max Slider)
+        // 2. Price Range (Dynamic Min to Max Slider)
         const price = product.price;
         if (price < priceRange[0] || price > priceRange[1]) return false;
 
-        // 4. Rating Filter
+        // 3. Rating Filter
         if (selectedRating !== "all") {
           const ratingObj = RATING_OPTIONS.find((r) => r.id === selectedRating);
           if (ratingObj && (product.rating || 5) < ratingObj.min) return false;
         }
 
-        // 5. In-Stock Filter
+        // 4. In-Stock Filter
         if (inStockOnly && !product.inStock) return false;
 
-        // 6. On-Sale Filter
+        // 5. On-Sale Filter
         if (
           onSaleOnly &&
           (!product.discountPercentage || product.discountPercentage <= 0)
         )
           return false;
 
-        // 7. Free-form Search Query
+        // 6. Free-form Search Query
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase().trim();
           const searchable = `${product.name} ${product.urduName || ""} ${
@@ -578,7 +425,6 @@ function ProductsContent() {
   }, [
     productsList,
     selectedCategory,
-    selectedConcern,
     priceRange,
     selectedRating,
     inStockOnly,
@@ -591,7 +437,6 @@ function ProductsContent() {
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     if (selectedCategory !== "all") count++;
-    if (selectedConcern !== "all") count++;
     if (isPriceFiltered) count++;
     if (selectedRating !== "all") count++;
     if (inStockOnly) count++;
@@ -600,7 +445,6 @@ function ProductsContent() {
     return count;
   }, [
     selectedCategory,
-    selectedConcern,
     isPriceFiltered,
     selectedRating,
     inStockOnly,
@@ -612,7 +456,6 @@ function ProductsContent() {
 
   const clearAllFilters = () => {
     setSelectedCategory("all");
-    setSelectedConcern("all");
     setPriceRange([0, maxCatalogPrice]);
     setSelectedRating("all");
     setInStockOnly(false);
@@ -625,15 +468,8 @@ function ProductsContent() {
       if (catItem.type === "deals") {
         return onSaleOnly;
       }
-      if (catItem.type === "concern") {
-        return selectedConcern !== "all" && !onSaleOnly;
-      }
       if (catItem.type === "all") {
-        return (
-          selectedCategory === "all" &&
-          !onSaleOnly &&
-          selectedConcern === "all"
-        );
+        return selectedCategory === "all" && !onSaleOnly;
       }
       return (
         (selectedCategory === catItem.slug ||
@@ -641,7 +477,7 @@ function ProductsContent() {
         !onSaleOnly
       );
     },
-    [selectedCategory, onSaleOnly, selectedConcern]
+    [selectedCategory, onSaleOnly]
   );
 
   const handleCategoryAvatarClick = useCallback(
@@ -649,21 +485,15 @@ function ProductsContent() {
       if (catItem.type === "deals") {
         setOnSaleOnly(true);
         setSelectedCategory("all");
-        setSelectedConcern("all");
-      } else if (catItem.type === "concern") {
-        setOnSaleOnly(false);
-        setSelectedCategory("all");
-        setSelectedConcern(selectedConcern === "all" ? "digestion" : selectedConcern);
       } else if (catItem.type === "all") {
         setSelectedCategory("all");
         setOnSaleOnly(false);
-        setSelectedConcern("all");
       } else {
         setSelectedCategory(catItem.slug);
         setOnSaleOnly(false);
       }
     },
-    [selectedConcern]
+    []
   );
 
   // Human-readable labels for active filter pills
@@ -678,7 +508,6 @@ function ProductsContent() {
     : matchedVisualCat
     ? { name: matchedVisualCat.label }
     : null;
-  const activeConcernInfo = HEALTH_CONCERNS.find((c) => c.id === selectedConcern);
   const activeRatingInfo = RATING_OPTIONS.find((r) => r.id === selectedRating);
 
   // Recommended products for zero results fallback
@@ -686,7 +515,7 @@ function ProductsContent() {
     return productsList.filter((p) => p.featured).slice(0, 4);
   }, [productsList]);
 
-  // Streamlined Filter Controls: 1. Price Range (Slider) -> 2. Rating -> 3. Availability -> 4. Health Concerns
+  // Streamlined Filter Controls: 1. Price Range (Slider) -> 2. Rating -> 3. Availability
   const renderFilterSections = () => (
     <div className="space-y-6">
       {/* ─────────────────────────────────────────────────────────────
@@ -889,59 +718,6 @@ function ProductsContent() {
               <div className="w-8 h-4 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#9E7D3B]" />
             </div>
           </label>
-        </div>
-      </div>
-
-      <div className="h-px bg-stone-100" />
-
-      {/* ─────────────────────────────────────────────────────────────
-          4. TARGET HEALTH CONCERN
-      ───────────────────────────────────────────────────────────── */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-900">
-            <Sparkles className="w-3.5 h-3.5 text-[#9E7D3B]" />
-            <span>Health Concern</span>
-          </div>
-          {selectedConcern !== "all" && (
-            <button
-              onClick={() => setSelectedConcern("all")}
-              className="text-[10px] text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
-            >
-              Clear
-            </button>
-          )}
-        </div>
-
-        <div className="space-y-1">
-          {HEALTH_CONCERNS.map((hc) => {
-            const isSelected = selectedConcern === hc.id;
-            return (
-              <button
-                key={hc.id}
-                type="button"
-                onClick={() => setSelectedConcern(hc.id)}
-                className={`group w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-colors cursor-pointer ${
-                  isSelected
-                    ? "bg-[#14281D]/5 text-[#14281D] font-semibold"
-                    : "text-stone-600 hover:bg-stone-50 hover:text-stone-900"
-                }`}
-              >
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div
-                    className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
-                      isSelected
-                        ? "border-[#14281D] bg-[#14281D]"
-                        : "border-stone-300 group-hover:border-stone-400 bg-white"
-                    }`}
-                  >
-                    {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-[#9E7D3B]" />}
-                  </div>
-                  <span className="text-xs truncate">{hc.name}</span>
-                </div>
-              </button>
-            );
-          })}
         </div>
       </div>
     </div>
@@ -1287,18 +1063,6 @@ function ProductsContent() {
                       </span>
                     )}
 
-                    {selectedConcern !== "all" && activeConcernInfo && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-[11px] font-medium">
-                        <span>Concern: {activeConcernInfo.name}</span>
-                        <button
-                          onClick={() => setSelectedConcern("all")}
-                          className="text-stone-400 hover:text-rose-600 ml-0.5 cursor-pointer"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    )}
-
                     {searchQuery && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-[11px] font-medium">
                         <span>&ldquo;{searchQuery}&rdquo;</span>
@@ -1429,7 +1193,7 @@ function ProductsContent() {
               )}
             </div>
             <SheetDescription className="text-xs text-stone-500">
-              Refine by price range, customer rating, availability, or health concern.
+              Refine by price range, customer rating, or availability.
             </SheetDescription>
           </SheetHeader>
 

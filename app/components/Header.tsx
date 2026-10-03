@@ -28,7 +28,77 @@ import {
   Activity,
   Building2,
   Home,
+  ChevronDown,
+  ChevronRight,
+  ArrowRight,
+  Sparkles,
+  Leaf,
+  Sprout,
+  Flame,
+  Droplets,
+  Sun,
+  Package,
 } from "lucide-react";
+
+export const SHOP_SUBMENU_ITEMS = [
+  {
+    name: "Herbs",
+    subtitle: "Pure roots, barks & raw botanicals",
+    href: "/products?category=herbs-seeds",
+    icon: Leaf,
+    badge: "Botanical",
+  },
+  {
+    name: "Deals",
+    subtitle: "Seasonal discounts & bundle savings",
+    href: "/products?onSale=true",
+    icon: Sparkles,
+    badge: "50% OFF",
+    highlight: true,
+  },
+  {
+    name: "Murabba",
+    subtitle: "Classical herbal preserves & tonics",
+    href: "/products?category=murabbajaat",
+    icon: Package,
+    badge: "Traditional",
+  },
+  {
+    name: "Spices",
+    subtitle: "Aromatic culinary & medicinal spices",
+    href: "/products?category=spices",
+    icon: Flame,
+    badge: "Aromatic",
+  },
+  {
+    name: "Seeds",
+    subtitle: "Organic whole seeds, grains & kernels",
+    href: "/products?category=seeds",
+    icon: Sprout,
+    badge: "Natural",
+  },
+  {
+    name: "Health Collections",
+    subtitle: "Targeted blends for digestion, joints & vitality",
+    href: "/products?concern=all",
+    icon: Activity,
+    badge: "Curated",
+  },
+  {
+    name: "Oils & Balms",
+    subtitle: "Therapeutic massage oils & herbal balms",
+    href: "/products?category=oils-marham",
+    icon: Droplets,
+    badge: "Therapeutic",
+  },
+  {
+    name: "Dry Fruits & Nuts",
+    subtitle: "Nutrient-dense vitality mixes & whole nuts",
+    href: "/products?category=dry-fruits",
+    icon: Sun,
+    badge: "Vitality",
+  },
+];
 
 export default function Header() {
   const pathname = usePathname();
@@ -40,9 +110,27 @@ export default function Header() {
   const [isConsultModalOpen, setIsConsultModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isShopDropdownOpen, setIsShopDropdownOpen] = useState(false);
+  const [isMobileShopExpanded, setIsMobileShopExpanded] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const shopMenuRef = useRef<HTMLDivElement>(null);
+  const shopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const closeMenuRef = useRef<HTMLButtonElement>(null);
+
+  const handleShopMouseEnter = () => {
+    if (shopTimeoutRef.current) {
+      clearTimeout(shopTimeoutRef.current);
+      shopTimeoutRef.current = null;
+    }
+    setIsShopDropdownOpen(true);
+  };
+
+  const handleShopMouseLeave = () => {
+    shopTimeoutRef.current = setTimeout(() => {
+      setIsShopDropdownOpen(false);
+    }, 180);
+  };
 
   const openMobileMenu = () => {
     setIsSearchOpen(false);
@@ -85,6 +173,12 @@ export default function Header() {
         !userMenuRef.current.contains(event.target as Node)
       ) {
         setIsUserMenuOpen(false);
+      }
+      if (
+        shopMenuRef.current &&
+        !shopMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsShopDropdownOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -278,6 +372,144 @@ export default function Header() {
             <nav className="hidden xl:flex items-center gap-5 2xl:gap-7">
               {navLinks.map((link) => {
                 const isActive = isActivePath(link.href);
+
+                if (link.name === "Shop") {
+                  return (
+                    <div
+                      key={link.name}
+                      ref={shopMenuRef}
+                      className="relative py-2"
+                      onMouseEnter={handleShopMouseEnter}
+                      onMouseLeave={handleShopMouseLeave}
+                    >
+                      <Link
+                        href={link.href}
+                        onClick={(e) => handleNavClick(link.href, e)}
+                        className={`text-sm font-medium transition-colors duration-150 relative py-1 flex items-center gap-1.5 ${
+                          isActive
+                            ? "text-[#22623a]"
+                            : "text-[#59534b] hover:text-[#22623a]"
+                        }`}
+                      >
+                        <span>{link.name}</span>
+                        <ChevronDown
+                          className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                            isShopDropdownOpen
+                              ? "rotate-180 text-[#22623a]"
+                              : "text-[#7a7268]"
+                          }`}
+                        />
+                        {link.badge && (
+                          <span className="px-1.5 py-0.5 bg-[#c59b27]/15 text-[#8c6a15] text-[9px] font-bold uppercase tracking-wider rounded-md border border-[#c59b27]/30">
+                            {link.badge}
+                          </span>
+                        )}
+                        {isActive && (
+                          <span className="absolute -bottom-[3px] left-0 w-full h-[2px] bg-[#c59b27] rounded-full" />
+                        )}
+                      </Link>
+
+                      {/* Mega Menu Dropdown */}
+                      {isShopDropdownOpen && (
+                        <div
+                          className="absolute top-full left-1/2 -translate-x-1/2 pt-2 w-[620px] z-50 animate-fade-in"
+                          onMouseEnter={handleShopMouseEnter}
+                          onMouseLeave={handleShopMouseLeave}
+                        >
+                          <div className="bg-white rounded-2xl shadow-2xl border border-[#e6dfd5] p-5 overflow-hidden">
+                            {/* Header bar */}
+                            <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-[#f0eae1]">
+                              <div>
+                                <h3 className="font-serif font-bold text-sm text-[#22623a]">
+                                  Apothecary Collections &amp; Categories
+                                </h3>
+                                <p className="text-[11px] text-[#7a7268]">
+                                  Pure, unadulterated &amp; clinically verified herbal remedies
+                                </p>
+                              </div>
+                              <Link
+                                href="/products"
+                                onClick={() => setIsShopDropdownOpen(false)}
+                                className="inline-flex items-center gap-1 text-xs font-bold text-[#8c6a15] hover:text-[#6e520e] transition-colors group"
+                              >
+                                <span>All Products</span>
+                                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                              </Link>
+                            </div>
+
+                            {/* 2-Column Grid */}
+                            <div className="grid grid-cols-2 gap-2">
+                              {SHOP_SUBMENU_ITEMS.map((item) => {
+                                const SubIcon = item.icon;
+                                return (
+                                  <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    onClick={() => setIsShopDropdownOpen(false)}
+                                    className={`group flex items-start gap-3 p-2.5 rounded-xl transition-all border ${
+                                      item.highlight
+                                        ? "bg-amber-50/70 border-amber-200/80 hover:bg-amber-100/70 hover:border-amber-300"
+                                        : "bg-[#faf8f5]/60 border-transparent hover:bg-[#f0f6f2] hover:border-[#22623a]/15 hover:shadow-xs"
+                                    }`}
+                                  >
+                                    <div
+                                      className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
+                                        item.highlight
+                                          ? "bg-amber-100 text-amber-700"
+                                          : "bg-[#eef7f1] text-[#22623a] group-hover:bg-[#22623a] group-hover:text-white"
+                                      }`}
+                                    >
+                                      <SubIcon className="w-4 h-4" />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-bold text-xs text-[#22623a] group-hover:text-[#174829] transition-colors">
+                                          {item.name}
+                                        </span>
+                                        {item.badge && (
+                                          <span
+                                            className={`px-1.5 py-0.2 text-[8px] font-extrabold uppercase tracking-wider rounded-md border ${
+                                              item.highlight
+                                                ? "bg-red-500 text-white border-red-600 animate-pulse"
+                                                : "bg-[#c59b27]/15 text-[#8c6a15] border-[#c59b27]/30"
+                                            }`}
+                                          >
+                                            {item.badge}
+                                          </span>
+                                        )}
+                                      </div>
+                                      <p className="text-[10px] text-[#7a7268] line-clamp-1 leading-snug mt-0.5">
+                                        {item.subtitle}
+                                      </p>
+                                    </div>
+                                  </Link>
+                                );
+                              })}
+                            </div>
+
+                            {/* Footer Bar */}
+                            <div className="mt-3.5 pt-3 border-t border-[#f0eae1] flex items-center justify-between text-[11px] text-[#7a7268] bg-[#faf8f5] -mx-5 -mb-5 px-5 py-2.5">
+                              <span className="flex items-center gap-1.5">
+                                <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
+                                <span>Free delivery on orders above Rs. 2,000 across Pakistan</span>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIsShopDropdownOpen(false);
+                                  openConsult();
+                                }}
+                                className="text-[#22623a] font-bold hover:underline"
+                              >
+                                Ask a Hakim →
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
 
                 return (
                   <Link
@@ -573,6 +805,94 @@ export default function Header() {
                   {navLinks.map((link) => {
                     const Icon = link.icon;
                     const isActive = isActivePath(link.href);
+
+                    if (link.name === "Shop") {
+                      return (
+                        <div key={link.name} className="space-y-1">
+                          <div className="flex items-center justify-between rounded-xl transition-colors hover:bg-white">
+                            <Link
+                              href={link.href}
+                              onClick={(e) => handleMobileNavClick(link.href, e)}
+                              className={`flex items-center gap-3 py-2.5 px-3 text-sm font-semibold rounded-xl flex-1 ${
+                                isActive
+                                  ? "bg-[#eef7f1] text-[#22623a] font-bold"
+                                  : "text-[#59534b]"
+                              }`}
+                            >
+                              <Icon className="w-4 h-4 text-[#22623a] shrink-0" />
+                              <span className="flex-1">{link.name}</span>
+                              {link.badge && (
+                                <span className="px-1.5 py-0.5 bg-[#c59b27]/15 text-[#8c6a15] text-[9px] font-bold uppercase tracking-wider rounded-md border border-[#c59b27]/30">
+                                  {link.badge}
+                                </span>
+                              )}
+                            </Link>
+                            <button
+                              type="button"
+                              onClick={() => setIsMobileShopExpanded(!isMobileShopExpanded)}
+                              className="p-2.5 text-[#7a7268] hover:text-[#22623a] transition-colors"
+                              aria-label="Toggle Shop categories"
+                            >
+                              <ChevronDown
+                                className={`w-4 h-4 transition-transform duration-200 ${
+                                  isMobileShopExpanded ? "rotate-180 text-[#22623a]" : ""
+                                }`}
+                              />
+                            </button>
+                          </div>
+
+                          {/* Mobile Submenu Accordion */}
+                          {isMobileShopExpanded && (
+                            <div className="pl-3 pr-1 py-1 space-y-1 animate-fade-in border-l-2 border-[#22623a]/20 ml-4 my-1">
+                              {SHOP_SUBMENU_ITEMS.map((item) => {
+                                const SubIcon = item.icon;
+                                return (
+                                  <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    onClick={(e) => handleMobileNavClick(item.href, e)}
+                                    className={`flex items-center justify-between py-2 px-2.5 rounded-lg text-xs font-medium transition-colors ${
+                                      item.highlight
+                                        ? "bg-amber-50 text-amber-900 hover:bg-amber-100"
+                                        : "text-[#59534b] hover:bg-white hover:text-[#22623a]"
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                      <SubIcon
+                                        className={`w-3.5 h-3.5 shrink-0 ${
+                                          item.highlight ? "text-amber-600" : "text-[#22623a]"
+                                        }`}
+                                      />
+                                      <span className="truncate">{item.name}</span>
+                                    </div>
+                                    {item.badge && (
+                                      <span
+                                        className={`px-1.5 py-0.2 text-[8px] font-extrabold uppercase rounded-md shrink-0 border ${
+                                          item.highlight
+                                            ? "bg-red-500 text-white border-red-600"
+                                            : "bg-[#c59b27]/15 text-[#8c6a15] border-[#c59b27]/30"
+                                        }`}
+                                      >
+                                        {item.badge}
+                                      </span>
+                                    )}
+                                  </Link>
+                                );
+                              })}
+                              <Link
+                                href="/products"
+                                onClick={(e) => handleMobileNavClick("/products", e)}
+                                className="flex items-center gap-2 py-2 px-2.5 rounded-lg text-xs font-bold text-[#8c6a15] hover:bg-white transition-colors"
+                              >
+                                <ArrowRight className="w-3.5 h-3.5" />
+                                <span>View All Products</span>
+                              </Link>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+
                     return (
                       <Link
                         key={link.name}

@@ -7,12 +7,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Product, CategoryInfo } from "@/app/data/products";
 import ProductCard from "@/app/components/ProductCard";
 import {
-  Accordion,
-  AccordionItem,
-  AccordionTrigger,
-  AccordionContent,
-} from "@/components/ui/accordion";
-import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -31,26 +25,18 @@ import {
   X,
   RotateCcw,
   Check,
-  Star,
-  Flame,
-  Snowflake,
-  Scale,
-  ChevronDown,
   Home,
   ChevronRight,
-  ArrowUpDown,
-  ShoppingBag,
+  ChevronDown,
   Sliders,
   Filter,
   Leaf,
-  CheckCircle2,
   Package,
   Sprout,
   Activity,
   Droplets,
   Sun,
-  ArrowRight,
-  Heart,
+  Flame,
 } from "lucide-react";
 
 // Health concern mappings to product indications & botanicals
@@ -282,39 +268,10 @@ const VISUAL_CATEGORIES = [
 
 const PRICE_RANGES = [
   { id: "all", label: "All Prices", min: 0, max: 99999 },
-  { id: "under-300", label: "Under ₨ 300", min: 0, max: 300 },
-  { id: "300-500", label: "₨ 300 – ₨ 500", min: 300, max: 500 },
-  { id: "500-1000", label: "₨ 500 – ₨ 1,000", min: 500, max: 1000 },
-  { id: "over-1000", label: "₨ 1,000 & Above", min: 1000, max: 99999 },
-];
-
-const MIZAJ_OPTIONS = [
-  { id: "all", label: "All Energetics" },
-  {
-    id: "cooling",
-    label: "Cooling & Soothing",
-    icon: Snowflake,
-    keywords: ["cooling", "cold", "sard", "hydrating", "soothing"],
-  },
-  {
-    id: "warm",
-    label: "Warm & Invigorating",
-    icon: Flame,
-    keywords: ["warm", "garm", "bitter", "clearing", "invigorating"],
-  },
-  {
-    id: "balanced",
-    label: "Balanced & Nourishing",
-    icon: Scale,
-    keywords: ["balanced", "nourishing", "energizing", "gentle"],
-  },
-];
-
-const RATING_OPTIONS = [
-  { id: "all", label: "All Ratings", min: 0 },
-  { id: "4.8", label: "4.8★ & Above", min: 4.8 },
-  { id: "4.9", label: "4.9★ & Above", min: 4.9 },
-  { id: "5.0", label: "5.0★ Perfect Score", min: 5.0 },
+  { id: "under-300", label: "< ₨ 300", min: 0, max: 300 },
+  { id: "300-500", label: "₨ 300–500", min: 300, max: 500 },
+  { id: "500-1000", label: "₨ 500–1k", min: 500, max: 1000 },
+  { id: "over-1000", label: "₨ 1,000+", min: 1000, max: 99999 },
 ];
 
 function ProductsContent() {
@@ -322,7 +279,7 @@ function ProductsContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // 1. Initial State hydrated from URL query parameters (Two-way sync)
+  // 1. Initial State hydrated from URL query parameters
   const [selectedCategory, setSelectedCategory] = useState<string>(
     searchParams.get("category") || "all"
   );
@@ -332,20 +289,11 @@ function ProductsContent() {
   const [selectedPriceRange, setSelectedPriceRange] = useState<string>(
     searchParams.get("price") || "all"
   );
-  const [selectedMizaj, setSelectedMizaj] = useState<string>(
-    searchParams.get("mizaj") || "all"
-  );
-  const [selectedRating, setSelectedRating] = useState<string>(
-    searchParams.get("rating") || "all"
-  );
   const [inStockOnly, setInStockOnly] = useState<boolean>(
     searchParams.get("inStock") === "true"
   );
   const [onSaleOnly, setOnSaleOnly] = useState<boolean>(
     searchParams.get("onSale") === "true"
-  );
-  const [bestSellersOnly, setBestSellersOnly] = useState<boolean>(
-    searchParams.get("featured") === "true"
   );
   const [searchQuery, setSearchQuery] = useState<string>(
     searchParams.get("q") || ""
@@ -395,7 +343,7 @@ function ProductsContent() {
     loadCatalog();
   }, []);
 
-  // Update URL Query Parameters on Filter Change (Bidirectional Synchronization)
+  // Update URL Query Parameters on Filter Change
   const updateUrlParams = useCallback(
     (params: Record<string, string | boolean | null>) => {
       const current = new URLSearchParams(searchParams.toString());
@@ -418,11 +366,8 @@ function ProductsContent() {
       category: selectedCategory !== "all" ? selectedCategory : null,
       concern: selectedConcern !== "all" ? selectedConcern : null,
       price: selectedPriceRange !== "all" ? selectedPriceRange : null,
-      mizaj: selectedMizaj !== "all" ? selectedMizaj : null,
-      rating: selectedRating !== "all" ? selectedRating : null,
       inStock: inStockOnly ? "true" : null,
       onSale: onSaleOnly ? "true" : null,
-      featured: bestSellersOnly ? "true" : null,
       q: searchQuery.trim() || null,
       sort: sortBy !== "featured" ? sortBy : null,
       view: viewMode !== "grid" ? viewMode : null,
@@ -431,35 +376,31 @@ function ProductsContent() {
     selectedCategory,
     selectedConcern,
     selectedPriceRange,
-    selectedMizaj,
-    selectedRating,
     inStockOnly,
     onSaleOnly,
-    bestSellersOnly,
     searchQuery,
     sortBy,
     viewMode,
     updateUrlParams,
   ]);
 
-  // Comprehensive Product Filtering Engine
+  // Streamlined Product Filtering Engine
   const filteredProducts = useMemo(() => {
     return productsList
       .filter((product) => {
-        // 1. Category Filter
+        // 1. Category Filter (Driven primarily from top visual ribbon or direct link)
         if (selectedCategory !== "all") {
           const cat = (product.category || "").toLowerCase();
           const catId = ((product as any).categoryId || "").toLowerCase();
           const catLabel = (product.categoryLabel || "").toLowerCase();
           const prodName = (product.name || "").toLowerCase();
-          const prodDesc = (product.shortDescription || "").toLowerCase();
 
           let catMatch =
             cat === selectedCategory.toLowerCase() ||
             catId === selectedCategory.toLowerCase() ||
             catLabel === selectedCategory.toLowerCase();
 
-          // Sub-category keyword matching if not exact match
+          // Sub-category keyword matching fallback
           if (!catMatch) {
             if (selectedCategory === "spices") {
               catMatch =
@@ -564,38 +505,17 @@ function ProductsContent() {
           }
         }
 
-        // 4. Mizaj (Temperament Energetics)
-        if (selectedMizaj !== "all") {
-          const mizajObj = MIZAJ_OPTIONS.find((m) => m.id === selectedMizaj);
-          if (mizajObj?.keywords) {
-            const mzText = `${product.mizaj || ""} ${product.traditionalPurpose || ""}`.toLowerCase();
-            const matchesMizaj = mizajObj.keywords.some((kw) =>
-              mzText.includes(kw.toLowerCase())
-            );
-            if (!matchesMizaj) return false;
-          }
-        }
-
-        // 5. Rating Score Filter
-        if (selectedRating !== "all") {
-          const ratingObj = RATING_OPTIONS.find((r) => r.id === selectedRating);
-          if (ratingObj && (product.rating || 5) < ratingObj.min) return false;
-        }
-
-        // 6. In-Stock Filter
+        // 4. In-Stock Filter
         if (inStockOnly && !product.inStock) return false;
 
-        // 7. On-Sale Filter
+        // 5. On-Sale Filter
         if (
           onSaleOnly &&
           (!product.discountPercentage || product.discountPercentage <= 0)
         )
           return false;
 
-        // 8. Featured / Best Seller
-        if (bestSellersOnly && !product.featured && !product.badge) return false;
-
-        // 9. Free-form Search Query
+        // 6. Free-form Search Query
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase().trim();
           const searchable = `${product.name} ${product.urduName || ""} ${
@@ -630,11 +550,8 @@ function ProductsContent() {
     selectedCategory,
     selectedConcern,
     selectedPriceRange,
-    selectedMizaj,
-    selectedRating,
     inStockOnly,
     onSaleOnly,
-    bestSellersOnly,
     searchQuery,
     sortBy,
   ]);
@@ -645,22 +562,16 @@ function ProductsContent() {
     if (selectedCategory !== "all") count++;
     if (selectedConcern !== "all") count++;
     if (selectedPriceRange !== "all") count++;
-    if (selectedMizaj !== "all") count++;
-    if (selectedRating !== "all") count++;
     if (inStockOnly) count++;
     if (onSaleOnly) count++;
-    if (bestSellersOnly) count++;
     if (searchQuery.trim()) count++;
     return count;
   }, [
     selectedCategory,
     selectedConcern,
     selectedPriceRange,
-    selectedMizaj,
-    selectedRating,
     inStockOnly,
     onSaleOnly,
-    bestSellersOnly,
     searchQuery,
   ]);
 
@@ -670,11 +581,8 @@ function ProductsContent() {
     setSelectedCategory("all");
     setSelectedConcern("all");
     setSelectedPriceRange("all");
-    setSelectedMizaj("all");
-    setSelectedRating("all");
     setInStockOnly(false);
     setOnSaleOnly(false);
-    setBestSellersOnly(false);
     setSearchQuery("");
   };
 
@@ -738,84 +646,33 @@ function ProductsContent() {
     : null;
   const activeConcernInfo = HEALTH_CONCERNS.find((c) => c.id === selectedConcern);
   const activePriceInfo = PRICE_RANGES.find((p) => p.id === selectedPriceRange);
-  const activeMizajInfo = MIZAJ_OPTIONS.find((m) => m.id === selectedMizaj);
-  const activeRatingInfo = RATING_OPTIONS.find((r) => r.id === selectedRating);
 
   // Recommended products for zero results fallback
   const recommendedProducts = useMemo(() => {
     return productsList.filter((p) => p.featured).slice(0, 4);
   }, [productsList]);
 
-  // Render Faceted Filter Controls (shared between desktop sidebar and mobile sheet)
+  // Simplified & Compact Filter Controls (Shared between Desktop Card & Mobile Drawer)
   const renderFilterSections = () => (
-    <Accordion
-      type="multiple"
-      defaultValue={["categories", "concerns", "price", "mizaj", "ratings", "status"]}
-      className="w-full space-y-1"
-    >
-      {/* 1. Formulation Category */}
-      <AccordionItem value="categories" className="border-b border-stone-200/70">
-        <AccordionTrigger className="text-xs font-semibold uppercase tracking-wider text-stone-900 py-3 hover:no-underline">
-          <div className="flex items-center gap-2">
-            <ShoppingBag className="w-3.5 h-3.5 text-[#9E7D3B]" />
-            <span>Formulation Type</span>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent className="pt-1 pb-3 space-y-1">
-          <button
-            type="button"
-            onClick={() => setSelectedCategory("all")}
-            className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
-              selectedCategory === "all"
-                ? "bg-[#14281D] text-white font-medium shadow-2xs"
-                : "bg-white hover:bg-stone-100 text-stone-700 border border-stone-200/60"
-            }`}
-          >
-            <span>All Formulations</span>
-            <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-              selectedCategory === "all" ? "bg-white/20 text-white" : "bg-stone-100 text-stone-500"
-            }`}>
-              {productsList.length}
-            </span>
-          </button>
-          {categoriesList.map((cat) => {
-            const isSelected =
-              selectedCategory === cat.id || selectedCategory === cat.slug;
-            const count = productsList.filter(
-              (p) => p.category === cat.id || p.category === cat.slug
-            ).length;
-            return (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setSelectedCategory(cat.slug || cat.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
-                  isSelected
-                    ? "bg-[#14281D] text-white font-medium shadow-2xs"
-                    : "bg-white hover:bg-stone-100 text-stone-700 border border-stone-200/60"
-                }`}
-              >
-                <span className="truncate">{cat.name}</span>
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
-                  isSelected ? "bg-white/20 text-white" : "bg-stone-100 text-stone-500"
-                }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </AccordionContent>
-      </AccordionItem>
-
-      {/* 2. Target Health Concern */}
-      <AccordionItem value="concerns" className="border-b border-stone-200/70">
-        <AccordionTrigger className="text-xs font-semibold uppercase tracking-wider text-stone-900 py-3 hover:no-underline">
-          <div className="flex items-center gap-2">
+    <div className="space-y-6">
+      {/* 1. Health Concern Radio List */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-900">
             <Sparkles className="w-3.5 h-3.5 text-[#9E7D3B]" />
             <span>Health Concern</span>
           </div>
-        </AccordionTrigger>
-        <AccordionContent className="pt-1 pb-3 space-y-1">
+          {selectedConcern !== "all" && (
+            <button
+              onClick={() => setSelectedConcern("all")}
+              className="text-[10px] text-stone-400 hover:text-rose-600 transition-colors"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        <div className="space-y-1">
           {HEALTH_CONCERNS.map((hc) => {
             const isSelected = selectedConcern === hc.id;
             return (
@@ -823,63 +680,51 @@ function ProductsContent() {
                 key={hc.id}
                 type="button"
                 onClick={() => setSelectedConcern(hc.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
+                className={`group w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-colors cursor-pointer ${
                   isSelected
-                    ? "bg-[#14281D] text-white font-medium shadow-2xs"
-                    : "bg-white hover:bg-stone-100 text-stone-700 border border-stone-200/60"
+                    ? "bg-[#14281D]/5 text-[#14281D] font-semibold"
+                    : "text-stone-600 hover:bg-stone-50 hover:text-stone-900"
                 }`}
               >
-                <span className="truncate">{hc.name}</span>
-                {isSelected && <Check className="w-3.5 h-3.5 text-[#9E7D3B]" />}
-              </button>
-            );
-          })}
-        </AccordionContent>
-      </AccordionItem>
-
-      {/* 3. Unani Temperament (Mizaj) */}
-      <AccordionItem value="mizaj" className="border-b border-stone-200/70">
-        <AccordionTrigger className="text-xs font-semibold uppercase tracking-wider text-stone-900 py-3 hover:no-underline">
-          <div className="flex items-center gap-2">
-            <Scale className="w-3.5 h-3.5 text-[#9E7D3B]" />
-            <span>Unani Mizaj (Energetics)</span>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent className="pt-1 pb-3 space-y-1">
-          {MIZAJ_OPTIONS.map((mz) => {
-            const isSelected = selectedMizaj === mz.id;
-            const Icon = mz.icon;
-            return (
-              <button
-                key={mz.id}
-                type="button"
-                onClick={() => setSelectedMizaj(mz.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
-                  isSelected
-                    ? "bg-[#14281D] text-white font-medium shadow-2xs"
-                    : "bg-white hover:bg-stone-100 text-stone-700 border border-stone-200/60"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  {Icon && <Icon className="w-3.5 h-3.5 text-[#9E7D3B]" />}
-                  <span>{mz.label}</span>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {/* Subtle Radio Indicator */}
+                  <div
+                    className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
+                      isSelected
+                        ? "border-[#14281D] bg-[#14281D]"
+                        : "border-stone-300 group-hover:border-stone-400 bg-white"
+                    }`}
+                  >
+                    {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-[#9E7D3B]" />}
+                  </div>
+                  <span className="text-xs truncate">{hc.name}</span>
                 </div>
-                {isSelected && <Check className="w-3.5 h-3.5 text-[#9E7D3B]" />}
               </button>
             );
           })}
-        </AccordionContent>
-      </AccordionItem>
+        </div>
+      </div>
 
-      {/* 4. Price Range */}
-      <AccordionItem value="price" className="border-b border-stone-200/70">
-        <AccordionTrigger className="text-xs font-semibold uppercase tracking-wider text-stone-900 py-3 hover:no-underline">
-          <div className="flex items-center gap-2">
+      <div className="h-px bg-stone-100" />
+
+      {/* 2. Price Range (Compact Segmented Chips) */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-900">
             <SlidersHorizontal className="w-3.5 h-3.5 text-[#9E7D3B]" />
-            <span>Price Range (PKR)</span>
+            <span>Price Range</span>
           </div>
-        </AccordionTrigger>
-        <AccordionContent className="pt-1 pb-3 space-y-1">
+          {selectedPriceRange !== "all" && (
+            <button
+              onClick={() => setSelectedPriceRange("all")}
+              className="text-[10px] text-stone-400 hover:text-rose-600 transition-colors"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-1.5">
           {PRICE_RANGES.map((pr) => {
             const isSelected = selectedPriceRange === pr.id;
             return (
@@ -887,94 +732,59 @@ function ProductsContent() {
                 key={pr.id}
                 type="button"
                 onClick={() => setSelectedPriceRange(pr.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
+                className={`px-2.5 py-1.5 rounded-lg text-xs transition-all cursor-pointer ${
                   isSelected
                     ? "bg-[#14281D] text-white font-medium shadow-2xs"
-                    : "bg-white hover:bg-stone-100 text-stone-700 border border-stone-200/60"
+                    : "bg-[#FAF9F6] text-stone-600 hover:bg-stone-100 hover:text-stone-900 border border-stone-200/70"
                 }`}
               >
-                <span>{pr.label}</span>
-                {isSelected && <Check className="w-3.5 h-3.5 text-[#9E7D3B]" />}
+                {pr.label}
               </button>
             );
           })}
-        </AccordionContent>
-      </AccordionItem>
+        </div>
+      </div>
 
-      {/* 5. Rating Score */}
-      <AccordionItem value="ratings" className="border-b border-stone-200/70">
-        <AccordionTrigger className="text-xs font-semibold uppercase tracking-wider text-stone-900 py-3 hover:no-underline">
-          <div className="flex items-center gap-2">
-            <Star className="w-3.5 h-3.5 text-[#9E7D3B]" />
-            <span>Customer Rating</span>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent className="pt-1 pb-3 space-y-1">
-          {RATING_OPTIONS.map((ro) => {
-            const isSelected = selectedRating === ro.id;
-            return (
-              <button
-                key={ro.id}
-                type="button"
-                onClick={() => setSelectedRating(ro.id)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex items-center justify-between cursor-pointer ${
-                  isSelected
-                    ? "bg-[#14281D] text-white font-medium shadow-2xs"
-                    : "bg-white hover:bg-stone-100 text-stone-700 border border-stone-200/60"
-                }`}
-              >
-                <div className="flex items-center gap-1.5">
-                  <Star className="w-3.5 h-3.5 fill-[#9E7D3B] text-[#9E7D3B]" />
-                  <span>{ro.label}</span>
-                </div>
-                {isSelected && <Check className="w-3.5 h-3.5 text-[#9E7D3B]" />}
-              </button>
-            );
-          })}
-        </AccordionContent>
-      </AccordionItem>
+      <div className="h-px bg-stone-100" />
 
-      {/* 6. Availability & Special Deals */}
-      <AccordionItem value="status" className="border-none">
-        <AccordionTrigger className="text-xs font-semibold uppercase tracking-wider text-stone-900 py-3 hover:no-underline">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#9E7D3B]" />
-            <span>Availability &amp; Offers</span>
-          </div>
-        </AccordionTrigger>
-        <AccordionContent className="pt-1 pb-3 space-y-2">
-          <label className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-stone-200/60 hover:bg-stone-100 cursor-pointer transition-colors text-xs text-stone-700">
-            <span>In Stock Only</span>
-            <input
-              type="checkbox"
-              checked={inStockOnly}
-              onChange={(e) => setInStockOnly(e.target.checked)}
-              className="w-4 h-4 rounded border-stone-300 text-[#14281D] focus:ring-[#14281D]"
-            />
+      {/* 3. Availability & Offers (Clean Minimal Toggles) */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-900">
+          <ShieldCheck className="w-3.5 h-3.5 text-[#9E7D3B]" />
+          <span>Availability</span>
+        </div>
+
+        <div className="space-y-2">
+          {/* In Stock Only */}
+          <label className="flex items-center justify-between py-1 px-1 rounded-md hover:bg-stone-50 cursor-pointer transition-colors group">
+            <span className="text-xs text-stone-700 group-hover:text-stone-900">In Stock Only</span>
+            <div className="relative inline-flex items-center">
+              <input
+                type="checkbox"
+                checked={inStockOnly}
+                onChange={(e) => setInStockOnly(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-8 h-4 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#14281D]" />
+            </div>
           </label>
 
-          <label className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-stone-200/60 hover:bg-stone-100 cursor-pointer transition-colors text-xs text-stone-700">
-            <span>On Sale / Special Discount</span>
-            <input
-              type="checkbox"
-              checked={onSaleOnly}
-              onChange={(e) => setOnSaleOnly(e.target.checked)}
-              className="w-4 h-4 rounded border-stone-300 text-[#14281D] focus:ring-[#14281D]"
-            />
+          {/* On Sale / Special Discounts */}
+          <label className="flex items-center justify-between py-1 px-1 rounded-md hover:bg-stone-50 cursor-pointer transition-colors group">
+            <span className="text-xs text-stone-700 group-hover:text-stone-900">On Sale / Deals</span>
+            <div className="relative inline-flex items-center">
+              <input
+                type="checkbox"
+                checked={onSaleOnly}
+                onChange={(e) => setOnSaleOnly(e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-8 h-4 bg-stone-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#9E7D3B]" />
+            </div>
           </label>
-
-          <label className="flex items-center justify-between p-2.5 rounded-lg bg-white border border-stone-200/60 hover:bg-stone-100 cursor-pointer transition-colors text-xs text-stone-700">
-            <span>Featured &amp; Best Sellers</span>
-            <input
-              type="checkbox"
-              checked={bestSellersOnly}
-              onChange={(e) => setBestSellersOnly(e.target.checked)}
-              className="w-4 h-4 rounded border-stone-300 text-[#14281D] focus:ring-[#14281D]"
-            />
-          </label>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
+        </div>
+      </div>
+    </div>
   );
 
   return (
@@ -1117,21 +927,21 @@ function ProductsContent() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════════
-          2. MAIN FACETED CATALOG (STICKY SIDEBAR + PRODUCT GRID)
+          2. MAIN CATALOG (STREAMLINED SIDEBAR + PRODUCT GRID)
       ═══════════════════════════════════════════════════════════════════════ */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* ─────────────────────────────────────────────────────────────────
-              DESKTOP STICKY FACETED SIDEBAR (3 cols on lg)
+              DESKTOP STREAMLINED SIDEBAR (3 cols on lg)
           ───────────────────────────────────────────────────────────────── */}
           <aside className="hidden lg:block lg:col-span-3 sticky top-24 space-y-4">
             <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-2xs">
               {/* Sidebar Header */}
-              <div className="flex items-center justify-between pb-3.5 mb-1 border-b border-stone-100">
+              <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-stone-100">
                 <div className="flex items-center gap-2">
                   <Sliders className="w-4 h-4 text-[#9E7D3B]" />
                   <h2 className="font-serif text-sm font-bold text-stone-900">
-                    Filter Formulations
+                    Filter Catalog
                   </h2>
                 </div>
                 {hasActiveFilters && (
@@ -1145,7 +955,7 @@ function ProductsContent() {
                 )}
               </div>
 
-              {/* Accordion Filter Sections */}
+              {/* Simplified Filter Sections */}
               {renderFilterSections()}
             </div>
           </aside>
@@ -1291,30 +1101,6 @@ function ProductsContent() {
                       </span>
                     )}
 
-                    {selectedMizaj !== "all" && activeMizajInfo && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-[11px] font-medium">
-                        <span>Mizaj: {activeMizajInfo.label}</span>
-                        <button
-                          onClick={() => setSelectedMizaj("all")}
-                          className="text-stone-400 hover:text-rose-600 ml-0.5 cursor-pointer"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    )}
-
-                    {selectedRating !== "all" && activeRatingInfo && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-[11px] font-medium">
-                        <span>Rating: {activeRatingInfo.label}</span>
-                        <button
-                          onClick={() => setSelectedRating("all")}
-                          className="text-stone-400 hover:text-rose-600 ml-0.5 cursor-pointer"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    )}
-
                     {inStockOnly && (
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-[11px] font-medium">
                         <span>In Stock Only</span>
@@ -1332,18 +1118,6 @@ function ProductsContent() {
                         <span>On Sale</span>
                         <button
                           onClick={() => setOnSaleOnly(false)}
-                          className="text-stone-400 hover:text-rose-600 ml-0.5 cursor-pointer"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    )}
-
-                    {bestSellersOnly && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800 text-[11px] font-medium">
-                        <span>Featured &amp; Best Sellers</span>
-                        <button
-                          onClick={() => setBestSellersOnly(false)}
                           className="text-stone-400 hover:text-rose-600 ml-0.5 cursor-pointer"
                         >
                           <X className="w-3 h-3" />
@@ -1481,13 +1255,13 @@ function ProductsContent() {
               )}
             </div>
             <SheetDescription className="text-xs text-stone-500">
-              Refine by category, health concern, Unani energetics, price, or rating.
+              Refine by health concern, price range, or current availability.
             </SheetDescription>
           </SheetHeader>
 
           {/* Drawer Scrollable Content */}
           <div className="flex-1 overflow-y-auto p-5 space-y-4">
-            <div className="bg-white p-4 rounded-xl border border-stone-200/80">
+            <div className="bg-white p-5 rounded-2xl border border-stone-200/80 shadow-2xs">
               {renderFilterSections()}
             </div>
           </div>

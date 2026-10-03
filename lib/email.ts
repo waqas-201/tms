@@ -612,3 +612,472 @@ export async function sendAdminOrderNotificationEmail(params: OrderConfirmationE
   }
 }
 
+// -------------------------------------------------------------
+// Clinical Appointment & Consultation Email Dispatchers
+// -------------------------------------------------------------
+
+export interface AppointmentEmailParams {
+  to: string;
+  fullName: string;
+  ticketNumber: string;
+  consultationType: "ONLINE" | "IN_PERSON" | string;
+  appointmentDate?: string | null;
+  appointmentSlot?: string | null;
+  phone: string;
+  email?: string | null;
+  city: string;
+  primarySymptoms: string;
+  channel?: "EMAIL" | "WHATSAPP" | string;
+  duration?: string;
+  previousTreatments?: string | null;
+  currentMedications?: string | null;
+  digestiveState?: string | null;
+  sleepEnergyState?: string | null;
+}
+
+/**
+ * Sends a patient-facing appointment confirmation email with ticket number,
+ * appointment date & time slot, and Unani clinical preparation advice.
+ */
+export async function sendAppointmentConfirmationEmail(params: AppointmentEmailParams) {
+  try {
+    const {
+      to,
+      fullName,
+      ticketNumber,
+      consultationType,
+      appointmentDate,
+      appointmentSlot,
+      phone,
+      city,
+      primarySymptoms,
+    } = params;
+
+    const isOnline = consultationType === "ONLINE";
+    const modeBadge = isOnline ? "Online Telehealth Consultation" : "In-Person Clinic Visit (Karachi Matab)";
+    const clinicAddress = "Plot 12-C, Korangi Crossing, Main Herbal Market, Karachi, Pakistan";
+
+    const dateDisplay = appointmentDate || "To be coordinated";
+    const slotDisplay = appointmentSlot || "Flexible Clinical Hours (10 AM - 9 PM)";
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consultation Confirmed - ${ticketNumber}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #FAF9F6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1a1816; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #FAF9F6; padding: 32px 16px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #E7E5E4; overflow: hidden; box-shadow: 0 4px 16px rgba(20, 40, 29, 0.06);">
+
+          <!-- Header Banner -->
+          <tr>
+            <td style="background-color: #14281D; padding: 32px 28px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; font-family: Georgia, serif;">
+                Tameer-e-Sehat
+              </h1>
+              <p style="margin: 6px 0 0 0; color: #9E7D3B; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;">
+                Classical Unani Herbal Clinic · Est. 1990
+              </p>
+            </td>
+          </tr>
+
+          <!-- Confirmation Title -->
+          <tr>
+            <td style="padding: 32px 28px 16px 28px;">
+              <span style="display: inline-block; background-color: #ECFDF5; color: #047857; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; border: 1px solid #A7F3D0; margin-bottom: 8px;">
+                ✓ Consultation Appointment Booked
+              </span>
+              <h2 style="margin: 4px 0 8px 0; color: #14281D; font-size: 20px; font-weight: 700; font-family: Georgia, serif;">
+                Assalam-o-Alaikum, ${fullName}!
+              </h2>
+              <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #57534E;">
+                Your clinical consultation request with <strong>Hakim Muhammad Tariq</strong> has been received and scheduled in our appointment ledger.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Appointment Summary Card -->
+          <tr>
+            <td style="padding: 0 28px 20px 28px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #FAF9F6; border: 1px solid #E7E5E4; border-radius: 12px; padding: 18px;">
+                <tr>
+                  <td style="padding-bottom: 12px; border-bottom: 1px dashed #E7E5E4;" colspan="2">
+                    <span style="font-size: 11px; color: #78716C; text-transform: uppercase; letter-spacing: 0.5px;">Ticket Reference:</span>
+                    <br />
+                    <strong style="font-size: 16px; color: #14281D; font-family: monospace;">${ticketNumber}</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding-top: 12px; font-size: 13px; color: #44403C; width: 50%;">
+                    <strong>Consultation Mode:</strong>
+                    <br />
+                    <span style="color: #166534; font-weight: 600;">${modeBadge}</span>
+                  </td>
+                  <td style="padding-top: 12px; font-size: 13px; color: #44403C; width: 50%;">
+                    <strong>Scheduled Slot:</strong>
+                    <br />
+                    <span style="color: #14281D; font-weight: 600;">${dateDisplay}</span>
+                    <br />
+                    <span style="font-size: 12px; color: #78716C;">${slotDisplay} (PKT)</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- Health Dossier Preview -->
+          <tr>
+            <td style="padding: 0 28px 24px 28px;">
+              <h3 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #14281D; font-family: Georgia, serif;">
+                Primary Health Concern Registered:
+              </h3>
+              <div style="background-color: #ffffff; border: 1px solid #E7E5E4; border-left: 4px solid #14281D; border-radius: 8px; padding: 14px 16px; font-size: 13px; color: #44403C; line-height: 1.5;">
+                ${primarySymptoms}
+              </div>
+            </td>
+          </tr>
+
+          <!-- Preparation Guidelines -->
+          <tr>
+            <td style="padding: 0 28px 28px 28px;">
+              <div style="background-color: #FEF3C7; border: 1px solid #FDE68A; border-radius: 12px; padding: 16px;">
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #92400E;">
+                  💡 What to Expect Next:
+                </h4>
+                <ul style="margin: 0; padding-left: 18px; font-size: 12px; color: #78350F; line-height: 1.6;">
+                  ${
+                    isOnline
+                      ? `<li>Hakim Sahib or clinic assistants will contact you via Phone/Email or WhatsApp at <strong>${phone}</strong> during your designated slot.</li>
+                         <li>You may reply to this email or send recent blood tests/ultrasounds in advance.</li>
+                         <li>Initial pulse assessment, lifestyle evaluation, and dietary guidance are 100% complimentary (Bila-Muawza).</li>`
+                      : `<li>Please arrive at our dispensary: <strong>${clinicAddress}</strong> on <strong>${dateDisplay}</strong> around <strong>${slotDisplay}</strong>.</li>
+                         <li>Walk-ins for pulse diagnosis (Nabz) are prioritized at your scheduled time.</li>`
+                  }
+                </ul>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Contact Support Footer -->
+          <tr>
+            <td style="background-color: #FCFBF9; padding: 20px 28px; border-top: 1px solid #E7E5E4; text-align: center;">
+              <p style="margin: 0 0 6px 0; font-size: 12px; color: #78716C;">
+                Need to reschedule? WhatsApp us at <strong style="color: #14281D;">+92 300 8921892</strong> quoting ticket <strong style="font-family: monospace;">${ticketNumber}</strong>
+              </p>
+              <p style="margin: 0; font-size: 11px; color: #A8A29E;">
+                Matab Tameer-e-Sehat · Authentic Classical Unani Tibb
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `;
+
+    const { data, error } = await resend.emails.send({
+      from: DEFAULT_FROM,
+      to: [to],
+      subject: `Consultation Appointment Confirmed: ${ticketNumber} - Tameer-e-Sehat`,
+      html: htmlContent,
+    });
+
+    if (error) {
+      console.error("[Appointment Confirmation Email Error]:", error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (err: any) {
+    console.error("[sendAppointmentConfirmationEmail Exception]:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Sends an urgent alert email to the clinic admin / Hakim when a new appointment is booked.
+ */
+export async function sendAdminAppointmentNotificationEmail(params: AppointmentEmailParams) {
+  try {
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.EMAIL_FROM || "admin@tameeresehat.com";
+    const cleanAdminTo = adminEmail.includes("<")
+      ? adminEmail.match(/<([^>]+)>/)?.[1] || adminEmail
+      : adminEmail;
+
+    const {
+      fullName,
+      ticketNumber,
+      consultationType,
+      appointmentDate,
+      appointmentSlot,
+      phone,
+      email,
+      city,
+      primarySymptoms,
+      duration,
+    } = params;
+
+    const adminConsultationsUrl = `${APP_URL}/admin?tab=consultations`;
+    const cleanPhone = phone.replace(/[^0-9]/g, "");
+    const whatsappUrl = `https://wa.me/${cleanPhone.startsWith("0") ? "92" + cleanPhone.slice(1) : cleanPhone}?text=${encodeURIComponent(`Assalam-o-Alaikum ${fullName}, regarding your appointment ticket ${ticketNumber} at Tameer-e-Sehat:`)}`;
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>New Appointment Alert: ${ticketNumber}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAF9F6; padding: 24px; color: #1a1816;">
+  <div style="max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #E7E5E4; padding: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+    <div style="background-color: #14281D; color: #ffffff; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px;">
+      <h2 style="margin: 0; font-size: 18px;">🩺 New Patient Appointment Booked</h2>
+      <p style="margin: 4px 0 0 0; font-size: 12px; color: #9E7D3B;">Ticket: ${ticketNumber} · ${consultationType === "ONLINE" ? "Online Telehealth" : "Physical Karachi Clinic"}</p>
+    </div>
+
+    <h3 style="font-size: 14px; color: #14281D; margin: 0 0 10px 0;">Patient &amp; Slot Details</h3>
+    <ul style="font-size: 13px; color: #44403C; line-height: 1.6; padding-left: 20px; margin: 0 0 16px 0;">
+      <li><strong>Patient Name:</strong> ${fullName}</li>
+      <li><strong>Contact Phone:</strong> ${phone}</li>
+      <li><strong>Email:</strong> ${email || "Not provided"}</li>
+      <li><strong>City:</strong> ${city}</li>
+      <li><strong>Requested Date:</strong> ${appointmentDate || "Immediate / Open"}</li>
+      <li><strong>Requested Time Slot:</strong> ${appointmentSlot || "Flexible"}</li>
+      ${duration ? `<li><strong>Condition Duration:</strong> ${duration}</li>` : ""}
+    </ul>
+
+    <h3 style="font-size: 14px; color: #14281D; margin: 0 0 10px 0;">Health Concern / Symptoms</h3>
+    <div style="background-color: #FAF9F6; border: 1px solid #E7E5E4; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #44403C; margin-bottom: 20px;">
+      ${primarySymptoms}
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+      <a href="${whatsappUrl}" target="_blank" style="display: inline-block; padding: 10px 18px; background-color: #25D366; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px; margin-right: 8px;">
+        💬 Chat on WhatsApp
+      </a>
+      <a href="${adminConsultationsUrl}" target="_blank" style="display: inline-block; padding: 10px 18px; background-color: #14281D; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px;">
+        Open Admin Portal →
+      </a>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    const { data, error } = await resend.emails.send({
+      from: DEFAULT_FROM,
+      to: [cleanAdminTo],
+      subject: `[Appointment Alert] ${ticketNumber} - ${fullName} (${appointmentDate || "Today"} ${appointmentSlot || ""})`,
+      html: htmlContent,
+    });
+
+    if (error) {
+      console.error("[Admin Appointment Notification Email Error]:", error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (err: any) {
+    console.error("[sendAdminAppointmentNotificationEmail Exception]:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Sends status update email to patient (e.g., CONFIRMED, RESCHEDULED, or CANCELLED).
+ */
+export async function sendAppointmentStatusEmail(params: {
+  to: string;
+  fullName: string;
+  ticketNumber: string;
+  status: string;
+  appointmentDate?: string | null;
+  appointmentSlot?: string | null;
+  hakimNotes?: string | null;
+}) {
+  try {
+    const { to, fullName, ticketNumber, status, appointmentDate, appointmentSlot, hakimNotes } = params;
+
+    let statusTitle = "Appointment Update";
+    let statusColor = "#14281D";
+    let statusBadge = status;
+
+    if (status === "CONFIRMED") {
+      statusTitle = "Appointment Confirmed by Hakim Sahib";
+      statusColor = "#166534";
+      statusBadge = "✓ CONFIRMED";
+    } else if (status === "RESCHEDULED") {
+      statusTitle = "Appointment Rescheduled";
+      statusColor = "#854d0e";
+      statusBadge = "↻ RESCHEDULED";
+    } else if (status === "CANCELLED") {
+      statusTitle = "Appointment Cancelled";
+      statusColor = "#991b1b";
+      statusBadge = "✕ CANCELLED";
+    }
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>${statusTitle} - ${ticketNumber}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAF9F6; padding: 24px; color: #1a1816;">
+  <div style="max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #E7E5E4; padding: 28px;">
+    <div style="background-color: ${statusColor}; color: #ffffff; padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+      <h2 style="margin: 0; font-size: 20px; font-family: Georgia, serif;">${statusTitle}</h2>
+      <p style="margin: 4px 0 0 0; font-size: 12px; color: #f4eee5;">Ticket Reference: ${ticketNumber}</p>
+    </div>
+
+    <p style="font-size: 14px; color: #44403C; line-height: 1.6;">
+      Assalam-o-Alaikum <strong>${fullName}</strong>,
+      <br /><br />
+      This is to inform you that your consultation appointment (Ticket: <strong>${ticketNumber}</strong>) status is now updated to <strong>${statusBadge}</strong>.
+    </p>
+
+    ${
+      appointmentDate
+        ? `<div style="background-color: #FAF9F6; border: 1px solid #E7E5E4; border-radius: 8px; padding: 14px 16px; margin: 16px 0; font-size: 13px; color: #44403C;">
+            <strong>Updated Appointment Schedule:</strong><br />
+            Date: <strong>${appointmentDate}</strong><br />
+            Time Slot: <strong>${appointmentSlot || "Designated slot"}</strong> (PKT)
+          </div>`
+        : ""
+    }
+
+    ${
+      hakimNotes
+        ? `<div style="background-color: #FEF3C7; border: 1px solid #FDE68A; border-radius: 8px; padding: 14px 16px; margin: 16px 0; font-size: 13px; color: #78350F;">
+            <strong>Hakim Sahib / Clinic Advice:</strong><br />
+            ${hakimNotes}
+          </div>`
+        : ""
+    }
+
+    <p style="font-size: 12px; color: #78716C; margin-top: 24px;">
+      For any inquiries, please WhatsApp our clinical dispensary at +92 300 8921892.
+    </p>
+  </div>
+</body>
+</html>
+    `;
+
+    const { data, error } = await resend.emails.send({
+      from: DEFAULT_FROM,
+      to: [to],
+      subject: `${statusTitle}: ${ticketNumber} - Tameer-e-Sehat`,
+      html: htmlContent,
+    });
+
+    if (error) {
+      console.error("[Appointment Status Email Error]:", error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (err: any) {
+    console.error("[sendAppointmentStatusEmail Exception]:", err);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Sends Hakim Prescription and Recommended Herbal Treatment Protocol to Patient.
+ */
+export async function sendHakimPrescriptionEmail(params: {
+  to: string;
+  fullName: string;
+  ticketNumber: string;
+  prescribedTreatment: string;
+  hakimNotes?: string | null;
+}) {
+  try {
+    const { to, fullName, ticketNumber, prescribedTreatment, hakimNotes } = params;
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hakim Prescription &amp; Guidance - ${ticketNumber}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAF9F6; padding: 24px; color: #1a1816;">
+  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #E7E5E4; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+    <div style="background-color: #14281D; padding: 28px 24px; text-align: center; color: #ffffff;">
+      <h1 style="margin: 0; font-size: 22px; font-family: Georgia, serif;">Tameer-e-Sehat</h1>
+      <p style="margin: 4px 0 0 0; color: #9E7D3B; font-size: 12px; letter-spacing: 1px; text-transform: uppercase;">Hakim Prescription &amp; Dietary Protocol</p>
+    </div>
+
+    <div style="padding: 28px 24px;">
+      <h2 style="margin: 0 0 12px 0; font-size: 18px; color: #14281D; font-family: Georgia, serif;">
+        Assalam-o-Alaikum, ${fullName}!
+      </h2>
+      <p style="margin: 0 0 20px 0; font-size: 14px; color: #57534E; line-height: 1.6;">
+        Hakim Muhammad Tariq has reviewed your consultation dossier (Ticket: <strong style="font-family: monospace;">${ticketNumber}</strong>) and prepared your personalized Unani herbal protocol.
+      </p>
+
+      <div style="background-color: #ECFDF5; border: 1px solid #A7F3D0; border-left: 4px solid #166534; border-radius: 8px; padding: 18px 20px; margin-bottom: 20px;">
+        <h3 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #14532D; text-transform: uppercase; letter-spacing: 0.5px;">
+          🌿 Prescribed Herbal Remedies &amp; Dosage:
+        </h3>
+        <div style="font-size: 14px; color: #166534; line-height: 1.7; white-space: pre-line;">
+          ${prescribedTreatment}
+        </div>
+      </div>
+
+      ${
+        hakimNotes
+          ? `<div style="background-color: #FEF3C7; border: 1px solid #FDE68A; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px;">
+              <h3 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #92400E;">
+                🥗 Dietary &amp; Lifestyle Guidance (Parhez):
+              </h3>
+              <div style="font-size: 13px; color: #78350F; line-height: 1.6; white-space: pre-line;">
+                ${hakimNotes}
+              </div>
+            </div>`
+          : ""
+      }
+
+      <div style="text-align: center; margin-top: 28px;">
+        <a href="${APP_URL}/products" target="_blank" style="display: inline-block; padding: 12px 28px; background-color: #14281D; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 8px;">
+          Order Authentic Remedies Online →
+        </a>
+      </div>
+    </div>
+
+    <div style="background-color: #FCFBF9; padding: 16px 24px; border-top: 1px solid #E7E5E4; text-align: center; font-size: 11px; color: #78716C;">
+      Matab Tameer-e-Sehat · Est. 1990 · Korangi Crossing, Karachi
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    const { data, error } = await resend.emails.send({
+      from: DEFAULT_FROM,
+      to: [to],
+      subject: `Hakim Prescription & Protocol: ${ticketNumber} - Tameer-e-Sehat`,
+      html: htmlContent,
+    });
+
+    if (error) {
+      console.error("[Hakim Prescription Email Error]:", error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (err: any) {
+    console.error("[sendHakimPrescriptionEmail Exception]:", err);
+    return { success: false, error: err.message };
+  }
+}
+

@@ -615,7 +615,7 @@ export default function AccountPage() {
                   No consultations booked yet
                 </h3>
                 <p className="text-xs text-[#59534b] max-w-sm mx-auto">
-                  Book a direct clinical consultation with Hakim Muhammad Waqas for chronic root-cause diagnosis.
+                  Book a direct clinical consultation with Hakim Muhammad Tariq for chronic root-cause diagnosis.
                 </p>
                 <Link
                   href="/consultation"
@@ -628,7 +628,7 @@ export default function AccountPage() {
               consultations.map((consult) => (
                 <div
                   key={consult.id}
-                  className="bg-white p-6 rounded-2xl border border-[#e6dfd5] shadow-2xs space-y-3"
+                  className="bg-white p-6 rounded-2xl border border-[#e6dfd5] shadow-2xs space-y-4"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#f4eee5] gap-2">
                     <div>
@@ -636,7 +636,15 @@ export default function AccountPage() {
                         <span className="font-mono text-sm font-bold text-[#22623a]">
                           {consult.ticketNumber}
                         </span>
-                        <span className="px-2 py-0.5 bg-[#f4f9f5] border border-[#d8ecde] text-[#2d7648] text-[10px] font-bold uppercase rounded-full">
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                          consult.status === "CONFIRMED"
+                            ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                            : consult.status === "PRESCRIBED"
+                            ? "bg-purple-100 text-purple-800 border border-purple-300"
+                            : consult.status === "RESCHEDULED"
+                            ? "bg-amber-100 text-amber-800 border border-amber-300"
+                            : "bg-[#f4f9f5] border border-[#d8ecde] text-[#2d7648]"
+                        }`}>
                           {consult.status}
                         </span>
                       </div>
@@ -649,28 +657,67 @@ export default function AccountPage() {
                       </p>
                     </div>
 
-                    <a
-                      href="https://wa.me/923212176219"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#25D366] text-white text-xs font-bold rounded-lg shadow-xs hover:bg-[#1EBE5D] transition-colors"
-                    >
-                      <Phone className="w-3.5 h-3.5" />
-                      <span>Hakim WhatsApp Chat</span>
-                    </a>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href="/consultation"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#faf8f5] hover:bg-[#f4eee5] border border-[#e6dfd5] text-[#14281D] text-xs font-semibold rounded-lg transition-colors"
+                      >
+                        <Calendar className="w-3.5 h-3.5 text-[#c59b27]" />
+                        <span>Book Another</span>
+                      </Link>
+                      <a
+                        href="https://wa.me/923212176219"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#25D366] text-white text-xs font-bold rounded-lg shadow-xs hover:bg-[#1EBE5D] transition-colors"
+                      >
+                        <Phone className="w-3.5 h-3.5" />
+                        <span>Hakim WhatsApp</span>
+                      </a>
+                    </div>
                   </div>
 
-                  <div className="text-xs space-y-1.5 text-[#59534b]">
+                  <div className="text-xs space-y-2 text-[#59534b]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-[#faf8f5] p-3 rounded-xl border border-[#e6dfd5]">
+                      <div>
+                        <span className="text-[#78716C] block">Consultation Mode:</span>
+                        <strong className="text-[#14281D]">
+                          {consult.consultationType === "ONLINE" ? "Online Telehealth" : "In-Person Karachi Clinic"}
+                        </strong>
+                      </div>
+                      {consult.appointmentDate && (
+                        <div>
+                          <span className="text-[#78716C] block">Scheduled Appointment:</span>
+                          <strong className="text-[#14281D]">
+                            {consult.appointmentDate} ({consult.appointmentSlot || "Anytime"})
+                          </strong>
+                        </div>
+                      )}
+                    </div>
+
                     <p>
                       <strong>Primary Symptoms / Concern:</strong> {consult.primarySymptoms}
                     </p>
                     <p>
                       <strong>Duration:</strong> {consult.duration} · <strong>City:</strong> {consult.city}
                     </p>
+
+                    {consult.prescribedTreatment && (
+                      <div className="mt-3 p-4 bg-purple-50/70 border border-purple-200 rounded-xl text-purple-950 space-y-1">
+                        <strong className="block text-xs uppercase tracking-wider text-purple-900 font-bold flex items-center gap-1.5">
+                          <Sparkles className="w-4 h-4 text-purple-700" />
+                          <span>Hakim's Prescribed Botanical Protocol:</span>
+                        </strong>
+                        <p className="mt-1 text-xs whitespace-pre-line font-mono bg-white/80 p-3 rounded-lg border border-purple-200/80">
+                          {consult.prescribedTreatment}
+                        </p>
+                      </div>
+                    )}
+
                     {consult.hakimNotes && (
                       <div className="mt-2 p-3 bg-[#f4f9f5] border border-[#d8ecde] rounded-xl text-[#22623a]">
                         <strong className="block text-[11px] uppercase tracking-wider text-[#2d7648]">
-                          Hakim Sahib's Clinical Advice:
+                          Hakim Sahib's Clinical Advice &amp; Dietary Guidelines (Parhez):
                         </strong>
                         <p className="mt-0.5 text-xs">{consult.hakimNotes}</p>
                       </div>

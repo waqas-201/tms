@@ -44,6 +44,13 @@ import {
   Filter,
   Leaf,
   CheckCircle2,
+  Package,
+  Sprout,
+  Activity,
+  Droplets,
+  Sun,
+  ArrowRight,
+  Heart,
 } from "lucide-react";
 
 // Health concern mappings to product indications & botanicals
@@ -179,6 +186,100 @@ const HEALTH_CONCERNS = [
   },
 ];
 
+const VISUAL_CATEGORIES = [
+  {
+    id: "all",
+    label: "All Remedies",
+    subtitle: "Full Dispensary",
+    slug: "all",
+    icon: Sparkles,
+    bgGradient: "bg-emerald-50 text-[#14281D]",
+    badge: null,
+    type: "all",
+  },
+  {
+    id: "herbs",
+    label: "Herbs",
+    subtitle: "Pure Botanicals",
+    slug: "herbs-seeds",
+    icon: Leaf,
+    bgGradient: "bg-green-50 text-emerald-800",
+    badge: "Botanical",
+    type: "category",
+  },
+  {
+    id: "deals",
+    label: "Deals",
+    subtitle: "Special Offers",
+    slug: "deals",
+    icon: Sparkles,
+    bgGradient: "bg-amber-50 text-amber-800",
+    badge: "50% OFF",
+    highlight: true,
+    type: "deals",
+  },
+  {
+    id: "murabba",
+    label: "Murabba",
+    subtitle: "Preserves",
+    slug: "murabbajaat",
+    icon: Package,
+    bgGradient: "bg-amber-50 text-amber-900",
+    badge: null,
+    type: "category",
+  },
+  {
+    id: "spices",
+    label: "Spices",
+    subtitle: "Aromatic",
+    slug: "spices",
+    icon: Flame,
+    bgGradient: "bg-rose-50 text-rose-800",
+    badge: null,
+    type: "category",
+  },
+  {
+    id: "seeds",
+    label: "Seeds",
+    subtitle: "Organic Grains",
+    slug: "seeds",
+    icon: Sprout,
+    bgGradient: "bg-lime-50 text-lime-900",
+    badge: null,
+    type: "category",
+  },
+  {
+    id: "health-collections",
+    label: "Health Blends",
+    subtitle: "Targeted Care",
+    slug: "health-collections",
+    icon: Activity,
+    bgGradient: "bg-sky-50 text-sky-900",
+    badge: "Curated",
+    type: "concern",
+  },
+  {
+    id: "oils-marham",
+    label: "Oils & Balms",
+    subtitle: "Therapeutic",
+    slug: "oils-marham",
+    icon: Droplets,
+    bgGradient: "bg-teal-50 text-teal-900",
+    badge: null,
+    type: "category",
+  },
+  {
+    id: "dry-fruits",
+    label: "Dry Fruits",
+    subtitle: "Vitality Nuts",
+    slug: "dry-fruits",
+    icon: Sun,
+    bgGradient: "bg-yellow-50 text-amber-800",
+    badge: null,
+    type: "category",
+  },
+];
+
 const PRICE_RANGES = [
   { id: "all", label: "All Prices", min: 0, max: 99999 },
   { id: "under-300", label: "Under ₨ 300", min: 0, max: 300 },
@@ -188,24 +289,24 @@ const PRICE_RANGES = [
 ];
 
 const MIZAJ_OPTIONS = [
-  { id: "all", label: "All Temperaments" },
+  { id: "all", label: "All Energetics" },
   {
     id: "cooling",
-    label: "Cooling (Sard / Mohtadil)",
+    label: "Cooling & Soothing",
     icon: Snowflake,
     keywords: ["cooling", "cold", "sard", "hydrating", "soothing"],
   },
   {
     id: "warm",
-    label: "Warm & Invigorating (Garm)",
+    label: "Warm & Invigorating",
     icon: Flame,
     keywords: ["warm", "garm", "bitter", "clearing", "invigorating"],
   },
   {
     id: "balanced",
-    label: "Balanced (Mo'tadil)",
+    label: "Balanced & Nourishing",
     icon: Scale,
-    keywords: ["balanced", "mo'tadil", "mohtadil", "nourishing", "energizing", "gentle"],
+    keywords: ["balanced", "nourishing", "energizing", "gentle"],
   },
 ];
 
@@ -347,9 +448,94 @@ function ProductsContent() {
       .filter((product) => {
         // 1. Category Filter
         if (selectedCategory !== "all") {
-          const catMatch =
-            product.category === selectedCategory ||
-            (product as any).categoryId === selectedCategory;
+          const cat = (product.category || "").toLowerCase();
+          const catId = ((product as any).categoryId || "").toLowerCase();
+          const catLabel = (product.categoryLabel || "").toLowerCase();
+          const prodName = (product.name || "").toLowerCase();
+          const prodDesc = (product.shortDescription || "").toLowerCase();
+
+          let catMatch =
+            cat === selectedCategory.toLowerCase() ||
+            catId === selectedCategory.toLowerCase() ||
+            catLabel === selectedCategory.toLowerCase();
+
+          // Sub-category keyword matching if not exact match
+          if (!catMatch) {
+            if (selectedCategory === "spices") {
+              catMatch =
+                cat.includes("spice") ||
+                catLabel.includes("spice") ||
+                prodName.includes("spice") ||
+                prodName.includes("clove") ||
+                prodName.includes("cardamom") ||
+                prodName.includes("cinnamon") ||
+                prodName.includes("saffron") ||
+                prodName.includes("zafran") ||
+                prodName.includes("laung") ||
+                prodName.includes("darchini") ||
+                prodName.includes("elaichi") ||
+                prodName.includes("black pepper") ||
+                prodName.includes("ginger") ||
+                prodName.includes("turmeric") ||
+                prodName.includes("haldi");
+            } else if (selectedCategory === "seeds") {
+              catMatch =
+                cat === "seeds" ||
+                catLabel === "seeds" ||
+                prodName.includes("seed") ||
+                prodName.includes("tukhm") ||
+                prodName.includes("kalonji") ||
+                prodName.includes("chia") ||
+                prodName.includes("flax") ||
+                prodName.includes("methi") ||
+                prodName.includes("fenugreek") ||
+                prodName.includes("ispaghol") ||
+                prodName.includes("psyllium") ||
+                prodName.includes("tukhmaria");
+            } else if (selectedCategory === "dry-fruits") {
+              catMatch =
+                cat.includes("dry-fruit") ||
+                cat.includes("nut") ||
+                catLabel.includes("dry fruit") ||
+                catLabel.includes("nuts") ||
+                cat === "teas-vitality" ||
+                prodName.includes("almond") ||
+                prodName.includes("badam") ||
+                prodName.includes("pista") ||
+                prodName.includes("pistachio") ||
+                prodName.includes("walnut") ||
+                prodName.includes("akhrot") ||
+                prodName.includes("cashew") ||
+                prodName.includes("kaju") ||
+                prodName.includes("anzaar") ||
+                prodName.includes("fig") ||
+                prodName.includes("shahi") ||
+                prodName.includes("majun");
+            } else if (selectedCategory === "herbs-seeds" || selectedCategory === "herbs") {
+              catMatch =
+                cat.includes("herb") ||
+                catId.includes("herb") ||
+                catLabel.includes("herb") ||
+                cat.includes("seeds");
+            } else if (selectedCategory === "murabbajaat" || selectedCategory === "murabba") {
+              catMatch =
+                cat.includes("murabba") ||
+                catId.includes("murabba") ||
+                catLabel.includes("murabba") ||
+                prodName.includes("murabba");
+            } else if (selectedCategory === "oils-marham" || selectedCategory === "oils") {
+              catMatch =
+                cat.includes("oil") ||
+                cat.includes("marham") ||
+                catId.includes("oil") ||
+                catLabel.includes("oil") ||
+                catLabel.includes("marham") ||
+                prodName.includes("oil") ||
+                prodName.includes("roghan") ||
+                prodName.includes("marham");
+            }
+          }
+
           if (!catMatch) return false;
         }
 
@@ -492,10 +678,64 @@ function ProductsContent() {
     setSearchQuery("");
   };
 
+  const isCategoryAvatarActive = useCallback(
+    (catItem: (typeof VISUAL_CATEGORIES)[0]) => {
+      if (catItem.type === "deals") {
+        return onSaleOnly;
+      }
+      if (catItem.type === "concern") {
+        return selectedConcern !== "all" && !onSaleOnly;
+      }
+      if (catItem.type === "all") {
+        return (
+          selectedCategory === "all" &&
+          !onSaleOnly &&
+          selectedConcern === "all"
+        );
+      }
+      return (
+        (selectedCategory === catItem.slug ||
+          selectedCategory === catItem.id) &&
+        !onSaleOnly
+      );
+    },
+    [selectedCategory, onSaleOnly, selectedConcern]
+  );
+
+  const handleCategoryAvatarClick = useCallback(
+    (catItem: (typeof VISUAL_CATEGORIES)[0]) => {
+      if (catItem.type === "deals") {
+        setOnSaleOnly(true);
+        setSelectedCategory("all");
+        setSelectedConcern("all");
+      } else if (catItem.type === "concern") {
+        setOnSaleOnly(false);
+        setSelectedCategory("all");
+        setSelectedConcern(selectedConcern === "all" ? "digestion" : selectedConcern);
+      } else if (catItem.type === "all") {
+        setSelectedCategory("all");
+        setOnSaleOnly(false);
+        setSelectedConcern("all");
+      } else {
+        setSelectedCategory(catItem.slug);
+        setOnSaleOnly(false);
+      }
+    },
+    [selectedConcern]
+  );
+
   // Human-readable labels for active filter pills
-  const activeCategoryInfo = categoriesList.find(
+  const matchedVisualCat = VISUAL_CATEGORIES.find(
+    (v) => v.slug === selectedCategory || v.id === selectedCategory
+  );
+  const matchedDbCat = categoriesList.find(
     (c) => c.id === selectedCategory || c.slug === selectedCategory
   );
+  const activeCategoryInfo = matchedDbCat
+    ? { name: matchedDbCat.name }
+    : matchedVisualCat
+    ? { name: matchedVisualCat.label }
+    : null;
   const activeConcernInfo = HEALTH_CONCERNS.find((c) => c.id === selectedConcern);
   const activePriceInfo = PRICE_RANGES.find((p) => p.id === selectedPriceRange);
   const activeMizajInfo = MIZAJ_OPTIONS.find((m) => m.id === selectedMizaj);
@@ -761,13 +1001,13 @@ function ProductsContent() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <span className="text-[10px] sm:text-xs uppercase font-semibold tracking-[0.2em] text-[#9E7D3B]">
-                Natural Unani Formulations · Karachi Dispensary
+                Natural Herbal Formulations · Karachi Dispensary
               </span>
               <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-stone-900 tracking-tight mt-1">
                 Classical Herbal Remedies &amp; Tonics
               </h1>
               <p className="text-xs sm:text-sm text-stone-500 font-light mt-1 max-w-2xl leading-relaxed">
-                Handcrafted Murabbajat, Arqiyat, and herbal compounds formulated according to time-tested Tibb-e-Unani pharmacopoeia.
+                Handcrafted herbal preserves, extracts, oils, and botanical compounds formulated according to time-tested natural standards.
               </p>
             </div>
 
@@ -785,8 +1025,92 @@ function ProductsContent() {
               <span className="text-stone-300">|</span>
               <div className="flex items-center gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5 text-[#9E7D3B]" />
-                <span>Hakim Formulated</span>
+                <span>Expert Formulated</span>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          1.5 APOTHECARY VISUAL CATEGORY AVATAR NAVIGATION STRIP
+      ═══════════════════════════════════════════════════════════════════════ */}
+      <section className="bg-white border-b border-stone-200/80 py-5 sm:py-6 shadow-2xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-[#9E7D3B]" />
+              <h2 className="text-xs font-semibold text-stone-900 uppercase tracking-wider">
+                Featured Botanical Categories
+              </h2>
+            </div>
+            <span className="text-[11px] text-stone-400 hidden sm:inline">
+              Click any category to filter catalog
+            </span>
+          </div>
+
+          {/* Horizontal Scrolling Avatar Ribbon */}
+          <div className="overflow-x-auto scrollbar-none pb-2 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+            <div className="flex items-center gap-4 sm:gap-6 md:gap-7 min-w-max lg:justify-between py-1">
+              {VISUAL_CATEGORIES.map((cat) => {
+                const isActive = isCategoryAvatarActive(cat);
+                const IconComponent = cat.icon;
+
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => handleCategoryAvatarClick(cat)}
+                    className="flex flex-col items-center gap-2 group cursor-pointer text-center transition-all duration-200 focus:outline-none"
+                  >
+                    {/* Circle Avatar with Icon */}
+                    <div
+                      className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center relative transition-all duration-300 ${
+                        isActive
+                          ? "bg-[#14281D] text-white shadow-md ring-2 ring-offset-2 ring-[#9E7D3B] scale-105"
+                          : "bg-[#FAF9F6] text-stone-700 border border-stone-200/80 hover:border-[#9E7D3B]/60 hover:bg-stone-100 hover:scale-105 shadow-2xs"
+                      }`}
+                    >
+                      <IconComponent
+                        className={`w-5 h-5 sm:w-6 sm:h-6 transition-colors ${
+                          isActive
+                            ? "text-[#9E7D3B]"
+                            : "text-stone-600 group-hover:text-[#14281D]"
+                        }`}
+                      />
+
+                      {/* Floating Badge Tag */}
+                      {cat.badge && (
+                        <span
+                          className={`absolute -top-1.5 -right-1 px-1.5 py-0.5 rounded-full text-[8px] sm:text-[9px] font-bold tracking-tight shadow-xs ${
+                            cat.highlight
+                              ? "bg-rose-600 text-white animate-pulse"
+                              : "bg-[#9E7D3B] text-white"
+                          }`}
+                        >
+                          {cat.badge}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Labels */}
+                    <div className="flex flex-col items-center max-w-[76px] sm:max-w-[92px]">
+                      <span
+                        className={`text-xs font-medium leading-tight truncate transition-colors ${
+                          isActive
+                            ? "text-[#14281D] font-bold"
+                            : "text-stone-800 group-hover:text-[#14281D]"
+                        }`}
+                      >
+                        {cat.label}
+                      </span>
+                      <span className="text-[10px] text-stone-400 font-normal leading-tight truncate hidden sm:block">
+                        {cat.subtitle}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

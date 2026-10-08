@@ -1,41 +1,41 @@
 import React from "react";
 import type { Metadata } from "next";
-import HeroSymptomTriage from "@/app/components/v2/HeroSymptomTriage";
-import ClinicalSpecialtiesV2 from "@/app/components/v2/ClinicalSpecialtiesV2";
-import CuratedRemediesGrid from "@/app/components/v2/CuratedRemediesGrid";
-import HakimTrustCard from "@/app/components/v2/HakimTrustCard";
-import PatientStories from "@/app/components/v2/PatientStories";
-import WhatsAppConsultationBanner from "@/app/components/WhatsAppConsultationBanner";
+import InteractiveDiagnosticHero from "@/app/components/v2/InteractiveDiagnosticHero";
+import BenefitTicker from "@/app/components/v2/BenefitTicker";
+import TacticalRemediesGrid from "@/app/components/v2/TacticalRemediesGrid";
+import DailyRitualTimeline from "@/app/components/v2/DailyRitualTimeline";
+import PractitionerStamp from "@/app/components/v2/PractitionerStamp";
+import PatientProofReel from "@/app/components/v2/PatientProofReel";
 import StickyMobileBar from "@/app/components/v2/StickyMobileBar";
 
 export const metadata: Metadata = {
-  title: "Tameer-e-Sehat | Mobile-First Herbal Care & Hakim Consultation",
+  title: "Tameer-e-Sehat | Personalized Herbal Care & 60-Second Diagnostic",
   description:
-    "Fast, empathetic, symptom-first Unani care by Hakim Muhammad Tariq. Pure steam-distilled Arqiyat and organic preserves with Cash on Delivery across Pakistan.",
+    "Instant Unani diagnostic finder, steam-distilled Arqiyat, and raw honey preserves by Hakim Muhammad Tariq. 1-Tap Cash on Delivery across Pakistan.",
 };
 
-export default function V2HomePage() {
+export default function V2RebootPage() {
   return (
-    <main className="min-h-screen bg-[#faf8f5] pb-20 sm:pb-0">
-      {/* 1. Clinical Healthcare Hero with Symptom-First Smart Triage */}
-      <HeroSymptomTriage />
+    <main className="min-h-screen bg-[#FAF9F5] pb-20 sm:pb-0">
+      {/* 1. Interactive 60-Second Herbal Diagnostic Hero */}
+      <InteractiveDiagnosticHero />
 
-      {/* 2. Clinical Specialties & What We Treat (Scannable Department Cards) */}
-      <ClinicalSpecialtiesV2 />
+      {/* 2. Sensory Credibility & Benefit Ticker */}
+      <BenefitTicker />
 
-      {/* 3. Physician-Formulated Apothecary Dispensary Grid */}
-      <CuratedRemediesGrid />
+      {/* 3. Tactical Shoppable Remedies with Inline Weight Selectors & 1-Tap COD */}
+      <TacticalRemediesGrid />
 
-      {/* 4. Hakim Authority & Karachi Clinic Pedigree Profile */}
-      <HakimTrustCard />
+      {/* 4. The 3-Step Daily Healing Ritual (Morning / Midday / Night) */}
+      <DailyRitualTimeline />
 
-      {/* 5. Patient Outcomes & Google Social Proof */}
-      <PatientStories />
+      {/* 5. Verified Practitioner Stamp & Karachi Matab Digital Pass */}
+      <PractitionerStamp />
 
-      {/* 6. High-Intent Direct WhatsApp Consultation Banner */}
-      <WhatsAppConsultationBanner />
+      {/* 6. Real Patient Recoveries & Google Proof */}
+      <PatientProofReel />
 
-      {/* 7. Persistent Mobile Bottom Sticky Action Bar */}
+      {/* 7. Persistent Mobile Bottom Action Bar */}
       <StickyMobileBar />
     </main>
   );

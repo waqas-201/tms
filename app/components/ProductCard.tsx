@@ -314,9 +314,9 @@ export default function ProductCard({
   // ═══════════════════════════════════════════════════════════════════════════
   return (
     <>
-      <div className="group bg-white rounded-xl border border-stone-200/60 hover:border-stone-300 hover:shadow-xs transition-all duration-300 flex flex-col overflow-hidden h-full">
+      <div className="group bg-white rounded-xl sm:rounded-2xl border border-[#e6dfd5] hover:border-[#22623a]/40 hover:shadow-sm transition-all duration-300 flex flex-col overflow-hidden h-full">
         {/* Image Canvas */}
-        <div className="relative block aspect-square w-full bg-[#F7F6F2] overflow-hidden">
+        <div className="relative block aspect-square w-full bg-[#faf8f5] overflow-hidden">
           <Link href={`/products/${product.slug}`} className="block w-full h-full">
             <Image
               src={product.image}
@@ -328,27 +328,27 @@ export default function ProductCard({
           </Link>
 
           {/* Top Badges */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1 z-10 pointer-events-none">
+          <div className="absolute top-2.5 sm:top-3 left-2.5 sm:left-3 flex flex-col gap-1 z-10 pointer-events-none">
             {product.badge && (
-              <span className="bg-[#14281D] text-white text-[9px] font-medium tracking-widest uppercase px-2 py-0.5 rounded shadow-2xs">
+              <span className="bg-[#22623a] text-white text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-md shadow-2xs">
                 {product.badge}
               </span>
             )}
             {calculatedDiscount && calculatedDiscount > 0 ? (
-              <span className="bg-[#9E7D3B] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-2xs">
+              <span className="bg-[#c59b27] text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-2xs">
                 -{calculatedDiscount}%
               </span>
             ) : null}
           </div>
 
           {/* Top Right Floating Wishlist & Quick View */}
-          <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-10">
+          <div className="absolute top-2.5 sm:top-3 right-2.5 sm:right-3 flex flex-col gap-1.5 z-10">
             <button
               onClick={handleToggleWishlist}
-              className={`p-2 rounded-full backdrop-blur-xs transition-colors shadow-2xs cursor-pointer ${
+              className={`p-1.5 sm:p-2 rounded-full backdrop-blur-xs transition-colors shadow-2xs cursor-pointer ${
                 isSaved
                   ? "bg-white text-rose-500 shadow-xs"
-                  : "bg-white/80 text-stone-500 hover:text-rose-500 hover:bg-white"
+                  : "bg-white/85 text-[#6a6660] hover:text-rose-500 hover:bg-white"
               }`}
               title={isSaved ? "Saved to Wishlist" : "Save to Wishlist"}
               aria-label="Toggle Wishlist"
@@ -358,7 +358,7 @@ export default function ProductCard({
 
             <button
               onClick={handleQuickView}
-              className="p-2 rounded-full bg-white/80 hover:bg-white text-stone-700 shadow-2xs transition-all opacity-0 group-hover:opacity-100 hover:scale-105 cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-full bg-white/85 hover:bg-white text-[#22623a] shadow-2xs transition-all opacity-0 group-hover:opacity-100 hover:scale-105 cursor-pointer"
               title="Quick View"
               aria-label="Quick View"
             >
@@ -368,19 +368,19 @@ export default function ProductCard({
         </div>
 
         {/* Card Details */}
-        <div className="p-4 flex-1 flex flex-col justify-between space-y-3">
+        <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-2 sm:space-y-3">
           <div className="space-y-1">
             {/* Category & Rating */}
             <div className="flex items-center justify-between text-xs">
-              <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-stone-400 truncate">
+              <span className="text-[9px] sm:text-[10px] font-semibold uppercase tracking-[0.12em] text-[#8c6a15] truncate">
                 {product.categoryLabel}
               </span>
-              <div className="flex items-center gap-1 text-stone-600 shrink-0">
-                <Star className="w-2.5 h-2.5 fill-[#9E7D3B] text-[#9E7D3B]" />
-                <span className="text-[10px] font-semibold text-stone-700">
+              <div className="flex items-center gap-1 text-[#59534b] shrink-0">
+                <Star className="w-2.5 h-2.5 fill-[#c59b27] text-[#c59b27]" />
+                <span className="text-[9px] sm:text-[10px] font-bold text-[#1a1816]">
                   {product.rating}
                 </span>
-                <span className="text-[9px] text-stone-400">
+                <span className="text-[8px] sm:text-[9px] text-[#7a7268]">
                   ({product.reviewCount})
                 </span>
               </div>
@@ -388,12 +388,12 @@ export default function ProductCard({
 
             {/* Product Title */}
             <Link href={`/products/${product.slug}`} className="block group/title">
-              <div className="flex items-baseline justify-between gap-1.5">
-                <h3 className="font-serif text-[15px] font-semibold text-stone-900 group-hover/title:text-[#14281D] transition-colors line-clamp-1 leading-snug">
+              <div className="flex items-baseline justify-between gap-1">
+                <h3 className="font-serif text-[13px] sm:text-[15px] font-bold text-[#22623a] group-hover/title:text-[#1a4d2e] transition-colors line-clamp-1 leading-snug">
                   {product.name}
                 </h3>
                 {product.urduName && (
-                  <span className="font-urdu text-xs text-stone-400 shrink-0 font-normal">
+                  <span className="font-urdu text-[11px] sm:text-xs text-[#8c6a15] shrink-0 font-normal hidden sm:inline">
                     {product.urduName}
                   </span>
                 )}
@@ -401,13 +401,13 @@ export default function ProductCard({
             </Link>
 
             {/* Short subtitle / purpose */}
-            <p className="text-[11px] text-stone-500 line-clamp-1 leading-relaxed">
+            <p className="text-[10px] sm:text-[11px] text-[#59534b] line-clamp-1 leading-relaxed">
               {product.traditionalPurpose || product.shortDescription}
             </p>
           </div>
 
           {/* Size Pills & Pricing / Quick Add */}
-          <div className="space-y-2 pt-2 border-t border-stone-100">
+          <div className="space-y-2 pt-1.5 sm:pt-2 border-t border-[#f4eee5]">
             {/* Minimal Size Pills if multiple */}
             {product.sizes && product.sizes.length > 1 ? (
               <div className="flex flex-wrap gap-1">
@@ -422,10 +422,10 @@ export default function ProductCard({
                         e.stopPropagation();
                         setSelectedSize(sz);
                       }}
-                      className={`text-[10px] px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
+                      className={`text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-0.5 rounded-md border transition-all cursor-pointer ${
                         isSelected
-                          ? "bg-[#14281D] text-white border-[#14281D] font-medium"
-                          : "bg-stone-50 text-stone-600 border-stone-200/80 hover:border-stone-400"
+                          ? "bg-[#22623a] text-white border-[#22623a] font-semibold"
+                          : "bg-[#faf8f5] text-[#59534b] border-[#e6dfd5] hover:border-[#22623a]"
                       }`}
                     >
                       {sz.weight}
@@ -436,13 +436,13 @@ export default function ProductCard({
             ) : null}
 
             {/* Price & Add Action */}
-            <div className="flex items-center justify-between gap-2 pt-0.5">
+            <div className="flex items-center justify-between gap-1.5 pt-0.5">
               <div>
-                <div className="text-base font-semibold text-stone-900 leading-none">
+                <div className="text-[13px] sm:text-base font-bold text-[#1a1816] leading-none">
                   ₨ {selectedSize.price.toLocaleString()}
                 </div>
                 {selectedSize.originalPrice && selectedSize.originalPrice > selectedSize.price && (
-                  <div className="text-[10px] text-stone-400 line-through mt-0.5">
+                  <div className="text-[9px] sm:text-[10px] text-[#8c6a15] line-through mt-0.5">
                     ₨ {selectedSize.originalPrice.toLocaleString()}
                   </div>
                 )}
@@ -452,22 +452,22 @@ export default function ProductCard({
                 type="button"
                 onClick={handleAddToCart}
                 disabled={!isAvailable}
-                className={`flex items-center justify-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-medium tracking-wide uppercase transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer ${
+                className={`flex items-center justify-center gap-1 px-2.5 sm:px-3.5 py-1.5 rounded-lg text-[10px] sm:text-[11px] font-bold tracking-wide uppercase transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer ${
                   !isAvailable
-                    ? "bg-stone-200 text-stone-500"
+                    ? "bg-[#e6dfd5] text-[#7a7268]"
                     : isAdded
-                    ? "bg-[#2d7648] text-white"
-                    : "bg-[#14281D] hover:bg-[#0c1b13] text-white"
+                    ? "bg-[#22623a] text-white shadow-xs"
+                    : "bg-[#22623a] hover:bg-[#1a4d2e] text-white shadow-2xs hover:shadow-xs"
                 }`}
               >
                 {isAdded ? (
                   <>
-                    <Check className="w-3 h-3" />
-                    <span>Added</span>
+                    <Check className="w-3 h-3 text-[#c59b27]" />
+                    <span className="hidden sm:inline">Added</span>
                   </>
                 ) : (
                   <>
-                    <Plus className="w-3 h-3" />
+                    <Plus className="w-3 h-3 text-[#c59b27]" />
                     <span>Add</span>
                   </>
                 )}

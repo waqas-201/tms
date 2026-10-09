@@ -22,7 +22,7 @@ export default function WhatsAppFloat() {
       transition={{ duration: 0.4, delay: 0.5 }}
       whileHover={reducedMotion ? {} : { scale: 1.04, y: -2 }}
       whileTap={reducedMotion ? {} : { scale: 0.96 }}
-      className="fixed bottom-6 right-6 z-40 group flex items-center gap-2.5 bg-[#22623a] hover:bg-[#143e23] text-white px-4 py-2.5 rounded-full shadow-lg border border-[#2d7648]/50 transition-colors animate-pulse-ring"
+      className="hidden sm:flex fixed bottom-6 right-6 z-40 group items-center gap-2.5 bg-[#22623a] hover:bg-[#143e23] text-white px-4 py-2.5 rounded-full shadow-lg border border-[#2d7648]/50 transition-colors animate-pulse-ring"
     >
       <span className="relative flex h-2.5 w-2.5">
         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#25D366] opacity-75"></span>

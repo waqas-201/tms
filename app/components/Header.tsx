@@ -10,6 +10,7 @@ import { CLINIC_INFO } from "@/app/data/products";
 import { useLenis } from "./SmoothScroll";
 import SearchModal from "./SearchModal";
 import ConsultationModal from "./ConsultationModal";
+import BrandLogo from "./BrandLogo";
 import { isStaffRole } from "@/lib/rbac-base";
 import {
   Search,
@@ -345,25 +346,17 @@ export default function Header() {
               <Link
                 href="/"
                 onClick={(e) => handleNavClick("/", e)}
-                className="flex items-center gap-2.5 sm:gap-3 group min-w-0"
+                className="flex items-center group shrink-0"
+                aria-label="Tameer-e-Sehat Home"
               >
-                <div className="relative h-8 sm:h-10 w-auto shrink-0 overflow-hidden rounded-md border border-[#e6dfd5]/80 bg-white p-0.5 group-hover:border-[#22623a]/50 transition-colors shadow-2xs">
+                <div className="relative h-8 sm:h-10 aspect-[463/214] transition-transform duration-200 group-hover:scale-[1.02]">
                   <Image
                     src="/images/cropped-logo.png"
-                    alt="Tameer-e-Sehat Herbal Healthcare"
-                    width={150}
-                    height={38}
-                    className="h-full w-auto object-contain"
+                    alt="Tameer-e-Sehat"
+                    fill
+                    className="object-contain object-left"
                     priority
                   />
-                </div>
-                <div className="hidden sm:flex flex-col min-w-0">
-                  <span className="font-serif text-base sm:text-lg font-bold tracking-tight text-[#22623a] leading-tight group-hover:text-[#1b502e] transition-colors truncate">
-                    Tameer-e-Sehat
-                  </span>
-                  <span className="text-[9px] sm:text-[10px] tracking-widest text-[#7a7268] uppercase font-semibold -mt-0.5">
-                    Herbal Clinic &amp; Care
-                  </span>
                 </div>
               </Link>
             </div>
@@ -721,8 +714,8 @@ export default function Header() {
                 )}
               </button>
 
-              <div className="hidden xl:block h-6 w-[1px] bg-[#e6dfd5] mx-0.5" />
-
+              {/* CTA button hidden for now per instructions */}
+              {/* <div className="hidden xl:block h-6 w-[1px] bg-[#e6dfd5] mx-0.5" />
               <button
                 type="button"
                 onClick={openConsult}
@@ -730,7 +723,7 @@ export default function Header() {
               >
                 <Calendar className="w-3.5 h-3.5 text-[#c59b27]" />
                 <span>Book Appointment</span>
-              </button>
+              </button> */}
             </div>
           </div>
         </div>
@@ -757,24 +750,16 @@ export default function Header() {
                 <Link
                   href="/"
                   onClick={(e) => handleMobileNavClick("/", e)}
-                  className="flex items-center gap-2.5 min-w-0"
+                  className="flex items-center group shrink-0"
+                  aria-label="Tameer-e-Sehat Home"
                 >
-                  <div className="relative h-8 w-auto shrink-0 overflow-hidden rounded-md border border-[#e6dfd5] bg-white p-0.5">
+                  <div className="relative h-8 aspect-[463/214]">
                     <Image
                       src="/images/cropped-logo.png"
-                      alt=""
-                      width={120}
-                      height={32}
-                      className="h-full w-auto object-contain"
+                      alt="Tameer-e-Sehat"
+                      fill
+                      className="object-contain object-left"
                     />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-serif font-bold text-[#22623a] text-sm leading-tight truncate">
-                      Tameer-e-Sehat
-                    </p>
-                    <p className="text-[10px] text-[#7a7268] uppercase tracking-wider font-semibold">
-                      Menu
-                    </p>
                   </div>
                 </Link>
                 <button
@@ -792,14 +777,7 @@ export default function Header() {
                 data-lenis-prevent
                 className="flex-1 overflow-y-auto p-4 space-y-5"
               >
-                <button
-                  type="button"
-                  onClick={openConsult}
-                  className="w-full flex items-center justify-center gap-2 py-3 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold uppercase tracking-wider rounded-xl shadow-md"
-                >
-                  <Calendar className="w-4 h-4 text-[#c59b27]" />
-                  <span>Book Appointment / Consult Hakim</span>
-                </button>
+                {/* Mobile Consult CTA button hidden for now per instructions */}
 
                 <nav className="space-y-1">
                   {navLinks.map((link) => {
@@ -952,38 +930,6 @@ export default function Header() {
                       </Link>
                     )}
                 </nav>
-
-                <div className="p-3.5 bg-white rounded-xl border border-[#e6dfd5] text-xs space-y-2">
-                  <div className="flex items-center justify-between text-[#22623a] font-bold gap-2">
-                    <span className="flex items-center gap-1.5 min-w-0">
-                      <Building2 className="w-3.5 h-3.5 text-[#c59b27] shrink-0" />
-                      <span className="truncate">Karachi Clinic</span>
-                    </span>
-                    <span className="text-[10px] text-[#8c6a15] shrink-0">
-                      Est. 1990
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-[#6a6660] leading-relaxed">
-                    {CLINIC_INFO.address}
-                  </p>
-                  <div className="flex items-center gap-2 pt-1">
-                    <a
-                      href={`tel:${CLINIC_INFO.phone}`}
-                      className="flex-1 text-center py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#22623a] font-semibold text-[11px]"
-                    >
-                      Call
-                    </a>
-                    <a
-                      href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 text-center py-2 bg-[#25D366] text-white rounded-lg font-semibold text-[11px] flex items-center justify-center gap-1"
-                    >
-                      <MessageCircle className="w-3 h-3 fill-current" />
-                      WhatsApp
-                    </a>
-                  </div>
-                </div>
               </div>
 
               <div className="p-4 border-t border-[#e6dfd5] bg-white shrink-0">

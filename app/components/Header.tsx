@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,7 +8,7 @@ import { useSession, signOut } from "@/lib/auth-client";
 import { CLINIC_INFO } from "@/app/data/products";
 import { useLenis } from "./SmoothScroll";
 import SearchModal from "./SearchModal";
-import ConsultationModal from "./ConsultationModal";
+import { useConsultation } from "@/app/context/ConsultationContext";
 import BrandLogo from "./BrandLogo";
 import { isStaffRole } from "@/lib/rbac-base";
 import {
@@ -106,9 +105,9 @@ export default function Header() {
   const lenis = useLenis();
   const { totalItems, setIsCartOpen, wishlist } = useCart();
   const { data: session } = useSession();
+  const { openConsultation } = useConsultation();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isConsultModalOpen, setIsConsultModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isShopDropdownOpen, setIsShopDropdownOpen] = useState(false);
@@ -135,7 +134,6 @@ export default function Header() {
 
   const openMobileMenu = () => {
     setIsSearchOpen(false);
-    setIsConsultModalOpen(false);
     setIsUserMenuOpen(false);
     setIsCartOpen(false);
     setIsMobileMenuOpen(true);
@@ -145,7 +143,6 @@ export default function Header() {
 
   const openSearch = () => {
     setIsMobileMenuOpen(false);
-    setIsConsultModalOpen(false);
     setIsUserMenuOpen(false);
     setIsCartOpen(false);
     setIsSearchOpen(true);
@@ -154,17 +151,19 @@ export default function Header() {
   const openCart = () => {
     setIsMobileMenuOpen(false);
     setIsSearchOpen(false);
-    setIsConsultModalOpen(false);
     setIsUserMenuOpen(false);
     setIsCartOpen(true);
   };
 
-  const openConsult = () => {
+  const openConsult = (options?: {
+    mode?: "WHATSAPP" | "PHYSICAL";
+    message?: string;
+  }) => {
     setIsMobileMenuOpen(false);
     setIsSearchOpen(false);
     setIsUserMenuOpen(false);
     setIsCartOpen(false);
-    setIsConsultModalOpen(true);
+    openConsultation(options);
   };
 
   useEffect(() => {
@@ -349,15 +348,8 @@ export default function Header() {
                 className="flex items-center group shrink-0"
                 aria-label="Tameer-e-Sehat Home"
               >
-                <div className="relative h-8 sm:h-10 aspect-[463/214] transition-transform duration-200 group-hover:scale-[1.02]">
-                  <Image
-                    src="/images/cropped-logo.png"
-                    alt="Tameer-e-Sehat"
-                    fill
-                    className="object-contain object-left"
-                    priority
-                  />
-                </div>
+                <BrandLogo variant="header" className="hidden sm:flex" />
+                <BrandLogo variant="mobile" className="flex sm:hidden" />
               </Link>
             </div>
 
@@ -753,14 +745,7 @@ export default function Header() {
                   className="flex items-center group shrink-0"
                   aria-label="Tameer-e-Sehat Home"
                 >
-                  <div className="relative h-8 aspect-[463/214]">
-                    <Image
-                      src="/images/cropped-logo.png"
-                      alt="Tameer-e-Sehat"
-                      fill
-                      className="object-contain object-left"
-                    />
-                  </div>
+                  <BrandLogo variant="mobile" />
                 </Link>
                 <button
                   ref={closeMenuRef}
@@ -983,11 +968,6 @@ export default function Header() {
       <SearchModal
         isOpen={isSearchOpen}
         onClose={() => setIsSearchOpen(false)}
-      />
-
-      <ConsultationModal
-        isOpen={isConsultModalOpen}
-        onClose={() => setIsConsultModalOpen(false)}
       />
     </>
   );

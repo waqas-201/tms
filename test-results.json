@@ -1,0 +1,378 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "C:\\Users\\ALICOM4\\projects\\tms\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "tests/e2e/section2-consultation-modal.spec.ts",
+      "--project=chromium"
+    ],
+    "configFile": "C:\\Users\\ALICOM4\\projects\\tms\\playwright.config.ts",
+    "rootDir": "C:/Users/ALICOM4/projects/tms/tests/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "C:/Users/ALICOM4/projects/tms/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "C:/Users/ALICOM4/projects/tms/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "C:\\Users\\ALICOM4\\projects\\tms\\test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "chromium",
+        "testDir": "C:\\Users\\ALICOM4\\projects\\tms\\tests\\e2e",
+        "snapshotDir": "C:\\Users\\ALICOM4\\projects\\tms\\tests\\e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://localhost:3000",
+          "trace": "on-first-retry",
+          "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.8078.4 Safari/537.36",
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "screen": {
+            "width": 1920,
+            "height": 1080
+          },
+          "deviceScaleFactor": 1,
+          "isMobile": false,
+          "hasTouch": false,
+          "defaultBrowserType": "chromium",
+          "channel": "chrome"
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "chromium"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "section2-consultation-modal.spec.ts",
+      "file": "section2-consultation-modal.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Section 2: Minimal Consultation Card & Universal ConsultationModal Verification",
+          "file": "section2-consultation-modal.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Desktop Viewport (1280 x 800)",
+              "file": "section2-consultation-modal.spec.ts",
+              "line": 7,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "Section 2 minimal consultation card renders cleanly with all visual elements",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 17622,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-10-15T17:15:09.021Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "c739328629b926781dc8-0073295b27a8e1d528ab",
+                  "file": "section2-consultation-modal.spec.ts",
+                  "line": 10,
+                  "column": 9
+                },
+                {
+                  "title": "User can type into symptom input box, clear it, and trigger modal with custom text",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 0,
+                          "parallelIndex": 0,
+                          "status": "timedOut",
+                          "duration": 31147,
+                          "error": {
+                            "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                            "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                          },
+                          "errors": [
+                            {
+                              "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                            },
+                            {
+                              "location": {
+                                "file": "C:\\Users\\ALICOM4\\projects\\tms\\tests\\e2e\\section2-consultation-modal.spec.ts",
+                                "column": 18,
+                                "line": 72
+                              },
+                              "message": "Error: page.goto: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"networkidle\"\u001b[22m\n\n\n  70 |       page,\n  71 |     }) => {\n> 72 |       await page.goto(\"/\", { waitUntil: \"networkidle\" });\n     |                  ^\n  73 |\n  74 |       const section = page.locator(\"section#specialties\");\n  75 |       await section.scrollIntoViewIfNeeded();\n    at C:\\Users\\ALICOM4\\projects\\tms\\tests\\e2e\\section2-consultation-modal.spec.ts:72:18"
+                            }
+                          ],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-10-15T17:15:27.947Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "C:\\Users\\ALICOM4\\projects\\tms\\test-results\\section2-consultation-moda-53385-gger-modal-with-custom-text-chromium\\error-context.md"
+                            }
+                          ]
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "c739328629b926781dc8-1fe10c9dea47432e8bde",
+                  "file": "section2-consultation-modal.spec.ts",
+                  "line": 69,
+                  "column": 9
+                },
+                {
+                  "title": "User can click quick symptom chips to populate input and open modal with pre-filled tags",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 9296,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-10-15T17:16:26.223Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "c739328629b926781dc8-426459fb07d85ce70d84",
+                  "file": "section2-consultation-modal.spec.ts",
+                  "line": 127,
+                  "column": 9
+                },
+                {
+                  "title": "Full modal flow: Step 1 symptom pre-fill -> advance to Step 2 -> WhatsApp direct launch option",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 9853,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-10-15T17:16:36.032Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "c739328629b926781dc8-63d13f8f4e8a611fba95",
+                  "file": "section2-consultation-modal.spec.ts",
+                  "line": 178,
+                  "column": 9
+                },
+                {
+                  "title": "Full modal flow: Step 2 channel switch to In-Person Karachi Clinic Visit appointment booking",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 8920,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-10-15T17:16:45.939Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "c739328629b926781dc8-709eea2efb8bc9efa44c",
+                  "file": "section2-consultation-modal.spec.ts",
+                  "line": 287,
+                  "column": 9
+                }
+              ]
+            },
+            {
+              "title": "Mobile Viewport (390 x 844)",
+              "file": "section2-consultation-modal.spec.ts",
+              "line": 374,
+              "column": 8,
+              "specs": [
+                {
+                  "title": "Section 2 card and modal are fully accessible, responsive, and operational on mobile",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 30000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "chromium",
+                      "projectName": "chromium",
+                      "results": [
+                        {
+                          "workerIndex": 1,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 6930,
+                          "errors": [],
+                          "stdout": [],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-10-15T17:16:54.886Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "c739328629b926781dc8-36976499daac0a396745",
+                  "file": "section2-consultation-modal.spec.ts",
+                  "line": 377,
+                  "column": 9
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-15T17:15:05.550Z",
+    "duration": 116590.16399999999,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

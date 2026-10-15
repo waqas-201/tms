@@ -2,10 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { CLINIC_INFO } from "@/app/data/products";
+import BrandLogo from "./BrandLogo";
 import { useLenis } from "./SmoothScroll";
+import { useConsultation } from "@/app/context/ConsultationContext";
 import {
   MapPin,
   Phone,
@@ -16,11 +17,14 @@ import {
   Truck,
   Leaf,
   HeartHandshake,
+  Sparkles,
+  Calendar,
 } from "lucide-react";
 
 export default function Footer() {
   const pathname = usePathname();
   const lenis = useLenis();
+  const { openConsultation } = useConsultation();
 
   const handleHomeClick = (e: React.MouseEvent) => {
     if (pathname === "/") {
@@ -102,24 +106,10 @@ export default function Footer() {
             <Link
               href="/"
               onClick={handleHomeClick}
-              className="flex items-center gap-3 group inline-flex"
+              className="inline-flex items-center group"
+              aria-label="Tameer-e-Sehat Home"
             >
-              <div className="relative w-12 h-12 rounded-full overflow-hidden bg-white p-1">
-                <Image
-                  src="/images/cropped-logo.png"
-                  alt="Tameer-e-Sehat"
-                  fill
-                  className="object-contain p-1"
-                />
-              </div>
-              <div>
-                <span className="font-serif text-xl font-bold tracking-tight text-white group-hover:text-[#c59b27] transition-colors">
-                  Tameer-e-Sehat
-                </span>
-                <span className="block text-xs text-[#c59b27] font-medium tracking-wide">
-                  Herbal Clinic &amp; Natural Remedies
-                </span>
-              </div>
+              <BrandLogo variant="footer" />
             </Link>
 
             <p className="text-xs text-[#f4eee5]/80 leading-relaxed max-w-sm">
@@ -127,21 +117,32 @@ export default function Footer() {
             </p>
 
             <div className="pt-2 flex items-center gap-3">
-              <a
-                href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold rounded-md transition-colors shadow-xs"
+              <button
+                type="button"
+                onClick={() =>
+                  openConsultation({
+                    mode: "WHATSAPP",
+                    message: "Assalam-o-Alaikum Hakim Sahib, I would like to seek herbal guidance regarding my health symptoms.",
+                  })
+                }
+                className="inline-flex items-center gap-2 px-3.5 py-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold rounded-md transition-colors shadow-xs cursor-pointer"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>Chat on WhatsApp</span>
-              </a>
-              <Link
-                href="/consultation"
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#143e23] hover:bg-[#2d7648] text-white text-xs font-semibold rounded-md transition-colors border border-[#2d7648]"
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  openConsultation({
+                    mode: "WHATSAPP",
+                    message: "Assalam-o-Alaikum Hakim Sahib, I would like to book a free herbal consultation.",
+                  })
+                }
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-[#143e23] hover:bg-[#2d7648] text-white text-xs font-semibold rounded-md transition-colors border border-[#2d7648] cursor-pointer"
               >
+                <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
                 <span>Free Consultation</span>
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -161,7 +162,14 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/consultation" className="hover:text-white transition-colors">
+                <Link
+                  href="/consultation"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openConsultation({ mode: "WHATSAPP" });
+                  }}
+                  className="hover:text-white transition-colors cursor-pointer"
+                >
                   Online Consultation
                 </Link>
               </li>
@@ -271,6 +279,21 @@ export default function Footer() {
                   <p className="text-[#c59b27]">{CLINIC_INFO.fridayTimings}</p>
                 </div>
               </div>
+              <div className="pt-1.5">
+                <button
+                  type="button"
+                  onClick={() =>
+                    openConsultation({
+                      mode: "PHYSICAL",
+                      message: "I would like to book an in-person consultation appointment at the Karachi clinic with Hakim Muhammad Tariq.",
+                    })
+                  }
+                  className="inline-flex items-center gap-1.5 text-xs text-[#c59b27] hover:text-[#e5c05d] font-semibold hover:underline cursor-pointer"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>Book Clinic Visit →</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -285,7 +308,14 @@ export default function Footer() {
               &copy; {new Date().getFullYear()} {CLINIC_INFO.brandName}. All rights reserved. Registered Herbal Health Clinic, Karachi, Pakistan.
             </p>
             <div className="flex items-center gap-4 text-[#f4eee5]/70">
-              <Link href="/consultation" className="hover:text-white transition-colors">
+              <Link
+                href="/consultation"
+                onClick={(e) => {
+                  e.preventDefault();
+                  openConsultation({ mode: "WHATSAPP" });
+                }}
+                className="hover:text-white transition-colors cursor-pointer"
+              >
                 Consultation Help
               </Link>
               <span>·</span>

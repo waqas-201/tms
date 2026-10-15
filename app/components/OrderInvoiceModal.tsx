@@ -172,12 +172,14 @@ export default function OrderInvoiceModal({
             </div>
 
             <div className="flex items-center gap-3">
-              <div className="relative w-12 h-12 rounded-full overflow-hidden bg-[#22623a] shrink-0 border border-[#c59b27]">
+              <div className="relative h-12 aspect-[463/214] shrink-0 rounded-lg overflow-hidden bg-[#faf8f5] p-1 border border-[#e6dfd5] shadow-2xs">
                 <Image
-                  src="/images/logo.png"
-                  alt="Tameer-e-Sehat Logo"
+                  src="/images/cropped-logo.png"
+                  alt="Tameer-e-Sehat Official Logo"
                   fill
-                  className="object-contain p-1"
+                  sizes="120px"
+                  priority
+                  className="object-contain"
                 />
               </div>
               <div>

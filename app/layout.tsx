@@ -2,12 +2,14 @@ import type { Metadata, Viewport } from "next";
 import { Outfit, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/app/context/CartContext";
+import { ConsultationProvider } from "@/app/context/ConsultationContext";
 import SmoothScroll from "@/app/components/SmoothScroll";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
 import CartDrawer from "@/app/components/CartDrawer";
 import WhatsAppFloat from "@/app/components/WhatsAppFloat";
 import Toast from "@/app/components/Toast";
+import ConsultationModal from "@/app/components/ConsultationModal";
 import { CLINIC_INFO } from "@/app/data/products";
 
 const outfit = Outfit({
@@ -187,14 +189,17 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-[#faf8f5] text-[#1e1c19] font-sans selection:bg-[#c59b27]/20 selection:text-[#22623a]">
         <CartProvider>
-          <SmoothScroll>
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-            <CartDrawer />
-            <WhatsAppFloat />
-            <Toast />
-          </SmoothScroll>
+          <ConsultationProvider>
+            <SmoothScroll>
+              <Header />
+              <main className="flex-1">{children}</main>
+              <Footer />
+              <CartDrawer />
+              <WhatsAppFloat />
+              <Toast />
+              <ConsultationModal />
+            </SmoothScroll>
+          </ConsultationProvider>
         </CartProvider>
       </body>
     </html>

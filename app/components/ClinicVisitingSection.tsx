@@ -130,7 +130,7 @@ export default function ClinicVisitingSection() {
                 </h3>
 
                 <p className="text-xs sm:text-sm text-[#f4eee5]/90 leading-relaxed">
-                  Reserve a dedicated time slot with Hakim Muhammad Tariq to avoid wait times.
+                  Reserve a dedicated time slot with Hakim Tahir Hameed to avoid wait times.
                 </p>
 
                 <div className="p-3.5 rounded-xl bg-[#143e23]/80 border border-[#2d7648] text-xs space-y-1.5">

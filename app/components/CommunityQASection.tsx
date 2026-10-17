@@ -249,7 +249,7 @@ export default function CommunityQASection() {
                               <div className="p-3.5 bg-[#fcfbf3] rounded-xl border border-[#e8ded2] space-y-2">
                                 <div className="flex items-center gap-2 font-bold text-[#22623a] text-xs">
                                   <Stethoscope className="w-3.5 h-3.5 text-[#c59b27]" />
-                                  <span>Hakim Muhammad Tariq&apos;s Advice:</span>
+                                  <span>Hakim Tahir Hameed&apos;s Advice:</span>
                                 </div>
                                 <ul className="space-y-1 pl-1">
                                   {item.hakimAdvice.map((adv, aIdx) => (

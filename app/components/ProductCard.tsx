@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Product, ProductSize } from "@/app/data/products";
 import { useCart } from "@/app/context/CartContext";
 import ProductQuickViewModal from "./ProductQuickViewModal";
+import { getSafeProductImage, DEFAULT_PRODUCT_IMAGE } from "@/lib/utils";
 import {
   ShoppingBag,
   Star,
@@ -28,6 +29,14 @@ export default function ProductCard({
   viewMode = "grid",
 }: ProductCardProps) {
   const { addToCart, isInWishlist, toggleWishlist } = useCart();
+
+  const [imageSrc, setImageSrc] = useState(() =>
+    getSafeProductImage(product.image, DEFAULT_PRODUCT_IMAGE)
+  );
+
+  useEffect(() => {
+    setImageSrc(getSafeProductImage(product.image, DEFAULT_PRODUCT_IMAGE));
+  }, [product.image]);
 
   // Active selected size variant (defaults to first size or standard fallback)
   const [selectedSize, setSelectedSize] = useState<ProductSize>(() => {
@@ -135,9 +144,10 @@ export default function ProductCard({
           <div className="relative w-full md:w-44 aspect-square bg-[#F7F6F2] rounded-lg overflow-hidden shrink-0">
             <Link href={`/products/${product.slug}`} className="block w-full h-full">
               <Image
-                src={product.image}
+                src={imageSrc}
                 alt={product.name}
                 fill
+                onError={() => setImageSrc(DEFAULT_PRODUCT_IMAGE)}
                 className="object-cover object-center group-hover:scale-103 transition-transform duration-500 ease-out"
                 sizes="(max-width: 768px) 100vw, 180px"
               />
@@ -319,9 +329,10 @@ export default function ProductCard({
         <div className="relative block aspect-square w-full bg-[#faf8f5] overflow-hidden">
           <Link href={`/products/${product.slug}`} className="block w-full h-full">
             <Image
-              src={product.image}
+              src={imageSrc}
               alt={product.name}
               fill
+              onError={() => setImageSrc(DEFAULT_PRODUCT_IMAGE)}
               className="object-cover object-center group-hover:scale-104 transition-transform duration-500 ease-out"
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             />

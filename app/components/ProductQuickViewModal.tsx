@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product, ProductSize, CLINIC_INFO } from "@/app/data/products";
 import { useCart } from "@/app/context/CartContext";
+import { getSafeProductImage, DEFAULT_PRODUCT_IMAGE } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -55,6 +56,14 @@ export default function ProductQuickViewModal({
     }
     setQuantity(1);
   }, [product]);
+
+  const [imageSrc, setImageSrc] = useState(() =>
+    getSafeProductImage(product?.image, DEFAULT_PRODUCT_IMAGE)
+  );
+
+  useEffect(() => {
+    setImageSrc(getSafeProductImage(product?.image, DEFAULT_PRODUCT_IMAGE));
+  }, [product?.image]);
 
   if (!product) return null;
 
@@ -127,9 +136,10 @@ export default function ProductQuickViewModal({
             <div>
               <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-white border border-stone-200/70 shadow-2xs">
                 <Image
-                  src={product.image}
+                  src={imageSrc}
                   alt={product.name}
                   fill
+                  onError={() => setImageSrc(DEFAULT_PRODUCT_IMAGE)}
                   className="object-cover object-center"
                   sizes="(max-width: 768px) 100vw, 320px"
                 />

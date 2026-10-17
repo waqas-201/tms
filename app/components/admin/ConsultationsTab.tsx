@@ -227,7 +227,7 @@ export default function ConsultationsTab() {
   const getWhatsAppContactLink = (c: Consultation) => {
     const text =
       `*Assalam-o-Alaikum ${c.fullName} Sahib/Sahiba*\n` +
-      `This is Matab Tameer-e-Sehat (Hakim Muhammad Tariq) regarding your Consultation Ticket *${c.ticketNumber}* for: *${c.primarySymptoms}*.\n\n` +
+      `This is Matab Tameer-e-Sehat (Hakim Tahir Hameed) regarding your Consultation Ticket *${c.ticketNumber}* for: *${c.primarySymptoms}*.\n\n` +
       `We are ready to discuss your health assessment.`;
     return `https://wa.me/${c.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(text)}`;
   };

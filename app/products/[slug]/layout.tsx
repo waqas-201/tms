@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import React from "react";
 import prisma from "@/lib/prisma";
+import { getSafeProductImage } from "@/lib/utils";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -40,14 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     `${product.name} - 100% natural Unani formulation for ${product.traditionalPurpose || "holistic wellness"}. Handcrafted in Karachi, Pakistan.`;
 
   const canonicalUrl = `https://tameeresehat.com/products/${product.slug}`;
-  let primaryImage = product.image;
-  try {
-    if (primaryImage.startsWith("[")) {
-      const parsed = JSON.parse(primaryImage);
-      if (Array.isArray(parsed) && parsed.length > 0) primaryImage = parsed[0];
-    }
-  } catch {}
-
+  const primaryImage = getSafeProductImage(product.image);
   const imageUrl = primaryImage.startsWith("http")
     ? primaryImage
     : `https://tameeresehat.com${primaryImage}`;
@@ -93,14 +87,7 @@ export default async function ProductDetailLayout({
   if (!product) return <>{children}</>;
 
   const productUrl = `https://tameeresehat.com/products/${product.slug}`;
-  let primaryImage = product.image;
-  try {
-    if (primaryImage.startsWith("[")) {
-      const parsed = JSON.parse(primaryImage);
-      if (Array.isArray(parsed) && parsed.length > 0) primaryImage = parsed[0];
-    }
-  } catch {}
-
+  const primaryImage = getSafeProductImage(product.image);
   const imageUrl = primaryImage.startsWith("http")
     ? primaryImage
     : `https://tameeresehat.com${primaryImage}`;

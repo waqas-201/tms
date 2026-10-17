@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCart } from "@/app/context/CartContext";
 import { Product } from "@/app/data/products";
+import { getSafeProductImage } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
@@ -220,7 +221,7 @@ export default function CartDrawer() {
                         className="relative w-18 h-18 bg-[#FAF9F6] rounded-lg overflow-hidden shrink-0 border border-stone-100 block"
                       >
                         <Image
-                          src={item.product.image}
+                          src={getSafeProductImage(item.product.image)}
                           alt={item.product.name}
                           fill
                           className="object-cover"

@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { getAvailableStock } from "@/lib/inventory";
 import { Product, ProductSize, PRODUCTS } from "@/app/data/products";
+import { isValidImageUrl, getSafeProductImage, DEFAULT_PRODUCT_IMAGE } from "@/lib/utils";
 
 function safeJsonParse<T>(val: any, fallback: T): T {
   if (Array.isArray(val) || (typeof val === "object" && val !== null)) {
@@ -45,17 +46,17 @@ export function formatProductRecord(p: any): Product {
       try {
         const parsed = JSON.parse(p.image);
         if (Array.isArray(parsed)) {
-          gallery = parsed.filter((img: any) => typeof img === "string" && img.trim().length > 0);
+          gallery = parsed.filter((img: any) => isValidImageUrl(img));
         }
       } catch {
         gallery = [];
       }
     }
-    if (gallery.length === 0 && typeof p.image === "string" && p.image.trim()) {
+    if (gallery.length === 0 && isValidImageUrl(p.image)) {
       gallery = [p.image.trim()];
     }
   }
-  const primaryImage = gallery[0] || (typeof p.image === "string" ? p.image : "") || "/images/placeholder.jpg";
+  const primaryImage = gallery[0] || getSafeProductImage(p.image, DEFAULT_PRODUCT_IMAGE);
 
   return {
     id: p.id,

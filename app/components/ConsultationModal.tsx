@@ -89,13 +89,14 @@ export default function ConsultationModal({
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [audioBlobUrl, setAudioBlobUrl] = useState<string | null>(null);
+  const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string | null>(null);
+  const [isUploadingVoice, setIsUploadingVoice] = useState(false);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [voiceNotice, setVoiceNotice] = useState<string | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerIntervalRef = useRef<any>(null);
-  const speechRecognitionRef = useRef<any>(null);
   const audioElementRef = useRef<HTMLAudioElement | null>(null);
 
   // ── Report / Photo File Attachment State ──
@@ -182,16 +183,31 @@ export default function ConsultationModal({
   useEffect(() => {
     return () => {
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-      if (speechRecognitionRef.current) {
-        try {
-          speechRecognitionRef.current.stop();
-        } catch {}
-      }
       if (audioBlobUrl) {
         URL.revokeObjectURL(audioBlobUrl);
       }
     };
   }, [audioBlobUrl]);
+
+  const uploadVoiceClip = async (blob: Blob) => {
+    try {
+      setIsUploadingVoice(true);
+      const fd = new FormData();
+      fd.append("audio", blob, "patient_voice_note.webm");
+      const res = await fetch("/api/consultations/voice", {
+        method: "POST",
+        body: fd,
+      });
+      const data = await res.json();
+      if (data.success && data.audioUrl) {
+        setUploadedAudioUrl(data.audioUrl);
+      }
+    } catch (err) {
+      console.warn("Could not upload voice note:", err);
+    } finally {
+      setIsUploadingVoice(false);
+    }
+  };
 
   const startRecording = async () => {
     setVoiceNotice(null);
@@ -215,6 +231,7 @@ export default function ConsultationModal({
         const url = URL.createObjectURL(audioBlob);
         setAudioBlobUrl(url);
         stream.getTracks().forEach((track) => track.stop());
+        uploadVoiceClip(audioBlob);
       };
 
       mediaRecorder.start();
@@ -224,37 +241,6 @@ export default function ConsultationModal({
       timerIntervalRef.current = setInterval(() => {
         setRecordingDuration((prev) => prev + 1);
       }, 1000);
-
-      const SpeechRecognition =
-        (window as any).SpeechRecognition ||
-        (window as any).webkitSpeechRecognition;
-
-      if (SpeechRecognition) {
-        const recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.lang = "ur-PK";
-
-        recognition.onresult = (event: any) => {
-          let transcript = "";
-          for (let i = event.resultIndex; i < event.results.length; i++) {
-            transcript += event.results[i][0].transcript;
-          }
-          if (transcript.trim()) {
-            setSymptomText((prev) => {
-              const base = prev.trim();
-              if (!base) return transcript.trim();
-              if (base.endsWith(transcript.trim())) return base;
-              return `${base} ${transcript.trim()}`;
-            });
-          }
-        };
-
-        try {
-          recognition.start();
-          speechRecognitionRef.current = recognition;
-        } catch {}
-      }
     } catch (err: any) {
       console.warn("Audio recording error:", err);
       setVoiceNotice(
@@ -269,11 +255,6 @@ export default function ConsultationModal({
         mediaRecorderRef.current.stop();
       } catch {}
     }
-    if (speechRecognitionRef.current) {
-      try {
-        speechRecognitionRef.current.stop();
-      } catch {}
-    }
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
     }
@@ -285,6 +266,7 @@ export default function ConsultationModal({
       URL.revokeObjectURL(audioBlobUrl);
     }
     setAudioBlobUrl(null);
+    setUploadedAudioUrl(null);
     setRecordingDuration(0);
     setIsPlayingAudio(false);
   };
@@ -362,25 +344,27 @@ export default function ConsultationModal({
 
   const getWhatsAppUrl = () => {
     let message =
-      "*Assalam-o-Alaikum Hakim Muhammad Tariq Mahmood Sahib (Tameer-e-Sehat Consultation)*\n\n";
+      "*Assalam-o-Alaikum Hakim Tahir Hameed Sahib (Tameer-e-Sehat Consultation)*\n\n";
+
+    if (uploadedAudioUrl) {
+      message += `🎙️ *Patient Voice Note (Tap to Listen):*\n${uploadedAudioUrl}\n\n`;
+    } else if (audioBlobUrl) {
+      message += `🎙️ *Voice Note Recorded:* (${formatTimer(
+        recordingDuration
+      )} memo recorded by patient)\n\n`;
+    }
 
     if (symptomText.trim()) {
-      message += `*My Health Concern:*\n${symptomText.trim()}\n\n`;
-    } else {
+      message += `*My Health Concern / Notes:*\n${symptomText.trim()}\n\n`;
+    } else if (!uploadedAudioUrl && !audioBlobUrl) {
       message += `*Health Consultation Inquiry*\n_I would like to consult with you regarding herbal treatment options._\n\n`;
     }
 
-    if (audioBlobUrl) {
-      message += `🎙️ *Voice Note Recorded:* (${formatTimer(
-        recordingDuration
-      )} memo ready - sending voice note in chat)\n`;
-    }
-
     if (attachedFile) {
-      message += `📄 *Medical Report/Photo:* ${attachedFile.name} (${attachedFile.size}) - (Attaching file in WhatsApp)\n`;
+      message += `📄 *Medical Report/Photo:* ${attachedFile.name} (${attachedFile.size}) - (Attaching file in WhatsApp)\n\n`;
     }
 
-    message += `\n_Please review my symptoms and provide your authentic Unani guidance._`;
+    message += `_Please review and provide your authentic Unani guidance._`;
 
     return `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(
       message
@@ -476,7 +460,7 @@ export default function ConsultationModal({
                   id="consultation-modal-title"
                   className="font-serif text-base sm:text-lg font-bold leading-snug"
                 >
-                  Consult Hakim Muhammad Tariq Mahmood
+                  Consult Hakim Tahir Hameed
                 </h3>
                 <p className="text-[11px] text-[#f4eee5]/80 leading-tight">
                   35+ Years Classical Unani Wisdom · Karachi Dispensary &amp; Telehealth
@@ -823,7 +807,7 @@ export default function ConsultationModal({
                               Instant WhatsApp
                             </h4>
                             <p className="text-[10px] sm:text-[11px] text-[#59534b] leading-tight">
-                              Direct chat with Hakim Muhammad Tariq Mahmood. Send voice notes &amp; photos.
+                              Direct chat with Hakim Tahir Hameed. Send voice notes &amp; photos.
                             </p>
                           </div>
                         </div>
@@ -933,7 +917,7 @@ export default function ConsultationModal({
                         </strong>
                       </p>
                       <p className="text-xs text-[#6a6660] max-w-xs mx-auto">
-                        Hakim Muhammad Tariq Mahmood looks forward to seeing you at Matab Tameer-e-Sehat in Korangi, Karachi.
+                        Hakim Tahir Hameed looks forward to seeing you at Matab Tameer-e-Sehat in Korangi, Karachi.
                       </p>
                       <button
                         type="button"
@@ -965,7 +949,7 @@ export default function ConsultationModal({
                               required
                               value={clinicName}
                               onChange={(e) => setClinicName(e.target.value)}
-                              placeholder="e.g. Tariq Mehmood"
+                              placeholder="e.g. Tahir Hameed"
                               className="w-full text-xs pl-8 pr-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
                             />
                           </div>

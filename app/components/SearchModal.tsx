@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/app/data/products";
+import { getSafeProductImage } from "@/lib/utils";
 import { Search, X, ArrowRight, Sparkles, Loader2 } from "lucide-react";
 
 interface SearchModalProps {
@@ -200,7 +201,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 >
                   <div className="relative w-14 h-14 bg-[#f4eee5] rounded-md overflow-hidden shrink-0">
                     <Image
-                      src={product.image}
+                      src={getSafeProductImage(product.image)}
                       alt={product.name}
                       fill
                       className="object-cover"

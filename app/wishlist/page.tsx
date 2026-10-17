@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
 import { CLINIC_INFO, Product, ProductSize } from "@/app/data/products";
+import { getSafeProductImage } from "@/lib/utils";
 import ProductCard from "@/app/components/ProductCard";
 import {
   Heart,
@@ -286,7 +287,7 @@ export default function WishlistPage() {
                                 className="relative w-24 h-24 sm:w-28 sm:h-28 bg-[#faf8f5] rounded-xl overflow-hidden shrink-0 border border-[#f4eee5] block"
                               >
                                 <Image
-                                  src={product.image}
+                                  src={getSafeProductImage(product.image)}
                                   alt={product.name}
                                   fill
                                   className="object-cover group-hover:scale-105 transition-transform duration-300"

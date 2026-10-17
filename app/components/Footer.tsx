@@ -285,7 +285,7 @@ export default function Footer() {
                   onClick={() =>
                     openConsultation({
                       mode: "PHYSICAL",
-                      message: "I would like to book an in-person consultation appointment at the Karachi clinic with Hakim Muhammad Tariq.",
+                      message: "I would like to book an in-person consultation appointment at the Karachi clinic with Hakim Tahir Hameed.",
                     })
                   }
                   className="inline-flex items-center gap-1.5 text-xs text-[#c59b27] hover:text-[#e5c05d] font-semibold hover:underline cursor-pointer"

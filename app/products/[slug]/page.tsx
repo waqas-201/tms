@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Product, ProductSize, CLINIC_INFO } from "@/app/data/products";
 import { useCart } from "@/app/context/CartContext";
 import ProductCard from "@/app/components/ProductCard";
+import { getSafeProductImage, isValidImageUrl, DEFAULT_PRODUCT_IMAGE } from "@/lib/utils";
 import {
   Accordion,
   AccordionItem,
@@ -310,11 +311,10 @@ export default function ProductDetailPage({
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
-  const images =
-    product.gallery && product.gallery.length > 0
-      ? product.gallery
-      : [product.image || "/images/placeholder.jpg"];
-  const currentImg = images[activeImageIndex] || images[0] || "/images/placeholder.jpg";
+  const validGallery = (product.gallery || []).filter((g) => isValidImageUrl(g));
+  const primarySafe = getSafeProductImage(product.image, DEFAULT_PRODUCT_IMAGE);
+  const images = validGallery.length > 0 ? validGallery : [primarySafe];
+  const currentImg = images[activeImageIndex] || images[0] || DEFAULT_PRODUCT_IMAGE;
 
   return (
     <div className="bg-[#FAF9F6] min-h-screen text-stone-900">
@@ -765,7 +765,7 @@ export default function ProductDetailPage({
                   <div className="flex items-center gap-3 bg-stone-50 p-3 rounded-xl border border-stone-200/70 flex-1 w-full">
                     <div className="relative w-14 h-14 bg-white rounded-lg overflow-hidden shrink-0">
                       <Image
-                        src={product.image}
+                        src={getSafeProductImage(product.image)}
                         alt={product.name}
                         fill
                         className="object-cover"

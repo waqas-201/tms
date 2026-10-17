@@ -6,71 +6,53 @@
 
 # Test info
 
-- Name: full-page-flow.spec.ts >> E2E Full-Page Flow - Sections 3 to 6 & Responsive Verification >> Desktop Viewport (1280px) >> Section 4: Hakim Authority & physical Karachi clinic visit displays credentials and clinic appointment CTA
-- Location: tests\e2e\full-page-flow.spec.ts:85:9
+- Name: section1-hero-header.spec.ts >> Section 1: Hero & Header Viewport Verification >> Mobile Viewport (390 x 844) >> Brand logo in header renders properly with Botanical Emblem SVG
+- Location: tests\e2e\section1-hero-header.spec.ts:28:9
 
 # Error details
 
 ```
 Error: expect(locator).toBeVisible() failed
 
-Locator: locator('section#hakim-authority').getByRole('heading', { name: /Authentic Eastern Healing, Rooted in Pure Herbs/i })
+Locator: locator('header').locator('a[aria-label="Tameer-e-Sehat Home"]').locator('.sm\\:hidden').locator('svg[viewBox="0 0 48 48"]')
 Expected: visible
 Timeout: 10000ms
 Error: element(s) not found
 
 Call log:
-  - Expect "toBeVisible" locator('section#hakim-authority').getByRole('heading', { name: /Authentic Eastern Healing, Rooted in Pure Herbs/i }) with timeout 10000ms
-  - waiting for locator('section#hakim-authority').getByRole('heading', { name: /Authentic Eastern Healing, Rooted in Pure Herbs/i })
+  - Expect "toBeVisible" locator('header').locator('a[aria-label="Tameer-e-Sehat Home"]').locator('.sm\\:hidden').locator('svg[viewBox="0 0 48 48"]') with timeout 10000ms
+  - waiting for locator('header').locator('a[aria-label="Tameer-e-Sehat Home"]').locator('.sm\\:hidden').locator('svg[viewBox="0 0 48 48"]')
 
 ```
 
 ```yaml
-- text: Herbal Clinic & Online Consult | Karachi, Pakistan (Est. 1990)
-- link "+92 318 2311310":
-  - /url: tel:0318-2311310
-- text: "|"
-- link "Track Order":
-  - /url: /track-order
-- text: "|"
-- link "WhatsApp Helpline":
-  - /url: https://wa.me/923353547888
 - banner:
+  - button "Open menu"
   - link "Tameer-e-Sehat Home":
     - /url: /
-    - text: Tameer-e-Sehat Herbal Clinic • Online Dispensary
-  - navigation:
-    - link "Home":
-      - /url: /
-    - link "Shop":
-      - /url: /products
-    - link "Specialties":
-      - /url: /specialties
-    - link "Consult":
-      - /url: /consultation
-    - link "About Us":
-      - /url: /about
+    - img "Tameer-e-Sehat Official Logo"
+    - text: Tameer-e-Sehat Herbal Clinic & Dispensary
   - button "Search"
-  - button "User Account"
-  - link "Wishlist":
-    - /url: /wishlist
   - button "Shopping Cart"
 - main:
-  - text: Classical Unani Herbal Care · Est. 1990 | 100% Botanical
-  - heading "Heal Naturally with a Trusted Hakim" [level=1]
-  - paragraph: Personalized Unani consultations and handcrafted botanical remedies for chronic stomach, joint, liver, and vitality issues — 100% steroid-free.
+  - text: Matab Tameer-e-Sehat · Est. 1990
+  - heading "Classical Unani Healing & Botanical Care" [level=1]
+  - paragraph: Personalized consultations & pure herbal remedies for chronic health.
   - button "Consult Hakim Sahib"
   - link "Browse Remedies":
     - /url: "#remedies"
-  - img "Tameer-e-Sehat Classical Unani Herbal Medicine Pakistan"
-  - text: Zero Steroids · 100% Herbal ⭐ 5.0
-  - paragraph: Tameer-e-Sehat Clinic · Korangi, Karachi
+  - button "🌿 Gastric & Digestion Consult →"
+  - button "🦴 Joint & Knee Pain Consult →"
+  - button "⚡ Fatty Liver & Heat Consult →"
+  - button "🩸 Energy & Vitality Consult →"
+  - button "🍯 Herbal Murabba Consult →"
+  - button "🛡️ Immunity & Detox Consult →"
   - text: Clinical Scope & Consultation
   - heading "What We Treat with Classical Unani" [level=2]
   - paragraph: We treat the root constitutional imbalance (Mizaj) rather than masking symptoms. Type your symptoms or tap any condition below to initiate direct consultation with Hakim Sahib.
   - textbox "Describe your symptoms (e.g. stomach acidity, joint stiffness, liver heat)..."
   - button "Consult Hakim Sahib"
-  - text: "Common conditions (tap to add): Select one or more"
+  - text: "Common conditions (tap to add):"
   - button "Stomach Acidity / Gas"
   - button "Joint & Knee Pain"
   - button "Fatty Liver / Body Heat"
@@ -85,11 +67,11 @@ Call log:
   - paragraph: Loading physician formulations...
   - text: Need a custom dosage or specific formulation prepared for your condition?
   - button "Consult for Custom Formulation →"
-  - img "Hakim Muhammad Tariq - Senior Tibbi Consultant at Tameer-e-Sehat Karachi"
-  - text: Certified Tibbi Lineage · Est. 1990
+  - img "Hakim Muhammad Tariq"
+  - text: Est. 1990 · 35+ Yrs Heritage
   - heading "Hakim Muhammad Tariq" [level=3]
-  - paragraph: Senior Tibbi Consultant & Master Herbalist · Serving Karachi Since 1990
-  - text: Est. 1990 35+ Years of Clinical Trust Clinical Lineage & Heritage · Est. 1990
+  - paragraph: Senior Tibbi Consultant & Master Herbalist · Karachi Matab
+  - text: Clinical Lineage & Heritage · Est. 1990
   - heading "Authentic Eastern Healing, Rooted in 35+ Years of Practice" [level=2]
   - paragraph: At Matab Tameer-e-Sehat, we uphold classical Tibb-e-Unani wisdom by identifying your fundamental temperamental imbalance (Mizaj) rather than suppressing symptoms with synthetic compounds. Every formulation is compounded to restore long-term metabolic and organic vitality.
   - strong: "Individualized Temperament Assessment (طبی تشخیص):"
@@ -144,6 +126,7 @@ Call log:
   - button "Vitality & Stamina1"
   - button "Respiratory & Allergies1"
   - button "Skin & Scalp Health1"
+  - text: Swipe cards horizontally
   - button "Scroll reviews left" [disabled]
   - button "Scroll reviews right"
   - text: Syncing live Google profile data... MU
@@ -253,7 +236,7 @@ Call log:
   - link "Tameer-e-Sehat Home":
     - /url: /
     - img "Tameer-e-Sehat Official Logo"
-    - text: Tameer-e-Sehat Herbal Clinic & Dispensary · Est. 1990
+    - text: Tameer-e-Sehat Herbal Clinic & Dispensary • Est. 1990
   - paragraph: Established in 1990 in Karachi, Tameer-e-Sehat is a trusted herbal clinic and remedy center. We use pure, natural herbs and time-tested recipes to provide honest, gentle remedies for you and your family.
   - button "Chat on WhatsApp"
   - button "Free Consultation"
@@ -329,9 +312,6 @@ Call log:
   - text: ·
   - link "Sign In":
     - /url: /login
-- link "Chat with Hakim / Tameer-e-Sehat on WhatsApp":
-  - /url: https://wa.me/923353547888?text=Assalam-o-Alaikum%20Tameer-e-Sehat%2C%20I%20would%20like%20to%20inquire%20about%20herbal%20consultation%20and%20products.
-  - text: Online Hakim Chat on WhatsApp
 ```
 
 # Test source
@@ -339,202 +319,133 @@ Call log:
 ```ts
   1   | import { test, expect } from "@playwright/test";
   2   | 
-  3   | test.describe("E2E Full-Page Flow - Sections 3 to 6 & Responsive Verification", () => {
-  4   |   // ═══════════════════════════════════════════════════════════════════════════
-  5   |   // DESKTOP SUITE (1280px)
-  6   |   // ═══════════════════════════════════════════════════════════════════════════
-  7   |   test.describe("Desktop Viewport (1280px)", () => {
-  8   |     test.use({ viewport: { width: 1280, height: 900 } });
+  3   | test.describe("Section 1: Hero & Header Viewport Verification", () => {
+  4   |   test.describe("Mobile Viewport (390 x 844)", () => {
+  5   |     test.use({ viewport: { width: 390, height: 844 } });
+  6   | 
+  7   |     test("Hero section container takes full viewport height", async ({ page }) => {
+  8   |       await page.goto("/");
   9   | 
-  10  |     test("Section 3: Physician-Formulated Remedies renders, category tabs work, remedies cards display pricing and details", async ({
-  11  |       page,
-  12  |     }) => {
-  13  |       await page.goto("/", { waitUntil: "domcontentloaded" });
-  14  | 
-  15  |       const remediesSection = page.locator("section#remedies");
-  16  |       await remediesSection.scrollIntoViewIfNeeded();
-  17  |       await expect(remediesSection).toBeVisible({ timeout: 10000 });
-  18  | 
-  19  |       // Heading and badge verification
-  20  |       await expect(
-  21  |         remediesSection.getByRole("heading", {
-  22  |           name: /Physician-Formulated Remedies/i,
-  23  |         })
-  24  |       ).toBeVisible();
-  25  |       await expect(remediesSection.getByText(/Apothecary Dispensary/i)).toBeVisible();
-  26  | 
-  27  |       // Category filter tabs exist
-  28  |       const allFormulationsTab = remediesSection.getByRole("button", {
-  29  |         name: /All Formulations/i,
-  30  |       });
-  31  |       await expect(allFormulationsTab).toBeVisible();
-  32  | 
-  33  |       // Wait for product cards to load from live API
-  34  |       const addButtons = remediesSection.getByRole("button", { name: /Add/i });
-  35  |       await expect(addButtons.first()).toBeVisible({ timeout: 15000 });
-  36  | 
-  37  |       // Remedies cards display pricing in PKR and title details
-  38  |       const priceElement = remediesSection.getByText(/₨\s*[\d,]+/).first();
-  39  |       await expect(priceElement).toBeVisible();
-  40  | 
-  41  |       const productHeadings = remediesSection.getByRole("heading", { level: 3 });
-  42  |       await expect(productHeadings.first()).toBeVisible();
-  43  | 
-  44  |       // Category tabs switching
-  45  |       const otherCategoryTabs = remediesSection
-  46  |         .locator("button[type='button']")
-  47  |         .filter({
-  48  |           hasNotText: /All Formulations|Consult for Custom Formulation|Add/i,
-  49  |         });
-  50  | 
-  51  |       const tabCount = await otherCategoryTabs.count();
-  52  |       if (tabCount > 0) {
-  53  |         const firstCategoryTab = otherCategoryTabs.first();
-  54  |         await firstCategoryTab.click();
-  55  |         await page.waitForTimeout(300);
-  56  | 
-  57  |         // Click back to All Formulations
-  58  |         await allFormulationsTab.click();
-  59  |         await page.waitForTimeout(300);
-  60  |         await expect(addButtons.first()).toBeVisible();
-  61  |       }
-  62  | 
-  63  |       // Universal Consultation Modal trigger from custom formulation strip
-  64  |       const customFormulationBtn = remediesSection.getByRole("button", {
-  65  |         name: /Consult for Custom Formulation/i,
-  66  |       });
-  67  |       await expect(customFormulationBtn).toBeVisible();
-  68  |       await customFormulationBtn.click();
+  10  |       const hero = page.locator("#hero");
+  11  |       await expect(hero).toBeVisible();
+  12  | 
+  13  |       // Verify the hero section has the Tailwind min-h class for mobile viewport height
+  14  |       const className = await hero.getAttribute("class");
+  15  |       expect(className).toContain("min-h-[calc(100dvh-3.5rem)]");
+  16  | 
+  17  |       // Verify computed bounding box height is close to viewport height (844px minus header height)
+  18  |       const box = await hero.boundingBox();
+  19  |       expect(box).not.toBeNull();
+  20  |       if (box) {
+  21  |         // At 844 viewport height, 100dvh - 3.5rem (56px) is approximately 788px.
+  22  |         // We assert height is close to viewport (>= 720px and <= 860px)
+  23  |         expect(box.height).toBeGreaterThanOrEqual(720);
+  24  |         expect(box.height).toBeLessThanOrEqual(860);
+  25  |       }
+  26  |     });
+  27  | 
+  28  |     test("Brand logo in header renders properly with Botanical Emblem SVG", async ({ page }) => {
+  29  |       await page.goto("/");
+  30  | 
+  31  |       const header = page.locator("header");
+  32  |       await expect(header).toBeVisible();
+  33  | 
+  34  |       // Brand link inside header
+  35  |       const brandLink = header.locator('a[aria-label="Tameer-e-Sehat Home"]');
+  36  |       await expect(brandLink).toBeVisible();
+  37  | 
+  38  |       // On mobile viewport (< 640px), the mobile logo variant (.sm:hidden) is active and visible
+  39  |       const mobileLogo = brandLink.locator(".sm\\:hidden");
+  40  |       await expect(mobileLogo).toBeVisible();
+  41  | 
+  42  |       // Botanical Emblem SVG inside the active mobile brand logo
+  43  |       const emblemSvg = mobileLogo.locator('svg[viewBox="0 0 48 48"]');
+> 44  |       await expect(emblemSvg).toBeVisible();
+      |                               ^ Error: expect(locator).toBeVisible() failed
+  45  | 
+  46  |       // Verify emblem SVG contains defs for goldRing and emeraldBg gradients
+  47  |       const hasGoldRing = await emblemSvg.locator("linearGradient#goldRing").count();
+  48  |       const hasEmeraldBg = await emblemSvg.locator("linearGradient#emeraldBg").count();
+  49  |       expect(hasGoldRing).toBeGreaterThanOrEqual(1);
+  50  |       expect(hasEmeraldBg).toBeGreaterThanOrEqual(1);
+  51  | 
+  52  |       // Verify the SVG paths/circles exist
+  53  |       const pathCount = await emblemSvg.locator("path").count();
+  54  |       expect(pathCount).toBeGreaterThanOrEqual(4);
+  55  | 
+  56  |       // Verify brand title text is visible in mobile header
+  57  |       const brandText = mobileLogo.locator("text=Tameer-e-Sehat");
+  58  |       await expect(brandText).toBeVisible();
+  59  |     });
+  60  | 
+  61  |     test("WhatsApp floating button (WhatsAppFloat) is hidden/not visible on mobile", async ({ page }) => {
+  62  |       await page.goto("/");
+  63  | 
+  64  |       // WhatsApp floating button has aria-label for Chat with Hakim / Tameer-e-Sehat on WhatsApp
+  65  |       const whatsappFloat = page.locator('a[aria-label="Chat with Hakim / Tameer-e-Sehat on WhatsApp"]');
+  66  | 
+  67  |       // Assert WhatsApp floating button is hidden (via hidden md:flex)
+  68  |       await expect(whatsappFloat).toBeHidden();
   69  | 
-  70  |       // Assert modal opens uniquely
-  71  |       const modal = page.getByRole("dialog", {
-  72  |         name: /Consult Hakim Muhammad Tariq/i,
+  70  |       // Also confirm via computed style display === 'none'
+  71  |       const isDisplayNone = await whatsappFloat.evaluate((el) => {
+  72  |         return window.getComputedStyle(el).display === "none";
   73  |       });
-  74  |       await expect(modal).toBeVisible({ timeout: 10000 });
-  75  |       await expect(
-  76  |         modal.getByRole("heading", { name: /Consult Hakim Muhammad Tariq/i })
-  77  |       ).toBeVisible();
-  78  | 
-  79  |       // Close modal
-  80  |       const closeButton = modal.getByRole("button", { name: /Close modal/i });
-  81  |       await closeButton.click();
-  82  |       await expect(modal).not.toBeVisible();
-  83  |     });
-  84  | 
-  85  |     test("Section 4: Hakim Authority & physical Karachi clinic visit displays credentials and clinic appointment CTA", async ({
-  86  |       page,
-  87  |     }) => {
-  88  |       await page.goto("/", { waitUntil: "domcontentloaded" });
-  89  | 
-  90  |       const authoritySection = page.locator("section#hakim-authority");
-  91  |       await authoritySection.scrollIntoViewIfNeeded();
-  92  |       await expect(authoritySection).toBeVisible({ timeout: 10000 });
-  93  | 
-  94  |       // Assert credentials and clinical lineage
-  95  |       await expect(
-  96  |         authoritySection.getByRole("heading", {
-  97  |           name: /Authentic Eastern Healing, Rooted in Pure Herbs/i,
-  98  |         })
-> 99  |       ).toBeVisible();
-      |         ^ Error: expect(locator).toBeVisible() failed
+  74  |       expect(isDisplayNone).toBe(true);
+  75  |     });
+  76  |   });
+  77  | 
+  78  |   test.describe("Desktop Viewport (1280 x 800)", () => {
+  79  |     test.use({ viewport: { width: 1280, height: 800 } });
+  80  | 
+  81  |     test("Hero section renders left and right columns properly", async ({ page }) => {
+  82  |       await page.goto("/");
+  83  | 
+  84  |       const hero = page.locator("#hero");
+  85  |       await expect(hero).toBeVisible();
+  86  | 
+  87  |       // Left Column (lg:col-span-7): Headline, value prop, and CTAs
+  88  |       const leftCol = hero.locator(".lg\\:col-span-7");
+  89  |       await expect(leftCol).toBeVisible();
+  90  | 
+  91  |       const mainHeadline = leftCol.locator("h1");
+  92  |       await expect(mainHeadline).toBeVisible();
+  93  |       await expect(mainHeadline).toContainText("Heal Naturally with a Trusted Hakim");
+  94  | 
+  95  |       const consultButton = leftCol.locator("button", { hasText: "Consult Hakim Sahib" });
+  96  |       await expect(consultButton).toBeVisible();
+  97  | 
+  98  |       const browseLink = leftCol.locator('a[href="#remedies"]', { hasText: "Browse Remedies" });
+  99  |       await expect(browseLink).toBeVisible();
   100 | 
-  101 |       // Hakim portrait / title and clinical metrics
-  102 |       await expect(authoritySection.getByText(/Hakim Muhammad Tariq/i).first()).toBeVisible();
-  103 |       await expect(authoritySection.getByText("35+").first()).toBeVisible();
-  104 |       await expect(authoritySection.getByText(/Years Clinical Experience/i)).toBeVisible();
-  105 |       await expect(authoritySection.getByText("150K+")).toBeVisible();
-  106 |       await expect(authoritySection.getByText("100%")).toBeVisible();
-  107 |       await expect(authoritySection.getByText("0%")).toBeVisible();
-  108 | 
-  109 |       // Assert Physical Karachi Clinic Visit details
-  110 |       await expect(
-  111 |         authoritySection.getByText(/Visit Our Clinic for Pulse Diagnosis/i)
-  112 |       ).toBeVisible();
-  113 |       await expect(authoritySection.getByText(/Korangi/i).first()).toBeVisible();
-  114 |       await expect(authoritySection.getByText(/Visiting Hours/i)).toBeVisible();
-  115 | 
-  116 |       // Verify Clinic Booking CTA triggers modal
-  117 |       const bookClinicButton = authoritySection.getByRole("button", {
-  118 |         name: /Select Clinic Slot & Book/i,
-  119 |       });
-  120 |       await bookClinicButton.scrollIntoViewIfNeeded();
-  121 |       await expect(bookClinicButton).toBeVisible();
-  122 |       await bookClinicButton.click();
+  101 |       // Right Column (hidden lg:block lg:col-span-5): Editorial visual image and proof badge
+  102 |       const rightCol = hero.locator(".lg\\:col-span-5");
+  103 |       await expect(rightCol).toBeVisible();
+  104 | 
+  105 |       const heroImage = rightCol.locator('img[alt*="Tameer-e-Sehat Classical Unani"]');
+  106 |       await expect(heroImage).toBeVisible();
+  107 | 
+  108 |       const proofBadge = rightCol.locator("text=Zero Steroids · 100% Herbal");
+  109 |       await expect(proofBadge).toBeVisible();
+  110 |     });
+  111 | 
+  112 |     test("WhatsApp floating button IS visible on desktop", async ({ page }) => {
+  113 |       await page.goto("/");
+  114 | 
+  115 |       const whatsappFloat = page.locator('a[aria-label="Chat with Hakim / Tameer-e-Sehat on WhatsApp"]');
+  116 | 
+  117 |       // Assert WhatsApp floating button is visible on desktop
+  118 |       await expect(whatsappFloat).toBeVisible();
+  119 | 
+  120 |       // Assert it has proper WhatsApp link
+  121 |       const href = await whatsappFloat.getAttribute("href");
+  122 |       expect(href).toContain("https://wa.me/");
   123 | 
-  124 |       const modal = page.getByRole("dialog", {
-  125 |         name: /Consult Hakim Muhammad Tariq/i,
-  126 |       });
-  127 |       await expect(modal).toBeVisible({ timeout: 10000 });
-  128 | 
-  129 |       // Advance to Step 2 to verify channel is In-Person Visit
-  130 |       const continueBtn = modal.getByRole("button", { name: /Continue to Next Step/i });
-  131 |       await continueBtn.click();
-  132 | 
-  133 |       // Assert In-Person Visit / Karachi Matab channel
-  134 |       await expect(modal.getByRole("button", { name: /In-Person Visit/i })).toBeVisible();
-  135 |       await expect(modal.getByText(/Karachi Matab/i)).toBeVisible();
-  136 | 
-  137 |       // Close modal
-  138 |       const closeBtn = modal.getByRole("button", { name: /Close modal/i });
-  139 |       await closeBtn.click();
-  140 |       await expect(modal).not.toBeVisible();
-  141 |     });
-  142 | 
-  143 |     test("Section 5: Community Reviews display 5.0 Google rating and patient stories", async ({
-  144 |       page,
-  145 |     }) => {
-  146 |       await page.goto("/", { waitUntil: "domcontentloaded" });
-  147 | 
-  148 |       const reviewsSection = page.locator("section#community-reviews");
-  149 |       await reviewsSection.scrollIntoViewIfNeeded();
-  150 |       await expect(reviewsSection).toBeVisible({ timeout: 10000 });
-  151 | 
-  152 |       // Verify heading and 5.0 rating card
-  153 |       await expect(
-  154 |         reviewsSection.getByRole("heading", { name: /Authentic Patient Reviews/i })
-  155 |       ).toBeVisible();
-  156 | 
-  157 |       // Official Google rating indicator 5.0
-  158 |       await expect(reviewsSection.getByText("5.0").first()).toBeVisible();
-  159 |       await expect(reviewsSection.getByText(/Verified Google/i).first()).toBeVisible();
-  160 | 
-  161 |       // Verify Google external links exist
-  162 |       const googleMapsLink = reviewsSection.getByRole("link", { name: /View Google Maps/i });
-  163 |       await googleMapsLink.scrollIntoViewIfNeeded();
-  164 |       await expect(googleMapsLink).toBeVisible();
-  165 |       const href = await googleMapsLink.getAttribute("href");
-  166 |       expect(href).toContain("google.com/maps");
-  167 | 
-  168 |       const writeReviewLink = reviewsSection.getByRole("link", { name: /Write Google Review/i });
-  169 |       await expect(writeReviewLink).toBeVisible();
-  170 |     });
-  171 | 
-  172 |     test("Section 6: Bottom consultation banner triggers the universal modal with correct mode", async ({
-  173 |       page,
-  174 |     }) => {
-  175 |       await page.goto("/", { waitUntil: "domcontentloaded" });
-  176 | 
-  177 |       const consultBanner = page.locator("section#whatsapp-consult");
-  178 |       await consultBanner.scrollIntoViewIfNeeded();
-  179 |       await expect(consultBanner).toBeVisible({ timeout: 10000 });
-  180 | 
-  181 |       // Banner Heading
-  182 |       await expect(
-  183 |         consultBanner.getByRole("heading", {
-  184 |           name: /Direct Consultation with Hakim Muhammad Tariq/i,
-  185 |         })
-  186 |       ).toBeVisible();
-  187 | 
-  188 |       // 1. WhatsApp Action Trigger
-  189 |       const whatsappButton = consultBanner.getByRole("button", {
-  190 |         name: /Consult via WhatsApp \/ Voice/i,
-  191 |       });
-  192 |       await expect(whatsappButton).toBeVisible();
-  193 |       await whatsappButton.click();
-  194 | 
-  195 |       const modal = page.getByRole("dialog", {
-  196 |         name: /Consult Hakim Muhammad Tariq/i,
-  197 |       });
-  198 |       await expect(modal).toBeVisible({ timeout: 10000 });
-  199 | 
+  124 |       // Assert button text content
+  125 |       await expect(whatsappFloat).toContainText("Online Hakim");
+  126 |       await expect(whatsappFloat).toContainText("Chat on WhatsApp");
+  127 |     });
+  128 |   });
+  129 | });
+  130 | 
 ```

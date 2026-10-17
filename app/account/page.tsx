@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useSession, signOut, sendVerificationEmail } from "@/lib/auth-client";
 import { useCart } from "@/app/context/CartContext";
 import { Product } from "@/app/data/products";
+import { getSafeProductImage } from "@/lib/utils";
 import { isStaffRole } from "@/lib/rbac-base";
 import {
   User,
@@ -555,7 +556,7 @@ export default function AccountPage() {
                       <div className="flex gap-4">
                         <div className="relative w-20 h-20 bg-[#faf8f5] rounded-xl overflow-hidden shrink-0">
                           <Image
-                            src={product.image}
+                            src={getSafeProductImage(product.image)}
                             alt={product.name}
                             fill
                             className="object-cover"
@@ -615,7 +616,7 @@ export default function AccountPage() {
                   No consultations booked yet
                 </h3>
                 <p className="text-xs text-[#59534b] max-w-sm mx-auto">
-                  Book a direct clinical consultation with Hakim Muhammad Tariq for chronic root-cause diagnosis.
+                  Book a direct clinical consultation with Hakim Tahir Hameed for chronic root-cause diagnosis.
                 </p>
                 <Link
                   href="/consultation"

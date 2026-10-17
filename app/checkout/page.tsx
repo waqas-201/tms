@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
 import { useSession, sendVerificationEmail, getSession } from "@/lib/auth-client";
 import { CLINIC_INFO } from "@/app/data/products";
+import { getSafeProductImage } from "@/lib/utils";
 import {
   Truck,
   ShieldCheck,
@@ -770,7 +771,7 @@ export default function CheckoutPage() {
                   >
                     <div className="relative w-12 h-12 rounded-lg bg-[#FAF9F6] overflow-hidden shrink-0 border border-stone-100">
                       <Image
-                        src={item.product.image}
+                        src={getSafeProductImage(item.product.image)}
                         alt={item.product.name}
                         fill
                         className="object-cover"

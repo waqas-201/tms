@@ -66,13 +66,25 @@ export async function POST(request: NextRequest) {
       console.warn("Could not write audio to disk (running serverless):", fsErr);
     }
 
-    // Determine host origin
-    const host =
-      request.headers.get("x-forwarded-host") ||
-      request.headers.get("host") ||
-      "localhost:3000";
-    const protocol = host.includes("localhost") ? "http" : "https";
-    const audioUrl = `${protocol}://${host}/api/consultations/voice?id=${id}`;
+    // Determine host origin using DOMAIN from env
+    const configuredDomain =
+      process.env.DOMAIN ||
+      process.env.NEXT_PUBLIC_APP_URL;
+
+    let baseUrl = "";
+    if (configuredDomain) {
+      const clean = configuredDomain.trim().replace(/\/+$/, "");
+      baseUrl = clean.startsWith("http") ? clean : `https://${clean}`;
+    } else {
+      const host =
+        request.headers.get("x-forwarded-host") ||
+        request.headers.get("host") ||
+        "localhost:3000";
+      const protocol = host.includes("localhost") ? "http" : "https";
+      baseUrl = `${protocol}://${host}`;
+    }
+
+    const audioUrl = `${baseUrl}/api/consultations/voice?id=${id}`;
 
     return NextResponse.json({
       success: true,
@@ -222,7 +234,7 @@ function renderAudioHtmlPlayer(id: string) {
   <div class="card">
     <div class="badge">🎙️ Patient Voice Note</div>
     <h1>Matab Tameer-e-Sehat</h1>
-    <p>Voice consultation message for <strong>Hakim Muhammad Tariq Mahmood</strong></p>
+    <p>Voice consultation message for <strong>Hakim Tahir Hameed</strong></p>
     <audio controls autoplay src="/api/consultations/voice?id=${id}&raw=1"></audio>
     <div class="clinic-tag">Classical Unani Clinic & Dispensary · Est. 1990 Karachi</div>
   </div>

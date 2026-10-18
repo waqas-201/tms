@@ -217,10 +217,7 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
       });
       await expect(step1Tab).toBeVisible();
 
-      // Verify Step 1 features: Voice record button, Attach report button, Quick tags
-      await expect(
-        modal.getByRole("button", { name: /Record Voice/i })
-      ).toBeVisible();
+      // Verify Step 1 features: Attach report button, Quick tags
       await expect(
         modal.getByRole("button", { name: /Attach Report/i })
       ).toBeVisible();

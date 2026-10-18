@@ -205,17 +205,9 @@ export default function ConsultationModal({
     let message =
       "*Assalam-o-Alaikum Hakim Tahir Hameed Sahib (Tameer-e-Sehat Consultation)*\n\n";
 
-    if (uploadedAudioUrl) {
-      message += `🎙️ *Patient Voice Note (Tap to Listen):*\n${uploadedAudioUrl}\n\n`;
-    } else if (audioBlobUrl) {
-      message += `🎙️ *Voice Note Recorded:* (${formatTimer(
-        recordingDuration
-      )} memo recorded by patient)\n\n`;
-    }
-
     if (symptomText.trim()) {
       message += `*My Health Concern / Notes:*\n${symptomText.trim()}\n\n`;
-    } else if (!uploadedAudioUrl && !audioBlobUrl) {
+    } else {
       message += `*Health Consultation Inquiry*\n_I would like to consult with you regarding herbal treatment options._\n\n`;
     }
 
@@ -393,96 +385,40 @@ export default function ConsultationModal({
 
                     {/* WhatsApp-Style Input Container */}
                     <div className="rounded-2xl border border-[#e6dfd5] bg-[#faf8f5] focus-within:border-[#22623a] focus-within:bg-white transition-all overflow-hidden flex flex-col shadow-inner">
-                      {/* Active Recording State Overlay inside Box */}
-                      {isRecording ? (
-                        <div className="p-3 bg-[#1e4d30] text-white flex items-center justify-between gap-2 min-h-[85px]">
-                          <div className="flex items-center gap-2.5">
-                            <span className="w-3 h-3 rounded-full bg-red-500 animate-ping shrink-0" />
-                            <div>
-                              <p className="text-xs font-bold">
-                                Listening &amp; Recording Voice Note...
-                              </p>
-                              <p className="text-[10px] text-white/80">
-                                Speak naturally in Urdu or English ({formatTimer(recordingDuration)})
-                              </p>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={stopRecording}
-                            className="px-2.5 py-1 bg-white text-[#22623a] text-xs font-bold rounded-lg shadow-sm hover:bg-gray-100 cursor-pointer flex items-center gap-1 shrink-0"
-                          >
-                            <Square className="w-2.5 h-2.5 fill-current text-red-600" />
-                            <span>Done ({formatTimer(recordingDuration)})</span>
-                          </button>
-                        </div>
-                      ) : (
-                        <textarea
-                          rows={3}
-                          value={symptomText}
-                          onChange={(e) => setSymptomText(e.target.value)}
-                          placeholder="Type your symptoms, how long you've felt unwell, or tap voice/attach below..."
-                          className="w-full bg-transparent p-3 text-xs sm:text-sm text-[#1a1816] placeholder:text-[#8c827a] resize-none focus:outline-none min-h-[75px] max-h-[85px] leading-relaxed"
-                        />
-                      )}
+                      <textarea
+                        rows={3}
+                        value={symptomText}
+                        onChange={(e) => setSymptomText(e.target.value)}
+                        placeholder="Type your symptoms, how long you've felt unwell, or attach a report below..."
+                        className="w-full bg-transparent p-3 text-xs sm:text-sm text-[#1a1816] placeholder:text-[#8c827a] resize-none focus:outline-none min-h-[75px] max-h-[85px] leading-relaxed"
+                      />
 
-                      {/* Attached Voice Memo or Medical Report Chips (Inside Box) */}
-                      {!isRecording && (audioBlobUrl || attachedFile) && (
+                      {/* Attached Medical Report Chip (Inside Box) */}
+                      {attachedFile && (
                         <div className="px-3 pb-2 pt-0.5 flex flex-wrap gap-1.5">
-                          {audioBlobUrl && (
-                            <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-[#eef7f1] rounded-lg border border-[#cde4d6] text-xs text-[#22623a]">
-                              <Volume2 className="w-3 h-3 text-[#22623a] shrink-0" />
-                              <span className="font-semibold text-[11px]">
-                                Voice Note ({formatTimer(recordingDuration)})
-                              </span>
-                              <button
-                                type="button"
-                                onClick={togglePlayAudio}
-                                className="p-1 rounded bg-[#22623a] text-white hover:bg-[#1a4d2e] cursor-pointer ml-0.5"
-                                title={isPlayingAudio ? "Pause" : "Play"}
-                              >
-                                {isPlayingAudio ? (
-                                  <Pause className="w-2.5 h-2.5" />
-                                ) : (
-                                  <Play className="w-2.5 h-2.5 fill-current" />
-                                )}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={deleteVoiceRecording}
-                                className="p-1 rounded bg-white text-red-600 border border-red-200 hover:bg-red-50 cursor-pointer"
-                                title="Delete voice note"
-                              >
-                                <Trash2 className="w-2.5 h-2.5" />
-                              </button>
-                            </div>
-                          )}
-
-                          {attachedFile && (
-                            <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-[#fdfbf7] rounded-lg border border-[#e6dfd5] text-xs text-[#59534b]">
-                              <FileText className="w-3 h-3 text-[#8c6a15] shrink-0" />
-                              <span className="font-medium text-[11px] truncate max-w-[130px]">
-                                {attachedFile.name}
-                              </span>
-                              <span className="text-[10px] text-[#8c827a]">
-                                ({attachedFile.size})
-                              </span>
-                              <button
-                                type="button"
-                                onClick={removeAttachedFile}
-                                className="p-0.5 text-gray-400 hover:text-red-600 cursor-pointer"
-                                title="Remove file"
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                            </div>
-                          )}
+                          <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-[#fdfbf7] rounded-lg border border-[#e6dfd5] text-xs text-[#59534b]">
+                            <FileText className="w-3 h-3 text-[#8c6a15] shrink-0" />
+                            <span className="font-medium text-[11px] truncate max-w-[130px]">
+                              {attachedFile.name}
+                            </span>
+                            <span className="text-[10px] text-[#8c827a]">
+                              ({attachedFile.size})
+                            </span>
+                            <button
+                              type="button"
+                              onClick={removeAttachedFile}
+                              className="p-0.5 text-gray-400 hover:text-red-600 cursor-pointer"
+                              title="Remove file"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
                         </div>
                       )}
 
                       {/* WhatsApp Integrated Bottom Action Bar */}
-                      <div className="border-t border-[#e6dfd5] bg-[#f7f4ee]/80 px-3 py-1.5 flex items-center justify-between">
-                        {/* Left: Attach Report / Photo (Paperclip) */}
+                      <div className="border-t border-[#e6dfd5] bg-[#f7f4ee]/80 px-3 py-1.5 flex items-center">
+                        {/* Attach Report / Photo (Paperclip) */}
                         <div className="flex items-center">
                           <button
                             type="button"
@@ -507,46 +443,9 @@ export default function ConsultationModal({
                             onChange={handleFileChange}
                           />
                         </div>
-
-                        {/* Right: Record Voice Note (Mic) */}
-                        <div>
-                          {!isRecording ? (
-                            <button
-                              type="button"
-                              onClick={startRecording}
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold transition-all cursor-pointer shadow-xs ${
-                                audioBlobUrl
-                                  ? "bg-[#eef7f1] text-[#22623a] border border-[#cde4d6]"
-                                  : "bg-[#22623a] text-white hover:bg-[#1a4d2e]"
-                              }`}
-                              title="Record voice note for Hakim Sahib"
-                            >
-                              <Mic className="w-3.5 h-3.5" />
-                              <span className="text-[11px]">
-                                {audioBlobUrl ? "Re-record" : "Record Voice"}
-                              </span>
-                            </button>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={stopRecording}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-red-600 text-white text-[11px] font-bold transition-all animate-pulse cursor-pointer shadow-xs"
-                            >
-                              <Square className="w-2.5 h-2.5 fill-current" />
-                              <span>Stop ({formatTimer(recordingDuration)})</span>
-                            </button>
-                          )}
-                        </div>
                       </div>
                     </div>
                   </div>
-
-                  {voiceNotice && (
-                    <div className="p-2 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-800 flex items-center gap-2">
-                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                      <span>{voiceNotice}</span>
-                    </div>
-                  )}
 
                   {/* Common Symptom Quick-Add Chips */}
                   <div className="space-y-1">
@@ -611,11 +510,6 @@ export default function ConsultationModal({
                         {symptomText.trim() || "General Health Consultation"}
                       </p>
                       <div className="flex items-center gap-2 text-[10px] text-[#6a6660]">
-                        {audioBlobUrl && (
-                          <span className="inline-flex items-center gap-1 text-[#22623a] font-semibold">
-                            <Volume2 className="w-3 h-3" /> Voice Note Ready
-                          </span>
-                        )}
                         {attachedFile && (
                           <span className="inline-flex items-center gap-1 text-[#8c6a15] font-semibold">
                             <FileText className="w-3 h-3" /> {attachedFile.name}

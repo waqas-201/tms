@@ -2,395 +2,238 @@
 
 import React from "react";
 import Image from "next/image";
-import {
-  ArrowRight,
-  Sparkles,
-  ShieldCheck,
-  MapPin,
-  Clock,
-  Truck,
-  Award,
-  CheckCircle2,
-  Leaf,
-  Star,
-  Activity,
-  Phone,
-} from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useConsultation } from "@/app/context/ConsultationContext";
-import { CLINIC_INFO } from "@/app/data/products";
 
-// Compact Visual Condition Triage Cards (Icon + 2-3 words)
-const CONDITION_CARDS = [
-  {
-    icon: "🌿",
-    title: "Gastric & Digestion",
-    concern: "Stomach, Gas & Acid Relief",
-  },
-  {
-    icon: "🦴",
-    title: "Joint & Knee Pain",
-    concern: "Joint, Knee & Back Pain",
-  },
-  {
-    icon: "⚡",
-    title: "Fatty Liver & Heat",
-    concern: "Fatty Liver & Body Heat",
-  },
-  {
-    icon: "🩸",
-    title: "Energy & Vitality",
-    concern: "Energy, Stamina & Vitality",
-  },
-  {
-    icon: "🍯",
-    title: "Herbal Murabba",
-    concern: "Pure Murabbajaat & Tonics",
-  },
-  {
-    icon: "🛡️",
-    title: "Immunity & Detox",
-    concern: "Immune Health & Detoxification",
-  },
-];
+/**
+ * Hero v3 — fits exactly one screen, designed phone-first.
+ *
+ * ① HEADER HEIGHT: the hero fills the viewport MINUS your top banner + navbar.
+ *    Set the two values below to the real heights (top bar + nav):
+ *      mobile  → --hh on the <section>  (default 5.5rem)
+ *      desktop → lg:--hh                (default 6.75rem, measured from your screenshot)
+ *
+ * ② PORTRAIT: leave PORTRAIT_SRC empty to show the botanical arch artwork.
+ *    Set it to a real portrait of the Hakim (e.g. "/images/hakim.png") and the
+ *    photo appears inside the arch on desktop instead.
+ *
+ * Mobile  : heading → line → [Browse remedies] [Consult on WhatsApp]
+ *           → concern chips (2 rows, swipe) → one trust line. No image, no clutter.
+ * Desktop : same content left, arch right.
+ */
+
+const PORTRAIT_SRC = "" as string;
+
+const CONDITIONS = [
+  { icon: "🌿", title: "Gastric & digestion", concern: "Stomach, Gas & Acid Relief" },
+  { icon: "🦴", title: "Joint & back pain", concern: "Joint, Knee & Back Pain" },
+  { icon: "⚡", title: "Fatty liver & heat", concern: "Fatty Liver & Body Heat" },
+  { icon: "🩸", title: "Energy & stamina", concern: "Energy, Stamina & Vitality" },
+  { icon: "🍯", title: "Murabba & tonics", concern: "Pure Murabbajaat & Tonics" },
+  { icon: "🛡️", title: "Immunity & detox", concern: "Immune Health & Detoxification" },
+] as const;
+
+/* Leaf sprig inside an arch outline. Pure SVG, no image needed. */
+function BotanicalArt({ className = "" }: { className?: string }) {
+  const leaves = [
+    { y: 440, s: 1.2 },
+    { y: 388, s: 1.08 },
+    { y: 336, s: 0.97 },
+    { y: 284, s: 0.85 },
+    { y: 232, s: 0.72 },
+    { y: 184, s: 0.58 },
+  ];
+  const leafPath = "M0 0 C18 -17 54 -17 74 0 C54 17 18 17 0 0 Z";
+
+  return (
+    <svg
+      viewBox="0 0 400 500"
+      aria-hidden
+      focusable="false"
+      className={className}
+      preserveAspectRatio="xMidYMax meet"
+    >
+      {/* inner arch outline */}
+      <path
+        d="M16 500 V200 A184 184 0 0 1 384 200 V500"
+        fill="none"
+        stroke="#c59b27"
+        strokeOpacity="0.55"
+        strokeWidth="2"
+      />
+      {/* stem */}
+      <path
+        d="M200 500 C195 390 206 270 200 150"
+        fill="none"
+        stroke="#c59b27"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      {leaves.map((l, i) => (
+        <g key={l.y}>
+          <path
+            d={leafPath}
+            transform={`translate(200 ${l.y}) rotate(-32) scale(${l.s})`}
+            fill={i % 2 ? "#3fae6a" : "#2f8a54"}
+          />
+          <path
+            d={leafPath}
+            transform={`translate(200 ${l.y - 22}) rotate(-148) scale(${l.s})`}
+            fill={i % 2 ? "#2f8a54" : "#3fae6a"}
+          />
+        </g>
+      ))}
+      <path
+        d={leafPath}
+        transform="translate(200 152) rotate(-90) scale(0.62)"
+        fill="#3fae6a"
+      />
+      <circle cx="200" cy="112" r="6" fill="#dcaf38" />
+    </svg>
+  );
+}
 
 export default function HeroSection() {
   const { openConsultation } = useConsultation();
   const reducedMotion = useReducedMotion();
 
-  const handleConditionClick = (condition: (typeof CONDITION_CARDS)[number]) => {
+  const startConsultation = () =>
     openConsultation({
       mode: "WHATSAPP",
-      concern: condition.concern,
-      message: `Assalam-o-Alaikum Hakim Sahib, I would like consultation and remedy guidance for: ${condition.title} (${condition.concern}).`,
+      message:
+        "Assalam-o-Alaikum Hakim Muhammad Tariq Mahmood Sahib, I would like to consult with you regarding authentic herbal guidance for my health.",
     });
-  };
+
+  const pickCondition = (c: (typeof CONDITIONS)[number]) =>
+    openConsultation({
+      mode: "WHATSAPP",
+      concern: c.concern,
+      message: `Assalam-o-Alaikum Hakim Sahib, I would like consultation and remedy guidance for: ${c.title} (${c.concern}).`,
+    });
 
   return (
     <section
       id="hero"
-      className="relative bg-[#faf8f5] border-b border-[#e6dfd5] overflow-hidden min-h-[calc(100dvh-3.5rem)] sm:min-h-[calc(100dvh-4rem)] lg:min-h-0 flex flex-col justify-center py-4 sm:py-8 lg:py-14"
+      className="relative overflow-hidden bg-brand-green-900 text-sand-50 [--hh:5.5rem] lg:[--hh:6.75rem] min-h-[calc(100svh-var(--hh))] lg:h-[calc(100svh-var(--hh))] lg:min-h-[34rem]"
     >
-      {/* Heritage background ambient glows */}
-      <div className="absolute top-0 right-0 -mr-28 -mt-28 w-96 h-96 rounded-full bg-[#22623a]/6 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 -ml-28 -mb-28 w-96 h-96 rounded-full bg-[#c59b27]/6 blur-3xl pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(#22623a_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.025] pointer-events-none" />
+      {/* Soft glow + faint diagonal texture (very low contrast) */}
+      <div className="pointer-events-none absolute -right-24 bottom-0 h-[30rem] w-[30rem] rounded-full bg-brand-green-600/25 blur-3xl" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.06]"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(115deg, #faf8f5 0 1px, transparent 1px 28px)",
+        }}
+      />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10 my-auto">
-        {/* ── Top Clinic Trust & Availability Bar (Desktop only) ── */}
-        <motion.div
-          initial={reducedMotion ? false : { opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
-          className="hidden lg:block mb-5 sm:mb-6"
-        >
-          <div className="inline-flex flex-wrap items-center gap-2 sm:gap-3 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-[#f4eee5]/95 border border-[#e6dfd5] text-[11px] sm:text-xs text-[#59534b] shadow-2xs backdrop-blur-xs">
-            <span className="inline-flex items-center gap-2 font-semibold text-[#22623a]">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22623a]" />
-              </span>
-              Hakim Muhammad Tariq Mahmood Available Today
-            </span>
+      {/* Mobile-only backdrop: the sprig in an arch, bleeding off the corner */}
+      <BotanicalArt className="pointer-events-none absolute -right-16 bottom-0 aspect-[4/5] h-[72%] opacity-[0.16] lg:hidden" />
 
-            <span className="text-[#d8cfc4] hidden sm:inline">•</span>
+      <div className="relative z-10 mx-auto flex min-h-[inherit] max-w-6xl flex-col px-5 sm:px-8 lg:grid lg:h-full lg:min-h-0 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
+        {/* ───────── Text + actions ───────── */}
+        <div className="flex flex-1 flex-col py-6 sm:py-10 lg:justify-center lg:py-0">
+          <h1 className="font-serif text-[1.85rem] font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.6rem]">
+            Classical Unani Healing &amp; Botanical Care
+          </h1>
 
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-[#59534b]">
-              <MapPin className="w-3 h-3 text-[#c59b27] shrink-0" />
-              <span>Matab Korangi, Karachi</span>
-            </span>
+          <p className="mt-2.5 max-w-md text-sm leading-relaxed text-sand-100/75 sm:mt-4 sm:text-lg">
+            Speak with a Hakim. Get a pure herbal remedy made for you, delivered
+            across Pakistan.
+          </p>
 
-            <span className="text-[#d8cfc4] hidden md:inline">•</span>
+          {/* Primary = Browse remedies · Secondary = Consult on WhatsApp */}
+          <div className="mt-5 grid gap-2.5 sm:mt-7 sm:flex sm:gap-3">
+            <a
+              href="#remedies"
+              className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-brand-gold-400 px-8 text-[15px] font-semibold text-brand-green-900 transition hover:bg-brand-gold-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold-400 active:scale-[0.98] sm:h-14 sm:text-base"
+            >
+              Browse remedies
+              <ArrowRight
+                className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                aria-hidden
+              />
+            </a>
 
-            <span className="hidden md:inline-flex items-center gap-1.5 text-[#8c6a15] font-medium">
-              <Truck className="w-3 h-3 text-[#c59b27] shrink-0" />
-              <span>Pakistan-Wide Courier</span>
-            </span>
+            <button
+              type="button"
+              onClick={startConsultation}
+              className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full border border-sand-50/35 px-7 text-[15px] font-medium text-sand-50 transition hover:border-brand-gold-400 hover:text-brand-gold-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold-400 active:scale-[0.98] sm:h-14 sm:text-base"
+            >
+              <MessageCircle className="h-[18px] w-[18px]" aria-hidden />
+              Consult on WhatsApp
+            </button>
           </div>
-        </motion.div>
 
-        {/* ── Main Two-Column Hero Grid ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
-          {/* ── Left Column: Value Proposition & Compact Visual Triage ── */}
-          <motion.div
-            initial={reducedMotion ? false : { opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45, ease: "easeOut" }}
-            className="w-full lg:col-span-7 flex flex-col items-start space-y-3.5 sm:space-y-4 lg:space-y-5"
-          >
-            {/* Heritage Lineage Pill (Urdu removed, compact) */}
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f4eee5] border border-[#e6dfd5] text-[11px] sm:text-xs font-semibold text-[#8c6a15] tracking-wider uppercase shadow-2xs">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#22623a]" />
-              <span className="text-[#22623a] font-bold">Matab Tameer-e-Sehat</span>
-              <span className="text-[#d8cfc4]">·</span>
-              <span className="text-[#8c6a15] font-medium">Est. 1990</span>
-            </div>
-
-            {/* Punchy 1-Line Headline & Concise 1-Line Subtitle */}
-            <div className="space-y-1.5 sm:space-y-2.5 max-w-2xl">
-              <h1 className="font-serif text-2xl sm:text-4xl lg:text-[44px] xl:text-[48px] font-bold text-[#22623a] leading-[1.15] sm:leading-[1.18] tracking-tight">
-                Classical Unani Healing &amp; Botanical Care
-              </h1>
-              <p className="text-xs sm:text-sm lg:text-base text-[#59534b] leading-relaxed max-w-xl">
-                Personalized consultations &amp; pure herbal remedies for chronic health.
-              </p>
-            </div>
-
-            {/* Two Action Buttons */}
-            <div className="w-full sm:w-auto">
-              <div className="grid grid-cols-2 sm:flex sm:flex-row items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+          {/* Concern chips: 2 swipeable rows on phones, wrapped row on desktop */}
+          <div className="mt-6 sm:mt-8">
+            <p className="mb-2 text-xs font-medium text-sand-100/65 sm:text-sm">
+              What is troubling you?
+            </p>
+            <div
+              className="-mx-5 grid snap-x auto-cols-max grid-flow-col grid-rows-2 gap-2 overflow-x-auto px-5 [scrollbar-width:none] sm:-mx-8 sm:px-8 lg:mx-0 lg:flex lg:flex-wrap lg:overflow-visible lg:px-0 [&::-webkit-scrollbar]:hidden"
+              role="list"
+            >
+              {CONDITIONS.map((c) => (
                 <button
+                  key={c.title}
                   type="button"
-                  onClick={() =>
-                    openConsultation({
-                      mode: "WHATSAPP",
-                      message:
-                        "Assalam-o-Alaikum Hakim Muhammad Tariq Mahmood Sahib, I would like to consult with you regarding authentic herbal guidance for my health.",
-                    })
-                  }
-                  className="inline-flex items-center justify-center gap-1.5 sm:gap-2.5 px-3 sm:px-8 py-3 sm:py-4 bg-[#22623a] hover:bg-[#1a4d2e] text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 group w-full sm:w-auto cursor-pointer"
+                  role="listitem"
+                  onClick={() => pickCondition(c)}
+                  className="inline-flex h-10 snap-start cursor-pointer items-center gap-2 whitespace-nowrap rounded-full border border-sand-50/20 bg-sand-50/[0.06] px-3.5 text-[13px] font-medium text-sand-50 transition hover:border-brand-gold-400 hover:bg-sand-50/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-gold-400 active:scale-[0.97] sm:text-sm"
                 >
-                  <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#c59b27] shrink-0" />
-                  <span className="truncate">Consult Hakim Sahib</span>
-                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform shrink-0 hidden sm:inline" />
+                  <span aria-hidden>{c.icon}</span>
+                  {c.title}
                 </button>
-
-                <a
-                  href="#remedies"
-                  className="inline-flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-7 py-3 sm:py-4 bg-white hover:bg-[#faf8f5] text-[#22623a] border border-[#e6dfd5] hover:border-[#22623a] text-xs sm:text-sm font-bold rounded-xl transition-all shadow-xs hover:shadow-sm w-full sm:w-auto text-center"
-                >
-                  <span className="truncate">Browse Remedies</span>
-                  <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#8c6a15] shrink-0" />
-                </a>
-              </div>
-
-              {/* Direct clinic telephone micro-text (Desktop only) */}
-              <div className="hidden lg:flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[#7a7268] pt-2">
-                <span className="flex items-center gap-1">
-                  <Phone className="w-3 h-3 text-[#22623a]" />
-                  <span>
-                    Direct Matab:{" "}
-                    <a
-                      href={`tel:${CLINIC_INFO.phone.replace(/[^0-9]/g, "")}`}
-                      className="font-semibold text-[#22623a] hover:underline"
-                    >
-                      {CLINIC_INFO.phone}
-                    </a>
-                  </span>
-                </span>
-                <span className="text-[#d8cfc4]">•</span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3 text-[#c59b27]" />
-                  <span>Mon–Sat 10am–9pm</span>
-                </span>
-              </div>
+              ))}
             </div>
+          </div>
 
-            {/* Visual Condition Triage Cards (Icon + 2-3 words) */}
-            <div className="pt-1 sm:pt-2 w-full space-y-2 sm:space-y-2.5">
-              <div className="hidden lg:flex items-center justify-between">
-                <span className="text-xs font-semibold text-[#6a6660] uppercase tracking-wider">
-                  Select Your Health Concern:
-                </span>
-                <span className="text-[11px] text-[#8c6a15] font-medium hidden sm:inline">
-                  Instant WhatsApp Consultation
-                </span>
-              </div>
+          {/* One trust line (auto-hidden on very short phone screens) */}
+          <p className="mt-auto pt-5 text-xs text-sand-100/60 lg:mt-10 lg:pt-0 lg:text-sm [@media(max-height:700px)]:hidden">
+            Since 1990 &nbsp;·&nbsp; Matab Korangi, Karachi &nbsp;·&nbsp; Cash on
+            delivery
+          </p>
+        </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5 w-full">
-                {CONDITION_CARDS.map((card) => (
-                  <button
-                    key={card.title}
-                    type="button"
-                    onClick={() => handleConditionClick(card)}
-                    className="group relative flex items-center gap-2 sm:gap-2.5 p-2 sm:p-3 rounded-xl bg-white hover:bg-[#f4eee5] border border-[#e6dfd5] hover:border-[#22623a] transition-all hover:shadow-xs text-left cursor-pointer active:scale-[0.98]"
-                    title={`Consult Hakim Muhammad Tariq Mahmood regarding ${card.concern}`}
-                  >
-                    <span className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#faf8f5] group-hover:bg-white text-sm sm:text-base flex items-center justify-center shrink-0 border border-[#e6dfd5]/60 transition-colors">
-                      {card.icon}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[11px] sm:text-[13px] font-semibold text-[#1a1816] group-hover:text-[#22623a] truncate transition-colors leading-tight">
-                        {card.title}
-                      </div>
-                      <div className="text-[9px] sm:text-[10px] text-[#8c6a15] font-medium flex items-center gap-0.5 opacity-80 group-hover:opacity-100 mt-0.5">
-                        <span>Consult</span>
-                        <span className="text-[9px]">→</span>
-                      </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Clinical Trust & Safety Checkmarks (Desktop only) */}
-            <div className="hidden lg:flex pt-1 flex-wrap items-center gap-4 text-xs text-[#59534b]">
-              <span className="inline-flex items-center gap-1.5 font-medium">
-                <CheckCircle2 className="w-4 h-4 text-[#22623a] shrink-0" />
-                Zero Steroids or Synthetics
-              </span>
-              <span className="inline-flex items-center gap-1.5 font-medium">
-                <ShieldCheck className="w-4 h-4 text-[#c59b27] shrink-0" />
-                Licensed Physical Matab
-              </span>
-              <span className="inline-flex items-center gap-1.5 font-medium">
-                <Truck className="w-4 h-4 text-[#22623a] shrink-0" />
-                Cash on Delivery Available
-              </span>
-            </div>
-          </motion.div>
-
-          {/* ── Right Column: Authentic Hakim Muhammad Tariq Mahmood Authority Card (Desktop only) ── */}
+        {/* ───────── Desktop arch ───────── */}
+        <div className="relative hidden lg:block">
           <motion.div
-            initial={reducedMotion ? false : { opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
-            className="hidden lg:block lg:col-span-5 relative mt-4 lg:mt-0"
+            initial={reducedMotion ? false : { clipPath: "inset(100% 0 0 0)" }}
+            animate={{ clipPath: "inset(0% 0 0 0)" }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute bottom-0 right-0 aspect-[4/5] h-[88%] max-h-[38rem]"
           >
-            <div className="relative mx-auto max-w-md lg:max-w-none">
-              {/* Authentic Hakim Authority Card Frame */}
-              <div className="relative rounded-3xl overflow-hidden shadow-xl border-4 border-white bg-gradient-to-b from-[#f7f3ec] to-[#ece5d8] p-3 sm:p-3.5">
-                {/* Visual Imagery Container with Portrait */}
-                <div className="relative aspect-[4/4.3] sm:aspect-[4/4.2] rounded-2xl overflow-hidden bg-[#22623a]/10 shadow-inner group">
-                  <Image
-                    src="/images/2-scaled.png"
-                    alt="Hakim Muhammad Tariq Mahmood - Senior Tibbi Physician at Matab Tameer-e-Sehat Karachi"
-                    fill
-                    className="object-cover object-top transition-transform duration-700 group-hover:scale-102"
-                    priority
-                    sizes="(max-width: 1024px) 100vw, 480px"
-                  />
+            {/* offset gold outline */}
+            <div className="absolute inset-0 -translate-y-3 translate-x-3 rounded-t-full border-2 border-b-0 border-brand-gold-400/70" />
 
-                  {/* Gradient overlay for high contrast text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#143e23] via-[#22623a]/30 to-transparent" />
+            <div className="relative h-full w-full overflow-hidden rounded-t-full bg-gradient-to-b from-brand-green-700 to-brand-green-800">
+              {PORTRAIT_SRC ? (
+                <Image
+                  src={PORTRAIT_SRC}
+                  alt="Hakim Muhammad Tariq Mahmood, senior Tibbi physician at Matab Tameer-e-Sehat, Karachi"
+                  fill
+                  priority
+                  sizes="440px"
+                  className="object-cover object-top"
+                />
+              ) : (
+                <BotanicalArt className="absolute inset-0 h-full w-full" />
+              )}
 
-                  {/* Top-Right Floating Est. 1990 Badge */}
-                  <div className="absolute top-3.5 right-3.5 bg-white/95 backdrop-blur-md rounded-xl border border-[#e6dfd5] px-3 py-1.5 shadow-md flex items-center gap-1.5">
-                    <Award className="w-3.5 h-3.5 text-[#c59b27]" />
-                    <span className="text-[11px] font-bold text-[#22623a] uppercase tracking-wide">
-                      Est. 1990
-                    </span>
-                  </div>
-
-                  {/* Top-Left Floating 100% Botanical Badge */}
-                  <div className="absolute top-3.5 left-3.5 bg-[#22623a]/90 backdrop-blur-md text-white rounded-xl border border-white/20 px-3 py-1.5 shadow-md flex items-center gap-1.5">
-                    <Leaf className="w-3.5 h-3.5 text-[#c59b27]" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider">
-                      100% Botanical
-                    </span>
-                  </div>
-
-                  {/* Bottom Portrait Info Overlay */}
-                  <div className="absolute bottom-3 left-3 right-3 text-white space-y-1">
-                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#c59b27] text-white text-[10px] sm:text-[11px] font-bold uppercase tracking-wider shadow-xs">
-                      <CheckCircle2 className="w-3 h-3" />
-                      <span>Verified Chief Physician</span>
-                    </div>
-
-                    <h3 className="font-serif text-lg sm:text-xl font-bold text-white tracking-tight leading-tight">
-                      Hakim Muhammad Tariq Mahmood
-                    </h3>
-
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-[#f4eee5]/95">
-                      <span>35+ Years Lineage</span>
-                      <span className="text-[#c59b27]">•</span>
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-[#c59b27]" />
-                        <span>Matab Korangi, Karachi</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sub-Card: Direct Verification & Rating Badge */}
-                <div className="mt-3 p-3 bg-white/95 rounded-2xl border border-[#e6dfd5] shadow-xs flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#22623a]" />
-                    </span>
-                    <span className="text-xs font-semibold text-[#22623a]">
-                      Daily Clinical Consultations
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1 text-[11px] font-bold text-[#8c6a15] shrink-0">
-                    <Star className="w-3.5 h-3.5 fill-[#c59b27] text-[#c59b27]" />
-                    <span>5.0 Verified Reviews</span>
-                  </div>
-                </div>
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-brand-green-900 via-brand-green-900/70 to-transparent px-6 pb-6 pt-20 text-center">
+                <p className="font-serif text-xl font-bold leading-tight">
+                  Hakim Muhammad Tariq Mahmood
+                </p>
+                <p className="mt-1 text-sm text-sand-100/80">
+                  Senior Tibbi physician, Karachi
+                </p>
               </div>
             </div>
           </motion.div>
         </div>
-
-        {/* ── Bottom Hero Metric & Proof Strip (Desktop only) ── */}
-        <motion.div
-          initial={reducedMotion ? false : { opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.15 }}
-          className="hidden lg:block mt-8 sm:mt-10 pt-6 sm:pt-8 border-t border-[#e6dfd5]/80"
-        >
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
-            {/* Metric 1 */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-[#f4eee5]/70 border border-[#e6dfd5]/80 hover:bg-[#f4eee5] transition-colors">
-              <div className="flex items-center gap-2 text-[#22623a] font-serif font-bold text-xl sm:text-2xl lg:text-3xl">
-                <span>35+ Years</span>
-                <Award className="w-4 h-4 text-[#c59b27] shrink-0" />
-              </div>
-              <div className="text-xs sm:text-sm font-semibold text-[#22623a] mt-0.5">
-                Heritage &amp; Experience
-              </div>
-              <p className="text-[11px] sm:text-xs text-[#6a6660] mt-0.5">
-                Matab Korangi Since 1990
-              </p>
-            </div>
-
-            {/* Metric 2 */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-[#f4eee5]/70 border border-[#e6dfd5]/80 hover:bg-[#f4eee5] transition-colors">
-              <div className="flex items-center gap-2 text-[#22623a] font-serif font-bold text-xl sm:text-2xl lg:text-3xl">
-                <span>150,000+</span>
-                <Activity className="w-4 h-4 text-[#22623a] shrink-0" />
-              </div>
-              <div className="text-xs sm:text-sm font-semibold text-[#22623a] mt-0.5">
-                Patients Treated
-              </div>
-              <p className="text-[11px] sm:text-xs text-[#6a6660] mt-0.5">
-                Across Pakistan &amp; Abroad
-              </p>
-            </div>
-
-            {/* Metric 3 */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-[#f4eee5]/70 border border-[#e6dfd5]/80 hover:bg-[#f4eee5] transition-colors">
-              <div className="flex items-center gap-2 text-[#22623a] font-serif font-bold text-xl sm:text-2xl lg:text-3xl">
-                <span>100%</span>
-                <Leaf className="w-4 h-4 text-[#22623a] shrink-0" />
-              </div>
-              <div className="text-xs sm:text-sm font-semibold text-[#22623a] mt-0.5">
-                Botanical Remedies
-              </div>
-              <p className="text-[11px] sm:text-xs text-[#6a6660] mt-0.5">
-                Zero Steroids or Chemicals
-              </p>
-            </div>
-
-            {/* Metric 4 */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-[#f4eee5]/70 border border-[#e6dfd5]/80 hover:bg-[#f4eee5] transition-colors">
-              <div className="flex items-center gap-2 text-[#22623a] font-serif font-bold text-xl sm:text-2xl lg:text-3xl">
-                <span>Pakistan-Wide</span>
-                <Truck className="w-4 h-4 text-[#c59b27] shrink-0" />
-              </div>
-              <div className="text-xs sm:text-sm font-semibold text-[#22623a] mt-0.5">
-                Courier Delivery
-              </div>
-              <p className="text-[11px] sm:text-xs text-[#6a6660] mt-0.5">
-                Dispatched from Karachi Matab
-              </p>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </section>
   );
 }
-

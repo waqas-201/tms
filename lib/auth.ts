@@ -9,7 +9,7 @@ export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  secret: process.env.BETTER_AUTH_SECRET || "tms_secret_hakim_key_REDACTED_DEV_ONLY",
+  secret: process.env.BETTER_AUTH_SECRET || "dev_secret_replace_in_production_key_12345",
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   emailAndPassword: {
     enabled: true,

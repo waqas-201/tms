@@ -268,7 +268,7 @@ async function runAuthTestSuite() {
     // ─────────────────────────────────────────────────────────────
     console.log("\n🧪 7. Testing Email Verification Flow...");
     try {
-      const secret = process.env.BETTER_AUTH_SECRET || "tms_secret_hakim_key_REDACTED_DEV_ONLY";
+      const secret = process.env.BETTER_AUTH_SECRET || "dev_secret_replace_in_production_key_12345";
       const verifyToken = await signJWT({ email: testEmail }, secret, 86400);
 
       const verifyRes = await auth.api.verifyEmail({

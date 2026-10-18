@@ -42,5 +42,8 @@ env
 *.tsbuildinfo
 next-env.d.ts
 
-# graphify cache
-graphify-out/cache/
+# graphify knowledge graph & cache
+graphify-out/
+**/graphify-out/
+gitleaks-report*.json
+

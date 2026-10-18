@@ -8,14 +8,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
-
-
-BETTER_AUTH_SECRET="tms_secret_hakim_key_REDACTED_DEV_ONLY"
-BETTER_AUTH_URL="http://localhost:3000"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-DATABASE_URL="postgresql://neondb_owner:npg_REDACTED_DATABASE_PASSWORD@ep-dawn-moon-ax47n6q9-pooler.c-4.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
-# uncomment next line if you use Prisma <5.10
-# DATABASE_URL_UNPOOLED="postgresql://neondb_owner:npg_REDACTED_DATABASE_PASSWORD@ep-dawn-moon-ax47n6q9.c-4.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+# NOTE: Environment variables must be kept in .env / .env.local and NEVER committed to git.
+# Refer to .env.example for required variable definitions.
 
 <!-- VERCEL BEST PRACTICES START -->
 ## Best practices for developing on Vercel

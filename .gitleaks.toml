@@ -1,0 +1,17 @@
+title = "TMS Gitleaks Configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlist for build placeholders and dev mock tokens"
+paths = [
+  '''node_modules''',
+  '''.next''',
+  '''coverage''',
+]
+regexes = [
+  '''re_placeholder_key_for_build''',
+  '''dev_secret_replace_in_production_key_12345''',
+  '''Admin@TemporaryDev123!''',
+]

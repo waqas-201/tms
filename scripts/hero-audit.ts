@@ -46,7 +46,7 @@ async function collect(page: Page) {
       const cs = getComputedStyle(el);
       return {
         found: true,
-        offsetParentNotNull: el.offsetParent !== null,
+        offsetParentNotNull: (el as HTMLElement).offsetParent !== null,
         display: cs.display,
         visibility: cs.visibility,
         opacity: cs.opacity,
@@ -128,7 +128,7 @@ async function collect(page: Page) {
     const interactive = Array.from(
       hero.querySelectorAll<HTMLElement>("button, a")
     );
-    out.tapTargets = interactive.map((el) => {
+    const tapTargets = interactive.map((el) => {
       const r = el.getBoundingClientRect();
       return {
         tag: el.tagName.toLowerCase(),
@@ -142,8 +142,9 @@ async function collect(page: Page) {
         offscreen: r.bottom < 0 || r.top > innerHeight,
       };
     });
-    out.tapTargetsUnder40 = out.tapTargets.filter(
-      (t: { tooSmall: boolean; visible: boolean }) => t.tooSmall && t.visible
+    out.tapTargets = tapTargets;
+    out.tapTargetsUnder40 = tapTargets.filter(
+      (t) => t.tooSmall && t.visible
     );
 
     // e. .truncate elements

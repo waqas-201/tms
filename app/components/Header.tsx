@@ -105,7 +105,7 @@ export default function Header() {
   const lenis = useLenis();
   const { totalItems, setIsCartOpen, wishlist } = useCart();
   const { data: session } = useSession();
-  const { openConsultation } = useConsultation();
+  const { openConsultation, isOpen: isConsultOpen } = useConsultation();
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -254,7 +254,8 @@ export default function Header() {
   const navLinks: { name: string; href: string; icon: any; badge?: string }[] = [
     { name: "Home", href: "/", icon: Home },
     { name: "Shop", href: "/products", icon: ShoppingBag },
-    { name: "Specialties", href: "/specialties", icon: Activity },
+    // Specialties hidden for now per instructions (A/B/C testing)
+    // { name: "Specialties", href: "/specialties", icon: Activity },
     { name: "Consult", href: "/consultation", icon: Stethoscope },
     { name: "About Us", href: "/about", icon: Building2 },
   ];
@@ -493,6 +494,37 @@ export default function Header() {
                         </div>
                       )}
                     </div>
+                  );
+                }
+
+                if (link.name === "Consult") {
+                  return (
+                    <button
+                      key={link.name}
+                      type="button"
+                      onClick={() =>
+                        openConsult({
+                          mode: "WHATSAPP",
+                          message:
+                            "Assalam-o-Alaikum Hekeem Tahir Hameed Sahab, I would like to consult with you regarding authentic herbal guidance for my health.",
+                        })
+                      }
+                      className={`text-sm font-medium transition-colors duration-150 relative py-1 flex items-center gap-1.5 cursor-pointer ${
+                        isConsultOpen
+                          ? "text-[#22623a]"
+                          : "text-[#59534b] hover:text-[#22623a]"
+                      }`}
+                    >
+                      <span>{link.name}</span>
+                      {link.badge && (
+                        <span className="px-1.5 py-0.5 bg-[#c59b27]/15 text-[#8c6a15] text-[9px] font-bold uppercase tracking-wider rounded-md border border-[#c59b27]/30">
+                          {link.badge}
+                        </span>
+                      )}
+                      {isConsultOpen && (
+                        <span className="absolute -bottom-[3px] left-0 w-full h-[2px] bg-[#c59b27] rounded-full" />
+                      )}
+                    </button>
                   );
                 }
 
@@ -853,6 +885,35 @@ export default function Header() {
                             </div>
                           )}
                         </div>
+                      );
+                    }
+
+                    if (link.name === "Consult") {
+                      return (
+                        <button
+                          key={link.name}
+                          type="button"
+                          onClick={() =>
+                            openConsult({
+                              mode: "WHATSAPP",
+                              message:
+                                "Assalam-o-Alaikum Hekeem Tahir Hameed Sahab, I would like to consult with you regarding authentic herbal guidance for my health.",
+                            })
+                          }
+                          className={`flex items-center gap-3 py-2.5 px-3 text-sm font-semibold rounded-xl transition-colors w-full text-left cursor-pointer ${
+                            isConsultOpen
+                              ? "bg-[#eef7f1] text-[#22623a] font-bold"
+                              : "text-[#59534b] hover:bg-white"
+                          }`}
+                        >
+                          <Icon className="w-4 h-4 text-[#22623a] shrink-0" />
+                          <span className="flex-1">{link.name}</span>
+                          {link.badge && (
+                            <span className="px-1.5 py-0.5 bg-[#c59b27]/15 text-[#8c6a15] text-[9px] font-bold uppercase tracking-wider rounded-md border border-[#c59b27]/30">
+                              {link.badge}
+                            </span>
+                          )}
+                        </button>
                       );
                     }
 

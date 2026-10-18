@@ -246,6 +246,9 @@ function ProductsContent() {
   );
   const [currentPage, setCurrentPage] = useState<number>(initialPage);
   const [pageSize, setPageSize] = useState<number>(initialPageSize);
+  const searchParamsRef = useRef(searchParams);
+  searchParamsRef.current = searchParams;
+  const hasCustomMaxPrice = useRef(Boolean(searchParams.get("maxPrice")));
 
   // Fetch Live Database Products & Categories
   useEffect(() => {
@@ -279,20 +282,24 @@ function ProductsContent() {
     loadCatalog();
   }, []);
 
-  // Sync price slider range bounds when maxCatalogPrice initializes
+  // Sync price slider range bounds when maxCatalogPrice initializes from database
   useEffect(() => {
-    if (!searchParams.get("maxPrice") && maxCatalogPrice > DEFAULT_MAX_PRICE) {
-      setPriceRange((prev) => [prev[0], maxCatalogPrice]);
+    if (!hasCustomMaxPrice.current && maxCatalogPrice > DEFAULT_MAX_PRICE) {
+      setPriceRange((prev) => {
+        if (prev[1] === maxCatalogPrice) return prev;
+        return [prev[0], maxCatalogPrice];
+      });
     }
-  }, [maxCatalogPrice, searchParams]);
+  }, [maxCatalogPrice]);
 
   const isPriceFiltered =
-    priceRange[0] > 0 || priceRange[1] < maxCatalogPrice;
+    priceRange[0] > 0 ||
+    (hasCustomMaxPrice.current && priceRange[1] < maxCatalogPrice);
 
-  // Update URL Query Parameters on Filter Change
+  // Update URL Query Parameters on Filter Change (avoids loop and preserves params)
   const updateUrlParams = useCallback(
     (params: Record<string, string | number | boolean | null>) => {
-      const current = new URLSearchParams(searchParams.toString());
+      const current = new URLSearchParams(searchParamsRef.current.toString());
       Object.entries(params).forEach(([key, val]) => {
         if (val === null || val === "" || val === "all" || val === false) {
           current.delete(key);
@@ -300,28 +307,85 @@ function ProductsContent() {
           current.set(key, String(val));
         }
       });
-      const query = current.toString();
-      router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+      const newQuery = current.toString();
+      const currentQuery = searchParamsRef.current.toString();
+      if (newQuery !== currentQuery) {
+        router.replace(`${pathname}${newQuery ? `?${newQuery}` : ""}`, { scroll: false });
+      }
     },
-    [pathname, router, searchParams]
+    [pathname, router]
   );
 
-  // Reset page to 1 whenever search, categories, or filters change
+  // Keep currentPage in sync when URL page param changes externally (e.g. browser back/forward button)
+  useEffect(() => {
+    const pageFromUrl = Math.max(1, Number(searchParams.get("page")) || 1);
+    setCurrentPage((prev) => (prev !== pageFromUrl ? pageFromUrl : prev));
+  }, [searchParams]);
+
+  // Track previous filter state to only reset page to 1 when filters actually change
+  const prevFiltersRef = useRef({
+    category: selectedCategory,
+    minPrice: priceRange[0],
+    maxPrice: priceRange[1],
+    rating: selectedRating,
+    inStock: inStockOnly,
+    onSale: onSaleOnly,
+    search: searchQuery,
+    sort: sortBy,
+    pageSize,
+  });
+
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
-    setCurrentPage(1);
+
+    const prev = prevFiltersRef.current;
+    const isInitialPriceSync =
+      !hasCustomMaxPrice.current &&
+      prev.minPrice === 0 &&
+      priceRange[0] === 0 &&
+      prev.maxPrice === DEFAULT_MAX_PRICE &&
+      priceRange[1] === maxCatalogPrice;
+
+    const filtersChanged =
+      prev.category !== selectedCategory ||
+      prev.minPrice !== priceRange[0] ||
+      (prev.maxPrice !== priceRange[1] && !isInitialPriceSync) ||
+      prev.rating !== selectedRating ||
+      prev.inStock !== inStockOnly ||
+      prev.onSale !== onSaleOnly ||
+      prev.search !== searchQuery ||
+      prev.sort !== sortBy ||
+      prev.pageSize !== pageSize;
+
+    prevFiltersRef.current = {
+      category: selectedCategory,
+      minPrice: priceRange[0],
+      maxPrice: priceRange[1],
+      rating: selectedRating,
+      inStock: inStockOnly,
+      onSale: onSaleOnly,
+      search: searchQuery,
+      sort: sortBy,
+      pageSize,
+    };
+
+    if (filtersChanged) {
+      setCurrentPage(1);
+    }
   }, [
     selectedCategory,
-    priceRange,
+    priceRange[0],
+    priceRange[1],
     selectedRating,
     inStockOnly,
     onSaleOnly,
     searchQuery,
     sortBy,
     pageSize,
+    maxCatalogPrice,
   ]);
 
   // Sync state changes to URL
@@ -329,7 +393,10 @@ function ProductsContent() {
     updateUrlParams({
       category: selectedCategory !== "all" ? selectedCategory : null,
       minPrice: priceRange[0] > 0 ? priceRange[0] : null,
-      maxPrice: priceRange[1] < maxCatalogPrice ? priceRange[1] : null,
+      maxPrice:
+        hasCustomMaxPrice.current && priceRange[1] < maxCatalogPrice
+          ? priceRange[1]
+          : null,
       rating: selectedRating !== "all" ? selectedRating : null,
       inStock: inStockOnly ? "true" : null,
       onSale: onSaleOnly ? "true" : null,
@@ -552,6 +619,7 @@ function ProductsContent() {
   };
 
   const clearAllFilters = () => {
+    hasCustomMaxPrice.current = false;
     setSelectedCategory("all");
     setPriceRange([0, maxCatalogPrice]);
     setSelectedRating("all");
@@ -628,7 +696,10 @@ function ProductsContent() {
           </div>
           {isPriceFiltered && (
             <button
-              onClick={() => setPriceRange([0, maxCatalogPrice])}
+              onClick={() => {
+                hasCustomMaxPrice.current = false;
+                setPriceRange([0, maxCatalogPrice]);
+              }}
               className="text-[10px] text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
             >
               Reset
@@ -687,6 +758,7 @@ function ProductsContent() {
               step={50}
               value={priceRange[1]}
               onChange={(e) => {
+                hasCustomMaxPrice.current = true;
                 const val = Math.max(Number(e.target.value), priceRange[0] + 50);
                 setPriceRange([priceRange[0], val]);
               }}
@@ -1120,7 +1192,10 @@ function ProductsContent() {
                           Price: ₨ {priceRange[0].toLocaleString()} – ₨ {priceRange[1].toLocaleString()}
                         </span>
                         <button
-                          onClick={() => setPriceRange([0, maxCatalogPrice])}
+                          onClick={() => {
+                            hasCustomMaxPrice.current = false;
+                            setPriceRange([0, maxCatalogPrice]);
+                          }}
                           className="text-stone-400 hover:text-rose-600 ml-0.5 cursor-pointer"
                         >
                           <X className="w-3 h-3" />

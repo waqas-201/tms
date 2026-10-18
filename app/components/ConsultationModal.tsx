@@ -18,18 +18,12 @@ import {
   ArrowLeft,
   ShieldCheck,
   AlertCircle,
-  Mic,
-  Square,
   Paperclip,
   FileText,
-  Trash2,
-  Volume2,
   Calendar,
   Phone,
   Clock,
   MapPin,
-  Play,
-  Pause,
   User,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -84,20 +78,6 @@ export default function ConsultationModal({
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [channel, setChannel] = useState<ConsultationMode>(resolvedInitialMode);
   const [symptomText, setSymptomText] = useState(resolvedInitialMessage);
-
-  // ── Voice Recording & Speech Recognition State ──
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingDuration, setRecordingDuration] = useState(0);
-  const [audioBlobUrl, setAudioBlobUrl] = useState<string | null>(null);
-  const [uploadedAudioUrl, setUploadedAudioUrl] = useState<string | null>(null);
-  const [isUploadingVoice, setIsUploadingVoice] = useState(false);
-  const [isPlayingAudio, setIsPlayingAudio] = useState(false);
-  const [voiceNotice, setVoiceNotice] = useState<string | null>(null);
-
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
-  const timerIntervalRef = useRef<any>(null);
-  const audioElementRef = useRef<HTMLAudioElement | null>(null);
 
   // ── Report / Photo File Attachment State ──
   const [attachedFile, setAttachedFile] = useState<{
@@ -173,121 +153,6 @@ export default function ConsultationModal({
     };
   }, [isOpen]);
 
-  // Clean up recording state on modal close or unmount
-  useEffect(() => {
-    if (!isOpen) {
-      if (isRecording) stopRecording();
-    }
-  }, [isOpen, isRecording]);
-
-  useEffect(() => {
-    return () => {
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-      if (audioBlobUrl) {
-        URL.revokeObjectURL(audioBlobUrl);
-      }
-    };
-  }, [audioBlobUrl]);
-
-  const uploadVoiceClip = async (blob: Blob) => {
-    try {
-      setIsUploadingVoice(true);
-      const fd = new FormData();
-      fd.append("audio", blob, "patient_voice_note.webm");
-      const res = await fetch("/api/consultations/voice", {
-        method: "POST",
-        body: fd,
-      });
-      const data = await res.json();
-      if (data.success && data.audioUrl) {
-        setUploadedAudioUrl(data.audioUrl);
-      }
-    } catch (err) {
-      console.warn("Could not upload voice note:", err);
-    } finally {
-      setIsUploadingVoice(false);
-    }
-  };
-
-  const startRecording = async () => {
-    setVoiceNotice(null);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      audioChunksRef.current = [];
-
-      mediaRecorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunksRef.current, {
-          type: "audio/webm",
-        });
-        if (audioBlobUrl) URL.revokeObjectURL(audioBlobUrl);
-        const url = URL.createObjectURL(audioBlob);
-        setAudioBlobUrl(url);
-        stream.getTracks().forEach((track) => track.stop());
-        uploadVoiceClip(audioBlob);
-      };
-
-      mediaRecorder.start();
-      setIsRecording(true);
-      setRecordingDuration(0);
-
-      timerIntervalRef.current = setInterval(() => {
-        setRecordingDuration((prev) => prev + 1);
-      }, 1000);
-    } catch (err: any) {
-      console.warn("Audio recording error:", err);
-      setVoiceNotice(
-        "Microphone permission needed. You can also send voice notes directly on WhatsApp."
-      );
-    }
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      try {
-        mediaRecorderRef.current.stop();
-      } catch {}
-    }
-    if (timerIntervalRef.current) {
-      clearInterval(timerIntervalRef.current);
-    }
-    setIsRecording(false);
-  };
-
-  const deleteVoiceRecording = () => {
-    if (audioBlobUrl) {
-      URL.revokeObjectURL(audioBlobUrl);
-    }
-    setAudioBlobUrl(null);
-    setUploadedAudioUrl(null);
-    setRecordingDuration(0);
-    setIsPlayingAudio(false);
-  };
-
-  const togglePlayAudio = () => {
-    if (!audioBlobUrl) return;
-    if (!audioElementRef.current) {
-      const audio = new Audio(audioBlobUrl);
-      audio.onended = () => setIsPlayingAudio(false);
-      audioElementRef.current = audio;
-    }
-
-    if (isPlayingAudio) {
-      audioElementRef.current.pause();
-      setIsPlayingAudio(false);
-    } else {
-      audioElementRef.current.play();
-      setIsPlayingAudio(true);
-    }
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -334,12 +199,6 @@ export default function ConsultationModal({
     } else {
       setSymptomText(`${symptomText.trim()}, ${tag}`);
     }
-  };
-
-  const formatTimer = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
   const getWhatsAppUrl = () => {

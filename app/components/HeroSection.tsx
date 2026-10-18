@@ -102,7 +102,7 @@ export default function HeroSection() {
     openConsultation({
       mode: "WHATSAPP",
       message:
-        "Assalam-o-Alaikum Hakim Muhammad Tariq Mahmood Sahib, I would like to consult with you regarding authentic herbal guidance for my health.",
+        "Assalam-o-Alaikum Hekeem Tahir Hameed Sahab, I would like to consult with you regarding authentic herbal guidance for my health.",
     });
 
   const pickCondition = (c: (typeof CONDITIONS)[number]) =>
@@ -115,7 +115,7 @@ export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative overflow-hidden bg-brand-green-900 text-sand-50 [--hh:5.5rem] lg:[--hh:6.75rem] min-h-[calc(100svh-var(--hh))] lg:h-[calc(100svh-var(--hh))] lg:min-h-[34rem]"
+      className=" border border-b-blue-700 relative overflow-hidden bg-brand-green-900 text-sand-50 [--hh:5.5rem] lg:[--hh:6.75rem] min-h-[calc(100svh-var(--hh))] lg:h-[calc(100svh-var(--hh))] lg:min-h-[34rem]"
     >
       {/* Soft glow + faint diagonal texture (very low contrast) */}
       <div className="pointer-events-none absolute -right-24 bottom-0 h-[30rem] w-[30rem] rounded-full bg-brand-green-600/25 blur-3xl" />
@@ -135,16 +135,25 @@ export default function HeroSection() {
         {/* ───────── Text + actions ───────── */}
         <div className="flex flex-1 flex-col py-6 sm:py-10 lg:justify-center lg:py-0">
           <h1 className="font-serif text-[1.85rem] font-bold leading-[1.1] tracking-tight sm:text-5xl lg:text-[3.6rem]">
-            Classical Unani Healing &amp; Botanical Care
-          </h1>
+            Heal Neturally with  Tameer-e-Sehat       </h1>
 
           <p className="mt-2.5 max-w-md text-sm leading-relaxed text-sand-100/75 sm:mt-4 sm:text-lg">
-            Speak with a Hakim. Get a pure herbal remedy made for you, delivered
-            across Pakistan.
+           Explore pure herbs, traditional Unani care, and herbal products for your everyday wellness needs.
           </p>
 
           {/* Primary = Browse remedies · Secondary = Consult on WhatsApp */}
           <div className="mt-5 grid gap-2.5 sm:mt-7 sm:flex sm:gap-3">
+            
+
+            <button
+              type="button"
+              onClick={startConsultation}
+              className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full border border-sand-50/35 px-7 text-[15px] font-medium text-sand-50 transition hover:border-brand-gold-400 hover:text-brand-gold-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold-400 active:scale-[0.98] sm:h-14 sm:text-base"
+            >
+              
+               CONSULT NOW  
+            </button>
+
             <a
               href="#remedies"
               className="group inline-flex h-12 items-center justify-center gap-2 rounded-full bg-brand-gold-400 px-8 text-[15px] font-semibold text-brand-green-900 transition hover:bg-brand-gold-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold-400 active:scale-[0.98] sm:h-14 sm:text-base"
@@ -155,15 +164,6 @@ export default function HeroSection() {
                 aria-hidden
               />
             </a>
-
-            <button
-              type="button"
-              onClick={startConsultation}
-              className="inline-flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full border border-sand-50/35 px-7 text-[15px] font-medium text-sand-50 transition hover:border-brand-gold-400 hover:text-brand-gold-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold-400 active:scale-[0.98] sm:h-14 sm:text-base"
-            >
-              <MessageCircle className="h-[18px] w-[18px]" aria-hidden />
-              Consult on WhatsApp
-            </button>
           </div>
 
           {/* Concern chips: 2 swipeable rows on phones, wrapped row on desktop */}

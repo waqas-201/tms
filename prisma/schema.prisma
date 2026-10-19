@@ -26,6 +26,7 @@ model User {
   accounts      Account[]
   orders        Order[]
   consultations ConsultationRequest[]
+  hijamaBookings HijamaBooking[]
 
   @@map("user")
 }
@@ -322,6 +323,79 @@ model PaymentRecord {
   notes         String?
   recordedBy    String?
   createdAt     DateTime @default(now())
+}
+
+// -------------------------------------------------------------
+// Hijama (Islamic Wet Cupping) Models
+// -------------------------------------------------------------
+
+model HijamaBooking {
+  id                String   @id @default(cuid())
+  ticketNumber      String   @unique // e.g. "HIJ-2026-1042"
+  fullName          String
+  phone             String
+  email             String?
+  age               Int
+  gender            String   // "MALE" | "FEMALE"
+  appointmentDate   String   // "YYYY-MM-DD"
+  appointmentSlot   String   // e.g. "10:00 AM - 10:45 AM"
+  hijriDate         String?  // e.g. "17 Rajab 1447"
+  isSunnahDay       Boolean  @default(false)
+  cuppingReason     String?  // Pain relief, migraine, general detox, sunnah revival, etc.
+  contraindications String?  // Stored JSON string of safety screening answers (blood thinners, pregnancy, etc.)
+  status            String   @default("CONFIRMED") // "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"
+  feeAmount         Float    @default(2500) // PKR
+  paymentStatus     String   @default("UNPAID") // "UNPAID" | "PAID_AT_CLINIC"
+  adminNotes        String?
+  userId            String?
+  user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([appointmentDate, status])
+  @@index([gender, appointmentDate])
+  @@map("hijama_booking")
+}
+
+model HijamaScheduleConfig {
+  id                 String   @id @default(cuid())
+  dayOfWeek          Int      @unique // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  dayName            String   // "Sunday", etc.
+  isOpen             Boolean  @default(true)
+  openTime           String   @default("10:00")
+  closeTime          String   @default("21:00")
+  slotDurationMins   Int      @default(45)
+  maxMaleCapacity    Int      @default(2) // 2 male beds/practitioner capacity
+  maxFemaleCapacity  Int      @default(2) // 2 female beds/practitioner capacity
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("hijama_schedule_config")
+}
+
+model HijamaSetting {
+  id                   String   @id @default("default")
+  moonSightingOffset   Int      @default(0) // -2 to +2 days for Pakistan Ruet-e-Hilal adjustment
+  sunnahMaleCapacity   Int      @default(4) // Boosted capacity on Sunnah days
+  sunnahFemaleCapacity Int      @default(4)
+  standardFee          Float    @default(2500) // PKR standard cupping fee
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@map("hijama_setting")
+}
+
+model HijamaDateOverride {
+  id                 String   @id @default(cuid())
+  date               String   @unique // "YYYY-MM-DD"
+  isClosed           Boolean  @default(false)
+  maxMaleCapacity    Int?     // override capacity
+  maxFemaleCapacity  Int?
+  note               String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("hijama_date_override")
 }
 
 

@@ -17,11 +17,10 @@ import { useConsultation } from "@/app/context/ConsultationContext";
  * tablets. No gap below it, whatever your banner/navbar height is.
  * Desktop keeps the original fixed calc (--hh, lg:--hh).
  *
- * PORTRAIT: leave PORTRAIT_SRC empty for the botanical arch, or set a real
- * portrait path (e.g. "/images/hakim.png") to show it in the desktop arch.
+ * PORTRAIT: the Hakim's photo (public/images/hkm.png) fills the desktop arch.
  */
 
-const PORTRAIT_SRC = "" as string;
+const PORTRAIT_SRC = "/images/hkm.png";
 
 const CONDITIONS = [
   { icon: "🌿", title: "Gastric & digestion", concern: "Stomach, Gas & Acid Relief" },

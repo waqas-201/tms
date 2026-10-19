@@ -32,3 +32,15 @@ _Avoid_: Doctor, therapist, nurse
 An administrative adjustment knob (-2 to +2 days) to synchronize the astronomical Hijri lunar calendar with local Pakistani Central Ruet-e-Hilal moon-sighting declarations.
 _Avoid_: Timezone shift, delay, date fix
 
+**Consultation Request**:
+An inquiry submitted by a patient seeking holistic Unani medical guidance, dietary assessment, or herbal treatment from Hakim Tahir Hameed, conducted either via Instant WhatsApp or an In-Person Clinic Visit.
+_Avoid_: Order, appointment booking (unless In-Person), customer ticket
+
+**Consultation Ticket**:
+A unique alphanumeric tracking identifier (e.g. `CON-2026-8921`) issued to a patient for their Unani clinical inquiry or appointment.
+_Avoid_: Order ID, receipt number, serial number
+
+**Medical Report Attachment**:
+A patient-provided diagnostic document (lab test, prescription, or clinical photo) securely hosted and linked to their consultation dossier.
+_Avoid_: Generic upload, file link, asset
+

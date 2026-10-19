@@ -19,6 +19,7 @@ import {
   Layers,
   Activity,
   CalendarCheck,
+  Droplets,
 } from "lucide-react";
 import ProductFormModal from "@/app/components/ProductFormModal";
 import ReceiveStockModal from "@/app/components/inventory/ReceiveStockModal";
@@ -31,6 +32,7 @@ import UnitsTab from "@/app/components/admin/UnitsTab";
 import CategoriesTab from "@/app/components/admin/CategoriesTab";
 import ConsultationsTab from "@/app/components/admin/ConsultationsTab";
 import ClinicScheduleTab from "@/app/components/admin/ClinicScheduleTab";
+import HijamaTab from "@/app/components/admin/HijamaTab";
 import { ROLES, isStaffRole } from "@/lib/rbac-base";
 
 type AdminTab =
@@ -39,12 +41,14 @@ type AdminTab =
   | "categories"
   | "units"
   | "consultations"
-  | "schedule";
+  | "schedule"
+  | "hijama";
 
 const TABS: { id: AdminTab; label: string; icon: typeof Package }[] = [
   { id: "products", label: "Products", icon: Package },
   { id: "inventory", label: "Stock", icon: Warehouse },
   { id: "consultations", label: "Consultations & Rx", icon: Activity },
+  { id: "hijama", label: "Hijama Cupping", icon: Droplets },
   { id: "schedule", label: "Clinic Schedule", icon: CalendarCheck },
   { id: "categories", label: "Categories", icon: FolderTree },
   { id: "units", label: "Units", icon: Scale },
@@ -324,6 +328,8 @@ export default function AdminDashboardPage() {
         {activeTab === "units" && <UnitsTab />}
 
         {activeTab === "consultations" && <ConsultationsTab />}
+
+        {activeTab === "hijama" && <HijamaTab />}
 
         {activeTab === "schedule" && <ClinicScheduleTab />}
       </main>

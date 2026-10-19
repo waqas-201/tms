@@ -29,15 +29,207 @@ import {
   Shield,
   Mail,
   ShieldCheck,
+  Droplets,
 } from "lucide-react";
+
+type AccountTab =
+  | "orders"
+  | "wishlist"
+  | "consultations"
+  | "hijama"
+  | "profile";
+
+const ORDER_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Order received",
+  CONFIRMED: "Confirmed",
+  DISPATCHED: "On the way",
+  DELIVERED: "Delivered",
+  CANCELLED: "Cancelled",
+};
+
+const ORDER_STEPS = ["Order received", "Confirmed", "On the way", "Delivered"];
+const ORDER_STEP_INDEX: Record<string, number> = {
+  PENDING: 0,
+  CONFIRMED: 1,
+  DISPATCHED: 2,
+  DELIVERED: 3,
+};
+
+const CONSULT_STATUS_LABELS: Record<string, string> = {
+  NEW: "Booking received",
+  CONFIRMED: "Confirmed",
+  RESCHEDULED: "Rescheduled",
+  PRESCRIBED: "Prescription issued",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
+};
+
+const CONSULT_STEPS = [
+  "Booking received",
+  "Confirmed",
+  "Prescription issued",
+  "Completed",
+];
+const CONSULT_STEP_INDEX: Record<string, number> = {
+  NEW: 0,
+  CONFIRMED: 1,
+  RESCHEDULED: 1,
+  PRESCRIBED: 2,
+  COMPLETED: 3,
+};
+
+const HIJAMA_STATUS_LABELS: Record<string, string> = {
+  CONFIRMED: "Slot confirmed",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
+  NO_SHOW: "Marked missed",
+};
+
+const HIJAMA_STEPS = ["Slot confirmed", "Session completed"];
+const HIJAMA_STEP_INDEX: Record<string, number> = {
+  CONFIRMED: 0,
+  COMPLETED: 1,
+};
+
+function orderStatusChipClass(status: string) {
+  switch (status) {
+    case "DELIVERED":
+      return "bg-green-100 text-green-800";
+    case "DISPATCHED":
+      return "bg-blue-100 text-blue-800";
+    case "CONFIRMED":
+      return "bg-emerald-100 text-emerald-800";
+    case "CANCELLED":
+      return "bg-rose-50 text-rose-700";
+    default:
+      return "bg-amber-100 text-amber-800";
+  }
+}
+
+function consultStatusChipClass(status: string) {
+  switch (status) {
+    case "CONFIRMED":
+      return "bg-emerald-100 text-emerald-800 border border-emerald-300";
+    case "RESCHEDULED":
+      return "bg-amber-100 text-amber-800 border border-amber-300";
+    case "PRESCRIBED":
+      return "bg-purple-100 text-purple-800 border border-purple-300";
+    case "COMPLETED":
+      return "bg-gray-100 text-gray-700 border border-gray-300";
+    case "CANCELLED":
+      return "bg-rose-50 text-rose-700 border border-rose-200";
+    default:
+      return "bg-blue-50 text-blue-800 border border-blue-200";
+  }
+}
+
+function hijamaStatusChipClass(status: string) {
+  switch (status) {
+    case "COMPLETED":
+      return "bg-emerald-100 text-emerald-800 border border-emerald-300";
+    case "CANCELLED":
+      return "bg-rose-50 text-rose-700 border border-rose-200";
+    case "NO_SHOW":
+      return "bg-gray-100 text-gray-600 border border-gray-300";
+    default:
+      return "bg-blue-50 text-blue-800 border border-blue-200";
+  }
+}
+
+function StatusStepper({
+  steps,
+  current,
+  cancelled = false,
+  cancelledLabel = "Cancelled",
+}: {
+  steps: string[];
+  current: number;
+  cancelled?: boolean;
+  cancelledLabel?: string;
+}) {
+  if (cancelled) {
+    return (
+      <div className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-[#9ca3af] bg-[#f4f4f5] border border-[#e4e4e7] px-2 py-1 rounded-full">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#9ca3af]" />
+        {cancelledLabel}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-x-1 gap-y-1">
+      {steps.map((label, index) => {
+        const done = index < current;
+        const active = index === current;
+
+        return (
+          <React.Fragment key={label}>
+            {index > 0 && (
+              <span
+                className={`h-px w-3 sm:w-5 ${
+                  index <= current ? "bg-[#8ab99c]" : "bg-[#e6dfd5]"
+                }`}
+              />
+            )}
+            <span
+              className={`inline-flex items-center gap-1 text-[10px] font-semibold ${
+                active
+                  ? "text-[#22623a]"
+                  : done
+                  ? "text-[#2d7648]"
+                  : "text-[#a8a29e]"
+              }`}
+            >
+              {done ? (
+                <CheckCircle2 className="w-3 h-3 shrink-0" />
+              ) : (
+                <span
+                  className={`w-2 h-2 rounded-full border shrink-0 ${
+                    active
+                      ? "bg-[#22623a] border-[#22623a]"
+                      : "bg-white border-[#c8c1b8]"
+                  }`}
+                />
+              )}
+              {label}
+            </span>
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+function SummaryTile({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: React.ReactNode;
+  hint?: string;
+}) {
+  return (
+    <div className="bg-white p-4 rounded-2xl border border-[#e6dfd5] shadow-2xs">
+      <p className="text-[10px] font-bold uppercase tracking-wide text-[#7a7268]">
+        {label}
+      </p>
+      <p className="font-serif text-lg sm:text-xl font-bold text-[#22623a] mt-1 break-words">
+        {value}
+      </p>
+      {hint && <p className="text-[10px] text-[#7a7268] mt-0.5">{hint}</p>}
+    </div>
+  );
+}
 
 export default function AccountPage() {
   const { data: sessionData, isPending } = useSession();
   const { wishlist, removeFromWishlist, addToCart } = useCart();
 
-  const [activeTab, setActiveTab] = useState<"orders" | "wishlist" | "consultations" | "profile">("orders");
+  const [activeTab, setActiveTab] = useState<AccountTab>("orders");
   const [orders, setOrders] = useState<any[]>([]);
   const [consultations, setConsultations] = useState<any[]>([]);
+  const [hijamaBookings, setHijamaBookings] = useState<any[]>([]);
   const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [reorderMessage, setReorderMessage] = useState<string | null>(null);
@@ -110,18 +302,29 @@ export default function AccountPage() {
   const fetchUserData = async () => {
     setLoadingData(true);
     try {
-      const [ordersRes, consultRes] = await Promise.all([
+      // Attach any guest bookings made with this account's verified email
+      // before loading the dashboard, so they appear immediately.
+      try {
+        await fetch("/api/account/link-records", { method: "POST" });
+      } catch {
+        // Linking is best-effort; never block the dashboard on it.
+      }
+
+      const [ordersRes, consultRes, hijamaRes] = await Promise.all([
         fetch("/api/orders"),
         fetch("/api/consultations"),
+        fetch("/api/hijama/bookings?limit=100"),
       ]);
 
-      const [ordersJson, consultJson] = await Promise.all([
+      const [ordersJson, consultJson, hijamaJson] = await Promise.all([
         ordersRes.json(),
         consultRes.json(),
+        hijamaRes.json(),
       ]);
 
       if (ordersJson.success) setOrders(ordersJson.data || []);
       if (consultJson.success) setConsultations(consultJson.data || []);
+      if (hijamaJson.success) setHijamaBookings(hijamaJson.data || []);
     } catch (err) {
       console.error("Error fetching account data:", err);
     } finally {
@@ -206,6 +409,69 @@ export default function AccountPage() {
   const user = sessionData.user;
   const userRole = (user as any)?.role || "user";
   const isStaff = isStaffRole(userRole);
+
+  // ── Summary metrics (cancelled records are excluded from counts) ──
+  const activeOrders = orders.filter((o) => o.orderStatus !== "CANCELLED");
+  const cancelledOrderCount = orders.length - activeOrders.length;
+  const totalItemsOrdered = activeOrders.reduce(
+    (sum, order) =>
+      sum +
+      (order.items?.reduce(
+        (itemSum: number, item: any) => itemSum + (item.quantity || 0),
+        0
+      ) || 0),
+    0
+  );
+  const totalSpend = activeOrders.reduce(
+    (sum, order) => sum + (order.total || 0),
+    0
+  );
+  const inProgressOrders = activeOrders.filter(
+    (o) => o.orderStatus !== "DELIVERED"
+  ).length;
+
+  const activeConsultations = consultations.filter(
+    (c) => c.status !== "CANCELLED"
+  );
+  const awaitingConfirmation = activeConsultations.filter(
+    (c) => c.status === "NEW"
+  ).length;
+  const nextConsultation = [...activeConsultations]
+    .filter(
+      (c) =>
+        c.appointmentDate &&
+        ["NEW", "CONFIRMED", "RESCHEDULED"].includes(c.status)
+    )
+    .sort((a, b) =>
+      `${a.appointmentDate} ${a.appointmentSlot || ""}`.localeCompare(
+        `${b.appointmentDate} ${b.appointmentSlot || ""}`
+      )
+    )[0];
+
+  const activeHijama = hijamaBookings.filter(
+    (b) => b.status !== "CANCELLED" && b.status !== "NO_SHOW"
+  );
+  const nextHijama = [...activeHijama]
+    .filter((b) => b.status === "CONFIRMED" && b.appointmentDate)
+    .sort((a, b) =>
+      `${a.appointmentDate} ${a.appointmentSlot || ""}`.localeCompare(
+        `${b.appointmentDate} ${b.appointmentSlot || ""}`
+      )
+    )[0];
+  const completedHijama = hijamaBookings.filter(
+    (b) => b.status === "COMPLETED"
+  ).length;
+
+  const formatAppointment = (record: any) => {
+    if (!record?.appointmentDate) return "—";
+    const formatted = new Date(
+      `${record.appointmentDate}T12:00:00`
+    ).toLocaleDateString("en-PK", {
+      day: "numeric",
+      month: "short",
+    });
+    return `${formatted}${record.appointmentSlot ? ` · ${record.appointmentSlot}` : ""}`;
+  };
 
   return (
     <div className="min-h-[85vh] bg-[#faf8f5] py-10 sm:py-14">
@@ -371,6 +637,18 @@ export default function AccountPage() {
           </button>
 
           <button
+            onClick={() => setActiveTab("hijama")}
+            className={`pb-3 px-2 border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer ${
+              activeTab === "hijama"
+                ? "border-[#22623a] text-[#22623a] font-bold"
+                : "border-transparent text-[#7a7268] hover:text-[#22623a]"
+            }`}
+          >
+            <Droplets className="w-4 h-4" />
+            <span>Hijama Sessions ({hijamaBookings.length})</span>
+          </button>
+
+          <button
             onClick={() => setActiveTab("profile")}
             className={`pb-3 px-2 border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer ${
               activeTab === "profile"
@@ -386,6 +664,33 @@ export default function AccountPage() {
         {/* ─── TAB 1: ORDERS ─── */}
         {activeTab === "orders" && (
           <div className="space-y-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <SummaryTile
+                label="Total Orders"
+                value={activeOrders.length}
+                hint={
+                  cancelledOrderCount > 0
+                    ? `${cancelledOrderCount} cancelled excluded`
+                    : "All orders active"
+                }
+              />
+              <SummaryTile
+                label="Items Ordered"
+                value={totalItemsOrdered}
+                hint="Excludes cancelled orders"
+              />
+              <SummaryTile
+                label="Total Spend"
+                value={`₨ ${totalSpend.toLocaleString()}`}
+                hint="Excludes cancelled orders"
+              />
+              <SummaryTile
+                label="In Progress"
+                value={inProgressOrders}
+                hint="Not delivered yet"
+              />
+            </div>
+
             {loadingData ? (
               <div className="p-12 text-center">
                 <Loader2 className="w-6 h-6 animate-spin text-[#22623a] mx-auto mb-2" />
@@ -411,7 +716,9 @@ export default function AccountPage() {
               orders.map((order) => (
                 <div
                   key={order.id}
-                  className="bg-white p-5 sm:p-6 rounded-2xl border border-[#e6dfd5] shadow-2xs space-y-4"
+                  className={`bg-white p-5 sm:p-6 rounded-2xl border border-[#e6dfd5] shadow-2xs space-y-4 ${
+                    order.orderStatus === "CANCELLED" ? "opacity-70" : ""
+                  }`}
                 >
                   {/* Order Top Bar */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#f4eee5] gap-2">
@@ -421,13 +728,16 @@ export default function AccountPage() {
                           {order.orderNumber}
                         </span>
                         <span
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                            order.orderStatus === "DELIVERED"
-                              ? "bg-green-100 text-green-800"
-                              : order.orderStatus === "DISPATCHED"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-amber-100 text-amber-800"
-                          }`}
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${orderStatusChipClass(
+                            order.orderStatus
+                          )}`}
+                        >
+                          {ORDER_STATUS_LABELS[order.orderStatus] ||
+                            order.orderStatus}
+                        </span>
+                        <span
+                          className="text-[9px] font-mono text-[#b5ada4]"
+                          title="Internal status code"
                         >
                           {order.orderStatus}
                         </span>
@@ -453,6 +763,16 @@ export default function AccountPage() {
                         <span>Track</span>
                       </Link>
                     </div>
+                  </div>
+
+                  {/* Progress timeline */}
+                  <div className="pt-1">
+                    <StatusStepper
+                      steps={ORDER_STEPS}
+                      current={ORDER_STEP_INDEX[order.orderStatus] ?? 0}
+                      cancelled={order.orderStatus === "CANCELLED"}
+                      cancelledLabel="Order cancelled"
+                    />
                   </div>
 
                   {/* Items list */}
@@ -604,6 +924,34 @@ export default function AccountPage() {
         {/* ─── TAB 3: CONSULTATIONS ─── */}
         {activeTab === "consultations" && (
           <div className="space-y-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+              <SummaryTile
+                label="Total Booked"
+                value={activeConsultations.length}
+                hint={`${awaitingConfirmation} awaiting confirmation`}
+              />
+              <SummaryTile
+                label="Next Appointment"
+                value={
+                  nextConsultation
+                    ? formatAppointment(nextConsultation)
+                    : "—"
+                }
+                hint={
+                  nextConsultation
+                    ? nextConsultation.consultationType === "ONLINE"
+                      ? "Online consultation"
+                      : "In-person clinic visit"
+                    : "No upcoming slot yet"
+                }
+              />
+              <SummaryTile
+                label="Awaiting Confirmation"
+                value={awaitingConfirmation}
+                hint="Staff will confirm on WhatsApp"
+              />
+            </div>
+
             {loadingData ? (
               <div className="p-12 text-center">
                 <Loader2 className="w-6 h-6 animate-spin text-[#22623a] mx-auto mb-2" />
@@ -629,7 +977,9 @@ export default function AccountPage() {
               consultations.map((consult) => (
                 <div
                   key={consult.id}
-                  className="bg-white p-6 rounded-2xl border border-[#e6dfd5] shadow-2xs space-y-4"
+                  className={`bg-white p-6 rounded-2xl border border-[#e6dfd5] shadow-2xs space-y-4 ${
+                    consult.status === "CANCELLED" ? "opacity-70" : ""
+                  }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#f4eee5] gap-2">
                     <div>
@@ -637,15 +987,18 @@ export default function AccountPage() {
                         <span className="font-mono text-sm font-bold text-[#22623a]">
                           {consult.ticketNumber}
                         </span>
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                          consult.status === "CONFIRMED"
-                            ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                            : consult.status === "PRESCRIBED"
-                            ? "bg-purple-100 text-purple-800 border border-purple-300"
-                            : consult.status === "RESCHEDULED"
-                            ? "bg-amber-100 text-amber-800 border border-amber-300"
-                            : "bg-[#f4f9f5] border border-[#d8ecde] text-[#2d7648]"
-                        }`}>
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${consultStatusChipClass(
+                            consult.status
+                          )}`}
+                        >
+                          {CONSULT_STATUS_LABELS[consult.status] ||
+                            consult.status}
+                        </span>
+                        <span
+                          className="text-[9px] font-mono text-[#b5ada4]"
+                          title="Internal status code"
+                        >
                           {consult.status}
                         </span>
                       </div>
@@ -678,6 +1031,16 @@ export default function AccountPage() {
                     </div>
                   </div>
 
+                  {/* Progress timeline */}
+                  <div className="pt-1">
+                    <StatusStepper
+                      steps={CONSULT_STEPS}
+                      current={CONSULT_STEP_INDEX[consult.status] ?? 0}
+                      cancelled={consult.status === "CANCELLED"}
+                      cancelledLabel="Booking cancelled"
+                    />
+                  </div>
+
                   <div className="text-xs space-y-2 text-[#59534b]">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-[#faf8f5] p-3 rounded-xl border border-[#e6dfd5]">
                       <div>
@@ -695,6 +1058,14 @@ export default function AccountPage() {
                         </div>
                       )}
                     </div>
+
+                    {consult.status === "NEW" && (
+                      <p className="text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+                        Awaiting confirmation — the clinic will confirm your
+                        slot on WhatsApp or phone. Your ticket is already
+                        active, so you can check back here anytime.
+                      </p>
+                    )}
 
                     <p>
                       <strong>Primary Symptoms / Concern:</strong> {consult.primarySymptoms}
@@ -730,7 +1101,198 @@ export default function AccountPage() {
           </div>
         )}
 
-        {/* ─── TAB 4: PROFILE & ADDRESS ─── */}
+        {/* ─── TAB 4: HIJAMA SESSIONS ─── */}
+        {activeTab === "hijama" && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+              <SummaryTile
+                label="Hijama Sessions"
+                value={activeHijama.length}
+                hint="Confirmed + completed"
+              />
+              <SummaryTile
+                label="Next Session"
+                value={nextHijama ? formatAppointment(nextHijama) : "—"}
+                hint={
+                  nextHijama?.hijriDate
+                    ? nextHijama.hijriDate
+                    : "No upcoming session"
+                }
+              />
+              <SummaryTile
+                label="Completed"
+                value={completedHijama}
+                hint="Sessions attended"
+              />
+            </div>
+
+            {loadingData ? (
+              <div className="p-12 text-center">
+                <Loader2 className="w-6 h-6 animate-spin text-[#22623a] mx-auto mb-2" />
+                <p className="text-xs text-[#7a7268]">
+                  Loading your Hijama session history...
+                </p>
+              </div>
+            ) : hijamaBookings.length === 0 ? (
+              <div className="bg-white p-12 rounded-2xl border border-[#e6dfd5] text-center space-y-4">
+                <Droplets className="w-12 h-12 text-[#7a7268] opacity-40 mx-auto" />
+                <h3 className="font-serif text-lg font-bold text-[#22623a]">
+                  No Hijama sessions yet
+                </h3>
+                <p className="text-xs text-[#59534b] max-w-sm mx-auto">
+                  Hijama (wet cupping) appointments booked with the clinic will
+                  appear here with their ticket number, Hijri date, time slot,
+                  and status.
+                </p>
+                <a
+                  href="https://wa.me/923212176219"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#25D366] text-white text-xs font-bold uppercase rounded-xl hover:bg-[#1EBE5D] transition-colors"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  Ask About Hijama
+                </a>
+              </div>
+            ) : (
+              hijamaBookings.map((booking) => {
+                const cancelled =
+                  booking.status === "CANCELLED" ||
+                  booking.status === "NO_SHOW";
+
+                return (
+                  <div
+                    key={booking.id}
+                    className={`bg-white p-6 rounded-2xl border border-[#e6dfd5] shadow-2xs space-y-4 ${
+                      cancelled ? "opacity-70" : ""
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#f4eee5] gap-2">
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-mono text-sm font-bold text-[#22623a]">
+                            {booking.ticketNumber}
+                          </span>
+                          <span
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${hijamaStatusChipClass(
+                              booking.status
+                            )}`}
+                          >
+                            {HIJAMA_STATUS_LABELS[booking.status] ||
+                              booking.status}
+                          </span>
+                          <span
+                            className="text-[9px] font-mono text-[#b5ada4]"
+                            title="Internal status code"
+                          >
+                            {booking.status}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-[#7a7268]">
+                          Booked on{" "}
+                          {new Date(booking.createdAt).toLocaleDateString(
+                            "en-PK",
+                            {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
+                            }
+                          )}
+                        </p>
+                      </div>
+
+                      <div className="text-left sm:text-right">
+                        <span className="font-serif text-base font-bold text-[#22623a]">
+                          ₨ {(booking.feeAmount || 0).toLocaleString()}
+                        </span>
+                        <p className="text-[10px] text-[#7a7268]">
+                          {booking.paymentStatus === "PAID_AT_CLINIC"
+                            ? "Paid at clinic"
+                            : "Pay at clinic"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="pt-1">
+                      <StatusStepper
+                        steps={HIJAMA_STEPS}
+                        current={HIJAMA_STEP_INDEX[booking.status] ?? 0}
+                        cancelled={cancelled}
+                        cancelledLabel={
+                          booking.status === "NO_SHOW"
+                            ? "Marked missed"
+                            : "Session cancelled"
+                        }
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-[#faf8f5] p-3 rounded-xl border border-[#e6dfd5] text-xs">
+                      <div>
+                        <span className="text-[#78716C] block">
+                          Appointment Date:
+                        </span>
+                        <strong className="text-[#14281D]">
+                          {booking.appointmentDate}
+                          {booking.hijriDate ? ` · ${booking.hijriDate}` : ""}
+                        </strong>
+                      </div>
+                      <div>
+                        <span className="text-[#78716C] block">
+                          Time Slot:
+                        </span>
+                        <strong className="text-[#14281D]">
+                          {booking.appointmentSlot}
+                        </strong>
+                      </div>
+                      <div>
+                        <span className="text-[#78716C] block">For:</span>
+                        <strong className="text-[#14281D]">
+                          {booking.gender === "FEMALE"
+                            ? "Female session"
+                            : "Male session"}
+                        </strong>
+                      </div>
+                      <div>
+                        <span className="text-[#78716C] block">
+                          Session Type:
+                        </span>
+                        <strong className="text-[#14281D]">
+                          {booking.isSunnahDay
+                            ? "Sunnah Day Cupping"
+                            : "Standard Cupping"}
+                        </strong>
+                      </div>
+                    </div>
+
+                    {booking.cuppingReason && (
+                      <p className="text-xs text-[#59534b]">
+                        <strong>Reason / Notes:</strong>{" "}
+                        {booking.cuppingReason}
+                      </p>
+                    )}
+
+                    <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[#f4eee5]">
+                      <span className="text-[11px] text-[#7a7268]">
+                        Show this ticket at the clinic reception.
+                      </span>
+                      <a
+                        href="https://wa.me/923212176219"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#25D366] text-white text-xs font-bold rounded-lg shadow-xs hover:bg-[#1EBE5D] transition-colors"
+                      >
+                        <Phone className="w-3.5 h-3.5" />
+                        <span>Contact Clinic</span>
+                      </a>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+
+        {/* ─── TAB 5: PROFILE & ADDRESS ─── */}
         {activeTab === "profile" && (
           <div className="bg-white p-6 sm:p-8 rounded-2xl border border-[#e6dfd5] shadow-xs space-y-6 max-w-2xl">
             <h2 className="font-serif text-lg font-bold text-[#22623a] border-b border-[#f4eee5] pb-3">

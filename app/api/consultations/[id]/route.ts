@@ -82,6 +82,7 @@ export async function PATCH(
       appointmentSlot,
       hakimNotes,
       prescribedTreatment,
+      userId,
     } = body;
 
     const existing = await prisma.consultationRequest.findFirst({
@@ -98,6 +99,26 @@ export async function PATCH(
     const previousStatus = existing.status;
     const previousPrescription = existing.prescribedTreatment;
 
+    // Link / unlink this booking to a registered patient account
+    let linkedUserId: string | null | undefined = undefined;
+    if (userId !== undefined) {
+      if (userId) {
+        const linkedUser = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { id: true },
+        });
+        if (!linkedUser) {
+          return NextResponse.json(
+            { success: false, error: "The selected patient account was not found." },
+            { status: 400 }
+          );
+        }
+        linkedUserId = linkedUser.id;
+      } else {
+        linkedUserId = null;
+      }
+    }
+
     const updated = await prisma.consultationRequest.update({
       where: { id: existing.id },
       data: {
@@ -106,6 +127,10 @@ export async function PATCH(
         ...(appointmentSlot !== undefined && { appointmentSlot }),
         ...(hakimNotes !== undefined && { hakimNotes }),
         ...(prescribedTreatment !== undefined && { prescribedTreatment }),
+        ...(linkedUserId !== undefined && { userId: linkedUserId }),
+      },
+      include: {
+        user: { select: { id: true, name: true, email: true } },
       },
     });
 

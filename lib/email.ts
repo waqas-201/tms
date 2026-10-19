@@ -659,6 +659,7 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
 
     const dateDisplay = appointmentDate || "To be coordinated";
     const slotDisplay = appointmentSlot || "Flexible Clinical Hours (10 AM - 9 PM)";
+    const trackUrl = `${APP_URL}/track-order?ref=${encodeURIComponent(ticketNumber)}`;
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -690,13 +691,13 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
           <tr>
             <td style="padding: 32px 28px 16px 28px;">
               <span style="display: inline-block; background-color: #ECFDF5; color: #047857; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; border: 1px solid #A7F3D0; margin-bottom: 8px;">
-                ✓ Consultation Appointment Booked
+                ✓ Consultation Booking Received
               </span>
               <h2 style="margin: 4px 0 8px 0; color: #14281D; font-size: 20px; font-weight: 700; font-family: Georgia, serif;">
                 Assalam-o-Alaikum, ${fullName}!
               </h2>
               <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #57534E;">
-                Your clinical consultation request with <strong>Hakim Muhammad Tariq</strong> has been received and scheduled in our appointment ledger.
+                Your clinical consultation request with <strong>Hakim Muhammad Tariq</strong> has been received. Our clinic team will review it and confirm your appointment on WhatsApp or phone. You can check its status anytime using the tracking link below.
               </p>
             </td>
           </tr>
@@ -719,11 +720,13 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
                     <span style="color: #166534; font-weight: 600;">${modeBadge}</span>
                   </td>
                   <td style="padding-top: 12px; font-size: 13px; color: #44403C; width: 50%;">
-                    <strong>Scheduled Slot:</strong>
+                    <strong>Requested Slot:</strong>
                     <br />
                     <span style="color: #14281D; font-weight: 600;">${dateDisplay}</span>
                     <br />
                     <span style="font-size: 12px; color: #78716C;">${slotDisplay} (PKT)</span>
+                    <br />
+                    <span style="font-size: 11px; color: #92400E; font-weight: 600;">Status: Awaiting confirmation</span>
                   </td>
                 </tr>
               </table>
@@ -766,6 +769,11 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
           <!-- Contact Support Footer -->
           <tr>
             <td style="background-color: #FCFBF9; padding: 20px 28px; border-top: 1px solid #E7E5E4; text-align: center;">
+              <p style="margin: 0 0 12px 0;">
+                <a href="${trackUrl}" target="_blank" style="display: inline-block; padding: 10px 22px; background-color: #14281D; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 8px;">
+                  Track Your Booking →
+                </a>
+              </p>
               <p style="margin: 0 0 6px 0; font-size: 12px; color: #78716C;">
                 Need to reschedule? WhatsApp us at <strong style="color: #14281D;">+92 300 8921892</strong> quoting ticket <strong style="font-family: monospace;">${ticketNumber}</strong>
               </p>
@@ -786,7 +794,7 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
     const { data, error } = await resend.emails.send({
       from: DEFAULT_FROM,
       to: [to],
-      subject: `Consultation Appointment Confirmed: ${ticketNumber} - Tameer-e-Sehat`,
+      subject: `Booking Received: ${ticketNumber} - Tameer-e-Sehat`,
       html: htmlContent,
     });
 
@@ -839,7 +847,7 @@ export async function sendAdminAppointmentNotificationEmail(params: AppointmentE
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAF9F6; padding: 24px; color: #1a1816;">
   <div style="max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #E7E5E4; padding: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
     <div style="background-color: #14281D; color: #ffffff; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px;">
-      <h2 style="margin: 0; font-size: 18px;">🩺 New Patient Appointment Booked</h2>
+      <h2 style="margin: 0; font-size: 18px;">🩺 New Consultation Booking Request</h2>
       <p style="margin: 4px 0 0 0; font-size: 12px; color: #9E7D3B;">Ticket: ${ticketNumber} · ${consultationType === "ONLINE" ? "Online Telehealth" : "Physical Karachi Clinic"}</p>
     </div>
 
@@ -875,7 +883,7 @@ export async function sendAdminAppointmentNotificationEmail(params: AppointmentE
     const { data, error } = await resend.emails.send({
       from: DEFAULT_FROM,
       to: [cleanAdminTo],
-      subject: `[Appointment Alert] ${ticketNumber} - ${fullName} (${appointmentDate || "Today"} ${appointmentSlot || ""})`,
+      subject: `[Booking Alert] ${ticketNumber} - ${fullName} (${appointmentDate || "Today"} ${appointmentSlot || ""})`,
       html: htmlContent,
     });
 
@@ -962,6 +970,12 @@ export async function sendAppointmentStatusEmail(params: {
           </div>`
         : ""
     }
+
+    <p style="font-size: 13px; margin-top: 20px;">
+      <a href="${APP_URL}/track-order?ref=${encodeURIComponent(ticketNumber)}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #14281D; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 8px;">
+        Check Booking Status →
+      </a>
+    </p>
 
     <p style="font-size: 12px; color: #78716C; margin-top: 24px;">
       For any inquiries, please WhatsApp our clinical dispensary at +92 300 8921892.
@@ -1051,6 +1065,11 @@ export async function sendHakimPrescriptionEmail(params: {
         <a href="${APP_URL}/products" target="_blank" style="display: inline-block; padding: 12px 28px; background-color: #14281D; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 8px;">
           Order Authentic Remedies Online →
         </a>
+        <p style="margin: 14px 0 0 0;">
+          <a href="${APP_URL}/track-order?ref=${encodeURIComponent(ticketNumber)}" target="_blank" style="font-size: 12px; color: #14281D; text-decoration: underline;">
+            Track your booking status →
+          </a>
+        </p>
       </div>
     </div>
 

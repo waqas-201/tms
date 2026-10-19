@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import prisma from "./prisma";
 import { sendVerificationEmail, sendPasswordResetEmail } from "./email";
+import { linkGuestRecordsToUser } from "./link-records";
 
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "admin@tameeresehat.com").toLowerCase().trim();
 
@@ -106,6 +107,51 @@ export const auth = betterAuth({
                 role: "user",
               },
             };
+          }
+        },
+        after: async (user) => {
+          try {
+            // Runs after verification updates too — only verified emails may
+            // claim guest bookings.
+            if (user?.id && user?.email && user?.emailVerified) {
+              await linkGuestRecordsToUser({
+                userId: user.id,
+                email: user.email,
+              });
+            }
+          } catch (err) {
+            console.error(
+              "[Retro-link] Failed to attach guest records:",
+              err
+            );
+          }
+        },
+      },
+    },
+    session: {
+      create: {
+        // On every fresh login session, attach any guest bookings that were
+        // made with this account's verified email address.
+        after: async (session) => {
+          try {
+            if (!session?.userId) return;
+
+            const dbUser = await prisma.user.findUnique({
+              where: { id: session.userId },
+              select: { id: true, email: true, emailVerified: true },
+            });
+
+            if (dbUser?.emailVerified && dbUser.email) {
+              await linkGuestRecordsToUser({
+                userId: dbUser.id,
+                email: dbUser.email,
+              });
+            }
+          } catch (err) {
+            console.error(
+              "[Retro-link] Failed to attach guest records on login:",
+              err
+            );
           }
         },
       },

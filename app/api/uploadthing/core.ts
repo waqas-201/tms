@@ -21,6 +21,40 @@ export const ourFileRouter = {
     .onUploadComplete(async ({ metadata, file }) => {
       return { uploadedBy: metadata.userId, url: file.url, ufsUrl: file.ufsUrl };
     }),
+
+  consultationReportUploader: f({
+    image: {
+      maxFileSize: "8MB",
+      maxFileCount: 1,
+    },
+    pdf: {
+      maxFileSize: "16MB",
+      maxFileCount: 1,
+    },
+  })
+    .middleware(async ({ req }) => {
+      let userId = "guest";
+      try {
+        const session = await auth.api.getSession({
+          headers: req.headers,
+        });
+        if (session?.user?.id) {
+          userId = session.user.id;
+        }
+      } catch {
+        // Guest consultations allowed
+      }
+      return { userId };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      return {
+        uploadedBy: metadata.userId,
+        url: file.url,
+        ufsUrl: file.ufsUrl,
+        name: file.name,
+        size: file.size,
+      };
+    }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

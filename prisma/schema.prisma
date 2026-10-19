@@ -250,6 +250,9 @@ model ConsultationRequest {
   status              String   @default("NEW") // "NEW" | "CONFIRMED" | "RESCHEDULED" | "PRESCRIBED" | "COMPLETED" | "CANCELLED"
   hakimNotes          String?
   prescribedTreatment String?
+  reportUrl           String?
+  reportName          String?
+  reportSize          String?
   userId              String?
   user                User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   createdAt           DateTime @default(now())

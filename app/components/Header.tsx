@@ -256,6 +256,7 @@ export default function Header() {
     { name: "Shop", href: "/products", icon: ShoppingBag },
     // Specialties hidden for now per instructions (A/B/C testing)
     // { name: "Specialties", href: "/specialties", icon: Activity },
+    { name: "Hijama", href: "/hijama", icon: Droplets },
     { name: "Consult", href: "/consultation", icon: Stethoscope },
     { name: "About Us", href: "/about", icon: Building2 },
   ];
@@ -541,7 +542,13 @@ export default function Header() {
                   >
                     <span>{link.name}</span>
                     {link.badge && (
-                      <span className="px-1.5 py-0.5 bg-[#c59b27]/15 text-[#8c6a15] text-[9px] font-bold uppercase tracking-wider rounded-md border border-[#c59b27]/30">
+                      <span
+                        className={`px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md border transition-all ${
+                          link.badge === "Sunnah"
+                            ? "bg-[#0f2b1d] text-[#c59b27] border-[#c59b27]/60 shadow-xs"
+                            : "bg-[#c59b27]/15 text-[#8c6a15] border-[#c59b27]/30"
+                        }`}
+                      >
                         {link.badge}
                       </span>
                     )}
@@ -928,10 +935,22 @@ export default function Header() {
                             : "text-[#59534b] hover:bg-white"
                         }`}
                       >
-                        <Icon className="w-4 h-4 text-[#22623a] shrink-0" />
+                        <Icon
+                          className={`w-4 h-4 shrink-0 ${
+                            link.badge === "Sunnah"
+                              ? "text-[#c59b27]"
+                              : "text-[#22623a]"
+                          }`}
+                        />
                         <span className="flex-1">{link.name}</span>
                         {link.badge && (
-                          <span className="px-1.5 py-0.5 bg-[#c59b27]/15 text-[#8c6a15] text-[9px] font-bold uppercase tracking-wider rounded-md border border-[#c59b27]/30">
+                          <span
+                            className={`px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md border transition-all ${
+                              link.badge === "Sunnah"
+                                ? "bg-[#0f2b1d] text-[#c59b27] border-[#c59b27]/60 shadow-xs"
+                                : "bg-[#c59b27]/15 text-[#8c6a15] border-[#c59b27]/30"
+                            }`}
+                          >
                             {link.badge}
                           </span>
                         )}

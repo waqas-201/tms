@@ -15,6 +15,10 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
 
       const section = page.locator("section#specialties");
       await section.scrollIntoViewIfNeeded();
+
+      // Let client hydration attach the controlled input handlers before
+      // typing/clicking; otherwise early interactions are reset by React.
+      await page.waitForTimeout(1500);
       await expect(section).toBeVisible();
 
       // Verify scope pill and main heading
@@ -75,6 +79,10 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
 
       const section = page.locator("section#specialties");
       await section.scrollIntoViewIfNeeded();
+
+      // Let client hydration attach the controlled input handlers before
+      // typing/clicking; otherwise early interactions are reset by React.
+      await page.waitForTimeout(1500);
       const card = section.locator(".bg-white.rounded-3xl.border");
       const input = card.locator("input[placeholder*='Describe your symptoms']");
       await expect(input).toBeVisible();
@@ -105,13 +113,13 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
 
       // Assert universal ConsultationModal opens
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Muhammad Tariq/i,
+        name: /Consult Hakim Tahir Hameed/i,
       });
       await expect(modal).toBeVisible();
 
       // Assert Modal Header credentials
       await expect(
-        modal.getByRole("heading", { name: /Consult Hakim Muhammad Tariq/i })
+        modal.getByRole("heading", { name: /Consult Hakim Tahir Hameed/i })
       ).toBeVisible();
       await expect(
         modal.getByText(/35\+ Years Classical Unani Wisdom/i)
@@ -136,6 +144,10 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
 
       const section = page.locator("section#specialties");
       await section.scrollIntoViewIfNeeded();
+
+      // Let client hydration attach the controlled input handlers before
+      // typing/clicking; otherwise early interactions are reset by React.
+      await page.waitForTimeout(1500);
       const card = section.locator(".bg-white.rounded-3xl.border");
       const input = card.locator("input[placeholder*='Describe your symptoms']");
       await expect(input).toBeVisible();
@@ -167,7 +179,7 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
 
       // Verify universal ConsultationModal opens
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Muhammad Tariq/i,
+        name: /Consult Hakim Tahir Hameed/i,
       });
       await expect(modal).toBeVisible();
 
@@ -190,6 +202,10 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
 
       const section = page.locator("section#specialties");
       await section.scrollIntoViewIfNeeded();
+
+      // Let client hydration attach the controlled input handlers before
+      // typing/clicking; otherwise early interactions are reset by React.
+      await page.waitForTimeout(1500);
       const card = section.locator(".bg-white.rounded-3xl.border");
       const input = card.locator("input[placeholder*='Describe your symptoms']");
       await expect(input).toBeVisible();
@@ -207,15 +223,13 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
       await consultButton.click();
 
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Muhammad Tariq/i,
+        name: /Consult Hakim Tahir Hameed/i,
       });
       await expect(modal).toBeVisible();
 
       // Verify Step 1 indicator is active
-      const step1Tab = modal.getByRole("button", {
-        name: /Symptoms & History/i,
-      });
-      await expect(step1Tab).toBeVisible();
+      await expect(modal.getByText("Step 1 of 3")).toBeVisible();
+      await expect(modal.getByText("Describe Health Concern")).toBeVisible();
 
       // Verify Step 1 features: Attach report button, Quick tags
       await expect(
@@ -224,29 +238,29 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
 
       // Verify quick symptom tags inside modal
       const modalChip = modal.locator("button", {
-        hasText: "Fatty Liver / Body Heat",
+        hasText: "Fatty Liver & Heat",
       });
       await expect(modalChip).toBeVisible();
       await modalChip.click();
 
       const textarea = modal.locator("textarea");
       await expect(textarea).toHaveValue(
-        "Stomach Acidity / Gas, Fatty Liver / Body Heat"
+        "Stomach Acidity / Gas, Fatty Liver & Heat"
       );
 
       // Advance from Step 1 to Step 2 using "Continue to Next Step"
       const continueButton = modal.getByRole("button", {
-        name: /Continue to Next Step/i,
+        name: /Continue to Choose Channel/i,
       });
       await expect(continueButton).toBeVisible();
       await continueButton.click();
 
       // ── Step 2 Assertions ──
       // Verify Step 2 is active
-      await expect(modal.getByText("Choose Consultation Channel:")).toBeVisible();
-      await expect(modal.getByText("Your Clinical Symptoms:")).toBeVisible();
+      await expect(modal.getByText("Choose Consultation Channel")).toBeVisible();
+      await expect(modal.getByText("Health Concern:")).toBeVisible();
       await expect(
-        modal.getByText("Stomach Acidity / Gas, Fatty Liver / Body Heat")
+        modal.getByText("Stomach Acidity / Gas, Fatty Liver & Heat")
       ).toBeVisible();
 
       // Verify WhatsApp channel card option is selected by default
@@ -256,25 +270,29 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
       await expect(whatsappCard).toBeVisible();
       await expect(whatsappCard.getByText("Recommended")).toBeVisible();
 
-      // Verify WhatsApp 1-click launch banner and primary CTA
+      // WhatsApp now creates a real, trackable booking ticket, so the
+      // patient's name and phone are required.
+      await expect(modal.getByText("Your Name")).toBeVisible();
+      await expect(modal.getByText("WhatsApp / Phone")).toBeVisible();
       await expect(
-        modal.getByText("✓ 1-Click WhatsApp Direct Launch")
+        modal.getByRole("button", { name: /Start WhatsApp Consultation/i })
       ).toBeVisible();
 
-      const whatsappLaunchLink = modal.locator("a", {
-        hasText: /Launch WhatsApp Consultation/i,
+      // Direct launch without a ticket stays available and carries symptoms.
+      const whatsappDirectLink = modal.locator("a", {
+        hasText: /launch WhatsApp directly without ticket/i,
       });
-      await expect(whatsappLaunchLink).toBeVisible();
+      await expect(whatsappDirectLink).toBeVisible();
 
       // Assert WhatsApp URL format and payload encoding
-      const href = await whatsappLaunchLink.getAttribute("href");
+      const href = await whatsappDirectLink.getAttribute("href");
       expect(href).not.toBeNull();
       expect(href).toContain("https://wa.me/");
       expect(href).toContain(encodeURIComponent("Stomach Acidity / Gas"));
 
       // Verify "Back to Step 1" button works properly
       const backButton = modal.getByRole("button", {
-        name: /Back to Step 1 \(Edit Symptoms\)/i,
+        name: /Back to Step 1 \(Edit Concern\)/i,
       });
       await expect(backButton).toBeVisible();
       await backButton.click();
@@ -282,7 +300,7 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
       // Assert we are back in Step 1 with preserved symptoms
       await expect(modal.locator("textarea")).toBeVisible();
       await expect(modal.locator("textarea")).toHaveValue(
-        "Stomach Acidity / Gas, Fatty Liver / Body Heat"
+        "Stomach Acidity / Gas, Fatty Liver & Heat"
       );
 
       // Close modal
@@ -294,11 +312,18 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
     test("Full modal flow: Step 2 channel switch to In-Person Karachi Clinic Visit appointment booking", async ({
       page,
     }) => {
+      // Live clinic availability hits the database; allow for cold-start latency.
+      test.setTimeout(120000);
+
       await page.goto("/");
       await page.waitForLoadState("domcontentloaded");
 
       const section = page.locator("section#specialties");
       await section.scrollIntoViewIfNeeded();
+
+      // Let client hydration attach the controlled input handlers before
+      // typing/clicking; otherwise early interactions are reset by React.
+      await page.waitForTimeout(1500);
       const card = section.locator(".bg-white.rounded-3xl.border");
       const input = card.locator("input[placeholder*='Describe your symptoms']");
       await expect(input).toBeVisible();
@@ -316,13 +341,13 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
       await consultButton.click();
 
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Muhammad Tariq/i,
+        name: /Consult Hakim Tahir Hameed/i,
       });
       await expect(modal).toBeVisible();
 
       // Continue to Step 2
       const continueButton = modal.getByRole("button", {
-        name: /Continue to Next Step/i,
+        name: /Continue to Choose Channel/i,
       });
       await continueButton.click();
 
@@ -333,40 +358,73 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
       await expect(clinicCard).toBeVisible();
       await expect(clinicCard.getByText("Karachi Matab")).toBeVisible();
 
-      // Click to select Karachi Clinic Visit
+      // Click to select Karachi Clinic Visit, then continue to Step 3
       await clinicCard.click();
 
+      const continueToClinic = modal.getByRole("button", {
+        name: /Continue to Clinic Reservation/i,
+      });
+      await expect(continueToClinic).toBeVisible();
+      await continueToClinic.click();
+
       // Assert appointment reservation form is displayed
+      await expect(modal.getByText("Step 3 of 3").first()).toBeVisible();
       await expect(modal.getByText("Patient Name")).toBeVisible();
+      await expect(modal.getByText("Email Address")).toBeVisible();
       await expect(modal.getByText("WhatsApp / Phone")).toBeVisible();
-      await expect(modal.getByText("Preferred Day")).toBeVisible();
+      await expect(modal.getByText("Appointment Date")).toBeVisible();
       await expect(modal.getByText("Time Slot")).toBeVisible();
 
       // Verify physical clinic location note
       await expect(
-        modal.getByText(/Korangi Crossing Rd, Karachi · Pulse diagnosis \(Nabz\) on-site\./i)
+        modal.getByText(
+          /Matab Tameer-e-Sehat · Plot L-41 Korangi Crossing Rd, Karachi/i
+        )
       ).toBeVisible();
 
       // Fill appointment fields
-      const nameInput = modal.locator("input[placeholder*='Tariq Mehmood']");
+      const nameInput = modal.locator("input[placeholder*='Tahir Hameed']");
       await expect(nameInput).toBeVisible();
       await nameInput.fill("Muhammad Farooq");
+
+      const emailInput = modal.locator("input[placeholder*='you@example.com']");
+      await expect(emailInput).toBeVisible();
+      await emailInput.fill("farooq@example.com");
 
       const phoneInput = modal.locator("input[placeholder*='0300-1234567']");
       await expect(phoneInput).toBeVisible();
       await phoneInput.fill("0300-9876543");
 
-      // Verify day and slot selects
-      const selects = modal.locator("select");
-      await expect(selects).toHaveCount(2);
+      // Pick the next non-Sunday date, then the first available slot
+      const nextOpenDate = (() => {
+        const d = new Date();
+        d.setDate(d.getDate() + 1);
+        while (d.getDay() === 0) d.setDate(d.getDate() + 1);
+        const pad = (n: number) => String(n).padStart(2, "0");
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+      })();
 
-      // Select 'Tomorrow' and 'Evening' slot
-      await selects.nth(0).selectOption("Tomorrow");
-      await selects.nth(1).selectOption("Evening (05:00 PM - 09:00 PM)");
+      const dateInput = modal.locator('input[type="date"]');
+      await expect(dateInput).toBeVisible();
+      await dateInput.fill(nextOpenDate);
 
-      // Verify "Confirm Clinic Reservation" submit button is visible and active
+      const slotSelect = modal.locator("select").first();
+      await expect(slotSelect).toBeEnabled({ timeout: 60000 });
+
+      const firstAvailableSlot = await slotSelect
+        .locator("option:not([disabled])")
+        .evaluateAll((options) => {
+          const usable = options.find(
+            (option) => (option as HTMLOptionElement).value !== ""
+          );
+          return usable ? (usable as HTMLOptionElement).value : "";
+        });
+      expect(firstAvailableSlot).not.toBe("");
+      await slotSelect.selectOption(firstAvailableSlot);
+
+      // Verify "Request Clinic Appointment" submit button is visible and active
       const confirmButton = modal.getByRole("button", {
-        name: /Confirm Clinic Reservation/i,
+        name: /Request Clinic Appointment/i,
       });
       await expect(confirmButton).toBeVisible();
       await expect(confirmButton).toBeEnabled();
@@ -392,6 +450,10 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
 
       const section = page.locator("section#specialties");
       await section.scrollIntoViewIfNeeded();
+
+      // Let client hydration attach the controlled input handlers before
+      // typing/clicking; otherwise early interactions are reset by React.
+      await page.waitForTimeout(1500);
       await expect(section).toBeVisible();
 
       // Card renders cleanly within mobile viewport
@@ -416,7 +478,7 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
 
       // Modal appears
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Muhammad Tariq/i,
+        name: /Consult Hakim Tahir Hameed/i,
       });
       await expect(modal).toBeVisible();
 
@@ -427,7 +489,7 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
 
       // Advance to Step 2
       const continueButton = modal.getByRole("button", {
-        name: /Continue to Next Step/i,
+        name: /Continue to Choose Channel/i,
       });
       await continueButton.click();
 
@@ -442,11 +504,11 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
       await expect(whatsappCard).toBeVisible();
       await expect(clinicCard).toBeVisible();
 
-      // Verify WhatsApp launch CTA is clickable
-      const whatsappLaunchLink = modal.locator("a", {
-        hasText: /Launch WhatsApp Consultation/i,
+      // Verify WhatsApp launch CTA is visible
+      const whatsappLaunchButton = modal.getByRole("button", {
+        name: /Start WhatsApp Consultation/i,
       });
-      await expect(whatsappLaunchLink).toBeVisible();
+      await expect(whatsappLaunchButton).toBeVisible();
 
       // Close modal on mobile
       const closeButton = modal.getByRole("button", { name: /Close modal/i });

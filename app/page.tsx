@@ -1,6 +1,7 @@
 import React from "react";
 import HeroSection from "@/app/components/HeroSection";
 import ClinicalSpecialtiesSection from "@/app/components/ClinicalSpecialtiesSection";
+import HijamaHeroWidget from "@/app/components/HijamaHeroWidget";
 import PrescribedRemediesSection from "@/app/components/PrescribedRemediesSection";
 import HakimAuthoritySection from "@/app/components/HakimAuthoritySection";
 import CommunityReviewsSection from "@/app/components/CommunityReviewsSection";
@@ -15,7 +16,10 @@ export default function Home() {
       {/* 2. Clinical Specialties & What We Treat (6 core conditions, Unani root causes) */}
       <ClinicalSpecialtiesSection />
 
-      {/* 3. Curated Physician-Formulated Remedies (Live apothecary dispensary grid) */}
+      {/* 3. Sunnah Hijama & Cupping Therapy Hero Feature */}
+      <HijamaHeroWidget />
+
+      {/* 4. Curated Physician-Formulated Remedies (Live apothecary dispensary grid) */}
       <PrescribedRemediesSection />
 
       {/* 4. Hakim Authority & Physical Karachi Clinic Visit (Lineage, standards & Matab details) */}

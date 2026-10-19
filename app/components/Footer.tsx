@@ -179,6 +179,14 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/hijama" className="hover:text-white transition-colors flex items-center gap-1.5">
+                  <span>Sunnah Hijama (Cupping)</span>
+                  <span className="px-1.5 py-0.2 rounded text-[9px] bg-[#c59b27] text-[#0d2818] font-bold">
+                    Sunnah
+                  </span>
+                </Link>
+              </li>
+              <li>
                 <Link href="/products" className="hover:text-white transition-colors">
                   Shop Remedies
                 </Link>

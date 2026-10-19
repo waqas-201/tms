@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { createPortal } from "react-dom";
+import Link from "next/link";
 import { CLINIC_INFO } from "@/app/data/products";
 import { useSession } from "@/lib/auth-client";
 import ConsultationContext, {
@@ -25,8 +26,21 @@ import {
   Clock,
   MapPin,
   User,
+  Mail,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUploadThing } from "@/lib/uploadthing";
+
+export interface AttachedReportFile {
+  name: string;
+  size: string;
+  type: string;
+  url?: string;
+  isUploading?: boolean;
+  uploadError?: string | null;
+  previewUrl?: string;
+  file?: File;
+}
 
 export interface ConsultationModalProps {
   isOpen?: boolean;
@@ -43,6 +57,11 @@ const QUICK_SYMPTOM_TAGS = [
   "Vitality & Energy",
   "Hair Fall & Scalp",
 ];
+
+function toDateInputValue(date: Date) {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
 
 export default function ConsultationModal({
   isOpen: propIsOpen,
@@ -80,23 +99,65 @@ export default function ConsultationModal({
   const [symptomText, setSymptomText] = useState(resolvedInitialMessage);
 
   // ── Report / Photo File Attachment State ──
-  const [attachedFile, setAttachedFile] = useState<{
-    name: string;
-    size: string;
-    type: string;
-    previewUrl?: string;
-  } | null>(null);
+  const [attachedFile, setAttachedFile] =
+    useState<AttachedReportFile | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const { startUpload } = useUploadThing("consultationReportUploader", {
+    onClientUploadComplete: (res) => {
+      if (res && res.length > 0) {
+        const uploaded = res[0];
+        const finalUrl = (uploaded as any).ufsUrl || uploaded.url;
+        setAttachedFile((prev) =>
+          prev
+            ? {
+                ...prev,
+                url: finalUrl,
+                isUploading: false,
+                uploadError: null,
+              }
+            : null
+        );
+      }
+    },
+    onUploadError: (err: Error) => {
+      setAttachedFile((prev) =>
+        prev
+          ? {
+              ...prev,
+              isUploading: false,
+              uploadError: err?.message || "Upload failed. You can retry.",
+            }
+          : null
+      );
+    },
+  });
 
   // ── Clinic physical appointment fields (Step 3) ──
   const [clinicName, setClinicName] = useState(sessionData?.user?.name || "");
   const [clinicPhone, setClinicPhone] = useState(
     (sessionData?.user as any)?.phone || ""
   );
-  const [clinicDate, setClinicDate] = useState("Tomorrow");
-  const [clinicSlot, setClinicSlot] = useState(
-    "Evening (05:00 PM - 09:00 PM)"
+  const [clinicEmail, setClinicEmail] = useState(
+    sessionData?.user?.email || ""
   );
+  const [clinicDate, setClinicDate] = useState(() => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return toDateInputValue(tomorrow);
+  });
+  const [clinicSlot, setClinicSlot] = useState("");
+  const [clinicAvailability, setClinicAvailability] = useState<any | null>(null);
+  const [availabilityLoading, setAvailabilityLoading] = useState(false);
+  const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+
+  // ── WhatsApp path patient identity (Step 2) ──
+  const [waName, setWaName] = useState(sessionData?.user?.name || "");
+  const [waPhone, setWaPhone] = useState(
+    (sessionData?.user as any)?.phone || ""
+  );
+  const [waEmail, setWaEmail] = useState(sessionData?.user?.email || "");
+
   const [submitting, setSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState<any | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -128,7 +189,63 @@ export default function ConsultationModal({
     if ((sessionData?.user as any)?.phone && !clinicPhone) {
       setClinicPhone((sessionData.user as any).phone);
     }
-  }, [sessionData, clinicName, clinicPhone]);
+    if (sessionData?.user?.name && !waName) {
+      setWaName(sessionData.user.name);
+    }
+    if ((sessionData?.user as any)?.phone && !waPhone) {
+      setWaPhone((sessionData.user as any).phone);
+    }
+    if (sessionData?.user?.email && !clinicEmail) {
+      setClinicEmail(sessionData.user.email);
+    }
+    if (sessionData?.user?.email && !waEmail) {
+      setWaEmail(sessionData.user.email);
+    }
+  }, [sessionData, clinicName, clinicPhone, waName, waPhone, clinicEmail, waEmail]);
+
+  // Load real slot availability for the selected clinic date
+  useEffect(() => {
+    if (!isOpen || step !== 3 || !clinicDate) return;
+    let cancelled = false;
+
+    setAvailabilityLoading(true);
+    setAvailabilityError(null);
+
+    fetch(`/api/consultations/availability?date=${encodeURIComponent(clinicDate)}`)
+      .then(async (res) => {
+        const json = await res.json();
+        if (!res.ok || !json.success) {
+          throw new Error(json.error || "Could not load clinic availability.");
+        }
+        return json.data;
+      })
+      .then((data) => {
+        if (cancelled) return;
+        setClinicAvailability(data);
+        const availableSlots = (data.slots || []).filter(
+          (slot: any) => slot.available
+        );
+        setClinicSlot((previous) =>
+          availableSlots.some((slot: any) => slot.slot === previous)
+            ? previous
+            : availableSlots[0]?.slot || ""
+        );
+      })
+      .catch((err: any) => {
+        if (cancelled) return;
+        setClinicAvailability(null);
+        setAvailabilityError(
+          err.message || "Could not load clinic availability."
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setAvailabilityLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isOpen, step, clinicDate]);
 
   // Escape key listener to dismiss
   useEffect(() => {
@@ -153,7 +270,7 @@ export default function ConsultationModal({
     };
   }, [isOpen]);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -172,7 +289,84 @@ export default function ConsultationModal({
       size: sizeFormatted,
       type: file.type,
       previewUrl,
+      isUploading: true,
+      uploadError: null,
+      file,
     });
+
+    try {
+      const res = await startUpload([file]);
+      if (res && res.length > 0) {
+        const uploaded = res[0];
+        const finalUrl = (uploaded as any).ufsUrl || uploaded.url;
+        setAttachedFile((prev) =>
+          prev
+            ? {
+                ...prev,
+                url: finalUrl,
+                isUploading: false,
+                uploadError: null,
+              }
+            : null
+        );
+      }
+    } catch (err: any) {
+      setAttachedFile((prev) =>
+        prev
+          ? {
+              ...prev,
+              isUploading: false,
+              uploadError:
+                err?.message || "Failed to upload to server. You can retry.",
+            }
+          : null
+      );
+    }
+  };
+
+  const retryUpload = async () => {
+    if (!attachedFile?.file) {
+      fileInputRef.current?.click();
+      return;
+    }
+
+    setAttachedFile((prev) =>
+      prev
+        ? {
+            ...prev,
+            isUploading: true,
+            uploadError: null,
+          }
+        : null
+    );
+
+    try {
+      const res = await startUpload([attachedFile.file]);
+      if (res && res.length > 0) {
+        const uploaded = res[0];
+        const finalUrl = (uploaded as any).ufsUrl || uploaded.url;
+        setAttachedFile((prev) =>
+          prev
+            ? {
+                ...prev,
+                url: finalUrl,
+                isUploading: false,
+                uploadError: null,
+              }
+            : null
+        );
+      }
+    } catch (err: any) {
+      setAttachedFile((prev) =>
+        prev
+          ? {
+              ...prev,
+              isUploading: false,
+              uploadError: err?.message || "Failed to upload file.",
+            }
+          : null
+      );
+    }
   };
 
   const removeAttachedFile = () => {
@@ -201,9 +395,26 @@ export default function ConsultationModal({
     }
   };
 
-  const getWhatsAppUrl = () => {
+  const getWhatsAppUrl = (ticketOverride?: string) => {
     let message =
       "*Assalam-o-Alaikum Hakim Tahir Hameed Sahib (Tameer-e-Sehat Consultation)*\n\n";
+
+    const patientName =
+      waName.trim() ||
+      (sessionData?.user?.name && sessionData.user.name !== "WhatsApp Patient"
+        ? sessionData.user.name
+        : "");
+    const activeTicket = ticketOverride || bookingSuccess?.ticketNumber;
+
+    if (patientName) {
+      message += `*Patient:* ${patientName}\n`;
+    }
+    if (activeTicket) {
+      message += `*Booking Ticket:* ${activeTicket}\n`;
+    }
+    if (patientName || activeTicket) {
+      message += "\n";
+    }
 
     if (symptomText.trim()) {
       message += `*My Health Concern / Notes:*\n${symptomText.trim()}\n\n`;
@@ -212,7 +423,11 @@ export default function ConsultationModal({
     }
 
     if (attachedFile) {
-      message += `📄 *Medical Report/Photo:* ${attachedFile.name} (${attachedFile.size}) - (Attaching file in WhatsApp)\n\n`;
+      if (attachedFile.url) {
+        message += `📄 *Attached Medical Report:* ${attachedFile.name} (${attachedFile.size})\n🔗 *Document Link:* ${attachedFile.url}\n\n`;
+      } else {
+        message += `📄 *Medical Report/Photo:* ${attachedFile.name} (${attachedFile.size}) - (Attaching file in WhatsApp)\n\n`;
+      }
     }
 
     message += `_Please review and provide your authentic Unani guidance._`;
@@ -222,39 +437,143 @@ export default function ConsultationModal({
     )}`;
   };
 
+  const handleWhatsAppSubmit = async () => {
+    setErrorMessage(null);
+
+    // If report is still uploading, notify user
+    if (attachedFile?.isUploading) {
+      setErrorMessage(
+        "Please wait a moment while your report finishes uploading to generate the link."
+      );
+      return;
+    }
+
+    const resolvedName =
+      waName.trim() || sessionData?.user?.name?.trim() || "";
+    const resolvedPhone =
+      waPhone.trim() || (sessionData?.user as any)?.phone?.trim() || "";
+
+    if (!resolvedName) {
+      setErrorMessage(
+        "Please enter your name so we can create your booking ticket."
+      );
+      return;
+    }
+
+    if (resolvedPhone.replace(/\D/g, "").length < 7) {
+      setErrorMessage(
+        "Please enter a valid WhatsApp / phone number so the clinic can confirm your booking."
+      );
+      return;
+    }
+
+    setSubmitting(true);
+
+    try {
+      const patientName = resolvedName;
+      const patientPhone = resolvedPhone;
+
+      const res = await fetch("/api/consultations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: patientName,
+          phone: patientPhone,
+          email: waEmail.trim() || undefined,
+          city: (sessionData?.user as any)?.city || "Pakistan",
+          primarySymptoms:
+            symptomText.trim() ||
+            "General Health Consultation & Herbal Assessment",
+          channel: "WHATSAPP",
+          consultationType: "ONLINE",
+          preferredContact: "WHATSAPP",
+          duration: "Recent / Ongoing",
+          reportUrl: attachedFile?.url || undefined,
+          reportName: attachedFile?.name || undefined,
+          reportSize: attachedFile?.size || undefined,
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Could not create your booking ticket.");
+      }
+
+      setBookingSuccess(json.data);
+
+      // Open WhatsApp directly with the new ticket
+      const targetUrl = getWhatsAppUrl(json.data?.ticketNumber);
+      window.open(targetUrl, "_blank", "noopener,noreferrer");
+    } catch (err: any) {
+      setErrorMessage(
+        err.message ||
+          "Could not create your booking ticket. You can still WhatsApp us directly."
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handlePhysicalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
     setErrorMessage(null);
+
+    if (!clinicName.trim()) {
+      setErrorMessage("Please enter your name for the clinic reservation.");
+      return;
+    }
+
+    if (!clinicEmail.trim()) {
+      setErrorMessage(
+        "Please enter your email address for appointment confirmation."
+      );
+      return;
+    }
+
+    if (!clinicSlot) {
+      setErrorMessage(
+        "Please select an available appointment slot for your clinic visit."
+      );
+      return;
+    }
+
+    setSubmitting(true);
 
     try {
       const res = await fetch("/api/consultations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          fullName: clinicName,
-          phone: clinicPhone,
+          fullName: clinicName.trim(),
+          phone: clinicPhone.trim() || undefined,
+          email: clinicEmail.trim(),
           city: "Karachi",
-          primarySymptoms: `[In-Person Karachi Clinic Booking - ${clinicDate} ${clinicSlot}] Details: ${
-            symptomText.trim() || "General Consultation"
-          }`,
+          primarySymptoms:
+            symptomText.trim() || "General In-Person Consultation",
           age: 35,
           gender: "Not Specified",
           duration: "New Visit",
-          preferredContact: "PHONE",
+          channel: "EMAIL",
+          consultationType: "IN_PERSON",
+          appointmentDate: clinicDate,
+          appointmentSlot: clinicSlot,
+          preferredContact: "EMAIL",
+          reportUrl: attachedFile?.url || undefined,
+          reportName: attachedFile?.name || undefined,
+          reportSize: attachedFile?.size || undefined,
         }),
       });
 
       const json = await res.json();
       if (!res.ok || !json.success) {
-        throw new Error(json.error || "Failed to reserve slot.");
+        throw new Error(json.error || "Failed to submit booking request.");
       }
 
       setBookingSuccess(json.data);
     } catch (err: any) {
       setErrorMessage(
         err.message ||
-          "Could not reserve clinic slot. Please call or WhatsApp us."
+          "Could not submit your booking request. Please call or WhatsApp us."
       );
     } finally {
       setSubmitting(false);
@@ -372,7 +691,7 @@ export default function ConsultationModal({
             </div>
 
             {/* Modal Body - Designed to fit comfortably in a single view without scrolling */}
-            <div data-lenis-prevent className="p-4 sm:p-5">
+            <div data-lenis-prevent className="p-4 sm:p-5 max-h-[calc(100vh-11rem)] overflow-y-auto">
               {step === 1 && (
                 /* ═══════════════════════════════════════════════════════
                    STEP 1: WhatsApp-Style Integrated Input
@@ -395,24 +714,64 @@ export default function ConsultationModal({
 
                       {/* Attached Medical Report Chip (Inside Box) */}
                       {attachedFile && (
-                        <div className="px-3 pb-2 pt-0.5 flex flex-wrap gap-1.5">
-                          <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-[#fdfbf7] rounded-lg border border-[#e6dfd5] text-xs text-[#59534b]">
-                            <FileText className="w-3 h-3 text-[#8c6a15] shrink-0" />
-                            <span className="font-medium text-[11px] truncate max-w-[130px]">
+                        <div className="px-3 pb-2 pt-0.5 flex flex-col gap-1">
+                          <div
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs max-w-full ${
+                              attachedFile.uploadError
+                                ? "bg-red-50 border-red-200 text-red-700"
+                                : attachedFile.url
+                                ? "bg-emerald-50 border-emerald-200 text-emerald-800"
+                                : "bg-[#fdfbf7] border-[#e6dfd5] text-[#59534b]"
+                            }`}
+                          >
+                            {attachedFile.isUploading ? (
+                              <Loader2 className="w-3.5 h-3.5 text-[#22623a] animate-spin shrink-0" />
+                            ) : attachedFile.uploadError ? (
+                              <AlertCircle className="w-3.5 h-3.5 text-red-600 shrink-0" />
+                            ) : attachedFile.url ? (
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                            ) : (
+                              <FileText className="w-3.5 h-3.5 text-[#8c6a15] shrink-0" />
+                            )}
+                            <span className="font-medium text-[11px] truncate max-w-[140px]">
                               {attachedFile.name}
                             </span>
-                            <span className="text-[10px] text-[#8c827a]">
+                            <span className="text-[10px] opacity-75 shrink-0">
                               ({attachedFile.size})
                             </span>
+                            {attachedFile.isUploading && (
+                              <span className="text-[10px] font-semibold text-[#22623a] animate-pulse shrink-0">
+                                Uploading...
+                              </span>
+                            )}
+                            {attachedFile.url && (
+                              <span className="text-[10px] font-semibold text-emerald-700 shrink-0">
+                                Ready
+                              </span>
+                            )}
+                            {attachedFile.uploadError && (
+                              <button
+                                type="button"
+                                onClick={retryUpload}
+                                className="text-[10px] underline font-bold text-red-700 hover:text-red-900 cursor-pointer ml-1 shrink-0"
+                              >
+                                Retry
+                              </button>
+                            )}
                             <button
                               type="button"
                               onClick={removeAttachedFile}
-                              className="p-0.5 text-gray-400 hover:text-red-600 cursor-pointer"
+                              className="p-0.5 text-gray-400 hover:text-red-600 cursor-pointer ml-auto shrink-0"
                               title="Remove file"
                             >
-                              <X className="w-3 h-3" />
+                              <X className="w-3.5 h-3.5" />
                             </button>
                           </div>
+                          {attachedFile.uploadError && (
+                            <span className="text-[10px] text-red-600 px-1">
+                              {attachedFile.uploadError} (You can still chat directly on WhatsApp.)
+                            </span>
+                          )}
                         </div>
                       )}
 
@@ -511,8 +870,36 @@ export default function ConsultationModal({
                       </p>
                       <div className="flex items-center gap-2 text-[10px] text-[#6a6660]">
                         {attachedFile && (
-                          <span className="inline-flex items-center gap-1 text-[#8c6a15] font-semibold">
-                            <FileText className="w-3 h-3" /> {attachedFile.name}
+                          <span
+                            className={`inline-flex items-center gap-1 font-semibold ${
+                              attachedFile.url
+                                ? "text-emerald-700"
+                                : attachedFile.uploadError
+                                ? "text-red-600"
+                                : "text-[#8c6a15]"
+                            }`}
+                          >
+                            {attachedFile.isUploading ? (
+                              <Loader2 className="w-3 h-3 animate-spin text-[#22623a]" />
+                            ) : attachedFile.url ? (
+                              <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                            ) : attachedFile.uploadError ? (
+                              <AlertCircle className="w-3 h-3 text-red-600" />
+                            ) : (
+                              <FileText className="w-3 h-3" />
+                            )}
+                            <span className="truncate max-w-[150px]">
+                              {attachedFile.name}
+                            </span>
+                            <span>
+                              {attachedFile.url
+                                ? "(Uploaded)"
+                                : attachedFile.isUploading
+                                ? "(Uploading...)"
+                                : attachedFile.uploadError
+                                ? "(Upload Error)"
+                                : ""}
+                            </span>
                           </span>
                         )}
                       </div>
@@ -539,6 +926,7 @@ export default function ConsultationModal({
                         onClick={() => {
                           setChannel("WHATSAPP");
                           setBookingSuccess(null);
+                          setErrorMessage(null);
                         }}
                         className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between ${
                           channel === "WHATSAPP"
@@ -572,6 +960,7 @@ export default function ConsultationModal({
                         onClick={() => {
                           setChannel("PHYSICAL");
                           setBookingSuccess(null);
+                          setErrorMessage(null);
                         }}
                         className={`p-3 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between ${
                           channel === "PHYSICAL"
@@ -604,22 +993,174 @@ export default function ConsultationModal({
                   {/* Channel Action */}
                   <div className="pt-1">
                     {channel === "WHATSAPP" ? (
-                      <div className="space-y-1.5">
-                        <a
-                          href={getWhatsAppUrl()}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={handleClose}
-                          className="w-full h-11 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 group cursor-pointer"
-                        >
-                          <MessageCircle className="w-5 h-5 fill-current" />
-                          <span>Launch WhatsApp Consultation</span>
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </a>
-                        <p className="text-[10px] text-center text-[#59534b]">
-                          Symptoms and attachment memos are pre-typed automatically. 1-click connect!
-                        </p>
-                      </div>
+                      bookingSuccess ? (
+                        <div className="space-y-2.5">
+                          <div className="text-center space-y-2.5 py-3 bg-[#eef7f1] rounded-2xl border border-[#cde4d6] p-4">
+                            <div className="w-10 h-10 rounded-full bg-[#22623a] text-white flex items-center justify-center mx-auto">
+                              <CheckCircle2 className="w-6 h-6" />
+                            </div>
+                            <h4 className="font-serif text-base sm:text-lg font-bold text-[#22623a]">
+                              Booking Request Received
+                            </h4>
+                            <p className="text-xs text-[#59534b]">
+                              Ticket Number:{" "}
+                              <strong className="font-mono text-[#22623a] bg-white px-2 py-0.5 rounded border border-[#cde4d6]">
+                                {bookingSuccess.ticketNumber}
+                              </strong>
+                            </p>
+                            <p className="text-[11px] text-[#6a6660] max-w-xs mx-auto leading-relaxed">
+                              Status:{" "}
+                              <strong className="text-[#22623a]">
+                                Awaiting confirmation
+                              </strong>{" "}
+                              — Hakim Tahir Hameed&apos;s team will reply on
+                              WhatsApp. Keep your ticket to check updates
+                              anytime.
+                            </p>
+                            <a
+                              href={getWhatsAppUrl()}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={handleClose}
+                              className="w-full h-10 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2"
+                            >
+                              <MessageCircle className="w-4 h-4 fill-current" />
+                              <span>Open WhatsApp Consultation</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </a>
+                            <div className="flex items-center justify-center gap-3 text-[11px] font-semibold">
+                              <Link
+                                href={`/track-order?ref=${encodeURIComponent(
+                                  bookingSuccess.ticketNumber
+                                )}`}
+                                onClick={handleClose}
+                                className="text-[#22623a] underline underline-offset-2 hover:text-[#1a4d2e]"
+                              >
+                                Track this booking
+                              </Link>
+                              {sessionData?.user && (
+                                <Link
+                                  href="/account"
+                                  onClick={handleClose}
+                                  className="text-[#22623a] underline underline-offset-2 hover:text-[#1a4d2e]"
+                                >
+                                  View in My Account
+                                </Link>
+                              )}
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleClose}
+                            className="w-full h-9 bg-[#f4eee5] hover:bg-[#e6dfd5] text-[#59534b] text-xs font-bold rounded-xl transition-colors cursor-pointer"
+                          >
+                            Done / Close
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {errorMessage && (
+                            <div className="p-2 bg-red-50 border border-red-200 rounded-xl text-[11px] text-red-700 flex items-center gap-2">
+                              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                              <span>{errorMessage}</span>
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            <div className="space-y-0.5">
+                              <label className="text-[11px] font-semibold text-[#1a1816]">
+                                Your Name{" "}
+                                <span className="text-red-500">*</span>
+                              </label>
+                              <div className="relative">
+                                <User className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                <input
+                                  type="text"
+                                  value={waName}
+                                  onChange={(e) => setWaName(e.target.value)}
+                                  placeholder="e.g. Ahmed Khan"
+                                  className="w-full text-xs pl-8 pr-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-0.5">
+                              <label className="text-[11px] font-semibold text-[#1a1816]">
+                                WhatsApp / Phone{" "}
+                                <span className="text-red-500">*</span>
+                              </label>
+                              <div className="relative">
+                                <Phone className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                <input
+                                  type="tel"
+                                  value={waPhone}
+                                  onChange={(e) => setWaPhone(e.target.value)}
+                                  placeholder="0300-1234567"
+                                  className="w-full text-xs pl-8 pr-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-0.5">
+                            <label className="text-[11px] font-semibold text-[#1a1816]">
+                              Email{" "}
+                              <span className="text-[#8c827a] font-normal">
+                                (optional — for confirmations)
+                              </span>
+                            </label>
+                            <div className="relative">
+                              <Mail className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              <input
+                                type="email"
+                                value={waEmail}
+                                onChange={(e) => setWaEmail(e.target.value)}
+                                placeholder="you@example.com"
+                                className="w-full text-xs pl-8 pr-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                              />
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={handleWhatsAppSubmit}
+                            disabled={submitting}
+                            className="w-full h-11 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+                          >
+                            {submitting ? (
+                              <>
+                                <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                                <span>Creating booking ticket...</span>
+                              </>
+                            ) : (
+                              <>
+                                <MessageCircle className="w-4 h-4 fill-current" />
+                                <span>Start WhatsApp Consultation</span>
+                                <ArrowRight className="w-4 h-4" />
+                              </>
+                            )}
+                          </button>
+
+                          <p className="text-[10px] text-center text-[#6a6660] leading-relaxed">
+                            We save a ticket so you can track this consultation
+                            anytime. Your symptoms are pre-typed into WhatsApp
+                            automatically.
+                          </p>
+
+                          <div className="flex items-center justify-center pt-1 border-t border-[#f4eee5]">
+                            <a
+                              href={getWhatsAppUrl()}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={handleClose}
+                              className="text-[11px] text-[#22623a] hover:underline font-semibold inline-flex items-center gap-1 cursor-pointer"
+                            >
+                              <span>Or launch WhatsApp directly without ticket</span>
+                              <ArrowRight className="w-3 h-3" />
+                            </a>
+                          </div>
+                        </div>
+                      )
                     ) : (
                       <button
                         type="button"
@@ -633,20 +1174,26 @@ export default function ConsultationModal({
                   </div>
 
                   {/* Back Navigation Button */}
-                  <div className="pt-2 border-t border-[#f4eee5] flex items-center justify-between">
-                    <button
-                      type="button"
-                      onClick={() => setStep(1)}
-                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#59534b] hover:text-[#1a1816] transition-colors cursor-pointer"
-                    >
-                      <ArrowLeft className="w-3.5 h-3.5" />
-                      <span>Back to Step 1 (Edit Concern)</span>
-                    </button>
+                  {!(channel === "WHATSAPP" && bookingSuccess) && (
+                    <div className="pt-2 border-t border-[#f4eee5] flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setBookingSuccess(null);
+                          setErrorMessage(null);
+                          setStep(1);
+                        }}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#59534b] hover:text-[#1a1816] transition-colors cursor-pointer"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>Back to Step 1 (Edit Concern)</span>
+                      </button>
 
-                    <span className="text-[10px] text-[#8c827a]">
-                      Step 2 of 3
-                    </span>
-                  </div>
+                      <span className="text-[10px] text-[#8c827a]">
+                        Step 2 of 3
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -656,22 +1203,61 @@ export default function ConsultationModal({
                    ═══════════════════════════════════════════════════════ */
                 <div className="space-y-3">
                   {bookingSuccess ? (
-                    <div className="text-center space-y-2.5 py-3 bg-[#eef7f1] rounded-2xl border border-[#cde4d6] p-4">
-                      <div className="w-10 h-10 rounded-full bg-[#22623a] text-white flex items-center justify-center mx-auto">
-                        <CheckCircle2 className="w-6 h-6" />
+                    <div className="space-y-2.5">
+                      <div className="text-center space-y-2.5 py-3 bg-[#eef7f1] rounded-2xl border border-[#cde4d6] p-4">
+                        <div className="w-10 h-10 rounded-full bg-[#22623a] text-white flex items-center justify-center mx-auto">
+                          <CheckCircle2 className="w-6 h-6" />
+                        </div>
+                        <h4 className="font-serif text-base sm:text-lg font-bold text-[#22623a]">
+                          Booking Request Received
+                        </h4>
+                        <p className="text-xs text-[#59534b]">
+                          Ticket Number:{" "}
+                          <strong className="font-mono text-[#22623a] bg-white px-2 py-0.5 rounded border border-[#cde4d6]">
+                            {bookingSuccess.ticketNumber}
+                          </strong>
+                        </p>
+                        <p className="text-[11px] text-[#6a6660] max-w-xs mx-auto leading-relaxed">
+                          Status:{" "}
+                          <strong className="text-[#22623a]">
+                            Awaiting confirmation
+                          </strong>{" "}
+                          — Hakim Tahir Hameed&apos;s team will confirm your
+                          slot on WhatsApp or phone. Keep your ticket to check
+                          updates anytime.
+                        </p>
+                        {bookingSuccess.appointmentDate && (
+                          <p className="text-[11px] text-[#44403c] bg-white border border-[#e6dfd5] rounded-lg px-2.5 py-1.5 inline-flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5 text-[#22623a] shrink-0" />
+                            <span>
+                              {bookingSuccess.appointmentDate}
+                              {bookingSuccess.appointmentSlot
+                                ? ` · ${bookingSuccess.appointmentSlot}`
+                                : ""}
+                            </span>
+                          </p>
+                        )}
+                        <div className="flex items-center justify-center gap-3 text-[11px] font-semibold">
+                          <Link
+                            href={`/track-order?ref=${encodeURIComponent(
+                              bookingSuccess.ticketNumber
+                            )}`}
+                            onClick={handleClose}
+                            className="text-[#22623a] underline underline-offset-2 hover:text-[#1a4d2e]"
+                          >
+                            Track this booking
+                          </Link>
+                          {sessionData?.user && (
+                            <Link
+                              href="/account"
+                              onClick={handleClose}
+                              className="text-[#22623a] underline underline-offset-2 hover:text-[#1a4d2e]"
+                            >
+                              View in My Account
+                            </Link>
+                          )}
+                        </div>
                       </div>
-                      <h4 className="font-serif text-base sm:text-lg font-bold text-[#22623a]">
-                        Appointment Slot Reserved!
-                      </h4>
-                      <p className="text-xs text-[#59534b]">
-                        Ticket Number:{" "}
-                        <strong className="font-mono text-[#22623a] bg-white px-2 py-0.5 rounded border border-[#cde4d6]">
-                          {bookingSuccess.ticketNumber}
-                        </strong>
-                      </p>
-                      <p className="text-xs text-[#6a6660] max-w-xs mx-auto">
-                        Hakim Tahir Hameed looks forward to seeing you at Matab Tameer-e-Sehat in Korangi, Karachi.
-                      </p>
                       <button
                         type="button"
                         onClick={handleClose}
@@ -689,7 +1275,7 @@ export default function ConsultationModal({
                         </div>
                       )}
 
-                      {/* Patient Name and Phone in 2 columns */}
+                      {/* Patient Name and Mandatory Email in 2 columns */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <div className="space-y-0.5">
                           <label className="text-[11px] font-semibold text-[#1a1816]">
@@ -710,40 +1296,60 @@ export default function ConsultationModal({
 
                         <div className="space-y-0.5">
                           <label className="text-[11px] font-semibold text-[#1a1816]">
-                            WhatsApp / Phone <span className="text-red-500">*</span>
+                            Email Address <span className="text-red-500">*</span>
                           </label>
                           <div className="relative">
-                            <Phone className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <Mail className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                             <input
-                              type="tel"
+                              type="email"
                               required
-                              value={clinicPhone}
-                              onChange={(e) => setClinicPhone(e.target.value)}
-                              placeholder="0300-1234567"
+                              value={clinicEmail}
+                              onChange={(e) => setClinicEmail(e.target.value)}
+                              placeholder="you@example.com"
                               className="w-full text-xs pl-8 pr-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
                             />
                           </div>
                         </div>
                       </div>
 
-                      {/* Preferred Day and Time Slot in 2 columns */}
+                      {/* Optional WhatsApp / Phone */}
+                      <div className="space-y-0.5">
+                        <label className="text-[11px] font-semibold text-[#1a1816]">
+                          WhatsApp / Phone{" "}
+                          <span className="text-[#8c827a] font-normal">
+                            (optional)
+                          </span>
+                        </label>
+                        <div className="relative">
+                          <Phone className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          <input
+                            type="tel"
+                            value={clinicPhone}
+                            onChange={(e) => setClinicPhone(e.target.value)}
+                            placeholder="0300-1234567"
+                            className="w-full text-xs pl-8 pr-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Appointment Date and Available Time Slot */}
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-0.5">
                           <label className="text-[11px] font-semibold text-[#1a1816]">
-                            Preferred Day
+                            Appointment Date
                           </label>
                           <div className="relative">
                             <Calendar className="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-                            <select
+                            <input
+                              type="date"
+                              min={toDateInputValue(new Date())}
                               value={clinicDate}
-                              onChange={(e) => setClinicDate(e.target.value)}
+                              onChange={(e) => {
+                                setClinicDate(e.target.value);
+                                setClinicSlot("");
+                              }}
                               className="w-full text-xs pl-8 pr-2 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
-                            >
-                              <option value="Today">Today</option>
-                              <option value="Tomorrow">Tomorrow</option>
-                              <option value="This Saturday">This Saturday</option>
-                              <option value="Next Week">Next Week</option>
-                            </select>
+                            />
                           </div>
                         </div>
 
@@ -756,18 +1362,66 @@ export default function ConsultationModal({
                             <select
                               value={clinicSlot}
                               onChange={(e) => setClinicSlot(e.target.value)}
-                              className="w-full text-xs pl-8 pr-2 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
+                              disabled={
+                                availabilityLoading ||
+                                !clinicAvailability?.isOpen
+                              }
+                              className="w-full text-xs pl-8 pr-2 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a] disabled:opacity-60"
                             >
-                              <option value="Morning (10:00 AM - 02:00 PM)">
-                                Morning (10am–2pm)
-                              </option>
-                              <option value="Evening (05:00 PM - 09:00 PM)">
-                                Evening (5pm–9pm)
-                              </option>
+                              {availabilityLoading ? (
+                                <option value="">Loading slots…</option>
+                              ) : !clinicAvailability?.isOpen ? (
+                                <option value="">Clinic closed</option>
+                              ) : (
+                                <>
+                                  <option value="">Select a time…</option>
+                                  {clinicAvailability.slots.map((slot: any) => (
+                                    <option
+                                      key={slot.slot}
+                                      value={slot.slot}
+                                      disabled={!slot.available}
+                                    >
+                                      {slot.slot}
+                                      {slot.available ? "" : " — Booked"}
+                                    </option>
+                                  ))}
+                                </>
+                              )}
                             </select>
                           </div>
                         </div>
                       </div>
+
+                      {/* Availability status */}
+                      {availabilityError && (
+                        <p className="text-[10px] text-red-600 flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3 shrink-0" />
+                          {availabilityError}
+                        </p>
+                      )}
+                      {!availabilityLoading &&
+                        clinicAvailability &&
+                        !clinicAvailability.isOpen && (
+                          <p className="text-[10px] text-amber-700 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3 shrink-0" />
+                            {clinicAvailability.isHoliday
+                              ? `Clinic is closed on this date (${
+                                  clinicAvailability.holidayReason || "holiday"
+                                }). Please pick another day.`
+                              : `Clinic is closed on ${clinicAvailability.dayName}s. Please pick a Monday–Saturday date.`}
+                          </p>
+                        )}
+                      {!availabilityLoading &&
+                        clinicAvailability?.isOpen &&
+                        clinicAvailability.slots.every(
+                          (slot: any) => !slot.available
+                        ) && (
+                          <p className="text-[10px] text-amber-700 flex items-center gap-1">
+                            <AlertCircle className="w-3 h-3 shrink-0" />
+                            All slots for this day are booked. Please pick
+                            another date.
+                          </p>
+                        )}
 
                       {/* Clinic Location Pill */}
                       <div className="px-3 py-1.5 bg-[#faf8f5] rounded-xl border border-[#e6dfd5] text-[10px] text-[#59534b] flex items-center gap-2">
@@ -780,21 +1434,26 @@ export default function ConsultationModal({
                       {/* Fixed height submit button with centered spinner prevents layout jumps */}
                       <button
                         type="submit"
-                        disabled={submitting}
+                        disabled={submitting || availabilityLoading || !clinicSlot}
                         className="w-full h-11 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
                       >
                         {submitting ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin text-[#c59b27] shrink-0" />
-                            <span>Reserving Appointment Slot...</span>
+                            <span>Submitting Booking Request...</span>
                           </>
                         ) : (
                           <>
                             <Calendar className="w-4 h-4 text-[#c59b27] shrink-0" />
-                            <span>Confirm Clinic Reservation</span>
+                            <span>Request Clinic Appointment</span>
                           </>
                         )}
                       </button>
+
+                      <p className="text-[10px] text-center text-[#6a6660] leading-relaxed">
+                        You receive a ticket instantly. The clinic confirms your
+                        slot on WhatsApp or phone — track its status anytime.
+                      </p>
 
                       {/* Back Navigation Button */}
                       <div className="pt-2 border-t border-[#f4eee5] flex items-center justify-between">

@@ -19,9 +19,11 @@ const steps = [
     title: "Share Your Symptoms",
     description:
       "Send a quick WhatsApp message or fill our 2-minute online form. Describe what you are feeling — no appointment needed to start.",
-    color: "bg-[#25D366]",
-    textColor: "text-[#25D366]",
-    borderColor: "border-[#25D366]/30",
+    color: "bg-whatsapp",
+    textColor: "text-whatsapp",
+    borderColor: "border-whatsapp/30",
+    badgeTextColor: "text-on-whatsapp",
+    hoverIconColor: "group-hover:text-on-whatsapp",
   },
   {
     num: "02",
@@ -29,9 +31,11 @@ const steps = [
     title: "Hakim Reviews & Prescribes",
     description:
       "Our qualified Hakim reviews your symptoms, identifies the root imbalance, and prepares a personalized herbal treatment plan — usually within 24 hours.",
-    color: "bg-[#22623a]",
-    textColor: "text-[#22623a]",
-    borderColor: "border-[#22623a]/30",
+    color: "bg-primary",
+    textColor: "text-primary",
+    borderColor: "border-primary/30",
+    badgeTextColor: "text-on-primary",
+    hoverIconColor: "group-hover:text-on-primary",
   },
   {
     num: "03",
@@ -39,9 +43,11 @@ const steps = [
     title: "Recover with Ongoing Support",
     description:
       "Your remedies are delivered nationwide (COD available). Our team tracks your recovery via WhatsApp check-ins until you feel genuinely better.",
-    color: "bg-[#c59b27]",
-    textColor: "text-[#8c6a15]",
-    borderColor: "border-[#c59b27]/30",
+    color: "bg-secondary",
+    textColor: "text-secondary-text",
+    borderColor: "border-secondary/30",
+    badgeTextColor: "text-on-secondary",
+    hoverIconColor: "group-hover:text-on-secondary",
   },
 ];
 
@@ -51,18 +57,18 @@ export default function HowItWorksSection() {
   return (
     <section
       id="how-it-works"
-      className="py-16 sm:py-20 lg:py-24 bg-white border-b border-[#e6dfd5]"
+      className="py-16 sm:py-20 lg:py-24 bg-white border-b border-line"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-14">
         {/* Section Header */}
         <Reveal className="text-center max-w-2xl mx-auto space-y-3">
-          <span className="text-xs uppercase tracking-widest font-semibold text-[#8c6a15]">
+          <span className="text-xs uppercase tracking-widest font-semibold text-secondary-text">
             Simple 3-Step Process
           </span>
-          <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#22623a]">
+          <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
             Getting Help is Effortless
           </h2>
-          <p className="text-xs sm:text-sm text-[#59534b] leading-relaxed max-w-lg mx-auto">
+          <p className="text-xs sm:text-sm text-ink-body leading-relaxed max-w-lg mx-auto">
             No long queues, no complicated registration. From your first message to your recovery — we keep it simple.
           </p>
         </Reveal>
@@ -70,7 +76,7 @@ export default function HowItWorksSection() {
         {/* Steps Flow */}
         <div className="relative max-w-4xl mx-auto">
           {/* Connecting line (desktop) */}
-          <div className="hidden lg:block absolute top-[52px] left-[calc(16.67%+20px)] right-[calc(16.67%+20px)] h-[2px] bg-gradient-to-r from-[#25D366]/30 via-[#22623a]/30 to-[#c59b27]/30" />
+          <div className="hidden lg:block absolute top-[52px] left-[calc(16.67%+20px)] right-[calc(16.67%+20px)] h-[2px] bg-gradient-to-r from-whatsapp/30 via-brand-green-700/30 to-brand-gold-500/30" />
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
             {steps.map((step, index) => {
@@ -94,12 +100,12 @@ export default function HowItWorksSection() {
                         className={`absolute inset-1 rounded-full bg-white border-2 ${step.borderColor} flex items-center justify-center group-hover:border-0 group-hover:${step.color} transition-all duration-300`}
                       >
                         <Icon
-                          className={`w-7 h-7 sm:w-8 sm:h-8 ${step.textColor} group-hover:text-white transition-colors duration-300`}
+                          className={`w-7 h-7 sm:w-8 sm:h-8 ${step.textColor} ${step.hoverIconColor} transition-colors duration-300`}
                         />
                       </div>
                       {/* Step Number Badge */}
                       <span
-                        className={`absolute -top-1 -right-1 w-6 h-6 rounded-full ${step.color} text-white text-[10px] font-bold flex items-center justify-center shadow-sm`}
+                        className={`absolute -top-1 -right-1 w-6 h-6 rounded-full ${step.color} ${step.badgeTextColor} text-[10px] font-bold flex items-center justify-center shadow-sm`}
                       >
                         {step.num}
                       </span>
@@ -107,10 +113,10 @@ export default function HowItWorksSection() {
 
                     {/* Step Content */}
                     <div className="space-y-2 px-2">
-                      <h3 className="font-serif text-base sm:text-lg font-bold text-[#22623a]">
+                      <h3 className="font-serif text-base sm:text-lg font-bold text-primary">
                         {step.title}
                       </h3>
-                      <p className="text-xs sm:text-[13px] text-[#59534b] leading-relaxed max-w-xs mx-auto">
+                      <p className="text-xs sm:text-[13px] text-ink-body leading-relaxed max-w-xs mx-auto">
                         {step.description}
                       </p>
                     </div>
@@ -130,14 +136,14 @@ export default function HowItWorksSection() {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
             >
               <MessageCircle className="w-4 h-4" />
               <span>Start Step 1 — Message on WhatsApp</span>
             </a>
             <Link
               href="/consultation"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#22623a] hover:text-[#c59b27] transition-colors group"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-secondary-text transition-colors group"
             >
               <span>Or fill the online form</span>
               <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />

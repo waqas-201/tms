@@ -266,28 +266,28 @@ export default function CheckoutPage() {
     const trackingLink = `/track-order?ref=${encodeURIComponent(createdOrder.orderNumber)}`;
 
     return (
-      <div className="bg-[#FAF9F6] py-14 sm:py-20 min-h-[80vh] flex items-center">
+      <div className="bg-surface py-14 sm:py-20 min-h-[80vh] flex items-center">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 w-full space-y-6">
-          <div className="bg-white p-6 sm:p-10 rounded-2xl border border-stone-200/80 shadow-lg text-center space-y-6">
-            <div className="w-16 h-16 rounded-full bg-emerald-700 text-white mx-auto flex items-center justify-center shadow-md">
-              <CheckCircle2 className="w-9 h-9 text-emerald-100" />
+          <div className="bg-white p-6 sm:p-10 rounded-2xl border border-line/80 shadow-lg text-center space-y-6">
+            <div className="w-16 h-16 rounded-full bg-success text-white mx-auto flex items-center justify-center shadow-md">
+              <CheckCircle2 className="w-9 h-9 text-success" />
             </div>
 
             <div className="space-y-2">
-              <span className="text-xs uppercase font-bold text-[#9E7D3B] tracking-widest block">
+              <span className="text-xs uppercase font-bold text-secondary-text tracking-widest block">
                 Alhamdulillah · Order Dispatched for Processing
               </span>
-              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-stone-900">
+              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-ink">
                 JazakAllah! Your Order is Confirmed
               </h1>
-              <p className="text-xs sm:text-sm text-stone-600">
+              <p className="text-xs sm:text-sm text-ink-body">
                 Order Tracking Reference:{" "}
-                <strong className="text-stone-900 font-mono text-sm sm:text-base px-2.5 py-1 bg-stone-100 rounded-lg border border-stone-200">
+                <strong className="text-ink font-mono text-sm sm:text-base px-2.5 py-1 bg-surface-sunken rounded-lg border border-line">
                   {createdOrder.orderNumber}
                 </strong>
               </p>
               {formData.email && (
-                <p className="text-xs text-emerald-700 flex items-center justify-center gap-1.5 pt-1">
+                <p className="text-xs text-success flex items-center justify-center gap-1.5 pt-1">
                   <Mail className="w-3.5 h-3.5" />
                   <span>A detailed confirmation receipt has been sent to <strong>{formData.email}</strong></span>
                 </p>
@@ -295,28 +295,28 @@ export default function CheckoutPage() {
             </div>
 
             {/* Receipt Summary Card */}
-            <div className="p-5 bg-[#FAF9F6] rounded-xl border border-stone-200/80 text-left text-xs space-y-2.5 text-stone-700">
-              <div className="flex justify-between border-b border-stone-200/80 pb-2 font-bold text-stone-900">
+            <div className="p-5 bg-surface rounded-xl border border-line/80 text-left text-xs space-y-2.5 text-neutral-700">
+              <div className="flex justify-between border-b border-line/80 pb-2 font-bold text-ink">
                 <span className="flex items-center gap-1.5">
-                  <Receipt className="w-4 h-4 text-[#9E7D3B]" />
+                  <Receipt className="w-4 h-4 text-secondary-text" />
                   <span>Cash on Delivery (COD) Summary</span>
                 </span>
-                <span className="text-[11px] text-emerald-700 font-semibold">Pay on Delivery</span>
+                <span className="text-[11px] text-success font-semibold">Pay on Delivery</span>
               </div>
               <p>
-                <strong className="text-stone-900">Recipient Name:</strong> {createdOrder.customerName} ({createdOrder.phone})
+                <strong className="text-ink">Recipient Name:</strong> {createdOrder.customerName} ({createdOrder.phone})
               </p>
               <p>
-                <strong className="text-stone-900">Delivery Address:</strong> {createdOrder.city} — {createdOrder.address}
+                <strong className="text-ink">Delivery Address:</strong> {createdOrder.city} — {createdOrder.address}
               </p>
               <p>
-                <strong className="text-stone-900">Total Payable to Rider:</strong>{" "}
-                <span className="text-sm font-bold text-stone-900">
+                <strong className="text-ink">Total Payable to Rider:</strong>{" "}
+                <span className="text-sm font-bold text-ink">
                   ₨ {createdOrder.total.toLocaleString()}
                 </span>
               </p>
               {createdOrder.deliveryNotes && (
-                <p className="text-[11px] text-stone-500">
+                <p className="text-[11px] text-ink-muted">
                   <strong>Notes:</strong> {createdOrder.deliveryNotes}
                 </p>
               )}
@@ -326,9 +326,9 @@ export default function CheckoutPage() {
             <div className="space-y-3 pt-2">
               <Link
                 href={trackingLink}
-                className="w-full inline-flex items-center justify-center gap-2 py-3.5 bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs font-semibold uppercase tracking-wider rounded-xl shadow-md transition-all active:scale-98"
+                className="w-full inline-flex items-center justify-center gap-2 py-3.5 bg-surface-inverse hover:bg-surface-inverse-hover text-white text-xs font-semibold uppercase tracking-wider rounded-xl shadow-md transition-all active:scale-98"
               >
-                <Truck className="w-4 h-4 text-[#9E7D3B]" />
+                <Truck className="w-4 h-4 text-brand-gold-500" />
                 <span>Track Order Milestones Live</span>
               </Link>
 
@@ -336,7 +336,7 @@ export default function CheckoutPage() {
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full inline-flex items-center justify-center gap-2 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold tracking-wide rounded-xl shadow-xs transition-colors"
+                className="w-full inline-flex items-center justify-center gap-2 py-3 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs font-semibold tracking-wide rounded-xl shadow-xs transition-colors"
               >
                 <MessageSquare className="w-4 h-4" />
                 <span>Send Order Copy on WhatsApp Helpline</span>
@@ -346,15 +346,15 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 bg-white border border-stone-200 hover:bg-stone-50 text-stone-800 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+                  className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 bg-white border border-line hover:bg-surface text-neutral-800 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
                 >
-                  <Printer className="w-4 h-4 text-[#9E7D3B]" />
+                  <Printer className="w-4 h-4 text-secondary-text" />
                   <span>Print Receipt</span>
                 </button>
 
                 <Link
                   href="/products"
-                  className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold rounded-xl transition-colors"
+                  className="flex-1 inline-flex items-center justify-center gap-2 py-2.5 bg-surface-sunken hover:bg-line text-neutral-800 text-xs font-semibold rounded-xl transition-colors"
                 >
                   <span>Browse More Remedies</span>
                 </Link>
@@ -369,24 +369,24 @@ export default function CheckoutPage() {
   // ─── EMPTY CART STATE ───
   if (cart.length === 0) {
     return (
-      <div className="bg-[#FAF9F6] py-24 min-h-[60vh] flex items-center justify-center">
+      <div className="bg-surface py-24 min-h-[60vh] flex items-center justify-center">
         <div className="max-w-md mx-auto text-center px-4 space-y-4">
-          <div className="w-16 h-16 rounded-full bg-stone-100 text-stone-400 mx-auto flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-surface-sunken text-ink-subtle mx-auto flex items-center justify-center">
             <ShoppingBag className="w-8 h-8 opacity-40" />
           </div>
-          <h1 className="font-serif text-2xl font-bold text-stone-900">
+          <h1 className="font-serif text-2xl font-bold text-ink">
             Your Shopping Bag is Empty
           </h1>
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-ink-muted">
             You have not added any natural Unani remedies to your cart yet.
           </p>
           <div className="pt-2">
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#14281D] text-white text-xs font-semibold uppercase tracking-wider rounded-xl shadow-xs hover:bg-[#0c1b13] transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-surface-inverse text-white text-xs font-semibold uppercase tracking-wider rounded-xl shadow-xs hover:bg-surface-inverse-hover transition-colors"
             >
               <span>Explore Remedies</span>
-              <ArrowRight className="w-4 h-4 text-[#9E7D3B]" />
+              <ArrowRight className="w-4 h-4 text-brand-gold-500" />
             </Link>
           </div>
         </div>
@@ -396,33 +396,33 @@ export default function CheckoutPage() {
 
   // ─── MAIN CHECKOUT FORM ───
   return (
-    <div className="bg-[#FAF9F6] py-10 sm:py-14">
+    <div className="bg-surface py-10 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
 
         {/* Page Title */}
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#14281D]/5 rounded-full text-xs uppercase tracking-widest font-semibold text-[#14281D]">
-            <Sparkles className="w-3.5 h-3.5 text-[#9E7D3B]" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-inverse/5 rounded-full text-xs uppercase tracking-widest font-semibold text-ink">
+            <Sparkles className="w-3.5 h-3.5 text-secondary-text" />
             <span>Secure Cash on Delivery Checkout</span>
           </div>
-          <h1 className="font-serif text-2xl sm:text-4xl font-bold text-stone-900">
+          <h1 className="font-serif text-2xl sm:text-4xl font-bold text-ink">
             Nationwide Courier Dispatch &amp; Delivery
           </h1>
-          <p className="text-xs text-stone-600">
+          <p className="text-xs text-ink-body">
             Review your order, enter your Pakistan delivery address, and pay cash when the courier rider delivers your package.
           </p>
         </div>
 
         {/* ── AUTHENTICATION & EMAIL VERIFICATION SECURITY BANNERS ── */}
         {!isUserAuthenticated && (
-          <div className="p-5 bg-amber-50/90 border border-amber-300/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs shadow-xs">
+          <div className="p-5 bg-warning-soft/90 border border-warning-line/80 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs shadow-xs">
             <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 mt-0.5">
+              <div className="w-9 h-9 rounded-full bg-warning-soft text-warning flex items-center justify-center shrink-0 mt-0.5">
                 <Lock className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="font-bold text-amber-950 text-sm">Account &amp; Email Verification Required</h3>
-                <p className="text-amber-850 text-[11px] mt-0.5 leading-relaxed text-amber-900">
+                <h3 className="font-bold text-warning text-sm">Account &amp; Email Verification Required</h3>
+                <p className="text-[11px] mt-0.5 leading-relaxed text-warning">
                   To ensure genuine patient orders and real-time courier tracking across Pakistan, please sign in or register with a verified email address before placing an order.
                 </p>
               </div>
@@ -430,13 +430,13 @@ export default function CheckoutPage() {
             <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
               <Link
                 href="/login?redirect=/checkout"
-                className="flex-1 sm:flex-initial text-center px-4 py-2 bg-[#14281D] hover:bg-[#0c1b13] text-white font-semibold rounded-xl text-xs transition-colors shadow-xs"
+                className="flex-1 sm:flex-initial text-center px-4 py-2 bg-surface-inverse hover:bg-surface-inverse-hover text-white font-semibold rounded-xl text-xs transition-colors shadow-xs"
               >
                 Sign In
               </Link>
               <Link
                 href="/register?redirect=/checkout"
-                className="flex-1 sm:flex-initial text-center px-4 py-2 bg-white hover:bg-amber-100/60 text-[#14281D] border border-amber-300 font-semibold rounded-xl text-xs transition-colors"
+                className="flex-1 sm:flex-initial text-center px-4 py-2 bg-white hover:bg-warning-soft/60 text-ink border border-warning-line font-semibold rounded-xl text-xs transition-colors"
               >
                 Register Account
               </Link>
@@ -445,27 +445,27 @@ export default function CheckoutPage() {
         )}
 
         {isUserAuthenticated && !isEmailVerified && (
-          <div className="p-5 bg-amber-50/90 border-2 border-amber-400/90 rounded-2xl space-y-3 text-xs shadow-xs">
+          <div className="p-5 bg-warning-soft/90 border-2 border-warning-line/90 rounded-2xl space-y-3 text-xs shadow-xs">
             <div className="flex items-start gap-3">
-              <div className="w-9 h-9 rounded-full bg-amber-200/80 text-amber-900 flex items-center justify-center shrink-0 mt-0.5">
-                <AlertCircle className="w-5 h-5 text-amber-800" />
+              <div className="w-9 h-9 rounded-full bg-warning-soft/80 text-warning flex items-center justify-center shrink-0 mt-0.5">
+                <AlertCircle className="w-5 h-5 text-warning" />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-amber-950 text-sm">Email Verification Required</h3>
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-amber-200 text-amber-900 rounded-md">
+                  <h3 className="font-bold text-warning text-sm">Email Verification Required</h3>
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-warning-soft text-warning rounded-md">
                     Pending Activation
                   </span>
                 </div>
-                <p className="text-amber-900 text-[11px] mt-1 leading-relaxed">
+                <p className="text-warning text-[11px] mt-1 leading-relaxed">
                   Your account email (<strong>{sessionData?.user?.email}</strong>) is not yet verified. An activation link was sent to your email inbox. Please click the link to verify your account and enable order placement.
                 </p>
               </div>
             </div>
 
             {resendVerificationSuccess && (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-700" />
+              <div className="p-3 bg-success-soft border border-success-line rounded-xl text-xs text-success flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-success" />
                 <span>A fresh verification link has been dispatched to <strong>{sessionData?.user?.email}</strong>. Please check your inbox and spam folder.</span>
               </div>
             )}
@@ -475,7 +475,7 @@ export default function CheckoutPage() {
                 type="button"
                 onClick={handleResendVerification}
                 disabled={resendingVerification}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-amber-900 hover:bg-amber-950 text-white rounded-xl text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer shadow-xs"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-warning hover:bg-warning text-white rounded-xl text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer shadow-xs"
               >
                 {resendingVerification ? (
                   <>
@@ -494,16 +494,16 @@ export default function CheckoutPage() {
                 type="button"
                 onClick={handleRefreshVerificationStatus}
                 disabled={refreshingStatus}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-amber-100/60 text-amber-950 border border-amber-300 rounded-xl text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-warning-soft/60 text-warning border border-warning-line rounded-xl text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer"
               >
                 {refreshingStatus ? (
                   <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-800" />
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-warning" />
                     <span>Checking...</span>
                   </>
                 ) : (
                   <>
-                    <RefreshCw className="w-3.5 h-3.5 text-amber-800" />
+                    <RefreshCw className="w-3.5 h-3.5 text-warning" />
                     <span>I&apos;ve Verified / Refresh Status</span>
                   </>
                 )}
@@ -511,7 +511,7 @@ export default function CheckoutPage() {
 
               <Link
                 href="/verify-email"
-                className="text-[11px] text-amber-900 hover:underline inline-flex items-center gap-1 ml-auto font-medium"
+                className="text-[11px] text-warning hover:underline inline-flex items-center gap-1 ml-auto font-medium"
               >
                 <span>Manual Verification Code</span>
                 <ExternalLink className="w-3 h-3" />
@@ -521,25 +521,25 @@ export default function CheckoutPage() {
         )}
 
         {isUserAuthenticated && isEmailVerified && (
-          <div className="p-3.5 bg-emerald-50/80 border border-emerald-200/80 rounded-2xl flex items-center justify-between text-xs text-emerald-950 shadow-xs">
+          <div className="p-3.5 bg-success-soft/80 border border-success-line/80 rounded-2xl flex items-center justify-between text-xs text-success shadow-xs">
             <div className="flex items-center gap-2.5">
-              <div className="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0">
+              <div className="w-6 h-6 rounded-full bg-success text-white flex items-center justify-center shrink-0">
                 <Check className="w-3.5 h-3.5" />
               </div>
               <div>
-                <span className="font-bold text-emerald-900">Verified Patient Account</span>
-                <span className="text-emerald-700 text-[11px] ml-2">({sessionData?.user?.email})</span>
+                <span className="font-bold text-success">Verified Patient Account</span>
+                <span className="text-success text-[11px] ml-2">({sessionData?.user?.email})</span>
               </div>
             </div>
-            <span className="text-[11px] text-emerald-800 font-medium bg-emerald-100/60 px-2.5 py-0.5 rounded-full border border-emerald-300/60">
+            <span className="text-[11px] text-success font-medium bg-success-soft/60 px-2.5 py-0.5 rounded-full border border-success-line/60">
               Ready for Instant Dispatch
             </span>
           </div>
         )}
 
         {error && (
-          <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+          <div className="p-4 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-danger" />
             <span>{error}</span>
           </div>
         )}
@@ -550,20 +550,20 @@ export default function CheckoutPage() {
           <div className="lg:col-span-7 space-y-6">
 
             {/* 1. Recipient Information */}
-            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200/80 shadow-xs space-y-5">
-              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-                <h2 className="font-serif text-base sm:text-lg font-bold text-stone-900 flex items-center gap-2">
-                  <User className="w-4 h-4 text-[#9E7D3B]" />
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line/80 shadow-xs space-y-5">
+              <div className="flex items-center justify-between border-b border-line pb-3">
+                <h2 className="font-serif text-base sm:text-lg font-bold text-ink flex items-center gap-2">
+                  <User className="w-4 h-4 text-secondary-text" />
                   <span>1. Recipient &amp; Contact Details</span>
                 </h2>
                 {sessionData ? (
-                  <span className="text-[11px] text-emerald-800 font-semibold bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  <span className="text-[11px] text-success font-semibold bg-success-soft px-2.5 py-0.5 rounded-full border border-success-line">
                     ✓ Logged In as {sessionData.user.name}
                   </span>
                 ) : (
                   <Link
                     href="/login"
-                    className="text-[11px] text-stone-600 hover:text-[#14281D] hover:underline font-semibold"
+                    className="text-[11px] text-ink-body hover:text-ink hover:underline font-semibold"
                   >
                     Have an account? Sign in
                   </Link>
@@ -572,8 +572,8 @@ export default function CheckoutPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-stone-900">
-                    Full Name <span className="text-rose-500">*</span>
+                  <label className="text-xs font-bold text-ink">
+                    Full Name <span className="text-danger">*</span>
                   </label>
                   <input
                     type="text"
@@ -582,13 +582,13 @@ export default function CheckoutPage() {
                     value={formData.fullName}
                     onChange={handleChange}
                     placeholder="e.g. Muhammad Bilal"
-                    className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#14281D] focus:bg-white transition-colors"
+                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-stone-900">
-                    Active Phone / WhatsApp Number <span className="text-rose-500">*</span>
+                  <label className="text-xs font-bold text-ink">
+                    Active Phone / WhatsApp Number <span className="text-danger">*</span>
                   </label>
                   <input
                     type="tel"
@@ -597,15 +597,15 @@ export default function CheckoutPage() {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="0300-1234567"
-                    className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#14281D] focus:bg-white transition-colors"
+                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
                   />
-                  <span className="text-[10px] text-stone-500 block">
+                  <span className="text-[10px] text-ink-muted block">
                     Rider will call this number prior to parcel delivery.
                   </span>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-stone-900">
+                  <label className="text-xs font-bold text-ink">
                     Email Address (For Tracking &amp; Invoices)
                   </label>
                   <input
@@ -614,29 +614,29 @@ export default function CheckoutPage() {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="bilal@example.com"
-                    className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#14281D] focus:bg-white transition-colors"
+                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
                   />
                 </div>
               </div>
             </div>
 
             {/* 2. Delivery Address in Pakistan */}
-            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200/80 shadow-xs space-y-5">
-              <h2 className="font-serif text-base sm:text-lg font-bold text-stone-900 border-b border-stone-100 pb-3 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-[#9E7D3B]" />
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line/80 shadow-xs space-y-5">
+              <h2 className="font-serif text-base sm:text-lg font-bold text-ink border-b border-line pb-3 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-secondary-text" />
                 <span>2. Delivery Address (Pakistan)</span>
               </h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-stone-900">
-                    City <span className="text-rose-500">*</span>
+                  <label className="text-xs font-bold text-ink">
+                    City <span className="text-danger">*</span>
                   </label>
                   <select
                     name="city"
                     value={formData.city}
                     onChange={handleChange}
-                    className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 font-semibold focus:outline-none focus:border-[#14281D] focus:bg-white transition-colors cursor-pointer"
+                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line rounded-xl text-ink font-semibold focus:outline-none focus:border-ink focus:bg-white transition-colors cursor-pointer"
                   >
                     {PAKISTAN_CITIES.map((c) => (
                       <option key={c} value={c}>
@@ -647,8 +647,8 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-stone-900">
-                    Complete Street Address, Area &amp; Landmark <span className="text-rose-500">*</span>
+                  <label className="text-xs font-bold text-ink">
+                    Complete Street Address, Area &amp; Landmark <span className="text-danger">*</span>
                   </label>
                   <textarea
                     required
@@ -657,12 +657,12 @@ export default function CheckoutPage() {
                     value={formData.address}
                     onChange={handleChange}
                     placeholder="House/Apartment #, Street, Block / Sector, Landmark"
-                    className="w-full text-xs p-3.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#14281D] focus:bg-white transition-colors"
+                    className="w-full text-xs p-3.5 bg-surface border border-line rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
                   />
                 </div>
 
                 <div className="space-y-1.5 sm:col-span-2">
-                  <label className="text-xs font-bold text-stone-900">
+                  <label className="text-xs font-bold text-ink">
                     Special Delivery Instructions (Optional)
                   </label>
                   <input
@@ -671,58 +671,58 @@ export default function CheckoutPage() {
                     value={formData.specialNotes}
                     onChange={handleChange}
                     placeholder="e.g. Please call before arrival, near Jamia Masjid..."
-                    className="w-full text-xs px-3.5 py-2.5 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#14281D] focus:bg-white transition-colors"
+                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
                   />
                 </div>
               </div>
             </div>
 
             {/* 3. Delivery Method Options */}
-            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200/80 shadow-xs space-y-4">
-              <h2 className="font-serif text-base sm:text-lg font-bold text-stone-900 border-b border-stone-100 pb-3 flex items-center gap-2">
-                <Truck className="w-4 h-4 text-[#9E7D3B]" />
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line/80 shadow-xs space-y-4">
+              <h2 className="font-serif text-base sm:text-lg font-bold text-ink border-b border-line pb-3 flex items-center gap-2">
+                <Truck className="w-4 h-4 text-secondary-text" />
                 <span>3. Dispatch Speed &amp; Courier Service</span>
               </h2>
 
               <div className="space-y-3">
-                <label className="flex items-start gap-3 p-3.5 rounded-xl border-2 border-[#14281D] bg-[#FAF9F6] cursor-pointer">
+                <label className="flex items-start gap-3 p-3.5 rounded-xl border-2 border-ink bg-surface cursor-pointer">
                   <input
                     type="radio"
                     name="deliveryOption"
                     value="standard"
                     checked={formData.deliveryOption === "standard"}
                     onChange={handleChange}
-                    className="mt-1 text-[#14281D] focus:ring-[#14281D]"
+                    className="mt-1 text-ink focus:ring-primary"
                   />
                   <div className="text-xs flex-1">
-                    <div className="font-bold text-stone-900 flex items-center justify-between">
+                    <div className="font-bold text-ink flex items-center justify-between">
                       <span>Standard Tracked Courier (Nationwide)</span>
-                      <span className="text-emerald-700 font-bold">
+                      <span className="text-success font-bold">
                         {shippingFee === 0 ? "FREE" : `₨ ${shippingFee}`}
                       </span>
                     </div>
-                    <p className="text-stone-500 text-[11px] mt-0.5">
+                    <p className="text-ink-muted text-[11px] mt-0.5">
                       Delivered via Blue-Ex / Leopard / Trax across Pakistan (2-4 business days).
                     </p>
                   </div>
                 </label>
 
                 {formData.city.toLowerCase() === "karachi" && (
-                  <label className="flex items-start gap-3 p-3.5 rounded-xl border border-stone-200 bg-white cursor-pointer hover:border-[#14281D] transition-colors">
+                  <label className="flex items-start gap-3 p-3.5 rounded-xl border border-line bg-white cursor-pointer hover:border-ink transition-colors">
                     <input
                       type="radio"
                       name="deliveryOption"
                       value="express_karachi"
                       checked={formData.deliveryOption === "express_karachi"}
                       onChange={handleChange}
-                      className="mt-1 text-[#14281D] focus:ring-[#14281D]"
+                      className="mt-1 text-ink focus:ring-primary"
                     />
                     <div className="text-xs flex-1">
-                      <div className="font-bold text-stone-900 flex items-center justify-between">
+                      <div className="font-bold text-ink flex items-center justify-between">
                         <span>Express Karachi Clinic Rider (Within 24 Hours)</span>
-                        <span className="text-[#9E7D3B] font-semibold">Priority</span>
+                        <span className="text-secondary-text font-semibold">Priority</span>
                       </div>
-                      <p className="text-stone-500 text-[11px] mt-0.5">
+                      <p className="text-ink-muted text-[11px] mt-0.5">
                         Direct dispatch from our Karachi Dispensary to your doorstep.
                       </p>
                     </div>
@@ -732,24 +732,24 @@ export default function CheckoutPage() {
             </div>
 
             {/* 4. Payment Method */}
-            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200/80 shadow-xs space-y-4">
-              <h2 className="font-serif text-base sm:text-lg font-bold text-stone-900 border-b border-stone-100 pb-3">
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line/80 shadow-xs space-y-4">
+              <h2 className="font-serif text-base sm:text-lg font-bold text-ink border-b border-line pb-3">
                 4. Payment Method
               </h2>
 
-              <div className="p-4 border-2 border-[#14281D] bg-[#FAF9F6] rounded-xl flex items-center justify-between">
+              <div className="p-4 border-2 border-ink bg-surface rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full border-4 border-[#14281D] bg-white flex items-center justify-center" />
+                  <div className="w-5 h-5 rounded-full border-4 border-ink bg-white flex items-center justify-center" />
                   <div>
-                    <h4 className="text-xs font-bold text-stone-900">
+                    <h4 className="text-xs font-bold text-ink">
                       Cash on Delivery (COD)
                     </h4>
-                    <p className="text-[11px] text-stone-500">
+                    <p className="text-[11px] text-ink-muted">
                       Pay cash in PKR directly to the courier rider upon parcel handover.
                     </p>
                   </div>
                 </div>
-                <Truck className="w-5 h-5 text-[#14281D]" />
+                <Truck className="w-5 h-5 text-ink" />
               </div>
             </div>
 
@@ -757,8 +757,8 @@ export default function CheckoutPage() {
 
           {/* ── RIGHT: ORDER SUMMARY & PROMO ENGINE (5 cols on lg) ── */}
           <div className="lg:col-span-5 space-y-6 sticky top-24">
-            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200/80 shadow-xs space-y-5">
-              <h2 className="font-serif text-base sm:text-lg font-bold text-stone-900 border-b border-stone-100 pb-3">
+            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line/80 shadow-xs space-y-5">
+              <h2 className="font-serif text-base sm:text-lg font-bold text-ink border-b border-line pb-3">
                 Order Summary ({cart.reduce((s, i) => s + i.quantity, 0)} Items)
               </h2>
 
@@ -767,9 +767,9 @@ export default function CheckoutPage() {
                 {cart.map((item) => (
                   <div
                     key={`${item.product.id}-${item.selectedSize.name}`}
-                    className="flex items-center gap-3 pb-3 border-b border-stone-100 text-xs"
+                    className="flex items-center gap-3 pb-3 border-b border-line text-xs"
                   >
-                    <div className="relative w-12 h-12 rounded-lg bg-[#FAF9F6] overflow-hidden shrink-0 border border-stone-100">
+                    <div className="relative w-12 h-12 rounded-lg bg-surface overflow-hidden shrink-0 border border-line">
                       <Image
                         src={getSafeProductImage(item.product.image)}
                         alt={item.product.name}
@@ -778,14 +778,14 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-stone-900 truncate">
+                      <p className="font-semibold text-ink truncate">
                         {item.product.name}
                       </p>
-                      <p className="text-[11px] text-stone-500">
+                      <p className="text-[11px] text-ink-muted">
                         {item.selectedSize.weight} × {item.quantity}
                       </p>
                     </div>
-                    <span className="font-bold text-stone-900">
+                    <span className="font-bold text-ink">
                       ₨ {(item.selectedSize.price * item.quantity).toLocaleString()}
                     </span>
                   </div>
@@ -793,20 +793,20 @@ export default function CheckoutPage() {
               </div>
 
               {/* Promo Code Input on Checkout */}
-              <div className="pt-2 border-t border-stone-100 space-y-1.5">
+              <div className="pt-2 border-t border-line space-y-1.5">
                 {appliedCoupon ? (
-                  <div className="p-2.5 bg-emerald-50/80 border border-emerald-200 rounded-xl flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2 text-emerald-950 font-semibold">
-                      <Tag className="w-3.5 h-3.5 text-[#9E7D3B]" />
+                  <div className="p-2.5 bg-success-soft/80 border border-success-line rounded-xl flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2 text-success font-semibold">
+                      <Tag className="w-3.5 h-3.5 text-secondary-text" />
                       <span>{appliedCoupon.code}</span>
-                      <span className="text-[11px] font-normal text-emerald-700">
+                      <span className="text-[11px] font-normal text-success">
                         ({appliedCoupon.description})
                       </span>
                     </div>
                     <button
                       type="button"
                       onClick={removeCoupon}
-                      className="text-xs text-rose-600 hover:underline font-semibold cursor-pointer"
+                      className="text-xs text-danger hover:underline font-semibold cursor-pointer"
                     >
                       Remove
                     </button>
@@ -814,19 +814,19 @@ export default function CheckoutPage() {
                 ) : (
                   <div className="flex gap-2">
                     <div className="relative flex-1">
-                      <Tag className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <Tag className="w-3.5 h-3.5 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
                       <input
                         type="text"
                         placeholder="Coupon Code (e.g. HAKIM10)"
                         value={couponInput}
                         onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                        className="w-full pl-8 pr-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-xs font-medium text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#14281D] focus:bg-white transition-colors"
+                        className="w-full pl-8 pr-3 py-2 bg-surface border border-line rounded-xl text-xs font-medium text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
                       />
                     </div>
                     <button
                       type="button"
                       onClick={handleApplyCoupon}
-                      className="px-4 py-2 bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors shrink-0 cursor-pointer"
+                      className="px-4 py-2 bg-surface-inverse hover:bg-surface-inverse-hover text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors shrink-0 cursor-pointer"
                     >
                       Apply
                     </button>
@@ -836,7 +836,7 @@ export default function CheckoutPage() {
                 {couponFeedback && (
                   <div
                     className={`text-[11px] flex items-center gap-1 ${
-                      couponFeedback.success ? "text-emerald-700" : "text-rose-600"
+                      couponFeedback.success ? "text-success" : "text-danger"
                     }`}
                   >
                     {couponFeedback.success ? (
@@ -850,33 +850,33 @@ export default function CheckoutPage() {
               </div>
 
               {/* Price Calculations */}
-              <div className="space-y-2 text-xs pt-2 border-t border-stone-100">
-                <div className="flex justify-between text-stone-600">
+              <div className="space-y-2 text-xs pt-2 border-t border-line">
+                <div className="flex justify-between text-ink-body">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-stone-900">
+                  <span className="font-semibold text-ink">
                     ₨ {subtotal.toLocaleString()}
                   </span>
                 </div>
 
                 {discountAmount > 0 && (
-                  <div className="flex justify-between text-emerald-700 font-semibold">
+                  <div className="flex justify-between text-success font-semibold">
                     <span>Discount ({appliedCoupon?.code})</span>
                     <span>- ₨ {discountAmount.toLocaleString()}</span>
                   </div>
                 )}
 
-                <div className="flex justify-between text-stone-600">
+                <div className="flex justify-between text-ink-body">
                   <span>Courier Delivery (Pakistan)</span>
-                  <span className="font-semibold text-stone-900">
+                  <span className="font-semibold text-ink">
                     {shippingFee === 0 ? (
-                      <span className="text-emerald-700 font-bold uppercase">Free</span>
+                      <span className="text-success font-bold uppercase">Free</span>
                     ) : (
                       `₨ ${shippingFee}`
                     )}
                   </span>
                 </div>
 
-                <div className="flex justify-between text-base font-bold text-stone-900 pt-2 border-t border-stone-200">
+                <div className="flex justify-between text-base font-bold text-ink pt-2 border-t border-line">
                   <span>Total (Cash on Delivery)</span>
                   <span>₨ {total.toLocaleString()}</span>
                 </div>
@@ -887,13 +887,13 @@ export default function CheckoutPage() {
                 <div className="space-y-2">
                   <Link
                     href="/login?redirect=/checkout"
-                    className="w-full flex items-center justify-center gap-2 py-4 bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg text-center cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 py-4 bg-surface-inverse hover:bg-surface-inverse-hover text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg text-center cursor-pointer"
                   >
-                    <Lock className="w-4 h-4 text-[#9E7D3B]" />
+                    <Lock className="w-4 h-4 text-brand-gold-500" />
                     <span>Sign In &amp; Verify Email to Order (₨ {total.toLocaleString()})</span>
                   </Link>
-                  <p className="text-[11px] text-stone-500 text-center">
-                    New patient? <Link href="/register?redirect=/checkout" className="text-[#14281D] font-bold underline">Create an account</Link> to place your order.
+                  <p className="text-[11px] text-ink-muted text-center">
+                    New patient? <Link href="/register?redirect=/checkout" className="text-ink font-bold underline">Create an account</Link> to place your order.
                   </p>
                 </div>
               ) : !isEmailVerified ? (
@@ -902,7 +902,7 @@ export default function CheckoutPage() {
                     type="button"
                     onClick={handleResendVerification}
                     disabled={resendingVerification}
-                    className="w-full flex items-center justify-center gap-2 py-4 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 py-4 bg-warning hover:bg-warning text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer"
                   >
                     {resendingVerification ? (
                       <>
@@ -911,17 +911,17 @@ export default function CheckoutPage() {
                       </>
                     ) : (
                       <>
-                        <AlertCircle className="w-4 h-4 text-amber-200" />
+                        <AlertCircle className="w-4 h-4 text-warning" />
                         <span>Verify Email to Place Order (₨ {total.toLocaleString()})</span>
                       </>
                     )}
                   </button>
-                  <div className="flex items-center justify-between text-[11px] text-amber-900 px-1">
+                  <div className="flex items-center justify-between text-[11px] text-warning px-1">
                     <span>Email: <strong>{sessionData?.user?.email}</strong></span>
                     <button
                       type="button"
                       onClick={handleRefreshVerificationStatus}
-                      className="underline font-bold hover:text-amber-950 cursor-pointer"
+                      className="underline font-bold hover:text-warning cursor-pointer"
                     >
                       Refresh Status
                     </button>
@@ -931,7 +931,7 @@ export default function CheckoutPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 py-4 bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 active:scale-98 cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 py-4 bg-surface-inverse hover:bg-surface-inverse-hover text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 active:scale-98 cursor-pointer"
                 >
                   {loading ? (
                     <>
@@ -941,20 +941,20 @@ export default function CheckoutPage() {
                   ) : (
                     <>
                       <span>Confirm Cash on Delivery (₨ {total.toLocaleString()})</span>
-                      <ArrowRight className="w-4 h-4 text-[#9E7D3B]" />
+                      <ArrowRight className="w-4 h-4 text-brand-gold-500" />
                     </>
                   )}
                 </button>
               )}
 
               {/* Trust badges */}
-              <div className="pt-2 text-[11px] text-stone-500 space-y-1.5 text-center">
+              <div className="pt-2 text-[11px] text-ink-muted space-y-1.5 text-center">
                 <p className="flex items-center justify-center gap-1.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#9E7D3B]" />
+                  <ShieldCheck className="w-3.5 h-3.5 text-secondary-text" />
                   <span>100% Pure Botanical Purity &amp; Freshness Guarantee</span>
                 </p>
                 <p className="flex items-center justify-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-emerald-700" />
+                  <Clock className="w-3.5 h-3.5 text-success" />
                   <span>Dispatched from Karachi Clinic within 24 Hours</span>
                 </p>
               </div>

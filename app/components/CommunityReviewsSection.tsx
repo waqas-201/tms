@@ -60,7 +60,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     source: "Google Business Profile",
     verified: true,
     avatarText: "MU",
-    avatarBg: "bg-[#22623a]",
+    avatarBg: "bg-primary",
   },
   {
     id: "curated-2",
@@ -76,7 +76,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     source: "Google Business Profile",
     verified: true,
     avatarText: "SF",
-    avatarBg: "bg-[#8c6a15]",
+    avatarBg: "bg-brand-gold-700",
   },
   {
     id: "curated-3",
@@ -92,7 +92,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     source: "Verified Patient",
     verified: true,
     avatarText: "TM",
-    avatarBg: "bg-[#143e23]",
+    avatarBg: "bg-brand-green-900",
   },
   {
     id: "curated-4",
@@ -108,7 +108,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     source: "Google Business Profile",
     verified: true,
     avatarText: "ZB",
-    avatarBg: "bg-[#2d7648]",
+    avatarBg: "bg-brand-green-600",
   },
   {
     id: "curated-5",
@@ -124,7 +124,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     source: "Google Business Profile",
     verified: true,
     avatarText: "FQ",
-    avatarBg: "bg-[#1a4a2b]",
+    avatarBg: "bg-brand-green-800",
   },
   {
     id: "curated-6",
@@ -140,7 +140,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     source: "Verified Patient",
     verified: true,
     avatarText: "AK",
-    avatarBg: "bg-[#22623a]",
+    avatarBg: "bg-primary",
   },
   {
     id: "curated-7",
@@ -156,7 +156,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     source: "Google Business Profile",
     verified: true,
     avatarText: "BN",
-    avatarBg: "bg-[#8c6a15]",
+    avatarBg: "bg-brand-gold-700",
   },
   {
     id: "curated-8",
@@ -172,7 +172,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     source: "Google Business Profile",
     verified: true,
     avatarText: "AG",
-    avatarBg: "bg-[#143e23]",
+    avatarBg: "bg-brand-green-900",
   },
 ];
 
@@ -281,11 +281,11 @@ export default function CommunityReviewsSection() {
   return (
     <section
       id="community-reviews"
-      className="py-12 sm:py-18 lg:py-22 bg-[#faf8f5] border-b border-[#e6dfd5] relative overflow-hidden"
+      className="py-12 sm:py-18 lg:py-22 bg-surface border-b border-line relative overflow-hidden"
     >
       {/* Subtle organic background ambiance */}
-      <div className="absolute top-0 right-10 w-96 h-96 bg-[#22623a]/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-10 left-10 w-96 h-96 bg-[#c59b27]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-10 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-10 left-10 w-96 h-96 bg-secondary/5 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10 relative z-10">
 
@@ -293,31 +293,31 @@ export default function CommunityReviewsSection() {
         <Reveal className="space-y-4 sm:space-y-6">
           <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <div className="space-y-2.5 max-w-2xl">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#eef7f1] border border-[#cde4d6] text-[#22623a] text-xs font-semibold">
-                <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-green-50 border border-brand-green-200 text-primary text-xs font-semibold">
+                <Sparkles className="w-3.5 h-3.5 text-secondary-text" />
                 <span>Verified Google Business Social Proof</span>
               </div>
 
-              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#22623a] leading-tight">
+              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-primary leading-tight">
                 Authentic Patient Reviews & Recovery Stories
               </h2>
 
-              <p className="text-xs sm:text-sm text-[#59534b] leading-relaxed">
+              <p className="text-xs sm:text-sm text-ink-body leading-relaxed">
                 Real clinical feedback, recovery milestones, and verified Google Business ratings from patients treated in-person at our Karachi matab and through nationwide remote consultations.
               </p>
 
               {/* Quick Trust Pillars */}
-              <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] font-medium text-[#22623a]">
-                <span className="flex items-center gap-1 bg-white border border-[#e6dfd5] px-2.5 py-1 rounded-lg shadow-2xs">
-                  <BadgeCheck className="w-3.5 h-3.5 text-[#22623a]" />
+              <div className="flex flex-wrap items-center gap-3 pt-1 text-[11px] font-medium text-primary">
+                <span className="flex items-center gap-1 bg-white border border-line px-2.5 py-1 rounded-lg shadow-2xs">
+                  <BadgeCheck className="w-3.5 h-3.5 text-primary" />
                   <span>35+ Years Clinical Lineage</span>
                 </span>
-                <span className="flex items-center gap-1 bg-white border border-[#e6dfd5] px-2.5 py-1 rounded-lg shadow-2xs">
-                  <HeartHandshake className="w-3.5 h-3.5 text-[#c59b27]" />
+                <span className="flex items-center gap-1 bg-white border border-line px-2.5 py-1 rounded-lg shadow-2xs">
+                  <HeartHandshake className="w-3.5 h-3.5 text-secondary-text" />
                   <span>150,000+ Treated Patients</span>
                 </span>
-                <span className="flex items-center gap-1 bg-white border border-[#e6dfd5] px-2.5 py-1 rounded-lg shadow-2xs">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#22623a]" />
+                <span className="flex items-center gap-1 bg-white border border-line px-2.5 py-1 rounded-lg shadow-2xs">
+                  <ShieldCheck className="w-3.5 h-3.5 text-primary" />
                   <span>100% Unadulterated Botanicals</span>
                 </span>
               </div>
@@ -328,38 +328,38 @@ export default function CommunityReviewsSection() {
               href={CLINIC_INFO.googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white hover:bg-[#fbfaf8] p-4 sm:p-5 rounded-2xl border border-[#e6dfd5] hover:border-[#22623a] shadow-xs hover:shadow-md transition-all flex items-center gap-4 shrink-0 self-start lg:self-auto group cursor-pointer"
+              className="bg-white hover:bg-surface p-4 sm:p-5 rounded-2xl border border-line hover:border-primary shadow-xs hover:shadow-md transition-all flex items-center gap-4 shrink-0 self-start lg:self-auto group cursor-pointer"
               title="Click to view verified reviews on Google Business Profile"
             >
-              <div className="flex flex-col items-center justify-center border-r border-[#e6dfd5] pr-4">
+              <div className="flex flex-col items-center justify-center border-r border-line pr-4">
                 {/* Google Multicolor G Icon */}
-                <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-2xs border border-[#e6dfd5] mb-1 group-hover:scale-105 transition-transform">
+                <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-2xs border border-line mb-1 group-hover:scale-105 transition-transform">
                   <svg className="w-4 h-4" viewBox="0 0 24 24">
                     <path
-                      fill="#4285F4"
+                      fill="var(--color-google-blue)"
                       d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
                     />
                     <path
-                      fill="#34A853"
+                      fill="var(--color-google-green)"
                       d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"
                     />
                     <path
-                      fill="#FBBC05"
+                      fill="var(--color-google-yellow)"
                       d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.17 0 9.97 0 12s.45 3.83 1.25 5.42l4.03-3.15z"
                     />
                     <path
-                      fill="#EA4335"
+                      fill="var(--color-google-red)"
                       d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
                     />
                   </svg>
                 </div>
                 <div className="flex items-baseline gap-0.5">
-                  <span className="font-serif text-2xl font-bold text-[#1a1816] leading-none">
+                  <span className="font-serif text-2xl font-bold text-ink leading-none">
                     {rating.toFixed(1)}
                   </span>
-                  <span className="text-[10px] text-[#6a6660] font-semibold">/5</span>
+                  <span className="text-[10px] text-ink-muted font-semibold">/5</span>
                 </div>
-                <div className="flex text-[#c59b27] mt-1">
+                <div className="flex text-secondary-text mt-1">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className="w-3 h-3 fill-current" />
                   ))}
@@ -367,16 +367,16 @@ export default function CommunityReviewsSection() {
               </div>
 
               <div className="space-y-1">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-[#22623a] group-hover:text-[#1b502e]">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-primary group-hover:text-primary">
                   <span>Matab Tameer-e-sehat</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-[#c59b27] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  <ExternalLink className="w-3.5 h-3.5 text-secondary-text group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </div>
-                <div className="flex items-center gap-1 text-[11px] text-[#59534b]">
-                  <MapPin className="w-3 h-3 text-[#8c6a15]" />
+                <div className="flex items-center gap-1 text-[11px] text-ink-body">
+                  <MapPin className="w-3 h-3 text-secondary-text" />
                   <span>Korangi Crossing, Karachi</span>
                 </div>
-                <div className="flex items-center gap-1 text-[10px] text-[#8c6a15] font-semibold pt-0.5">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#22623a]" />
+                <div className="flex items-center gap-1 text-[10px] text-secondary-text font-semibold pt-0.5">
+                  <ShieldCheck className="w-3.5 h-3.5 text-primary" />
                   <span className="underline decoration-dotted underline-offset-2">
                     {verifiedCount}+ Verified Patient Reviews ↗
                   </span>
@@ -388,7 +388,7 @@ export default function CommunityReviewsSection() {
 
         {/* Category Filter Pills & Mobile Swipe Navigation */}
         <Reveal>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-y border-[#e6dfd5]/80 py-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-y border-line/80 py-3">
             {/* Filter Pills */}
             <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 sm:pb-0 text-xs">
               {CATEGORIES.map((cat) => {
@@ -410,8 +410,8 @@ export default function CommunityReviewsSection() {
                     }}
                     className={`whitespace-nowrap px-3 py-1.5 rounded-full font-medium transition-all text-xs cursor-pointer ${
                       isActive
-                        ? "bg-[#22623a] text-white shadow-2xs"
-                        : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a]/40 hover:text-[#22623a]"
+                        ? "bg-primary text-white shadow-2xs"
+                        : "bg-white text-ink-body border border-line hover:border-primary/40 hover:text-primary"
                     }`}
                   >
                     <span>{cat}</span>
@@ -419,7 +419,7 @@ export default function CommunityReviewsSection() {
                       className={`ml-1.5 text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
                         isActive
                           ? "bg-white/20 text-white"
-                          : "bg-[#faf8f5] text-[#8c6a15]"
+                          : "bg-surface text-secondary-text"
                       }`}
                     >
                       {count}
@@ -431,8 +431,8 @@ export default function CommunityReviewsSection() {
 
             {/* Mobile / Carousel Chevron Navigation */}
             <div className="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-1 sm:pt-0">
-              <span className="text-[11px] text-[#6a6660] lg:hidden flex items-center gap-1 font-medium">
-                <Sparkles className="w-3 h-3 text-[#c59b27]" />
+              <span className="text-[11px] text-ink-muted lg:hidden flex items-center gap-1 font-medium">
+                <Sparkles className="w-3 h-3 text-secondary-text" />
                 <span>Swipe cards horizontally</span>
               </span>
 
@@ -443,8 +443,8 @@ export default function CommunityReviewsSection() {
                   aria-label="Scroll reviews left"
                   className={`p-2 rounded-xl border transition-all ${
                     canScrollLeft
-                      ? "bg-white text-[#22623a] border-[#e6dfd5] hover:bg-[#eef7f1] cursor-pointer shadow-2xs"
-                      : "bg-white/60 text-[#c2bcaf] border-[#ece6dc] cursor-not-allowed opacity-60"
+                      ? "bg-white text-primary border-line hover:bg-brand-green-50 cursor-pointer shadow-2xs"
+                      : "bg-white/60 text-sand-400 border-line cursor-not-allowed opacity-60"
                   }`}
                 >
                   <ChevronLeft className="w-4 h-4" />
@@ -455,8 +455,8 @@ export default function CommunityReviewsSection() {
                   aria-label="Scroll reviews right"
                   className={`p-2 rounded-xl border transition-all ${
                     canScrollRight
-                      ? "bg-white text-[#22623a] border-[#e6dfd5] hover:bg-[#eef7f1] cursor-pointer shadow-2xs"
-                      : "bg-white/60 text-[#c2bcaf] border-[#ece6dc] cursor-not-allowed opacity-60"
+                      ? "bg-white text-primary border-line hover:bg-brand-green-50 cursor-pointer shadow-2xs"
+                      : "bg-white/60 text-sand-400 border-line cursor-not-allowed opacity-60"
                   }`}
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -468,8 +468,8 @@ export default function CommunityReviewsSection() {
 
         {/* Loading Indicator */}
         {loading && (
-          <div className="py-8 flex items-center justify-center gap-2 text-xs font-semibold text-[#59534b]">
-            <Loader2 className="w-4 h-4 text-[#22623a] animate-spin" />
+          <div className="py-8 flex items-center justify-center gap-2 text-xs font-semibold text-ink-body">
+            <Loader2 className="w-4 h-4 text-primary animate-spin" />
             <span>Syncing live Google profile data...</span>
           </div>
         )}
@@ -483,14 +483,14 @@ export default function CommunityReviewsSection() {
             {filteredStories.map((story) => (
               <div
                 key={story.id}
-                className="w-[86vw] max-w-[360px] sm:w-[380px] lg:w-auto shrink-0 lg:shrink snap-center lg:snap-align-none flex flex-col justify-between h-full bg-white rounded-2xl border border-[#e6dfd5] p-5 sm:p-6 shadow-2xs hover:shadow-md transition-all duration-300 group hover:border-[#22623a]/50 space-y-4"
+                className="w-[86vw] max-w-[360px] sm:w-[380px] lg:w-auto shrink-0 lg:shrink snap-center lg:snap-align-none flex flex-col justify-between h-full bg-white rounded-2xl border border-line p-5 sm:p-6 shadow-2xs hover:shadow-md transition-all duration-300 group hover:border-primary/50 space-y-4"
               >
                 <div className="space-y-3.5">
                   {/* Top Author Row */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
                       {story.avatarUrl ? (
-                        <div className="relative w-10 h-10 rounded-full overflow-hidden border border-[#e6dfd5] shrink-0">
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden border border-line shrink-0">
                           <Image
                             src={story.avatarUrl}
                             alt={story.author}
@@ -501,41 +501,41 @@ export default function CommunityReviewsSection() {
                         </div>
                       ) : (
                         <div
-                          className={`w-10 h-10 rounded-full ${story.avatarBg || "bg-[#22623a]"} text-white font-bold text-xs flex items-center justify-center shadow-2xs shrink-0`}
+                          className={`w-10 h-10 rounded-full ${story.avatarBg || "bg-primary"} text-white font-bold text-xs flex items-center justify-center shadow-2xs shrink-0`}
                         >
                           {story.avatarText || story.author.slice(0, 2).toUpperCase()}
                         </div>
                       )}
                       <div>
-                        <h4 className="font-bold text-xs sm:text-sm text-[#1a1816] leading-tight">
+                        <h4 className="font-bold text-xs sm:text-sm text-ink leading-tight">
                           {story.author}
                         </h4>
-                        <span className="text-[11px] text-[#6a6660] block leading-tight pt-0.5">
+                        <span className="text-[11px] text-ink-muted block leading-tight pt-0.5">
                           {story.location}
                         </span>
-                        <span className="text-[10px] text-[#8c6a15] block pt-0.5 font-medium">
+                        <span className="text-[10px] text-secondary-text block pt-0.5 font-medium">
                           {story.relativeTime}
                         </span>
                       </div>
                     </div>
 
                     {/* Source Google Badge */}
-                    <span className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase bg-white border border-[#e6dfd5] text-[#4285F4] flex items-center gap-1 shrink-0 shadow-2xs">
+                    <span className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase bg-white border border-line text-google-blue flex items-center gap-1 shrink-0 shadow-2xs">
                       <svg className="w-2.5 h-2.5" viewBox="0 0 24 24">
                         <path
-                          fill="#4285F4"
+                          fill="var(--color-google-blue)"
                           d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
                         />
                         <path
-                          fill="#34A853"
+                          fill="var(--color-google-green)"
                           d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.34 24 12 24z"
                         />
                         <path
-                          fill="#FBBC05"
+                          fill="var(--color-google-yellow)"
                           d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.17 0 9.97 0 12s.45 3.83 1.25 5.42l4.03-3.15z"
                         />
                         <path
-                          fill="#EA4335"
+                          fill="var(--color-google-red)"
                           d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.34 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
                         />
                       </svg>
@@ -545,43 +545,43 @@ export default function CommunityReviewsSection() {
 
                   {/* Rating & Clinical Category Tags */}
                   <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                    <div className="flex text-[#c59b27] items-center gap-0.5">
+                    <div className="flex text-secondary-text items-center gap-0.5">
                       {[...Array(story.rating)].map((_, i) => (
                         <Star key={i} className="w-3.5 h-3.5 fill-current" />
                       ))}
-                      <span className="text-xs font-bold text-[#1a1816] ml-1">5.0</span>
+                      <span className="text-xs font-bold text-ink ml-1">5.0</span>
                     </div>
 
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#eef7f1] text-[#22623a] font-semibold border border-[#cde4d6]">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-green-50 text-primary font-semibold border border-brand-green-200">
                       {story.concern}
                     </span>
 
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#fbf7ed] text-[#8c6a15] font-semibold border border-[#f0e3c5] flex items-center gap-1">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-brand-gold-50 text-secondary-text font-semibold border border-brand-gold-100 flex items-center gap-1">
                       <Clock className="w-2.5 h-2.5" />
                       <span>{story.recoveryTime}</span>
                     </span>
                   </div>
 
                   {/* Clinical Treatment Protocol Badge */}
-                  <div className="bg-[#faf8f5] rounded-xl p-2.5 border border-[#e6dfd5]/80 text-[11px] text-[#22623a] flex items-start gap-2">
-                    <Stethoscope className="w-3.5 h-3.5 text-[#8c6a15] shrink-0 mt-0.5" />
+                  <div className="bg-surface rounded-xl p-2.5 border border-line/80 text-[11px] text-primary flex items-start gap-2">
+                    <Stethoscope className="w-3.5 h-3.5 text-secondary-text shrink-0 mt-0.5" />
                     <div className="leading-snug">
-                      <span className="font-bold text-[#1a1816]">Tibbi Protocol: </span>
-                      <span className="text-[#3f3b35]">{story.protocol}</span>
+                      <span className="font-bold text-ink">Tibbi Protocol: </span>
+                      <span className="text-neutral-800">{story.protocol}</span>
                     </div>
                   </div>
 
                   {/* Review Text */}
                   <div className="relative pt-1">
-                    <Quote className="w-5 h-5 text-[#22623a]/15 absolute -top-1.5 -left-1" />
-                    <p className="text-xs sm:text-sm text-[#3f3b35] leading-relaxed italic pl-4">
+                    <Quote className="w-5 h-5 text-primary/15 absolute -top-1.5 -left-1" />
+                    <p className="text-xs sm:text-sm text-neutral-800 leading-relaxed italic pl-4">
                       &ldquo;{story.text}&rdquo;
                     </p>
                   </div>
                 </div>
 
                 {/* Card Bottom: Consultation Prompt & Verified Google Proof */}
-                <div className="pt-3 border-t border-[#e6dfd5] space-y-2.5">
+                <div className="pt-3 border-t border-line space-y-2.5">
                   {/* Connect to useConsultation */}
                   <button
                     onClick={() =>
@@ -590,16 +590,16 @@ export default function CommunityReviewsSection() {
                         mode: "WHATSAPP",
                       })
                     }
-                    className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#eef7f1] hover:bg-[#22623a] text-[#22623a] hover:text-white text-xs font-semibold border border-[#cde4d6] hover:border-[#22623a] transition-all cursor-pointer group/btn"
+                    className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-brand-green-50 hover:bg-primary text-primary hover:text-white text-xs font-semibold border border-brand-green-200 hover:border-primary transition-all cursor-pointer group/btn"
                     title="Click to consult Hakim Muhammad Tariq regarding similar health symptoms"
                   >
-                    <MessageCircle className="w-3.5 h-3.5 text-[#22623a] group-hover/btn:text-white transition-colors" />
+                    <MessageCircle className="w-3.5 h-3.5 text-primary group-hover/btn:text-white transition-colors" />
                     <span>Consult for Similar Symptoms</span>
                   </button>
 
-                  <div className="flex items-center justify-between text-[10px] text-[#59534b]">
-                    <div className="flex items-center gap-1 text-[#22623a] font-semibold">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#22623a]" />
+                  <div className="flex items-center justify-between text-[10px] text-ink-body">
+                    <div className="flex items-center gap-1 text-primary font-semibold">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
                       <span>Verified Google Review</span>
                     </div>
 
@@ -607,7 +607,7 @@ export default function CommunityReviewsSection() {
                       href={story.googleReviewUrl || CLINIC_INFO.googleReviewUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#8c6a15] hover:text-[#22623a] hover:underline flex items-center gap-1 font-semibold"
+                      className="text-secondary-text hover:text-primary hover:underline flex items-center gap-1 font-semibold"
                     >
                       <span>View on Google</span>
                       <ExternalLink className="w-3 h-3" />
@@ -620,13 +620,13 @@ export default function CommunityReviewsSection() {
         </Reveal>
 
         {/* Bottom Callout Bar: High-Intent Actions + Consultation Integration */}
-        <Reveal className="p-6 sm:p-8 lg:p-10 bg-[#22623a] rounded-2xl sm:rounded-3xl text-white shadow-xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8">
+        <Reveal className="p-6 sm:p-8 lg:p-10 bg-primary rounded-2xl sm:rounded-3xl text-white shadow-xl relative overflow-hidden flex flex-col lg:flex-row items-center justify-between gap-6 sm:gap-8">
           {/* Subtle Ambient Shapes */}
-          <div className="absolute top-0 right-0 w-72 h-72 bg-[#143e23]/60 rounded-full blur-2xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-72 h-72 bg-[#c59b27]/15 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute top-0 right-0 w-72 h-72 bg-brand-green-900/60 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-72 h-72 bg-secondary/15 rounded-full blur-2xl pointer-events-none" />
 
           <div className="space-y-2 text-center lg:text-left max-w-xl relative z-10">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#143e23] border border-[#2d7648] text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-[#c59b27]">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-green-900 border border-brand-green-600 text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-brand-gold-500">
               <Sparkles className="w-3.5 h-3.5" />
               <span>35+ Years of Classical Tibbi Practice · Karachi</span>
             </div>
@@ -635,7 +635,7 @@ export default function CommunityReviewsSection() {
               Have You Consulted with Hakim Muhammad Tariq?
             </h3>
 
-            <p className="text-xs sm:text-sm text-[#f4eee5]/85 leading-relaxed">
+            <p className="text-xs sm:text-sm text-on-inverse/85 leading-relaxed">
               Whether you visited our Korangi Crossing matab or received pure steam-distillates delivered to your doorstep, your genuine feedback on Google helps others find safe, unadulterated Unani healing.
             </p>
           </div>
@@ -650,9 +650,9 @@ export default function CommunityReviewsSection() {
                   mode: "WHATSAPP",
                 })
               }
-              className="px-5 py-3 bg-white hover:bg-[#faf8f5] text-[#22623a] text-xs font-bold tracking-wider uppercase rounded-xl transition-all shadow-md text-center flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+              className="px-5 py-3 bg-white hover:bg-surface text-primary text-xs font-bold tracking-wider uppercase rounded-xl transition-all shadow-md text-center flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
             >
-              <MessageCircle className="w-4 h-4 text-[#22623a]" />
+              <MessageCircle className="w-4 h-4 text-primary" />
               <span>Book Free Consultation</span>
             </button>
 
@@ -664,9 +664,9 @@ export default function CommunityReviewsSection() {
                   mode: "PHYSICAL",
                 })
               }
-              className="px-5 py-3 bg-[#143e23] hover:bg-[#1a4f2c] text-white text-xs font-bold tracking-wider uppercase rounded-xl border border-[#2d7648] transition-all text-center flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
+              className="px-5 py-3 bg-brand-green-900 hover:bg-brand-green-800 text-white text-xs font-bold tracking-wider uppercase rounded-xl border border-brand-green-600 transition-all text-center flex items-center justify-center gap-2 cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
             >
-              <Building2 className="w-4 h-4 text-[#c59b27]" />
+              <Building2 className="w-4 h-4 text-brand-gold-500" />
               <span>Visit Karachi Clinic</span>
             </button>
 
@@ -678,7 +678,7 @@ export default function CommunityReviewsSection() {
               className="px-4 py-3 bg-transparent hover:bg-white/10 text-white text-xs font-bold tracking-wider uppercase rounded-xl border border-white/20 transition-all text-center flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span>Write Google Review</span>
-              <ExternalLink className="w-3.5 h-3.5 text-[#c59b27]" />
+              <ExternalLink className="w-3.5 h-3.5 text-brand-gold-300" />
             </a>
           </div>
         </Reveal>

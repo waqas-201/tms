@@ -437,18 +437,18 @@ export default function HijamaBookingModal({
   if (!isOpen && !isInline) return null;
 
   const content = (
-    <div className="bg-white rounded-3xl shadow-2xl border border-[#e6dfd5] overflow-hidden max-w-2xl w-full mx-auto relative flex flex-col max-h-[92vh]">
+    <div className="bg-white rounded-3xl shadow-2xl border border-line overflow-hidden max-w-2xl w-full mx-auto relative flex flex-col max-h-[92vh]">
       {/* ─── Header ─── */}
-      <div className="bg-[#0d2818] text-[#f7f4ee] px-6 py-5 border-b border-[#1b432a] flex items-center justify-between shrink-0">
+      <div className="bg-surface-inverse text-on-inverse px-6 py-5 border-b border-brand-green-900 flex items-center justify-between shrink-0">
         <div>
-          <div className="inline-flex items-center gap-1.5 text-xs text-[#c59b27] font-semibold uppercase tracking-wider mb-1">
-            <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
+          <div className="inline-flex items-center gap-1.5 text-xs text-brand-gold-500 font-semibold uppercase tracking-wider mb-1">
+            <Sparkles className="w-3.5 h-3.5 text-brand-gold-500" />
             <span>Islamic Sunnah Wet Cupping</span>
           </div>
           <h2 className="font-serif text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
             <span>Book Your Hijama Session</span>
           </h2>
-          <p className="text-xs text-[#c4d4c9] mt-0.5">
+          <p className="text-xs text-brand-green-300 mt-0.5">
             Strict gender-segregated wings · Certified Hakims &amp; Hajjama practitioners
           </p>
         </div>
@@ -457,7 +457,7 @@ export default function HijamaBookingModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-full bg-[#133821] hover:bg-[#1b432a] text-[#c4d4c9] hover:text-white flex items-center justify-center transition-colors border border-[#225534]"
+            className="w-9 h-9 rounded-full bg-surface-inverse hover:bg-brand-green-900 text-brand-green-300 hover:text-white flex items-center justify-center transition-colors border border-brand-green-800"
             aria-label="Close booking modal"
           >
             <X className="w-4 h-4" />
@@ -466,87 +466,87 @@ export default function HijamaBookingModal({
       </div>
 
       {/* ─── Step Indicator (Steps 1 to 5) ─── */}
-      <div className="bg-[#faf8f5] px-6 py-3 border-b border-[#e6dfd5] shrink-0">
-        <div className="flex items-center justify-between text-xs font-semibold text-[#59534b]">
+      <div className="bg-surface px-6 py-3 border-b border-line shrink-0">
+        <div className="flex items-center justify-between text-xs font-semibold text-ink-body">
           <span className="flex items-center gap-1.5">
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
                 step >= 1
-                  ? "bg-[#22623a] text-white"
-                  : "bg-gray-200 text-gray-600"
+                  ? "bg-primary text-white"
+                  : "bg-line text-ink-body"
               }`}
             >
               1
             </span>
-            <span className={step === 1 ? "text-[#22623a] font-bold" : ""}>
+            <span className={step === 1 ? "text-primary font-bold" : ""}>
               Wing
             </span>
           </span>
 
-          <span className="text-gray-300">──</span>
+          <span className="text-ink-subtle">──</span>
 
           <span className="flex items-center gap-1.5">
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
                 step >= 2
-                  ? "bg-[#22623a] text-white"
-                  : "bg-gray-200 text-gray-600"
+                  ? "bg-primary text-white"
+                  : "bg-line text-ink-body"
               }`}
             >
               2
             </span>
-            <span className={step === 2 ? "text-[#22623a] font-bold" : ""}>
+            <span className={step === 2 ? "text-primary font-bold" : ""}>
               Date &amp; Slot
             </span>
           </span>
 
-          <span className="text-gray-300">──</span>
+          <span className="text-ink-subtle">──</span>
 
           <span className="flex items-center gap-1.5">
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
                 step >= 3
-                  ? "bg-[#22623a] text-white"
-                  : "bg-gray-200 text-gray-600"
+                  ? "bg-primary text-white"
+                  : "bg-line text-ink-body"
               }`}
             >
               3
             </span>
-            <span className={step === 3 ? "text-[#22623a] font-bold" : ""}>
+            <span className={step === 3 ? "text-primary font-bold" : ""}>
               Screening
             </span>
           </span>
 
-          <span className="text-gray-300">──</span>
+          <span className="text-ink-subtle">──</span>
 
           <span className="flex items-center gap-1.5">
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
                 step >= 4
-                  ? "bg-[#22623a] text-white"
-                  : "bg-gray-200 text-gray-600"
+                  ? "bg-primary text-white"
+                  : "bg-line text-ink-body"
               }`}
             >
               4
             </span>
-            <span className={step === 4 ? "text-[#22623a] font-bold" : ""}>
+            <span className={step === 4 ? "text-primary font-bold" : ""}>
               Details
             </span>
           </span>
 
-          <span className="text-gray-300">──</span>
+          <span className="text-ink-subtle">──</span>
 
           <span className="flex items-center gap-1.5">
             <span
               className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
                 step === 5
-                  ? "bg-[#c59b27] text-[#0d2818]"
-                  : "bg-gray-200 text-gray-600"
+                  ? "bg-secondary text-ink"
+                  : "bg-line text-ink-body"
               }`}
             >
               5
             </span>
-            <span className={step === 5 ? "text-[#8c6a15] font-bold" : ""}>
+            <span className={step === 5 ? "text-secondary-text font-bold" : ""}>
               Ticket
             </span>
           </span>
@@ -559,10 +559,10 @@ export default function HijamaBookingModal({
         {step === 1 && (
           <div className="space-y-5 animate-fade-in">
             <div className="text-center max-w-md mx-auto space-y-1.5">
-              <h3 className="font-serif text-xl font-bold text-[#0d2818]">
+              <h3 className="font-serif text-xl font-bold text-ink">
                 Select Practitioner Gender &amp; Room
               </h3>
-              <p className="text-xs text-[#59534b]">
+              <p className="text-xs text-ink-body">
                 In accordance with Islamic Shariah modesty standards (Haya), our clinic operates completely segregated clinical suites.
               </p>
             </div>
@@ -574,27 +574,27 @@ export default function HijamaBookingModal({
                 onClick={() => setGender("MALE")}
                 className={`p-5 rounded-2xl border-2 text-left transition-all relative flex flex-col justify-between min-h-[170px] ${
                   gender === "MALE"
-                    ? "border-[#22623a] bg-[#f0f7f2] shadow-md ring-2 ring-[#22623a]/20"
-                    : "border-[#e6dfd5] bg-white hover:border-[#22623a]/50 hover:bg-[#faf8f5]"
+                    ? "border-primary bg-brand-green-50 shadow-md ring-2 ring-primary/20"
+                    : "border-line bg-white hover:border-primary/50 hover:bg-surface"
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="w-10 h-10 rounded-xl bg-[#22623a] text-white flex items-center justify-center font-bold">
+                    <span className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center font-bold">
                       <User className="w-5 h-5" />
                     </span>
                     {gender === "MALE" && (
-                      <CheckCircle2 className="w-5 h-5 text-[#22623a]" />
+                      <CheckCircle2 className="w-5 h-5 text-primary" />
                     )}
                   </div>
-                  <h4 className="font-bold text-sm text-[#0d2818]">
+                  <h4 className="font-bold text-sm text-ink">
                     Male Room — Hajjam
                   </h4>
-                  <p className="text-xs text-[#59534b] mt-1 leading-relaxed">
+                  <p className="text-xs text-ink-body mt-1 leading-relaxed">
                     Administered exclusively by certified male Hakims &amp; cupping specialists. Private male ward.
                   </p>
                 </div>
-                <div className="pt-3 mt-3 border-t border-[#d8e8dc] text-[11px] font-semibold text-[#22623a] flex items-center gap-1">
+                <div className="pt-3 mt-3 border-t border-brand-green-100 text-[11px] font-semibold text-primary flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Strict privacy &amp; etiquette guaranteed</span>
                 </div>
@@ -606,35 +606,35 @@ export default function HijamaBookingModal({
                 onClick={() => setGender("FEMALE")}
                 className={`p-5 rounded-2xl border-2 text-left transition-all relative flex flex-col justify-between min-h-[170px] ${
                   gender === "FEMALE"
-                    ? "border-[#c59b27] bg-[#fcf9f0] shadow-md ring-2 ring-[#c59b27]/20"
-                    : "border-[#e6dfd5] bg-white hover:border-[#c59b27]/50 hover:bg-[#faf8f5]"
+                    ? "border-secondary bg-brand-gold-50 shadow-md ring-2 ring-secondary/20"
+                    : "border-line bg-white hover:border-secondary/50 hover:bg-surface"
                 }`}
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <span className="w-10 h-10 rounded-xl bg-[#8c6a15] text-white flex items-center justify-center font-bold">
+                    <span className="w-10 h-10 rounded-xl bg-brand-gold-700 text-white flex items-center justify-center font-bold">
                       <User className="w-5 h-5" />
                     </span>
                     {gender === "FEMALE" && (
-                      <CheckCircle2 className="w-5 h-5 text-[#c59b27]" />
+                      <CheckCircle2 className="w-5 h-5 text-secondary-text" />
                     )}
                   </div>
-                  <h4 className="font-bold text-sm text-[#0d2818]">
+                  <h4 className="font-bold text-sm text-ink">
                     Female Room — Hajjama
                   </h4>
-                  <p className="text-xs text-[#59534b] mt-1 leading-relaxed">
+                  <p className="text-xs text-ink-body mt-1 leading-relaxed">
                     Administered exclusively by certified female Hajjama practitioners in an isolated, confidential female wing.
                   </p>
                 </div>
-                <div className="pt-3 mt-3 border-t border-[#f2e6cb] text-[11px] font-semibold text-[#8c6a15] flex items-center gap-1">
+                <div className="pt-3 mt-3 border-t border-brand-gold-100 text-[11px] font-semibold text-secondary-text flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>100% Female staff &amp; private entrance</span>
                 </div>
               </button>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-[#faf8f5] border border-[#e6dfd5] flex items-start gap-2.5 text-xs text-[#59534b]">
-              <Info className="w-4 h-4 text-[#c59b27] shrink-0 mt-0.5" />
+            <div className="p-3.5 rounded-xl bg-surface border border-line flex items-start gap-2.5 text-xs text-ink-body">
+              <Info className="w-4 h-4 text-secondary-text shrink-0 mt-0.5" />
               <span>
                 Standard fee for all sessions is <strong>₨ 2,500</strong>, including medical-grade sterile vacuum cups, surgical precision blades, and anti-bacterial herbal dress kit.
               </span>
@@ -648,16 +648,16 @@ export default function HijamaBookingModal({
             {/* Quick-Pick Sunnah Dates Ribbon */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-[#0d2818] flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
+                <span className="text-xs font-bold text-ink flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-secondary-text" />
                   <span>Upcoming Sunnah Days (Recommended)</span>
                 </span>
-                <span className="text-[10px] text-[#7a7268]">17th · 19th · 21st</span>
+                <span className="text-[10px] text-ink-subtle">17th · 19th · 21st</span>
               </div>
 
               {loadingSunnah ? (
-                <div className="p-3 rounded-xl bg-gray-50 text-center text-xs text-[#7a7268] flex items-center justify-center gap-2">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#22623a]" />
+                <div className="p-3 rounded-xl bg-surface text-center text-xs text-ink-subtle flex items-center justify-center gap-2">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
                   <span>Locating upcoming lunar Sunnah dates...</span>
                 </div>
               ) : sunnahDates.length > 0 ? (
@@ -674,19 +674,19 @@ export default function HijamaBookingModal({
                         }}
                         className={`p-2.5 rounded-xl border text-left transition-all ${
                           isPicked
-                            ? "border-[#c59b27] bg-[#0d2818] text-white shadow-md ring-1 ring-[#c59b27]"
-                            : "border-[#e6dfd5] bg-gradient-to-b from-[#fbf8ed] to-[#faf8f5] hover:border-[#c59b27] text-[#1e1c19]"
+                            ? "border-secondary bg-surface-inverse text-white shadow-md ring-1 ring-secondary"
+                            : "border-line bg-gradient-to-b from-brand-gold-50 to-sand-50 hover:border-secondary text-ink"
                         }`}
                       >
                         <div className="flex items-center justify-between text-[10px] mb-1 font-semibold">
-                          <span className={isPicked ? "text-[#c59b27]" : "text-[#8c6a15]"}>
+                          <span className={isPicked ? "text-brand-gold-500" : "text-secondary-text"}>
                             {sd.hijriDay}th {sd.hijriMonthName.slice(0, 4)}
                           </span>
                           <span
                             className={`px-1 rounded text-[9px] ${
                               isPicked
-                                ? "bg-[#c59b27] text-[#0d2818] font-bold"
-                                : "bg-[#22623a]/10 text-[#22623a]"
+                                ? "bg-secondary text-ink font-bold"
+                                : "bg-primary/10 text-primary"
                             }`}
                           >
                             Sunnah
@@ -697,7 +697,7 @@ export default function HijamaBookingModal({
                         </div>
                         <div
                           className={`text-[9px] mt-1 ${
-                            isPicked ? "text-emerald-300" : "text-[#59534b]"
+                            isPicked ? "text-success" : "text-ink-body"
                           }`}
                         >
                           {sd.totalAvailableSeats === 0 ? "Full" : `${sd.totalAvailableSeats} slots open`}
@@ -710,13 +710,13 @@ export default function HijamaBookingModal({
             </div>
 
             {/* Custom Date Input Picker */}
-            <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e6dfd5] space-y-2">
-              <label className="block text-xs font-bold text-[#0d2818]">
+            <div className="p-4 rounded-2xl bg-surface border border-line space-y-2">
+              <label className="block text-xs font-bold text-ink">
                 Or Select Any Clinic Operating Date:
               </label>
               <div className="flex items-center gap-3">
                 <div className="relative flex-1">
-                  <Calendar className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Calendar className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="date"
                     min={todayStr}
@@ -725,15 +725,15 @@ export default function HijamaBookingModal({
                       setSelectedDate(e.target.value);
                       setSelectedSlot("");
                     }}
-                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#d6cfc5] bg-white focus:outline-none focus:ring-2 focus:ring-[#22623a] font-medium"
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-line-strong bg-white focus:outline-none focus:ring-2 focus:ring-primary font-medium"
                   />
                 </div>
                 {availability && (
                   <div className="text-right text-xs">
-                    <span className="font-bold text-[#22623a] block">
+                    <span className="font-bold text-primary block">
                       {availability.hijriInfo.hijriFormatted}
                     </span>
-                    <span className="text-[10px] text-[#7a7268]">
+                    <span className="text-[10px] text-ink-subtle">
                       {availability.isSunnahDay ? "Sunnah Day" : "Regular Clinic Day"}
                     </span>
                   </div>
@@ -743,37 +743,37 @@ export default function HijamaBookingModal({
 
             {/* Available 45-min slots */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs font-bold text-[#0d2818]">
+              <div className="flex items-center justify-between text-xs font-bold text-ink">
                 <span className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-[#22623a]" />
+                  <Clock className="w-3.5 h-3.5 text-primary" />
                   <span>Choose 45-Min Slot ({gender === "MALE" ? "Male Hajjam" : "Female Hajjama"})</span>
                 </span>
                 {availability?.isOpen && (
-                  <span className="text-[11px] text-[#22623a] font-semibold">
+                  <span className="text-[11px] text-primary font-semibold">
                     {availability.totalSeatsRemaining} seats open
                   </span>
                 )}
               </div>
 
               {loadingSlots ? (
-                <div className="py-8 flex flex-col items-center justify-center gap-2 text-xs text-[#7a7268]">
-                  <Loader2 className="w-5 h-5 animate-spin text-[#22623a]" />
+                <div className="py-8 flex flex-col items-center justify-center gap-2 text-xs text-ink-subtle">
+                  <Loader2 className="w-5 h-5 animate-spin text-primary" />
                   <span>Checking room capacity...</span>
                 </div>
               ) : slotsError ? (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
+                <div className="p-3 rounded-xl bg-danger-soft border border-danger/20 text-danger text-xs">
                   {slotsError}
                 </div>
               ) : !availability?.isOpen ? (
-                <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs text-center space-y-1">
-                  <AlertCircle className="w-5 h-5 mx-auto text-amber-600" />
+                <div className="p-4 rounded-xl bg-warning-soft border border-warning-line text-warning text-xs text-center space-y-1">
+                  <AlertCircle className="w-5 h-5 mx-auto text-warning" />
                   <p className="font-bold">Clinic Closed on this Date</p>
                   <p className="text-[11px]">
                     {availability?.overrideNote || "Please pick an alternative day."}
                   </p>
                 </div>
               ) : availability.slots.length === 0 ? (
-                <div className="p-3 text-center text-xs text-[#7a7268]">
+                <div className="p-3 text-center text-xs text-ink-subtle">
                   No slots configured for this date.
                 </div>
               ) : (
@@ -790,10 +790,10 @@ export default function HijamaBookingModal({
                         onClick={() => setSelectedSlot(slot.slot)}
                         className={`p-2.5 rounded-xl border text-left flex items-center justify-between text-xs transition-all ${
                           isChosen
-                            ? "bg-[#22623a] text-white border-[#22623a] shadow-sm font-semibold cursor-pointer"
+                            ? "bg-primary text-white border-primary shadow-sm font-semibold cursor-pointer"
                             : isAvailable
-                            ? "bg-white border-[#e6dfd5] hover:border-[#22623a] hover:bg-emerald-50/50 text-[#1e1c19] cursor-pointer"
-                            : "bg-[#eef7f1] text-[#22623a]/60 border-emerald-200/70 opacity-60 blur-[0.4px] hover:blur-[0.4px] cursor-not-allowed select-none"
+                            ? "bg-white border-line hover:border-primary hover:bg-success-soft/50 text-ink cursor-pointer"
+                            : "bg-brand-green-50 text-primary/60 border-success-line/70 opacity-60 blur-[0.4px] hover:blur-[0.4px] cursor-not-allowed select-none"
                         }`}
                       >
                         <span className="truncate">{slot.slot}</span>
@@ -802,13 +802,13 @@ export default function HijamaBookingModal({
                             className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold shrink-0 ml-1 ${
                               isChosen
                                 ? "bg-white/20 text-white"
-                                : "bg-[#eef7f1] text-[#22623a]"
+                                : "bg-brand-green-50 text-primary"
                             }`}
                           >
                             Available
                           </span>
                         ) : (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-[#eef7f1] text-[#22623a]/70 shrink-0 ml-1">
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-brand-green-50 text-primary/70 shrink-0 ml-1">
                             Booked
                           </span>
                         )}
@@ -825,11 +825,11 @@ export default function HijamaBookingModal({
         {step === 3 && (
           <div className="space-y-5 animate-fade-in">
             <div className="text-center max-w-md mx-auto space-y-1">
-              <h3 className="font-serif text-xl font-bold text-[#0d2818] flex items-center justify-center gap-1.5">
-                <HeartPulse className="w-5 h-5 text-rose-600" />
+              <h3 className="font-serif text-xl font-bold text-ink flex items-center justify-center gap-1.5">
+                <HeartPulse className="w-5 h-5 text-danger" />
                 <span>Clinical Safety Pre-Screening</span>
               </h3>
-              <p className="text-xs text-[#59534b]">
+              <p className="text-xs text-ink-body">
                 Hijama involves superficial wet cupping. For your absolute safety, answer these 3 essential clinical questions.
               </p>
             </div>
@@ -837,13 +837,13 @@ export default function HijamaBookingModal({
             {/* 3 Mandatory Safety Questions */}
             <div className="space-y-3 pt-1">
               {/* Q1: Blood Thinners / Bleeding Disorders */}
-              <div className="p-3.5 rounded-xl border border-[#e6dfd5] bg-[#faf8f5] space-y-2">
+              <div className="p-3.5 rounded-xl border border-line bg-surface space-y-2">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <label className="text-xs font-bold text-[#0d2818] block">
+                    <label className="text-xs font-bold text-ink block">
                       1. Are you currently taking Blood Thinners (e.g. Aspirin, Warfarin, Plavix) or do you have a Bleeding Disorder (Hemophilia)?
                     </label>
-                    <span className="text-[10px] text-[#7a7268]">
+                    <span className="text-[10px] text-ink-subtle">
                       Crucial to prevent prolonged bleeding or hematoma.
                     </span>
                   </div>
@@ -855,8 +855,8 @@ export default function HijamaBookingModal({
                       }
                       className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                         screening.bloodThinners === true
-                          ? "bg-rose-600 text-white shadow-sm"
-                          : "bg-white border border-[#d6cfc5] text-[#59534b]"
+                          ? "bg-danger text-white shadow-sm"
+                          : "bg-white border border-line-strong text-ink-body"
                       }`}
                     >
                       Yes
@@ -868,8 +868,8 @@ export default function HijamaBookingModal({
                       }
                       className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                         screening.bloodThinners === false
-                          ? "bg-[#22623a] text-white shadow-sm"
-                          : "bg-white border border-[#d6cfc5] text-[#59534b]"
+                          ? "bg-primary text-white shadow-sm"
+                          : "bg-white border border-line-strong text-ink-body"
                       }`}
                     >
                       No
@@ -878,8 +878,8 @@ export default function HijamaBookingModal({
                 </div>
 
                 {screening.bloodThinners === true && (
-                  <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-[11px] flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
+                  <div className="p-2.5 rounded-lg bg-danger-soft border border-danger/20 text-danger text-[11px] flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-danger" />
                     <span>
                       <strong>Clinical Precaution:</strong> Patients on anticoagulants require physician clearance and a mild dry cupping evaluation prior to wet incisions. Our Hakim will consult you prior to procedure.
                     </span>
@@ -889,13 +889,13 @@ export default function HijamaBookingModal({
 
               {/* Q2: Pregnancy (for female patients) */}
               {gender === "FEMALE" && (
-                <div className="p-3.5 rounded-xl border border-[#e6dfd5] bg-[#faf8f5] space-y-2">
+                <div className="p-3.5 rounded-xl border border-line bg-surface space-y-2">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <label className="text-xs font-bold text-[#0d2818] block">
+                      <label className="text-xs font-bold text-ink block">
                         2. Are you currently Pregnant or within the first 6 weeks Post-Partum?
                       </label>
-                      <span className="text-[10px] text-[#7a7268]">
+                      <span className="text-[10px] text-ink-subtle">
                         Lower abdominal &amp; lumbar cupping is prohibited during pregnancy.
                       </span>
                     </div>
@@ -907,8 +907,8 @@ export default function HijamaBookingModal({
                         }
                         className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                           screening.pregnancy === true
-                            ? "bg-rose-600 text-white shadow-sm"
-                            : "bg-white border border-[#d6cfc5] text-[#59534b]"
+                            ? "bg-danger text-white shadow-sm"
+                            : "bg-white border border-line-strong text-ink-body"
                         }`}
                       >
                         Yes
@@ -920,8 +920,8 @@ export default function HijamaBookingModal({
                         }
                         className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                           screening.pregnancy === false
-                            ? "bg-[#22623a] text-white shadow-sm"
-                            : "bg-white border border-[#d6cfc5] text-[#59534b]"
+                            ? "bg-primary text-white shadow-sm"
+                            : "bg-white border border-line-strong text-ink-body"
                         }`}
                       >
                         No
@@ -930,8 +930,8 @@ export default function HijamaBookingModal({
                   </div>
 
                   {screening.pregnancy === true && (
-                    <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
+                    <div className="p-2.5 rounded-lg bg-warning-soft border border-warning-line text-warning text-[11px] flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-warning" />
                       <span>
                         <strong>Note:</strong> Wet cupping on the abdomen and lower back is strictly avoided during pregnancy. Only gentle upper back dry therapy is offered upon Hakim clearance.
                       </span>
@@ -941,13 +941,13 @@ export default function HijamaBookingModal({
               )}
 
               {/* Q3: Severe Low BP / Extreme Anemia / Dizziness */}
-              <div className="p-3.5 rounded-xl border border-[#e6dfd5] bg-[#faf8f5] space-y-2">
+              <div className="p-3.5 rounded-xl border border-line bg-surface space-y-2">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <label className="text-xs font-bold text-[#0d2818] block">
+                    <label className="text-xs font-bold text-ink block">
                       3. Do you have Severe Low Blood Pressure, Severe Anemia (Hb &lt; 9), or frequent fainting/dizziness?
                     </label>
-                    <span className="text-[10px] text-[#7a7268]">
+                    <span className="text-[10px] text-ink-subtle">
                       Helps our practitioners calibrate cup vacuum pressure safely.
                     </span>
                   </div>
@@ -959,8 +959,8 @@ export default function HijamaBookingModal({
                       }
                       className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                         screening.lowBpAnemia === true
-                          ? "bg-rose-600 text-white shadow-sm"
-                          : "bg-white border border-[#d6cfc5] text-[#59534b]"
+                          ? "bg-danger text-white shadow-sm"
+                          : "bg-white border border-line-strong text-ink-body"
                       }`}
                     >
                       Yes
@@ -972,8 +972,8 @@ export default function HijamaBookingModal({
                       }
                       className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                         screening.lowBpAnemia === false
-                          ? "bg-[#22623a] text-white shadow-sm"
-                          : "bg-white border border-[#d6cfc5] text-[#59534b]"
+                          ? "bg-primary text-white shadow-sm"
+                          : "bg-white border border-line-strong text-ink-body"
                       }`}
                     >
                       No
@@ -982,8 +982,8 @@ export default function HijamaBookingModal({
                 </div>
 
                 {screening.lowBpAnemia === true && (
-                  <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-[11px] flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-600" />
+                  <div className="p-2.5 rounded-lg bg-warning-soft border border-warning-line text-warning text-[11px] flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-warning" />
                     <span>
                       <strong>Recommendation:</strong> Drink a honey-water glass 30 minutes prior to session and rest in clinic post-session for 15 minutes.
                     </span>
@@ -994,7 +994,7 @@ export default function HijamaBookingModal({
 
             {/* Cupping Reason Selector */}
             <div className="space-y-2 pt-2">
-              <label className="block text-xs font-bold text-[#0d2818]">
+              <label className="block text-xs font-bold text-ink">
                 Primary Goal / Reason for Cupping:
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -1009,14 +1009,14 @@ export default function HijamaBookingModal({
                       }
                       className={`p-2.5 rounded-xl border text-left transition-all ${
                         isSelected
-                          ? "border-[#22623a] bg-[#22623a] text-white shadow-sm"
-                          : "border-[#e6dfd5] bg-white hover:border-[#22623a]/50 text-[#1e1c19]"
+                          ? "border-primary bg-primary text-white shadow-sm"
+                          : "border-line bg-white hover:border-primary/50 text-ink"
                       }`}
                     >
                       <div className="text-xs font-bold truncate">{r.label}</div>
                       <div
                         className={`text-[9px] mt-0.5 truncate ${
-                          isSelected ? "text-emerald-200" : "text-[#7a7268]"
+                          isSelected ? "text-success" : "text-ink-subtle"
                         }`}
                       >
                         {r.point}
@@ -1034,7 +1034,7 @@ export default function HijamaBookingModal({
                   onChange={(e) =>
                     setScreening({ ...screening, customReason: e.target.value })
                   }
-                  className="w-full mt-2 px-3 py-2 text-xs rounded-xl border border-[#d6cfc5] bg-white focus:outline-none focus:ring-2 focus:ring-[#22623a]"
+                  className="w-full mt-2 px-3 py-2 text-xs rounded-xl border border-line-strong bg-white focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               )}
             </div>
@@ -1048,16 +1048,16 @@ export default function HijamaBookingModal({
               /* ── UNAUTHENTICATED: AUTH GATE ── */
               <div className="space-y-4">
                 <div className="text-center max-w-md mx-auto space-y-1">
-                  <h3 className="font-serif text-xl font-bold text-[#0d2818]">
+                  <h3 className="font-serif text-xl font-bold text-ink">
                     Sign In Required to Reserve Slot
                   </h3>
-                  <p className="text-xs text-[#59534b]">
+                  <p className="text-xs text-ink-body">
                     Please sign in or create an account to issue your verified clinical booking ticket and link your session history.
                   </p>
                 </div>
 
                 {/* Tabs */}
-                <div className="grid grid-cols-2 p-1 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs font-bold max-w-sm mx-auto">
+                <div className="grid grid-cols-2 p-1 bg-surface border border-line rounded-xl text-xs font-bold max-w-sm mx-auto">
                   <button
                     type="button"
                     onClick={() => {
@@ -1067,8 +1067,8 @@ export default function HijamaBookingModal({
                     }}
                     className={`py-2 rounded-lg transition-colors cursor-pointer ${
                       authTab === "signin"
-                        ? "bg-[#22623a] text-white shadow-xs"
-                        : "text-[#7a7268] hover:text-[#0d2818]"
+                        ? "bg-primary text-white shadow-xs"
+                        : "text-ink-subtle hover:text-ink"
                     }`}
                   >
                     Sign In
@@ -1082,8 +1082,8 @@ export default function HijamaBookingModal({
                     }}
                     className={`py-2 rounded-lg transition-colors cursor-pointer ${
                       authTab === "signup"
-                        ? "bg-[#22623a] text-white shadow-xs"
-                        : "text-[#7a7268] hover:text-[#0d2818]"
+                        ? "bg-primary text-white shadow-xs"
+                        : "text-ink-subtle hover:text-ink"
                     }`}
                   >
                     Create Account
@@ -1093,50 +1093,50 @@ export default function HijamaBookingModal({
                 {authTab === "signin" ? (
                   <form onSubmit={handleAuthSignIn} className="space-y-3 max-w-md mx-auto">
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-[#0d2818] block">
-                        Email Address <span className="text-rose-500">*</span>
+                      <label className="text-xs font-semibold text-ink block">
+                        Email Address <span className="text-danger">*</span>
                       </label>
                       <div className="relative">
-                        <Mail className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="email"
                           required
                           value={authEmail}
                           onChange={(e) => setAuthEmail(e.target.value)}
                           placeholder="name@example.com"
-                          className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#d6cfc5] rounded-xl text-xs text-[#0d2818] focus:outline-none focus:ring-2 focus:ring-[#22623a] focus:bg-white"
+                          className="w-full pl-9 pr-3 py-2 bg-surface border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1">
                       <div className="flex items-center justify-between">
-                        <label className="text-xs font-semibold text-[#0d2818]">
-                          Password <span className="text-rose-500">*</span>
+                        <label className="text-xs font-semibold text-ink">
+                          Password <span className="text-danger">*</span>
                         </label>
                         <a
                           href="/forgot-password"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-[10px] text-[#22623a] hover:underline"
+                          className="text-[10px] text-primary hover:underline"
                         >
                           Forgot password?
                         </a>
                       </div>
                       <div className="relative">
-                        <Lock className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type={showPassword ? "text" : "password"}
                           required
                           value={authPassword}
                           onChange={(e) => setAuthPassword(e.target.value)}
                           placeholder="Enter your password"
-                          className="w-full pl-9 pr-9 py-2 bg-[#faf8f5] border border-[#d6cfc5] rounded-xl text-xs text-[#0d2818] focus:outline-none focus:ring-2 focus:ring-[#22623a] focus:bg-white"
+                          className="w-full pl-9 pr-9 py-2 bg-surface border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white"
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7a7268] hover:text-[#0d2818] cursor-pointer"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle hover:text-ink cursor-pointer"
                         >
                           {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                         </button>
@@ -1144,8 +1144,8 @@ export default function HijamaBookingModal({
                     </div>
 
                     {authError && (
-                      <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
+                      <div className="p-3 rounded-xl bg-danger-soft border border-danger/20 text-danger text-xs flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-danger" />
                         <span>{authError}</span>
                       </div>
                     )}
@@ -1153,7 +1153,7 @@ export default function HijamaBookingModal({
                     <button
                       type="submit"
                       disabled={authLoading}
-                      className="w-full py-2.5 px-4 bg-[#22623a] hover:bg-[#1a4f2e] disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer mt-2"
+                      className="w-full py-2.5 px-4 bg-primary hover:bg-brand-green-800 disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer mt-2"
                     >
                       {authLoading ? (
                         <>
@@ -1171,46 +1171,46 @@ export default function HijamaBookingModal({
                 ) : (
                   <form onSubmit={handleAuthRegister} className="space-y-3 max-w-md mx-auto">
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-[#0d2818] block">
-                        Full Name <span className="text-rose-500">*</span>
+                      <label className="text-xs font-semibold text-ink block">
+                        Full Name <span className="text-danger">*</span>
                       </label>
                       <div className="relative">
-                        <User className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <User className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="text"
                           required
                           value={authName}
                           onChange={(e) => setAuthName(e.target.value)}
                           placeholder="e.g. Usman Ahmed"
-                          className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#d6cfc5] rounded-xl text-xs text-[#0d2818] focus:outline-none focus:ring-2 focus:ring-[#22623a] focus:bg-white"
+                          className="w-full pl-9 pr-3 py-2 bg-surface border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-xs font-semibold text-[#0d2818] block">
-                        Email Address <span className="text-rose-500">*</span>
+                      <label className="text-xs font-semibold text-ink block">
+                        Email Address <span className="text-danger">*</span>
                       </label>
                       <div className="relative">
-                        <Mail className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                        <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                         <input
                           type="email"
                           required
                           value={authEmail}
                           onChange={(e) => setAuthEmail(e.target.value)}
                           placeholder="name@example.com"
-                          className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#d6cfc5] rounded-xl text-xs text-[#0d2818] focus:outline-none focus:ring-2 focus:ring-[#22623a] focus:bg-white"
+                          className="w-full pl-9 pr-3 py-2 bg-surface border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-[#0d2818] block">
-                          Password (min 8 chars) <span className="text-rose-500">*</span>
+                        <label className="text-xs font-semibold text-ink block">
+                          Password (min 8 chars) <span className="text-danger">*</span>
                         </label>
                         <div className="relative">
-                          <Lock className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                           <input
                             type={showPassword ? "text" : "password"}
                             required
@@ -1218,12 +1218,12 @@ export default function HijamaBookingModal({
                             value={authPassword}
                             onChange={(e) => setAuthPassword(e.target.value)}
                             placeholder="At least 8 chars"
-                            className="w-full pl-9 pr-9 py-2 bg-[#faf8f5] border border-[#d6cfc5] rounded-xl text-xs text-[#0d2818] focus:outline-none focus:ring-2 focus:ring-[#22623a] focus:bg-white"
+                            className="w-full pl-9 pr-9 py-2 bg-surface border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white"
                           />
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7a7268] hover:text-[#0d2818] cursor-pointer"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle hover:text-ink cursor-pointer"
                           >
                             {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                           </button>
@@ -1231,32 +1231,32 @@ export default function HijamaBookingModal({
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-[#0d2818] block">
+                        <label className="text-xs font-semibold text-ink block">
                           Phone (WhatsApp)
                         </label>
                         <div className="relative">
-                          <Phone className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                          <Phone className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                           <input
                             type="tel"
                             value={authPhone}
                             onChange={(e) => setAuthPhone(e.target.value)}
                             placeholder="0300 1234567"
-                            className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#d6cfc5] rounded-xl text-xs text-[#0d2818] focus:outline-none focus:ring-2 focus:ring-[#22623a] focus:bg-white"
+                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white"
                           />
                         </div>
                       </div>
                     </div>
 
                     {authError && (
-                      <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
+                      <div className="p-3 rounded-xl bg-danger-soft border border-danger/20 text-danger text-xs flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-danger" />
                         <span>{authError}</span>
                       </div>
                     )}
 
                     {authSuccessMsg && (
-                      <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" />
+                      <div className="p-3 rounded-xl bg-success-soft border border-success-line text-success text-xs flex items-start gap-2">
+                        <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-success" />
                         <div className="space-y-1">
                           <strong className="block font-bold">Verification Email Dispatched</strong>
                           <p className="text-[11px] leading-relaxed">{authSuccessMsg}</p>
@@ -1267,7 +1267,7 @@ export default function HijamaBookingModal({
                     <button
                       type="submit"
                       disabled={authLoading}
-                      className="w-full py-2.5 px-4 bg-[#22623a] hover:bg-[#1a4f2e] disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer mt-2"
+                      className="w-full py-2.5 px-4 bg-primary hover:bg-brand-green-800 disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer mt-2"
                     >
                       {authLoading ? (
                         <>
@@ -1288,22 +1288,22 @@ export default function HijamaBookingModal({
               /* ── AUTHENTICATED: PATIENT FORM ── */
               <form onSubmit={handleSubmitBooking} className="space-y-4">
                 <div className="text-center max-w-md mx-auto space-y-1">
-                  <h3 className="font-serif text-xl font-bold text-[#0d2818]">
+                  <h3 className="font-serif text-xl font-bold text-ink">
                     Patient Information
                   </h3>
-                  <div className="p-2 bg-emerald-50 border border-emerald-200/80 rounded-xl text-xs inline-flex items-center gap-2 text-emerald-900 mx-auto">
-                    <ShieldCheck className="w-4 h-4 text-[#22623a] shrink-0" />
+                  <div className="p-2 bg-success-soft border border-success-line/80 rounded-xl text-xs inline-flex items-center gap-2 text-success mx-auto">
+                    <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
                     <span>Booking as <strong>{session.user.name || "Patient"}</strong> ({session.user.email})</span>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
                   <div>
-                    <label className="block text-xs font-bold text-[#0d2818] mb-1">
-                      Full Name <span className="text-rose-500">*</span>
+                    <label className="block text-xs font-bold text-ink mb-1">
+                      Full Name <span className="text-danger">*</span>
                     </label>
                     <div className="relative">
-                      <User className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <User className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="text"
                         required
@@ -1312,17 +1312,17 @@ export default function HijamaBookingModal({
                         onChange={(e) =>
                           setDetails({ ...details, fullName: e.target.value })
                         }
-                        className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#d6cfc5] bg-white focus:outline-none focus:ring-2 focus:ring-[#22623a]"
+                        className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-line-strong bg-white focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[#0d2818] mb-1">
-                      Phone (WhatsApp Preferred) <span className="text-rose-500">*</span>
+                    <label className="block text-xs font-bold text-ink mb-1">
+                      Phone (WhatsApp Preferred) <span className="text-danger">*</span>
                     </label>
                     <div className="relative">
-                      <Phone className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <Phone className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="tel"
                         required
@@ -1331,14 +1331,14 @@ export default function HijamaBookingModal({
                         onChange={(e) =>
                           setDetails({ ...details, phone: e.target.value })
                         }
-                        className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#d6cfc5] bg-white focus:outline-none focus:ring-2 focus:ring-[#22623a]"
+                        className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-line-strong bg-white focus:outline-none focus:ring-2 focus:ring-primary"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[#0d2818] mb-1">
-                      Age <span className="text-rose-500">*</span>
+                    <label className="block text-xs font-bold text-ink mb-1">
+                      Age <span className="text-danger">*</span>
                     </label>
                     <input
                       type="number"
@@ -1349,28 +1349,28 @@ export default function HijamaBookingModal({
                       onChange={(e) =>
                         setDetails({ ...details, age: e.target.value })
                       }
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-[#d6cfc5] bg-white focus:outline-none focus:ring-2 focus:ring-[#22623a]"
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-line-strong bg-white focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[#0d2818] mb-1">
-                      Email Address <span className="text-[#7a7268] font-normal">(Verified Account Email)</span>
+                    <label className="block text-xs font-bold text-ink mb-1">
+                      Email Address <span className="text-ink-subtle font-normal">(Verified Account Email)</span>
                     </label>
                     <div className="relative">
-                      <Mail className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                       <input
                         type="email"
                         readOnly
                         value={details.email}
-                        className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-[#d6cfc5] bg-stone-100 text-[#59534b] cursor-not-allowed font-medium"
+                        className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-line-strong bg-surface-sunken text-ink-body cursor-not-allowed font-medium"
                       />
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-[#0d2818] mb-1">
+                  <label className="block text-xs font-bold text-ink mb-1">
                     Special Clinical Notes / Pain Points (Optional)
                   </label>
                   <textarea
@@ -1380,41 +1380,41 @@ export default function HijamaBookingModal({
                     onChange={(e) =>
                       setDetails({ ...details, notes: e.target.value })
                     }
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-[#d6cfc5] bg-white focus:outline-none focus:ring-2 focus:ring-[#22623a]"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-line-strong bg-white focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
               </form>
             )}
 
             {/* Booking Summary Box */}
-            <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e6dfd5] space-y-2 text-xs">
-              <div className="flex items-center justify-between border-b border-[#e6dfd5] pb-2 font-bold text-[#0d2818]">
+            <div className="p-4 rounded-2xl bg-surface border border-line space-y-2 text-xs">
+              <div className="flex items-center justify-between border-b border-line pb-2 font-bold text-ink">
                 <span>Appointment Summary</span>
-                <span className="text-[#22623a]">{gender === "MALE" ? "Male Ward (Hajjam)" : "Female Ward (Hajjama)"}</span>
+                <span className="text-primary">{gender === "MALE" ? "Male Ward (Hajjam)" : "Female Ward (Hajjama)"}</span>
               </div>
-              <div className="grid grid-cols-2 gap-2 text-[#59534b]">
+              <div className="grid grid-cols-2 gap-2 text-ink-body">
                 <div>
-                  <span className="block text-[10px] text-[#7a7268]">Date:</span>
-                  <span className="font-semibold text-[#0d2818]">{selectedDate}</span>
+                  <span className="block text-[10px] text-ink-subtle">Date:</span>
+                  <span className="font-semibold text-ink">{selectedDate}</span>
                 </div>
                 <div>
-                  <span className="block text-[10px] text-[#7a7268]">Slot:</span>
-                  <span className="font-semibold text-[#0d2818]">{selectedSlot}</span>
+                  <span className="block text-[10px] text-ink-subtle">Slot:</span>
+                  <span className="font-semibold text-ink">{selectedSlot}</span>
                 </div>
                 <div>
-                  <span className="block text-[10px] text-[#7a7268]">Reason:</span>
-                  <span className="font-semibold text-[#0d2818]">{screening.cuppingReason}</span>
+                  <span className="block text-[10px] text-ink-subtle">Reason:</span>
+                  <span className="font-semibold text-ink">{screening.cuppingReason}</span>
                 </div>
                 <div>
-                  <span className="block text-[10px] text-[#7a7268]">Clinical Fee:</span>
-                  <span className="font-bold text-[#22623a]">₨ 2,500 (Pay at Clinic)</span>
+                  <span className="block text-[10px] text-ink-subtle">Clinical Fee:</span>
+                  <span className="font-bold text-primary">₨ 2,500 (Pay at Clinic)</span>
                 </div>
               </div>
             </div>
 
             {submitError && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
+              <div className="p-3 rounded-xl bg-danger-soft border border-danger/20 text-danger text-xs flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-danger" />
                 <span>{submitError}</span>
               </div>
             )}
@@ -1424,44 +1424,44 @@ export default function HijamaBookingModal({
         {/* ================= STEP 5: CONFIRMATION TICKET & DISPATCH ================= */}
         {step === 5 && confirmedBooking && (
           <div className="space-y-6 animate-fade-in text-center py-2">
-            <div className="w-16 h-16 rounded-full bg-[#eef7f1] text-[#22623a] mx-auto flex items-center justify-center border-2 border-[#22623a]/30 shadow-md">
-              <CheckCircle2 className="w-9 h-9 text-[#22623a]" />
+            <div className="w-16 h-16 rounded-full bg-brand-green-50 text-primary mx-auto flex items-center justify-center border-2 border-primary/30 shadow-md">
+              <CheckCircle2 className="w-9 h-9 text-primary" />
             </div>
 
             <div className="space-y-1">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#c59b27]/15 text-[#8c6a15] text-xs font-bold uppercase tracking-wider border border-[#c59b27]/30">
-                <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary/15 text-brand-gold-800 text-xs font-bold uppercase tracking-wider border border-secondary/30">
+                <Sparkles className="w-3.5 h-3.5 text-secondary-text" />
                 Appointment Confirmed
               </span>
-              <h3 className="font-serif text-2xl font-bold text-[#0d2818]">
+              <h3 className="font-serif text-2xl font-bold text-ink">
                 Alhamdulillah, Your Seat is Reserved!
               </h3>
-              <p className="text-xs text-[#59534b]">
+              <p className="text-xs text-ink-body">
                 Present this digital clinical slip at reception or confirm directly with our clinic Hakim on WhatsApp.
               </p>
             </div>
 
             {/* Printable Ticket Slip */}
-            <div className="max-w-md mx-auto p-5 rounded-2xl bg-[#faf8f5] border-2 border-dashed border-[#c59b27] text-left shadow-sm relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-24 h-24 bg-[#c59b27]/10 rounded-bl-full pointer-events-none" />
+            <div className="max-w-md mx-auto p-5 rounded-2xl bg-surface border-2 border-dashed border-secondary text-left shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/10 rounded-bl-full pointer-events-none" />
 
-              <div className="flex items-center justify-between border-b border-[#e6dfd5] pb-3 mb-3">
+              <div className="flex items-center justify-between border-b border-line pb-3 mb-3">
                 <div>
-                  <span className="text-[10px] text-[#7a7268] uppercase tracking-wider block font-bold">
+                  <span className="text-[10px] text-ink-subtle uppercase tracking-wider block font-bold">
                     Booking Ticket Reference
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-lg font-bold text-[#0d2818] tracking-wider">
+                    <span className="font-mono text-lg font-bold text-ink tracking-wider">
                       {confirmedBooking.ticketNumber}
                     </span>
                     <button
                       type="button"
                       onClick={copyTicketNumber}
                       title="Copy ticket number"
-                      className="p-1 rounded-md text-[#7a7268] hover:text-[#22623a] hover:bg-white transition-colors"
+                      className="p-1 rounded-md text-ink-subtle hover:text-primary hover:bg-white transition-colors"
                     >
                       {copiedTicket ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <Check className="w-3.5 h-3.5 text-success" />
                       ) : (
                         <Copy className="w-3.5 h-3.5" />
                       )}
@@ -1470,7 +1470,7 @@ export default function HijamaBookingModal({
                 </div>
 
                 <div className="text-right">
-                  <span className="px-2.5 py-1 rounded-full bg-[#22623a] text-white text-[10px] font-bold uppercase">
+                  <span className="px-2.5 py-1 rounded-full bg-primary text-white text-[10px] font-bold uppercase">
                     Slot Reserved
                   </span>
                 </div>
@@ -1478,12 +1478,12 @@ export default function HijamaBookingModal({
 
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <span className="text-[10px] text-[#7a7268] block">Patient Name:</span>
-                  <span className="font-bold text-[#0d2818]">{confirmedBooking.fullName}</span>
+                  <span className="text-[10px] text-ink-subtle block">Patient Name:</span>
+                  <span className="font-bold text-ink">{confirmedBooking.fullName}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-[#7a7268] block">Clinical Wing:</span>
-                  <span className="font-bold text-[#22623a]">
+                  <span className="text-[10px] text-ink-subtle block">Clinical Wing:</span>
+                  <span className="font-bold text-primary">
                     {confirmedBooking.gender === "MALE"
                       ? "Male Ward (Hajjam)"
                       : "Female Ward (Hajjama)"}
@@ -1491,35 +1491,35 @@ export default function HijamaBookingModal({
                 </div>
 
                 <div>
-                  <span className="text-[10px] text-[#7a7268] block">Gregorian Date:</span>
-                  <span className="font-semibold text-[#0d2818]">
+                  <span className="text-[10px] text-ink-subtle block">Gregorian Date:</span>
+                  <span className="font-semibold text-ink">
                     {confirmedBooking.appointmentDate}
                   </span>
                 </div>
 
                 <div>
-                  <span className="text-[10px] text-[#7a7268] block">Islamic Hijri Date:</span>
-                  <span className="font-semibold text-[#c59b27]">
+                  <span className="text-[10px] text-ink-subtle block">Islamic Hijri Date:</span>
+                  <span className="font-semibold text-secondary-text">
                     {confirmedBooking.hijriDate || "Sunnah Day"}
                   </span>
                 </div>
 
                 <div>
-                  <span className="text-[10px] text-[#7a7268] block">Session Slot:</span>
-                  <span className="font-bold text-[#0d2818]">
+                  <span className="text-[10px] text-ink-subtle block">Session Slot:</span>
+                  <span className="font-bold text-ink">
                     {confirmedBooking.appointmentSlot}
                   </span>
                 </div>
 
                 <div>
-                  <span className="text-[10px] text-[#7a7268] block">Fee &amp; Payment:</span>
-                  <span className="font-bold text-[#22623a]">
+                  <span className="text-[10px] text-ink-subtle block">Fee &amp; Payment:</span>
+                  <span className="font-bold text-primary">
                     ₨ {confirmedBooking.feeAmount?.toLocaleString() || "2,500"} (Pay at Clinic)
                   </span>
                 </div>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-[#e6dfd5] text-[10px] text-[#59534b] flex items-center justify-between">
+              <div className="mt-4 pt-3 border-t border-line text-[10px] text-ink-body flex items-center justify-between">
                 <span>📍 Tameer-e-Sehat Clinic, Karachi</span>
                 <span className="font-mono">Est. 1990</span>
               </div>
@@ -1531,7 +1531,7 @@ export default function HijamaBookingModal({
                 href={generateWhatsAppConfirmationUrl(confirmedBooking)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.02]"
+                className="w-full sm:w-auto px-6 py-3 rounded-xl bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.02]"
               >
                 <MessageCircle className="w-4 h-4 fill-current" />
                 <span>Send Confirmation on WhatsApp</span>
@@ -1540,18 +1540,18 @@ export default function HijamaBookingModal({
               <button
                 type="button"
                 onClick={handleAddToCalendar}
-                className="w-full sm:w-auto px-4 py-3 rounded-xl bg-white hover:bg-[#faf8f5] text-[#0d2818] border border-[#d6cfc5] font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                className="w-full sm:w-auto px-4 py-3 rounded-xl bg-white hover:bg-surface text-ink border border-line-strong font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors"
               >
-                <CalendarPlus className="w-4 h-4 text-[#22623a]" />
+                <CalendarPlus className="w-4 h-4 text-primary" />
                 <span>Add to Calendar</span>
               </button>
 
               <button
                 type="button"
                 onClick={handlePrint}
-                className="w-full sm:w-auto px-4 py-3 rounded-xl bg-white hover:bg-[#faf8f5] text-[#0d2818] border border-[#d6cfc5] font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors"
+                className="w-full sm:w-auto px-4 py-3 rounded-xl bg-white hover:bg-surface text-ink border border-line-strong font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors"
               >
-                <Printer className="w-4 h-4 text-[#7a7268]" />
+                <Printer className="w-4 h-4 text-ink-subtle" />
                 <span>Print Ticket</span>
               </button>
             </div>
@@ -1561,19 +1561,19 @@ export default function HijamaBookingModal({
 
       {/* ─── Footer Controls ─── */}
       {step < 5 && (
-        <div className="bg-[#faf8f5] px-6 py-4 border-t border-[#e6dfd5] flex items-center justify-between shrink-0">
+        <div className="bg-surface px-6 py-4 border-t border-line flex items-center justify-between shrink-0">
           <div>
             {step > 1 ? (
               <button
                 type="button"
                 onClick={() => setStep((s) => s - 1)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-[#59534b] hover:text-[#0d2818] hover:bg-white border border-transparent hover:border-[#d6cfc5] flex items-center gap-1 transition-colors"
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-ink-body hover:text-ink hover:bg-white border border-transparent hover:border-line-strong flex items-center gap-1 transition-colors"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back</span>
               </button>
             ) : (
-              <div className="text-[11px] text-[#7a7268]">
+              <div className="text-[11px] text-ink-subtle">
                 Step 1 of 4: Modesty &amp; Wing
               </div>
             )}
@@ -1585,7 +1585,7 @@ export default function HijamaBookingModal({
                 type="button"
                 disabled={!canProceedStep1}
                 onClick={() => setStep(2)}
-                className="px-6 py-2.5 rounded-xl bg-[#22623a] hover:bg-[#1a4f2e] text-white font-bold text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition-all"
+                className="px-6 py-2.5 rounded-xl bg-primary hover:bg-brand-green-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition-all"
               >
                 <span>Continue to Date &amp; Slot</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -1597,7 +1597,7 @@ export default function HijamaBookingModal({
                 type="button"
                 disabled={!canProceedStep2}
                 onClick={() => setStep(3)}
-                className="px-6 py-2.5 rounded-xl bg-[#22623a] hover:bg-[#1a4f2e] text-white font-bold text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition-all"
+                className="px-6 py-2.5 rounded-xl bg-primary hover:bg-brand-green-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition-all"
               >
                 <span>Proceed to Safety Check</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -1609,7 +1609,7 @@ export default function HijamaBookingModal({
                 type="button"
                 disabled={!canProceedStep3}
                 onClick={() => setStep(4)}
-                className="px-6 py-2.5 rounded-xl bg-[#22623a] hover:bg-[#1a4f2e] text-white font-bold text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition-all"
+                className="px-6 py-2.5 rounded-xl bg-primary hover:bg-brand-green-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition-all"
               >
                 <span>Continue to Patient Details</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -1622,22 +1622,22 @@ export default function HijamaBookingModal({
                   type="button"
                   disabled={!canProceedStep4 || submitting}
                   onClick={handleSubmitBooking}
-                  className="px-6 py-2.5 rounded-xl bg-[#c59b27] hover:bg-[#a8821d] text-[#0d2818] font-bold text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition-all cursor-pointer"
+                  className="px-6 py-2.5 rounded-xl bg-secondary hover:bg-brand-gold-600 text-ink font-bold text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition-all cursor-pointer"
                 >
                   {submitting ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin text-[#0d2818]" />
+                      <Loader2 className="w-4 h-4 animate-spin text-ink" />
                       <span>Reserving Seat...</span>
                     </>
                   ) : (
                     <>
                       <span>Confirm Hijama Booking</span>
-                      <Sparkles className="w-3.5 h-3.5 text-[#0d2818]" />
+                      <Sparkles className="w-3.5 h-3.5 text-ink" />
                     </>
                   )}
                 </button>
               ) : (
-                <span className="text-[11px] text-[#7a7268] font-medium">
+                <span className="text-[11px] text-ink-subtle font-medium">
                   Step 4 of 4: Sign in above to confirm booking
                 </span>
               )
@@ -1648,14 +1648,14 @@ export default function HijamaBookingModal({
 
       {/* Done Footer for Step 5 */}
       {step === 5 && !isInline && onClose && (
-        <div className="bg-[#faf8f5] px-6 py-3.5 border-t border-[#e6dfd5] flex items-center justify-between shrink-0">
-          <span className="text-[11px] text-[#7a7268]">
+        <div className="bg-surface px-6 py-3.5 border-t border-line flex items-center justify-between shrink-0">
+          <span className="text-[11px] text-ink-subtle">
             Need changes? Call clinic at {CLINIC_INFO.phoneFormatted}
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2 rounded-xl bg-[#0d2818] text-white text-xs font-bold hover:bg-[#1b432a] transition-colors"
+            className="px-5 py-2 rounded-xl bg-surface-inverse text-white text-xs font-bold hover:bg-brand-green-900 transition-colors"
           >
             Close Window
           </button>

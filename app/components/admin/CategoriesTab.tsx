@@ -360,13 +360,13 @@ export default function CategoriesTab() {
     <div className="space-y-6">
       {/* Top Notification Alerts */}
       {error && (
-        <div className="flex items-center gap-2 p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-sm animate-fade-in">
+        <div className="flex items-center gap-2 p-3.5 rounded-2xl bg-danger-soft border border-danger/20 text-danger text-sm animate-fade-in">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
       {successMsg && (
-        <div className="flex items-center gap-2 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm animate-fade-in">
+        <div className="flex items-center gap-2 p-3.5 rounded-2xl bg-success-soft border border-success-line text-success text-sm animate-fade-in">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{successMsg}</span>
         </div>
@@ -374,41 +374,41 @@ export default function CategoriesTab() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-white rounded-2xl border border-[#e6dfd5] p-4 flex items-center gap-3.5 shadow-xs">
-          <div className="w-10 h-10 rounded-xl bg-[#22623a]/10 text-[#22623a] flex items-center justify-center shrink-0">
+        <div className="bg-white rounded-2xl border border-line p-4 flex items-center gap-3.5 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
             <FolderTree className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[#6a6660]">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
               Total Categories
             </p>
-            <p className="text-xl font-serif font-bold text-[#1c1917]">
+            <p className="text-xl font-serif font-bold text-ink">
               {categories.length}
             </p>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-[#e6dfd5] p-4 flex items-center gap-3.5 shadow-xs">
-          <div className="w-10 h-10 rounded-xl bg-[#c59b27]/10 text-[#c59b27] flex items-center justify-center shrink-0">
+        <div className="bg-white rounded-2xl border border-line p-4 flex items-center gap-3.5 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-secondary/10 text-brand-gold-800 flex items-center justify-center shrink-0">
             <Package className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[#6a6660]">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
               Catalog Products
             </p>
-            <p className="text-xl font-serif font-bold text-[#1c1917]">
+            <p className="text-xl font-serif font-bold text-ink">
               {totalProductsAssigned}
             </p>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-[#e6dfd5] p-4 flex items-center gap-3.5 shadow-xs">
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#22623a] flex items-center justify-center shrink-0">
+        <div className="bg-white rounded-2xl border border-line p-4 flex items-center gap-3.5 shadow-xs">
+          <div className="w-10 h-10 rounded-xl bg-success-soft text-primary flex items-center justify-center shrink-0">
             <Leaf className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-wider text-[#6a6660]">
+            <p className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
               Taxonomy Structure
             </p>
-            <p className="text-sm font-semibold text-[#22623a]">
+            <p className="text-sm font-semibold text-primary">
               Unani & Apothecary
             </p>
           </div>
@@ -416,17 +416,17 @@ export default function CategoriesTab() {
       </div>
 
       {/* Category Creation / Edit Form Card */}
-      <div className="bg-white rounded-3xl border border-[#e6dfd5] shadow-xs overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#e6dfd5] bg-[#faf8f5] flex items-center justify-between gap-3">
+      <div className="bg-white rounded-3xl border border-line shadow-xs overflow-hidden">
+        <div className="px-6 py-4 border-b border-line bg-surface flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#22623a] text-[#c59b27] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-primary text-brand-gold-300 flex items-center justify-center">
               <FolderTree className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-serif text-base font-bold text-[#22623a]">
+              <h2 className="font-serif text-base font-bold text-primary">
                 {isEditing ? `Edit Category: ${name || "Untitled"}` : "Add New Category"}
               </h2>
-              <p className="text-[11px] text-[#6a6660]">
+              <p className="text-[11px] text-ink-muted">
                 Organize herbal medicines and products into clean storefront taxonomy.
               </p>
             </div>
@@ -436,7 +436,7 @@ export default function CategoriesTab() {
             <button
               type="button"
               onClick={handleResetForm}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#6a6660] hover:text-[#1c1917] bg-white border border-[#e6dfd5] transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-ink-muted hover:text-ink bg-white border border-line transition-all"
             >
               <X className="w-3.5 h-3.5" />
               <span>Cancel Editing</span>
@@ -448,8 +448,8 @@ export default function CategoriesTab() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* English Title */}
             <div>
-              <label className="block text-xs font-bold text-[#4a4640] mb-1.5">
-                Category Name (English) <span className="text-rose-500">*</span>
+              <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                Category Name (English) <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
@@ -457,14 +457,14 @@ export default function CategoriesTab() {
                 value={name}
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="e.g. Herbal Syrups & Cordials"
-                className="w-full px-3.5 py-2.5 text-sm bg-[#faf8f5] border border-[#e6dfd5] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#22623a] focus:bg-white transition-all text-[#1c1917]"
+                className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:bg-white transition-all text-ink"
               />
             </div>
 
             {/* Urdu Title */}
             <div>
-              <label className="block text-xs font-bold text-[#4a4640] mb-1.5">
-                Urdu Title (اردو نام) <span className="text-rose-500">*</span>
+              <label className="block text-xs font-bold text-neutral-700 mb-1.5">
+                Urdu Title (اردو نام) <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
@@ -473,7 +473,7 @@ export default function CategoriesTab() {
                 value={urduName}
                 onChange={(e) => setUrduName(e.target.value)}
                 placeholder="مثال: شربت و معجون جات"
-                className="w-full px-3.5 py-2.5 text-sm bg-[#faf8f5] border border-[#e6dfd5] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#22623a] focus:bg-white font-serif transition-all text-[#1c1917]"
+                className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:bg-white font-serif transition-all text-ink"
               />
             </div>
           </div>
@@ -481,7 +481,7 @@ export default function CategoriesTab() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* URL Slug */}
             <div>
-              <label className="block text-xs font-bold text-[#4a4640] mb-1.5">
+              <label className="block text-xs font-bold text-neutral-700 mb-1.5">
                 URL Identifier / Slug
               </label>
               <div className="relative">
@@ -490,9 +490,9 @@ export default function CategoriesTab() {
                   value={slug}
                   onChange={(e) => setSlug(e.target.value)}
                   placeholder="herbal-syrups"
-                  className="w-full px-3.5 py-2.5 text-xs font-mono bg-[#faf8f5] border border-[#e6dfd5] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#22623a] focus:bg-white text-[#4a4640]"
+                  className="w-full px-3.5 py-2.5 text-xs font-mono bg-surface border border-line rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:bg-white text-neutral-700"
                 />
-                <span className="absolute right-3 top-2.5 text-[10px] text-[#6a6660]">
+                <span className="absolute right-3 top-2.5 text-[10px] text-ink-muted">
                   /products?category={slug || "slug"}
                 </span>
               </div>
@@ -501,13 +501,13 @@ export default function CategoriesTab() {
             {/* Hero Image */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="block text-xs font-bold text-[#4a4640]">
+                <label className="block text-xs font-bold text-neutral-700">
                   Banner / Hero Artwork
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowImagePicker(!showImagePicker)}
-                  className="text-[11px] font-semibold text-[#22623a] hover:underline"
+                  className="text-[11px] font-semibold text-primary hover:underline"
                 >
                   {showImagePicker ? "Hide image uploader" : "Upload or set image"}
                 </button>
@@ -517,15 +517,15 @@ export default function CategoriesTab() {
                 value={heroImage}
                 onChange={(e) => setHeroImage(e.target.value)}
                 placeholder="/images/categories/syrup.jpg or https://..."
-                className="w-full px-3.5 py-2.5 text-xs bg-[#faf8f5] border border-[#e6dfd5] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#22623a] focus:bg-white font-mono text-[#4a4640]"
+                className="w-full px-3.5 py-2.5 text-xs bg-surface border border-line rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:bg-white font-mono text-neutral-700"
               />
             </div>
           </div>
 
           {/* Collapsible Image Upload Zone */}
           {showImagePicker && (
-            <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e6dfd5] space-y-3 animate-fade-in">
-              <p className="text-xs font-bold text-[#22623a]">
+            <div className="p-4 rounded-2xl bg-surface border border-line space-y-3 animate-fade-in">
+              <p className="text-xs font-bold text-primary">
                 Upload Category Artwork via UploadThing
               </p>
               <UploadDropzone
@@ -540,14 +540,14 @@ export default function CategoriesTab() {
                 onUploadError={(err: Error) => {
                   setError(`Image upload failed: ${err.message}`);
                 }}
-                className="ut-button:bg-[#22623a] ut-button:ut-readying:bg-[#22623a]/70 ut-label:text-[#22623a] border-dashed border-2 border-[#22623a]/30 bg-white/80 rounded-2xl py-4"
+                className="ut-button:bg-primary ut-button:ut-readying:bg-primary/70 ut-label:text-primary border-dashed border-2 border-primary/30 bg-white/80 rounded-2xl py-4"
               />
             </div>
           )}
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-bold text-[#4a4640] mb-1.5">
+            <label className="block text-xs font-bold text-neutral-700 mb-1.5">
               Category Description & Traditional Indications
             </label>
             <textarea
@@ -555,15 +555,15 @@ export default function CategoriesTab() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief description explaining the therapeutic category, preparation style, and health benefits..."
-              className="w-full px-3.5 py-2.5 text-sm bg-[#faf8f5] border border-[#e6dfd5] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#22623a] focus:bg-white transition-all text-[#1c1917]"
+              className="w-full px-3.5 py-2.5 text-sm bg-surface border border-line rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:bg-white transition-all text-ink"
             />
           </div>
 
           {/* Live Storefront Mini Card Preview */}
           {(name || urduName) && (
-            <div className="p-4 rounded-2xl bg-[#faf8f5] border border-[#e6dfd5] flex items-center justify-between gap-4">
+            <div className="p-4 rounded-2xl bg-surface border border-line flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-white border border-[#e6dfd5] overflow-hidden relative shrink-0 flex items-center justify-center text-[#22623a]">
+                <div className="w-12 h-12 rounded-xl bg-white border border-line overflow-hidden relative shrink-0 flex items-center justify-center text-primary">
                   {heroImage ? (
                     <Image
                       src={heroImage}
@@ -573,26 +573,26 @@ export default function CategoriesTab() {
                       unoptimized={heroImage.startsWith("http")}
                     />
                   ) : (
-                    <Leaf className="w-6 h-6 text-[#22623a]/60" />
+                    <Leaf className="w-6 h-6 text-primary/60" />
                   )}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h4 className="font-serif text-sm font-bold text-[#1c1917]">
+                    <h4 className="font-serif text-sm font-bold text-ink">
                       {name || "Category Name"}
                     </h4>
                     {urduName && (
-                      <span className="font-serif text-xs text-[#22623a] font-semibold">
+                      <span className="font-serif text-xs text-primary font-semibold">
                         ({urduName})
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-[#6a6660] line-clamp-1">
+                  <p className="text-xs text-ink-muted line-clamp-1">
                     {description || "No description provided."}
                   </p>
                 </div>
               </div>
-              <span className="text-[10px] font-mono px-2 py-1 bg-white border border-[#e6dfd5] rounded-lg text-[#6a6660] shrink-0">
+              <span className="text-[10px] font-mono px-2 py-1 bg-white border border-line rounded-lg text-ink-muted shrink-0">
                 slug: {slug || "slug"}
               </span>
             </div>
@@ -604,7 +604,7 @@ export default function CategoriesTab() {
               <button
                 type="submit"
                 disabled={savingCategory}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#22623a] hover:bg-[#1a4d2e] text-white rounded-xl text-sm font-bold shadow-xs transition-all disabled:opacity-50"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-brand-green-800 text-white rounded-xl text-sm font-bold shadow-xs transition-all disabled:opacity-50"
               >
                 {savingCategory ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -620,7 +620,7 @@ export default function CategoriesTab() {
                 <button
                   type="button"
                   onClick={handleResetForm}
-                  className="px-4 py-2.5 rounded-xl text-xs font-semibold text-[#6a6660] hover:text-[#1c1917] bg-white border border-[#e6dfd5]"
+                  className="px-4 py-2.5 rounded-xl text-xs font-semibold text-ink-muted hover:text-ink bg-white border border-line"
                 >
                   Cancel
                 </button>
@@ -631,10 +631,10 @@ export default function CategoriesTab() {
 
         {/* 1-Click Unani Preset Category Pills */}
         {missingPresets.length > 0 && (
-          <div className="px-6 pb-5 pt-1 border-t border-[#e6dfd5]/60 bg-[#faf8f5]/40">
+          <div className="px-6 pb-5 pt-1 border-t border-line/60 bg-surface/40">
             <div className="flex items-center gap-1.5 mb-2.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#6a6660]">
+              <Sparkles className="w-3.5 h-3.5 text-secondary-text" />
+              <p className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
                 Quick-Add Traditional Unani Presets
               </p>
             </div>
@@ -645,11 +645,11 @@ export default function CategoriesTab() {
                   type="button"
                   disabled={savingCategory}
                   onClick={() => handleQuickAddPreset(preset)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white border border-[#e6dfd5] text-[#4a4640] hover:border-[#22623a] hover:text-[#22623a] shadow-2xs transition-all disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-white border border-line text-neutral-700 hover:border-primary hover:text-primary shadow-2xs transition-all disabled:opacity-50"
                 >
-                  <Plus className="w-3 h-3 text-[#22623a]" />
+                  <Plus className="w-3 h-3 text-primary" />
                   <span className="font-semibold">{preset.name}</span>
-                  <span className="text-[11px] text-[#22623a] font-serif">
+                  <span className="text-[11px] text-primary font-serif">
                     ({preset.urduName})
                   </span>
                 </button>
@@ -660,40 +660,40 @@ export default function CategoriesTab() {
       </div>
 
       {/* Categories Catalog Directory */}
-      <div className="bg-white rounded-3xl border border-[#e6dfd5] shadow-xs overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#e6dfd5] bg-[#faf8f5] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white rounded-3xl border border-line shadow-xs overflow-hidden">
+        <div className="px-6 py-4 border-b border-line bg-surface flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <FolderTree className="w-4 h-4 text-[#22623a]" />
-            <h3 className="font-serif text-base font-bold text-[#22623a]">
+            <FolderTree className="w-4 h-4 text-primary" />
+            <h3 className="font-serif text-base font-bold text-primary">
               Categories Directory ({filteredCategories.length})
             </h3>
           </div>
 
           {/* Search bar */}
           <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-[#6a6660]" />
+            <Search className="w-4 h-4 absolute left-3 top-2.5 text-ink-muted" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search categories..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-[#e6dfd5] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#22623a] text-[#1c1917]"
+              className="w-full pl-9 pr-3 py-1.5 text-xs bg-white border border-line rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary text-ink"
             />
           </div>
         </div>
 
         {loading ? (
-          <div className="p-16 flex flex-col items-center justify-center gap-3 text-[#6a6660]">
-            <Loader2 className="w-8 h-8 animate-spin text-[#22623a]" />
+          <div className="p-16 flex flex-col items-center justify-center gap-3 text-ink-muted">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
             <p className="text-sm font-medium">Loading categories...</p>
           </div>
         ) : filteredCategories.length === 0 ? (
           <div className="p-16 text-center">
-            <FolderTree className="w-12 h-12 text-[#c59b27] mx-auto mb-3 opacity-60" />
-            <h3 className="font-serif text-lg font-bold text-[#22623a] mb-1">
+            <FolderTree className="w-12 h-12 text-secondary-text mx-auto mb-3 opacity-60" />
+            <h3 className="font-serif text-lg font-bold text-primary mb-1">
               No categories found
             </h3>
-            <p className="text-sm text-[#6a6660] max-w-md mx-auto">
+            <p className="text-sm text-ink-muted max-w-md mx-auto">
               {searchTerm
                 ? "No categories matched your search criteria."
                 : "Create a category or click any of the 1-click Unani presets above to get started."}
@@ -703,7 +703,7 @@ export default function CategoriesTab() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-[#e6dfd5] bg-[#faf8f5]/60 text-[11px] font-bold uppercase tracking-wider text-[#6a6660]">
+                <tr className="border-b border-line bg-surface/60 text-[11px] font-bold uppercase tracking-wider text-ink-muted">
                   <th className="py-3.5 px-4 sm:px-6">Category</th>
                   <th className="py-3.5 px-4">Urdu Title</th>
                   <th className="py-3.5 px-4">URL Slug</th>
@@ -711,19 +711,19 @@ export default function CategoriesTab() {
                   <th className="py-3.5 px-4 sm:px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e6dfd5] text-sm">
+              <tbody className="divide-y divide-line text-sm">
                 {filteredCategories.map((cat) => {
                   const isBusy = busyId === cat.id;
                   const pCount = cat.productCount || 0;
                   return (
                     <tr
                       key={cat.id}
-                      className="hover:bg-[#faf8f5]/60 transition-colors"
+                      className="hover:bg-surface/60 transition-colors"
                     >
                       {/* Name & Artwork */}
                       <td className="py-3.5 px-4 sm:px-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-[#faf8f5] border border-[#e6dfd5] overflow-hidden relative shrink-0 flex items-center justify-center text-[#22623a]">
+                          <div className="w-10 h-10 rounded-xl bg-surface border border-line overflow-hidden relative shrink-0 flex items-center justify-center text-primary">
                             {cat.heroImage ? (
                               <Image
                                 src={cat.heroImage}
@@ -733,15 +733,15 @@ export default function CategoriesTab() {
                                 unoptimized={cat.heroImage.startsWith("http")}
                               />
                             ) : (
-                              <Leaf className="w-5 h-5 text-[#22623a]" />
+                              <Leaf className="w-5 h-5 text-primary" />
                             )}
                           </div>
                           <div>
-                            <span className="font-bold text-[#1c1917] block">
+                            <span className="font-bold text-ink block">
                               {cat.name}
                             </span>
                             {cat.description && (
-                              <p className="text-xs text-[#6a6660] line-clamp-1 max-w-xs">
+                              <p className="text-xs text-ink-muted line-clamp-1 max-w-xs">
                                 {cat.description}
                               </p>
                             )}
@@ -751,14 +751,14 @@ export default function CategoriesTab() {
 
                       {/* Urdu Name */}
                       <td className="py-3.5 px-4">
-                        <span className="font-serif text-sm font-semibold text-[#22623a]">
+                        <span className="font-serif text-sm font-semibold text-primary">
                           {cat.urduName}
                         </span>
                       </td>
 
                       {/* Slug */}
                       <td className="py-3.5 px-4">
-                        <span className="font-mono text-xs px-2.5 py-1 rounded-lg bg-[#faf8f5] border border-[#e6dfd5] text-[#4a4640]">
+                        <span className="font-mono text-xs px-2.5 py-1 rounded-lg bg-surface border border-line text-neutral-700">
                           {cat.slug}
                         </span>
                       </td>
@@ -769,8 +769,8 @@ export default function CategoriesTab() {
                           href={`/admin?tab=products&category=${cat.id}`}
                           className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition-all ${
                             pCount > 0
-                              ? "bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100"
-                              : "bg-gray-100 text-gray-500"
+                              ? "bg-success-soft text-success border border-success-line hover:bg-success-soft"
+                              : "bg-surface-sunken text-ink-muted"
                           }`}
                         >
                           <Package className="w-3 h-3" />
@@ -783,7 +783,7 @@ export default function CategoriesTab() {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => handleStartEdit(cat)}
-                            className="p-2 rounded-xl text-[#6a6660] hover:text-[#22623a] hover:bg-[#faf8f5] border border-transparent hover:border-[#e6dfd5] transition-all"
+                            className="p-2 rounded-xl text-ink-muted hover:text-primary hover:bg-surface border border-transparent hover:border-line transition-all"
                             title="Edit Category"
                           >
                             <Edit3 className="w-4 h-4" />
@@ -791,7 +791,7 @@ export default function CategoriesTab() {
                           <button
                             onClick={() => handleDelete(cat)}
                             disabled={isBusy}
-                            className="p-2 rounded-xl text-[#6a6660] hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all disabled:opacity-40"
+                            className="p-2 rounded-xl text-ink-muted hover:text-danger hover:bg-danger-soft border border-transparent hover:border-danger/20 transition-all disabled:opacity-40"
                             title={
                               pCount > 0
                                 ? "Cannot delete: products are assigned"
@@ -818,19 +818,19 @@ export default function CategoriesTab() {
       {/* Protected Delete Warning Modal */}
       {deleteWarning.isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-fade-in">
-          <div className="bg-white rounded-3xl border border-[#e6dfd5] p-6 max-w-md w-full shadow-xl space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mx-auto">
+          <div className="bg-white rounded-3xl border border-line p-6 max-w-md w-full shadow-xl space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-warning-soft border border-warning-line text-warning flex items-center justify-center mx-auto">
               <AlertCircle className="w-6 h-6" />
             </div>
             <div className="text-center space-y-1.5">
-              <h3 className="font-serif text-lg font-bold text-[#1c1917]">
+              <h3 className="font-serif text-lg font-bold text-ink">
                 Cannot Delete Category
               </h3>
-              <p className="text-xs text-[#6a6660]">
-                Category <strong className="text-[#1c1917]">&ldquo;{deleteWarning.categoryName}&rdquo;</strong> currently has{" "}
-                <strong className="text-[#22623a]">{deleteWarning.productCount} active product(s)</strong> assigned to it.
+              <p className="text-xs text-ink-muted">
+                Category <strong className="text-ink">&ldquo;{deleteWarning.categoryName}&rdquo;</strong> currently has{" "}
+                <strong className="text-primary">{deleteWarning.productCount} active product(s)</strong> assigned to it.
               </p>
-              <p className="text-xs text-[#6a6660] pt-1">
+              <p className="text-xs text-ink-muted pt-1">
                 To preserve database integrity, please reassign or remove these products from the Products tab before deleting this category.
               </p>
             </div>
@@ -838,7 +838,7 @@ export default function CategoriesTab() {
               <button
                 type="button"
                 onClick={() => setDeleteWarning({ isOpen: false, categoryName: "", productCount: 0 })}
-                className="px-6 py-2.5 bg-[#22623a] text-white text-xs font-bold rounded-xl hover:bg-[#1a4d2e] transition-all"
+                className="px-6 py-2.5 bg-primary text-white text-xs font-bold rounded-xl hover:bg-brand-green-800 transition-all"
               >
                 Understood
               </button>

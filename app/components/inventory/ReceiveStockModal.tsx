@@ -107,28 +107,28 @@ export default function ReceiveStockModal({
     <div data-lenis-prevent className="fixed inset-0 z-50 overflow-y-auto p-4 flex items-center justify-center">
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-[#22623a]/60 backdrop-blur-xs transition-opacity animate-fade-in"
+        className="fixed inset-0 bg-primary/60 backdrop-blur-xs transition-opacity animate-fade-in"
       />
 
-      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-[#e6dfd5] overflow-hidden my-auto animate-fade-in flex flex-col">
+      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-line overflow-hidden my-auto animate-fade-in flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#e6dfd5] bg-[#faf8f5] flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-line bg-surface flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#22623a] text-[#c59b27] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-primary text-brand-gold-300 flex items-center justify-center">
               <Warehouse className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-serif text-base font-bold text-[#22623a]">
+              <h2 className="font-serif text-base font-bold text-primary">
                 Receive Stock Batch
               </h2>
-              <p className="text-[11px] text-[#6a6660]">
+              <p className="text-[11px] text-ink-muted">
                 Add units directly to active stock. Immediately live on website.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-md text-[#6a6660] hover:text-[#22623a] hover:bg-[#e6dfd5]/50 transition-colors"
+            className="p-1.5 rounded-md text-ink-muted hover:text-primary hover:bg-line/50 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -137,26 +137,26 @@ export default function ReceiveStockModal({
         {/* Body Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+            <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-danger flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 flex items-center gap-2 font-semibold">
-              <Check className="w-4 h-4 shrink-0 text-emerald-600" />
+            <div className="p-3 bg-success-soft border border-success-line rounded-xl text-success flex items-center gap-2 font-semibold">
+              <Check className="w-4 h-4 shrink-0 text-success" />
               <span>{successMsg}</span>
             </div>
           )}
 
           {/* Product Variant Select */}
           <div className="space-y-1.5">
-            <label className="font-semibold text-[#1a1816]">
-              Select Product & Variant <span className="text-red-500">*</span>
+            <label className="font-semibold text-ink">
+              Select Product & Variant <span className="text-danger">*</span>
             </label>
             {fetchingList ? (
-              <div className="flex items-center gap-2 p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#6a6660]">
+              <div className="flex items-center gap-2 p-2.5 bg-surface border border-line rounded-lg text-ink-muted">
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
                 <span>Loading available catalog items...</span>
               </div>
@@ -164,7 +164,7 @@ export default function ReceiveStockModal({
               <select
                 value={selectedSizeId}
                 onChange={(e) => setSelectedSizeId(e.target.value)}
-                className="w-full p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] font-medium focus:outline-none focus:border-[#22623a]"
+                className="w-full p-2.5 bg-surface border border-line rounded-lg text-ink font-medium focus:outline-none focus:border-primary"
               >
                 {inventoryList.map((item) => (
                   <option key={item.id} value={item.id}>
@@ -177,26 +177,26 @@ export default function ReceiveStockModal({
 
           {/* Current Stock Snapshot Card */}
           {currentVariant && (
-            <div className="p-3 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl grid grid-cols-3 gap-2 text-center">
+            <div className="p-3 bg-surface border border-line rounded-xl grid grid-cols-3 gap-2 text-center">
               <div>
-                <span className="text-[10px] text-[#6a6660] uppercase block">Physical On Hand</span>
-                <span className="text-sm font-bold text-[#22623a]">{currentVariant.stockOnHand}</span>
+                <span className="text-[10px] text-ink-muted uppercase block">Physical On Hand</span>
+                <span className="text-sm font-bold text-primary">{currentVariant.stockOnHand}</span>
               </div>
               <div>
-                <span className="text-[10px] text-[#6a6660] uppercase block">Reserved Orders</span>
-                <span className="text-sm font-bold text-[#c59b27]">{currentVariant.stockReserved}</span>
+                <span className="text-[10px] text-ink-muted uppercase block">Reserved Orders</span>
+                <span className="text-sm font-bold text-secondary-text">{currentVariant.stockReserved}</span>
               </div>
               <div>
-                <span className="text-[10px] text-[#6a6660] uppercase block">Live Available</span>
-                <span className="text-sm font-bold text-[#2d7648]">{currentVariant.available}</span>
+                <span className="text-[10px] text-ink-muted uppercase block">Live Available</span>
+                <span className="text-sm font-bold text-brand-green-600">{currentVariant.available}</span>
               </div>
             </div>
           )}
 
           {/* Quantity Input */}
           <div className="space-y-1.5">
-            <label className="font-semibold text-[#1a1816]">
-              Quantity Received (+ Units) <span className="text-red-500">*</span>
+            <label className="font-semibold text-ink">
+              Quantity Received (+ Units) <span className="text-danger">*</span>
             </label>
             <div className="relative">
               <input
@@ -206,14 +206,14 @@ export default function ReceiveStockModal({
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 placeholder="e.g. 20"
-                className="w-full p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] font-bold text-sm focus:outline-none focus:border-[#22623a]"
+                className="w-full p-2.5 bg-surface border border-line rounded-lg text-ink font-bold text-sm focus:outline-none focus:border-primary"
               />
-              <span className="absolute right-3 top-2.5 text-xs text-[#6a6660] font-medium">
+              <span className="absolute right-3 top-2.5 text-xs text-ink-muted font-medium">
                 Packs
               </span>
             </div>
             {currentVariant && Number(quantity) > 0 && (
-              <p className="text-[11px] text-[#2d7648]">
+              <p className="text-[11px] text-brand-green-600">
                 New available stock will be: <strong>{currentVariant.available + Number(quantity)}</strong> units.
               </p>
             )}
@@ -221,31 +221,31 @@ export default function ReceiveStockModal({
 
           {/* Reason / Reference Note */}
           <div className="space-y-1.5">
-            <label className="font-semibold text-[#1a1816]">
+            <label className="font-semibold text-ink">
               Reason / Batch Reference Note
             </label>
             <input
               type="text"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="e.g. Fresh batch from Lahore facility, Po #892"
-              className="w-full p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[#1a1816] focus:outline-none focus:border-[#22623a]"
+              placeholder="e.g. Fresh batch from Lahore facility, PO 892"
+              className="w-full p-2.5 bg-surface border border-line rounded-lg text-ink focus:outline-none focus:border-primary"
             />
           </div>
 
           {/* Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#e6dfd5]">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-line">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-[#faf8f5] hover:bg-[#e6dfd5] text-[#59534b] font-semibold rounded-lg transition-colors"
+              className="px-4 py-2 bg-surface hover:bg-line text-ink-body font-semibold rounded-lg transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || fetchingList || !selectedSizeId}
-              className="px-5 py-2 bg-[#22623a] hover:bg-[#1b502e] text-white font-semibold rounded-lg transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50"
+              className="px-5 py-2 bg-primary hover:bg-brand-green-800 text-white font-semibold rounded-lg transition-colors shadow-sm flex items-center gap-2 disabled:opacity-50"
             >
               {loading ? (
                 <>

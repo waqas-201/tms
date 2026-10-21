@@ -65,7 +65,7 @@ function BotanicalArt({ className = "" }: { className?: string }) {
       <path
         d="M16 500 V200 A184 184 0 0 1 384 200 V500"
         fill="none"
-        stroke="#c59b27"
+        stroke="var(--color-secondary)"
         strokeOpacity="0.55"
         strokeWidth="2"
       />
@@ -73,7 +73,7 @@ function BotanicalArt({ className = "" }: { className?: string }) {
       <path
         d="M200 500 C195 390 206 270 200 150"
         fill="none"
-        stroke="#c59b27"
+        stroke="var(--color-secondary)"
         strokeWidth="3"
         strokeLinecap="round"
       />
@@ -82,21 +82,21 @@ function BotanicalArt({ className = "" }: { className?: string }) {
           <path
             d={leafPath}
             transform={`translate(200 ${l.y}) rotate(-32) scale(${l.s})`}
-            fill={i % 2 ? "#3fae6a" : "#2f8a54"}
+            fill={i % 2 ? "var(--color-brand-green-500)" : "var(--color-brand-green-600)"}
           />
           <path
             d={leafPath}
             transform={`translate(200 ${l.y - 22}) rotate(-148) scale(${l.s})`}
-            fill={i % 2 ? "#2f8a54" : "#3fae6a"}
+            fill={i % 2 ? "var(--color-brand-green-600)" : "var(--color-brand-green-500)"}
           />
         </g>
       ))}
       <path
         d={leafPath}
         transform="translate(200 152) rotate(-90) scale(0.62)"
-        fill="#3fae6a"
+        fill="var(--color-brand-green-500)"
       />
-      <circle cx="200" cy="112" r="6" fill="#dcaf38" />
+      <circle cx="200" cy="112" r="6" fill="var(--color-brand-gold-400)" />
     </svg>
   );
 }
@@ -186,7 +186,7 @@ export default function HeroSection() {
         className="pointer-events-none absolute inset-0 opacity-[0.06]"
         style={{
           backgroundImage:
-            "repeating-linear-gradient(115deg, #faf8f5 0 1px, transparent 1px 28px)",
+            "repeating-linear-gradient(115deg, var(--color-surface) 0 1px, transparent 1px 28px)",
         }}
       />
 
@@ -243,7 +243,7 @@ export default function HeroSection() {
             <p className="mb-2 text-xs font-medium text-sand-100/70 sm:text-sm lg:text-sand-100/65">
               What is troubling you?
             </p>
-            <div className="-mx-5 max-w-[100vw] overflow-x-auto px-5 [mask-image:linear-gradient(to_right,#000_90%,transparent)] [scrollbar-width:none] sm:mx-0 sm:max-w-none sm:overflow-visible sm:px-0 sm:[mask-image:none] [&::-webkit-scrollbar]:hidden">
+            <div className="-mx-5 max-w-[100vw] overflow-x-auto px-5 [mask-image:linear-gradient(to_right,black_90%,transparent)] [scrollbar-width:none] sm:mx-0 sm:max-w-none sm:overflow-visible sm:px-0 sm:[mask-image:none] [&::-webkit-scrollbar]:hidden">
               <ul
                 className="grid w-max grid-flow-col auto-cols-max gap-2 pr-6 sm:flex sm:w-auto sm:flex-wrap sm:pr-0"
                 style={{ gridTemplateRows: `repeat(${Math.max(chipRows, 1)}, 2.25rem)` }}

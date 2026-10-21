@@ -33,24 +33,24 @@ export default function HijamaHeroWidget() {
   }, []);
 
   return (
-    <section className="py-6 px-4 bg-[#fcfbf9] border-y border-[#e8e2d8]">
+    <section className="py-6 px-4 bg-surface border-y border-line">
       <div className="max-w-6xl mx-auto">
-        <div className="bg-[#0f2b1d] rounded-2xl p-5 md:p-6 text-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-[#c59b27]/30">
+        <div className="bg-surface-inverse rounded-2xl p-5 md:p-6 text-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border border-secondary/30">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-[#c59b27]/15 border border-[#c59b27]/30 flex items-center justify-center shrink-0 text-[#c59b27]">
+            <div className="w-10 h-10 rounded-xl bg-secondary/15 border border-secondary/30 flex items-center justify-center shrink-0 text-brand-gold-500">
               <Moon className="w-5 h-5 fill-current" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-[#c59b27]">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-brand-gold-500">
                   Sunnah Wet Cupping
                 </span>
-                <span className="text-[11px] text-[#86a894] flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3 text-[#22c55e]" />
+                <span className="text-[11px] text-brand-green-400 flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-success" />
                   Separate Male &amp; Female Wards
                 </span>
               </div>
-              <h3 className="font-serif text-base md:text-lg font-bold text-[#fcfbf9] mt-0.5">
+              <h3 className="font-serif text-base md:text-lg font-bold text-on-inverse mt-0.5">
                 {sunnahText}
               </h3>
             </div>
@@ -58,7 +58,7 @@ export default function HijamaHeroWidget() {
 
           <Link
             href="/hijama"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#c59b27] hover:bg-[#b0881e] text-[#0f2b1d] font-bold text-xs rounded-xl transition-all shrink-0 shadow-sm"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-secondary hover:bg-secondary text-ink font-bold text-xs rounded-xl transition-all shrink-0 shadow-sm"
           >
             <span>Book Appointment</span>
             <ArrowRight className="w-3.5 h-3.5" />

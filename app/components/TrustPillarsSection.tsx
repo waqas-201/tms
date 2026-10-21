@@ -33,17 +33,17 @@ export default function TrustPillarsSection() {
   return (
     <section
       id="trust-pillars"
-      className="py-14 sm:py-18 bg-white border-b border-[#e6dfd5]"
+      className="py-14 sm:py-18 bg-white border-b border-line"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
         <Reveal className="text-center max-w-xl mx-auto space-y-2">
-          <span className="text-xs uppercase tracking-widest font-semibold text-[#8c6a15]">
+          <span className="text-xs uppercase tracking-widest font-semibold text-secondary-text">
             Why Choose Us
           </span>
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#22623a]">
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-primary">
             Clinical Excellence You Can Trust
           </h2>
-          <p className="text-xs sm:text-sm text-[#59534b]">
+          <p className="text-xs sm:text-sm text-ink-body">
             Authentic Eastern medicine backed by clean laboratory standards.
           </p>
         </Reveal>
@@ -59,16 +59,16 @@ export default function TrustPillarsSection() {
               >
                 <motion.div
                   whileHover={reducedMotion ? undefined : { y: -4, transition: { duration: 0.2 } }}
-                  className="h-full p-5 rounded-2xl bg-[#faf8f5] border border-[#e6dfd5] space-y-3 flex flex-col justify-between hover:border-[#22623a]/40 hover:shadow-xs transition-all group"
+                  className="h-full p-5 rounded-2xl bg-surface border border-line space-y-3 flex flex-col justify-between hover:border-primary/40 hover:shadow-xs transition-all group"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-[#22623a] text-[#c59b27] flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
+                  <div className="w-10 h-10 rounded-xl bg-primary text-brand-gold-300 flex items-center justify-center shadow-2xs group-hover:scale-105 transition-transform">
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="font-serif text-sm font-bold text-[#22623a]">
+                    <h3 className="font-serif text-sm font-bold text-primary">
                       {pillar.title}
                     </h3>
-                    <p className="text-xs text-[#59534b] leading-relaxed">
+                    <p className="text-xs text-ink-body leading-relaxed">
                       {pillar.description}
                     </p>
                   </div>

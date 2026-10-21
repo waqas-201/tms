@@ -35,17 +35,17 @@ export default function ConsultationProcessSection() {
   ];
 
   return (
-    <section className="py-16 bg-[#f4eee5] border-b border-[#e6dfd5]">
+    <section className="py-16 bg-surface-sunken border-b border-line">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <Reveal className="text-center max-w-2xl mx-auto space-y-2 mb-14">
-          <span className="text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
+          <span className="text-xs uppercase tracking-widest font-semibold text-secondary-text">
             Simple Process
           </span>
-          <h2 className="font-serif text-2xl sm:text-4xl font-bold text-[#22623a]">
+          <h2 className="font-serif text-2xl sm:text-4xl font-bold text-primary">
             How Online Herbal Consultation Works
           </h2>
-          <p className="text-xs sm:text-sm text-[#59534b]">
+          <p className="text-xs sm:text-sm text-ink-body">
             Four simple steps from sharing your symptoms to receiving fresh remedies at home.
           </p>
         </Reveal>
@@ -61,23 +61,23 @@ export default function ConsultationProcessSection() {
                 className="h-full"
               >
                 <div
-                  className="relative h-full bg-white rounded-xl p-6 border border-[#e6dfd5] shadow-xs hover:shadow-luxury-hover transition-all duration-300 flex flex-col justify-between"
+                  className="relative h-full bg-white rounded-xl p-6 border border-line shadow-xs hover:shadow-luxury-hover transition-all duration-300 flex flex-col justify-between"
                 >
                   {/* Step indicator */}
                   <div className="flex items-center justify-between mb-5">
-                    <div className="w-11 h-11 rounded-lg bg-[#22623a] text-[#c59b27] flex items-center justify-center shadow-xs">
+                    <div className="w-11 h-11 rounded-lg bg-primary text-brand-gold-300 flex items-center justify-center shadow-xs">
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className="font-serif text-xl font-bold text-[#d7c9b8]">
+                    <span className="font-serif text-xl font-bold text-line">
                       {step.number}
                     </span>
                   </div>
 
                   <div className="space-y-1.5">
-                    <h3 className="font-serif text-base font-bold text-[#22623a]">
+                    <h3 className="font-serif text-base font-bold text-primary">
                       {step.title}
                     </h3>
-                    <p className="text-xs text-[#59534b] leading-relaxed pt-1">
+                    <p className="text-xs text-ink-body leading-relaxed pt-1">
                       {step.description}
                     </p>
                   </div>
@@ -88,12 +88,12 @@ export default function ConsultationProcessSection() {
         </div>
 
         {/* Action Callout Bar */}
-        <Reveal className="mt-12 bg-white rounded-xl p-6 sm:p-8 border border-[#e6dfd5] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
+        <Reveal className="mt-12 bg-white rounded-xl p-6 sm:p-8 border border-line shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="space-y-1 text-center sm:text-left">
-            <h4 className="font-serif text-base sm:text-lg font-bold text-[#22623a]">
+            <h4 className="font-serif text-base sm:text-lg font-bold text-primary">
               Want to speak with an experienced Hakim?
             </h4>
-            <p className="text-xs text-[#6a6660]">
+            <p className="text-xs text-ink-muted">
               Free initial symptom review · Fast reply within 2 to 4 hours on working days.
             </p>
           </div>
@@ -101,7 +101,7 @@ export default function ConsultationProcessSection() {
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
             <Link
               href="/consultation"
-              className="w-full sm:w-auto text-center px-6 py-3 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-semibold tracking-wider uppercase rounded-md transition-colors shadow-xs"
+              className="w-full sm:w-auto text-center px-6 py-3 bg-primary hover:bg-brand-green-800 text-white text-xs font-semibold tracking-wider uppercase rounded-md transition-colors shadow-xs"
             >
               Start Free Consultation
             </Link>
@@ -111,7 +111,7 @@ export default function ConsultationProcessSection() {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-semibold rounded-md transition-colors shadow-xs"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-3 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs font-semibold rounded-md transition-colors shadow-xs"
             >
               <MessageCircle className="w-4 h-4" />
               <span>Chat on WhatsApp</span>

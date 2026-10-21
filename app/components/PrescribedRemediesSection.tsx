@@ -64,20 +64,20 @@ export default function PrescribedRemediesSection() {
       : productsList.filter((p) => p.category === activeCategory).slice(0, 6);
 
   return (
-    <section id="remedies" className="py-12 sm:py-18 lg:py-22 bg-white border-b border-[#e6dfd5]">
+    <section id="remedies" className="py-12 sm:py-18 lg:py-22 bg-white border-b border-line">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 sm:space-y-10">
 
         {/* Section Header */}
         <Reveal className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-1.5 max-w-xl">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#eef7f1] border border-[#cde4d6] text-[#22623a] text-xs font-semibold">
-              <Stethoscope className="w-3.5 h-3.5 text-[#c59b27]" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-green-50 border border-brand-green-200 text-primary text-xs font-semibold">
+              <Stethoscope className="w-3.5 h-3.5 text-secondary-text" />
               <span>Apothecary Dispensary</span>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#22623a] leading-tight">
+            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-primary leading-tight">
               Physician-Formulated Remedies
             </h2>
-            <p className="text-xs sm:text-sm text-[#59534b]">
+            <p className="text-xs sm:text-sm text-ink-body">
               Pure hydro-distillates (Arqiyat), fruit preserves (Murabbajaat), and medicinal oils prepared in clean small batches.
             </p>
           </div>
@@ -92,14 +92,14 @@ export default function PrescribedRemediesSection() {
                     "Assalam-o-Alaikum Hakim Sahib, I need guidance on choosing the right remedy for my condition.",
                 })
               }
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 bg-[#eef7f1] hover:bg-[#d8edd0] border border-[#cde4d6] text-[#22623a] text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 bg-brand-green-50 hover:bg-brand-green-100 border border-brand-green-200 text-primary text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
             >
-              <MessageCircle className="w-3.5 h-3.5 text-[#25D366]" />
+              <MessageCircle className="w-3.5 h-3.5 text-whatsapp" />
               <span>Ask a Hakim</span>
             </button>
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 bg-[#faf8f5] hover:bg-[#eef7f1] border border-[#cde4d6] text-[#22623a] text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-2xs hover:shadow-xs active:scale-95 shrink-0 group"
+              className="inline-flex items-center gap-2 px-4 py-2 sm:px-5 sm:py-2.5 bg-surface hover:bg-brand-green-50 border border-brand-green-200 text-primary text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-2xs hover:shadow-xs active:scale-95 shrink-0 group"
             >
               <span>View All Remedies</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -115,8 +115,8 @@ export default function PrescribedRemediesSection() {
               onClick={() => setActiveCategory("all")}
               className={`text-xs px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full font-bold transition-all shrink-0 cursor-pointer active:scale-95 ${
                 activeCategory === "all"
-                  ? "bg-[#22623a] text-white shadow-xs"
-                  : "bg-[#faf8f5] text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a]"
+                  ? "bg-primary text-white shadow-xs"
+                  : "bg-surface text-ink-body border border-line hover:border-primary"
               }`}
             >
               All Formulations
@@ -128,8 +128,8 @@ export default function PrescribedRemediesSection() {
                 onClick={() => setActiveCategory(cat.id)}
                 className={`text-xs px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full font-semibold transition-all shrink-0 cursor-pointer active:scale-95 ${
                   activeCategory === cat.id
-                    ? "bg-[#22623a] text-white shadow-xs"
-                    : "bg-[#faf8f5] text-[#59534b] border border-[#e6dfd5] hover:border-[#22623a]"
+                    ? "bg-primary text-white shadow-xs"
+                    : "bg-surface text-ink-body border border-line hover:border-primary"
                 }`}
               >
                 <span>{cat.name}</span>
@@ -141,15 +141,15 @@ export default function PrescribedRemediesSection() {
         {/* 6 Curated Products Grid: 2-column mobile, 3-column desktop */}
         {isLoading ? (
           <div className="py-16 text-center">
-            <Loader2 className="w-8 h-8 text-[#22623a] animate-spin mx-auto mb-2" />
-            <p className="text-xs text-[#7a7268]">Loading physician formulations...</p>
+            <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
+            <p className="text-xs text-ink-subtle">Loading physician formulations...</p>
           </div>
         ) : curatedProducts.length === 0 ? (
-          <div className="py-12 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] text-center p-6 space-y-3">
-            <p className="text-xs text-[#59534b]">No formulations found for this category.</p>
+          <div className="py-12 bg-surface rounded-2xl border border-line text-center p-6 space-y-3">
+            <p className="text-xs text-ink-body">No formulations found for this category.</p>
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 text-xs font-bold text-[#22623a] hover:underline"
+              className="inline-flex items-center gap-2 text-xs font-bold text-primary hover:underline"
             >
               <span>Explore Full Catalog</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -166,9 +166,9 @@ export default function PrescribedRemediesSection() {
         )}
 
         {/* Subtle Custom Formulation Callout Strip with Universal Modal Trigger */}
-        <div className="p-3.5 sm:p-5 rounded-2xl bg-[#faf8f5] border border-[#e6dfd5] flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs text-[#59534b]">
+        <div className="p-3.5 sm:p-5 rounded-2xl bg-surface border border-line flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-xs text-ink-body">
           <div className="flex items-center gap-2.5 text-center sm:text-left">
-            <ShieldCheck className="w-4 h-4 text-[#22623a] shrink-0" />
+            <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
             <span>Need a custom dosage or specific formulation prepared for your condition?</span>
           </div>
           <button
@@ -180,9 +180,9 @@ export default function PrescribedRemediesSection() {
                 mode: "WHATSAPP",
               })
             }
-            className="text-[#22623a] hover:text-[#1b502e] font-bold inline-flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-xl bg-white border border-[#cde4d6] hover:bg-[#eef7f1] transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95"
+            className="text-primary hover:text-primary font-bold inline-flex items-center gap-1.5 shrink-0 px-3.5 py-2 rounded-xl bg-white border border-brand-green-200 hover:bg-brand-green-50 transition-all cursor-pointer shadow-2xs hover:shadow-xs active:scale-95"
           >
-            <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
+            <Sparkles className="w-3.5 h-3.5 text-secondary-text" />
             <span>Consult for Custom Formulation &rarr;</span>
           </button>
         </div>

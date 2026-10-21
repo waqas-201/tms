@@ -291,34 +291,34 @@ export default function HijamaLandingClient() {
   };
 
   return (
-    <main className="min-h-screen bg-[#faf8f5] py-8 md:py-14 px-4 text-[#1a1816]">
+    <main className="min-h-screen bg-surface py-8 md:py-14 px-4 text-ink">
       <div className="max-w-3xl mx-auto space-y-6">
         {/* Breadcrumb & Clean Header */}
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs text-[#7a7268]">
-            <Link href="/" className="hover:text-[#22623a]">
+          <div className="flex items-center gap-2 text-xs text-ink-subtle">
+            <Link href="/" className="hover:text-primary">
               Home
             </Link>
             <span>/</span>
-            <span className="text-[#22623a] font-medium">Hijama Cupping</span>
+            <span className="text-primary font-medium">Hijama Cupping</span>
           </div>
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
-              <h1 className="font-serif text-2xl md:text-3xl font-bold text-[#14281D]">
+              <h1 className="font-serif text-2xl md:text-3xl font-bold text-ink">
                 Sunnah Hijama Booking
               </h1>
-              <p className="text-xs md:text-sm text-[#59534b] mt-1">
+              <p className="text-xs md:text-sm text-ink-body mt-1">
                 Authentic wet cupping according to Prophetic lunar timings in Karachi.
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-1 bg-[#14281D]/5 text-[#14281D] text-xs font-semibold rounded-lg border border-[#14281D]/15 flex items-center gap-1.5">
-                <Moon className="w-3.5 h-3.5 text-[#c59b27]" />
+              <span className="px-2.5 py-1 bg-surface-inverse/5 text-ink text-xs font-semibold rounded-lg border border-ink/15 flex items-center gap-1.5">
+                <Moon className="w-3.5 h-3.5 text-secondary-text" />
                 17, 19, 21 Sunnah Focus
               </span>
-              <span className="px-2.5 py-1 bg-emerald-50 text-emerald-800 text-xs font-semibold rounded-lg border border-emerald-200 flex items-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="px-2.5 py-1 bg-success-soft text-success text-xs font-semibold rounded-lg border border-success-line flex items-center gap-1.5">
+                <ShieldCheck className="w-3.5 h-3.5 text-success" />
                 Segregated Wings
               </span>
             </div>
@@ -327,67 +327,67 @@ export default function HijamaLandingClient() {
 
         {/* ─── SUCCESS TICKET SCREEN ─── */}
         {confirmedBooking ? (
-          <div className="bg-white rounded-2xl border border-[#c59b27]/40 p-6 md:p-8 shadow-sm space-y-6 animate-fade-in">
-            <div className="flex items-start justify-between gap-4 pb-5 border-b border-[#f0eae1]">
+          <div className="bg-white rounded-2xl border border-secondary/40 p-6 md:p-8 shadow-sm space-y-6 animate-fade-in">
+            <div className="flex items-start justify-between gap-4 pb-5 border-b border-sand-100">
               <div className="space-y-1">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-success-soft text-success text-[11px] font-bold">
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   Appointment Confirmed
                 </span>
-                <h2 className="text-xl md:text-2xl font-serif font-bold text-[#14281D]">
+                <h2 className="text-xl md:text-2xl font-serif font-bold text-ink">
                   Booking Reference: {confirmedBooking.ticketNumber}
                 </h2>
-                <p className="text-xs text-[#7a7268]">
+                <p className="text-xs text-ink-subtle">
                   Please arrive 10 minutes prior to your time slot.
                 </p>
               </div>
               <div className="text-right">
-                <span className="text-[10px] uppercase font-bold text-[#7a7268] tracking-wider block">
+                <span className="text-[10px] uppercase font-bold text-ink-subtle tracking-wider block">
                   Fee (Pay at Clinic)
                 </span>
-                <span className="text-lg md:text-xl font-bold text-[#14281D]">
+                <span className="text-lg md:text-xl font-bold text-ink">
                   ₨ {confirmedBooking.feeAmount.toLocaleString()}
                 </span>
               </div>
             </div>
 
             {/* Ticket Details Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-[#faf8f5] p-4 rounded-xl border border-[#e8e2d8]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-surface p-4 rounded-xl border border-line">
               <div>
-                <span className="text-[#7a7268] block">Patient Name:</span>
-                <strong className="text-[#14281D] text-sm">
+                <span className="text-ink-subtle block">Patient Name:</span>
+                <strong className="text-ink text-sm">
                   {confirmedBooking.fullName}
                 </strong>
               </div>
               <div>
-                <span className="text-[#7a7268] block">Treatment Wing:</span>
-                <strong className="text-[#14281D]">
+                <span className="text-ink-subtle block">Treatment Wing:</span>
+                <strong className="text-ink">
                   {confirmedBooking.gender === "MALE"
                     ? "Male Ward (Certified Hajjam)"
                     : "Female Ward (Certified Hajjama)"}
                 </strong>
               </div>
               <div>
-                <span className="text-[#7a7268] block">Appointment Date:</span>
-                <strong className="text-[#14281D]">
+                <span className="text-ink-subtle block">Appointment Date:</span>
+                <strong className="text-ink">
                   {confirmedBooking.appointmentDate}{" "}
                   {confirmedBooking.hijriDate ? `(${confirmedBooking.hijriDate})` : ""}
                 </strong>
                 {confirmedBooking.isSunnahDay && (
-                  <span className="ml-1.5 text-[10px] font-bold text-[#c59b27]">
+                  <span className="ml-1.5 text-[10px] font-bold text-secondary-text">
                     ★ Sunnah Day
                   </span>
                 )}
               </div>
               <div>
-                <span className="text-[#7a7268] block">Time Slot:</span>
-                <strong className="text-[#14281D] text-sm">
+                <span className="text-ink-subtle block">Time Slot:</span>
+                <strong className="text-ink text-sm">
                   {confirmedBooking.appointmentSlot}
                 </strong>
               </div>
-              <div className="sm:col-span-2 pt-2 border-t border-[#e8e2d8]">
-                <span className="text-[#7a7268] block">Clinic Address:</span>
-                <span className="text-[#14281D] font-medium">
+              <div className="sm:col-span-2 pt-2 border-t border-line">
+                <span className="text-ink-subtle block">Clinic Address:</span>
+                <span className="text-ink font-medium">
                   {CLINIC_INFO.clinicName} — Plot L-41, Korangi Crossing Rd, Allah Wala Town, Karachi
                 </span>
               </div>
@@ -401,7 +401,7 @@ export default function HijamaLandingClient() {
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
+                className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 px-5 py-3 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp font-bold text-xs rounded-xl shadow-xs transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>Send Confirmation to Clinic on WhatsApp</span>
@@ -410,7 +410,7 @@ export default function HijamaLandingClient() {
               <button
                 type="button"
                 onClick={resetForm}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 bg-[#f0eae1] hover:bg-[#e4dcce] text-[#14281D] font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 bg-surface-sunken hover:bg-line text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Book Another</span>
@@ -421,13 +421,13 @@ export default function HijamaLandingClient() {
           /* ─── INLINE 3-STEP BOOKING CARD ─── */
           <form
             onSubmit={handleBooking}
-            className="bg-white rounded-2xl border border-[#e8e2d8] p-5 md:p-8 shadow-xs space-y-7"
+            className="bg-white rounded-2xl border border-line p-5 md:p-8 shadow-xs space-y-7"
           >
             {/* Step 1: Gender / Ward Selector */}
             <div className="space-y-2.5">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#7a7268] flex items-center justify-between">
+              <label className="text-xs font-bold uppercase tracking-wider text-ink-subtle flex items-center justify-between">
                 <span>1. Select Treatment Wing</span>
-                <span className="text-[11px] font-normal text-[#59534b]">
+                <span className="text-[11px] font-normal text-ink-body">
                   Islamic modesty protocol (Haya)
                 </span>
               </label>
@@ -438,14 +438,14 @@ export default function HijamaLandingClient() {
                   onClick={() => setGender("MALE")}
                   className={`py-3 px-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                     gender === "MALE"
-                      ? "bg-[#14281D] text-white border-[#14281D] shadow-xs"
-                      : "bg-[#faf8f5] text-[#59534b] border-[#e8e2d8] hover:border-[#14281D]/40"
+                      ? "bg-surface-inverse text-white border-ink shadow-xs"
+                      : "bg-surface text-ink-body border-line hover:border-ink/40"
                   }`}
                 >
                   <span className="text-xs font-bold">Male Ward</span>
                   <span
                     className={`text-[11px] mt-0.5 ${
-                      gender === "MALE" ? "text-[#c59b27]" : "text-[#7a7268]"
+                      gender === "MALE" ? "text-brand-gold-500" : "text-ink-subtle"
                     }`}
                   >
                     Certified Hajjam (Male)
@@ -457,14 +457,14 @@ export default function HijamaLandingClient() {
                   onClick={() => setGender("FEMALE")}
                   className={`py-3 px-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                     gender === "FEMALE"
-                      ? "bg-[#14281D] text-white border-[#14281D] shadow-xs"
-                      : "bg-[#faf8f5] text-[#59534b] border-[#e8e2d8] hover:border-[#14281D]/40"
+                      ? "bg-surface-inverse text-white border-ink shadow-xs"
+                      : "bg-surface text-ink-body border-line hover:border-ink/40"
                   }`}
                 >
                   <span className="text-xs font-bold">Female Ward</span>
                   <span
                     className={`text-[11px] mt-0.5 ${
-                      gender === "FEMALE" ? "text-[#c59b27]" : "text-[#7a7268]"
+                      gender === "FEMALE" ? "text-brand-gold-500" : "text-ink-subtle"
                     }`}
                   >
                     Certified Hajjama (Female)
@@ -474,16 +474,16 @@ export default function HijamaLandingClient() {
             </div>
 
             {/* Step 2: Date & Available Slots */}
-            <div className="space-y-4 pt-4 border-t border-[#f0eae1]">
+            <div className="space-y-4 pt-4 border-t border-sand-100">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold uppercase tracking-wider text-[#7a7268]">
+                  <label className="text-xs font-bold uppercase tracking-wider text-ink-subtle">
                     2. Select Date
                   </label>
                   <button
                     type="button"
                     onClick={() => setIsCustomDate(!isCustomDate)}
-                    className="text-xs font-semibold text-[#22623a] hover:underline cursor-pointer"
+                    className="text-xs font-semibold text-primary hover:underline cursor-pointer"
                   >
                     {isCustomDate ? "← Back to Sunnah Dates" : "Choose Custom Date"}
                   </button>
@@ -508,14 +508,14 @@ export default function HijamaLandingClient() {
                           onClick={() => setSelectedDate(sd.date)}
                           className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                             isSelected
-                              ? "bg-[#14281D] text-white border-[#c59b27] shadow-xs"
-                              : "bg-[#faf8f5] text-[#1a1816] border-[#e8e2d8] hover:border-[#c59b27]/60"
+                              ? "bg-surface-inverse text-white border-secondary shadow-xs"
+                              : "bg-surface text-ink border-line hover:border-secondary/60"
                           }`}
                         >
                           <div className="flex items-center justify-between">
                             <span
                               className={`text-[10px] font-bold uppercase tracking-wider ${
-                                isSelected ? "text-[#c59b27]" : "text-[#8c6a15]"
+                                isSelected ? "text-brand-gold-500" : "text-secondary-text"
                               }`}
                             >
                               ★ Sunnah {sd.hijriDay}th
@@ -523,8 +523,8 @@ export default function HijamaLandingClient() {
                             <span
                               className={`text-[10px] px-1.5 py-0.2 rounded-full ${
                                 isSelected
-                                  ? "bg-[#c59b27]/20 text-[#fcfbf9]"
-                                  : "bg-[#14281D]/5 text-[#14281D]"
+                                  ? "bg-secondary/20 text-on-inverse"
+                                  : "bg-surface-inverse/5 text-ink"
                               }`}
                             >
                               {sd.totalAvailableSeats === 0 ? "Full" : `${sd.totalAvailableSeats} slots`}
@@ -537,7 +537,7 @@ export default function HijamaLandingClient() {
                             </div>
                             <div
                               className={`text-[11px] ${
-                                isSelected ? "text-[#a3c2b0]" : "text-[#7a7268]"
+                                isSelected ? "text-brand-green-300" : "text-ink-subtle"
                               }`}
                             >
                               {sd.hijriFormatted}
@@ -555,13 +555,13 @@ export default function HijamaLandingClient() {
                       value={selectedDate}
                       min={new Date().toISOString().split("T")[0]}
                       onChange={(e) => setSelectedDate(e.target.value)}
-                      className="px-3.5 py-2.5 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs font-medium text-[#14281D] focus:outline-none focus:border-[#14281D]"
+                      className="px-3.5 py-2.5 bg-surface border border-line rounded-xl text-xs font-medium text-ink focus:outline-none focus:border-ink"
                     />
                     {dateHijri && (
-                      <span className="text-xs text-[#59534b]">
+                      <span className="text-xs text-ink-body">
                         Hijri: <strong>{dateHijri.hijriFormatted}</strong>{" "}
                         {dateHijri.isSunnahDay && (
-                          <span className="text-[#c59b27] font-bold ml-1">★ Sunnah Day</span>
+                          <span className="text-secondary-text font-bold ml-1">★ Sunnah Day</span>
                         )}
                       </span>
                     )}
@@ -572,19 +572,19 @@ export default function HijamaLandingClient() {
               {/* Time Slot Chips */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-[#14281D]">Available Time Slots (45 mins)</span>
-                  <span className="text-[#7a7268] text-[11px]">
+                  <span className="font-bold text-ink">Available Time Slots (45 mins)</span>
+                  <span className="text-ink-subtle text-[11px]">
                     {dateHijri?.isSunnahDay ? "★ Sunnah Day Capacity" : "Regular Capacity"}
                   </span>
                 </div>
 
                 {loadingSlots ? (
-                  <div className="py-8 flex items-center justify-center gap-2 text-xs text-[#7a7268]">
-                    <Loader2 className="w-4 h-4 animate-spin text-[#22623a]" />
+                  <div className="py-8 flex items-center justify-center gap-2 text-xs text-ink-subtle">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
                     <span>Loading real-time availability...</span>
                   </div>
                 ) : slots.length === 0 ? (
-                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+                  <div className="p-4 bg-warning-soft border border-warning-line rounded-xl text-xs text-warning">
                     No slots available on this date. The clinic may be closed or fully booked. Please pick another date.
                   </div>
                 ) : (
@@ -602,20 +602,20 @@ export default function HijamaLandingClient() {
                           title={isFull ? "This slot is fully booked" : `Select ${s.slot}`}
                           className={`py-2 px-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center relative ${
                             isFull
-                              ? "bg-[#eef7f1] text-[#22623a]/70 border-emerald-200/70 opacity-60 blur-[0.4px] hover:blur-[0.4px] cursor-not-allowed select-none"
+                              ? "bg-brand-green-50 text-primary/70 border-success-line/70 opacity-60 blur-[0.4px] hover:blur-[0.4px] cursor-not-allowed select-none"
                               : isSelected
-                              ? "bg-[#14281D] text-white border-[#14281D] shadow-xs cursor-pointer"
-                              : "bg-[#faf8f5] text-[#1a1816] border-[#e8e2d8] hover:border-[#14281D] cursor-pointer"
+                              ? "bg-surface-inverse text-white border-ink shadow-xs cursor-pointer"
+                              : "bg-surface text-ink border-line hover:border-ink cursor-pointer"
                           }`}
                         >
                           <span className="text-xs font-bold leading-tight">{s.startTime}</span>
                           <span
                             className={`text-[10px] mt-0.5 ${
                               isFull
-                                ? "text-[#22623a]/60 font-semibold"
+                                ? "text-primary/60 font-semibold"
                                 : isSelected
-                                ? "text-[#c59b27] font-semibold"
-                                : "text-[#7a7268]"
+                                ? "text-brand-gold-500 font-semibold"
+                                : "text-ink-subtle"
                             }`}
                           >
                             {isFull ? "Booked" : "Available"}
@@ -629,26 +629,26 @@ export default function HijamaLandingClient() {
             </div>
 
             {/* Step 3: Patient Details & Confirm / Auth Gate */}
-            <div className="space-y-4 pt-4 border-t border-[#f0eae1]">
-              <label className="text-xs font-bold uppercase tracking-wider text-[#7a7268] block">
+            <div className="space-y-4 pt-4 border-t border-sand-100">
+              <label className="text-xs font-bold uppercase tracking-wider text-ink-subtle block">
                 3. Patient Details &amp; Confirmation
               </label>
 
               {!session?.user ? (
                 /* ── UNAUTHENTICATED: AUTH GATE ── */
-                <div className="space-y-4 bg-[#faf8f5] p-5 rounded-2xl border border-[#e8e2d8]">
-                  <div className="flex items-start gap-2.5 text-xs text-[#14281D]">
-                    <ShieldCheck className="w-5 h-5 text-[#22623a] shrink-0 mt-0.5" />
+                <div className="space-y-4 bg-surface p-5 rounded-2xl border border-line">
+                  <div className="flex items-start gap-2.5 text-xs text-ink">
+                    <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                     <div>
                       <strong className="block font-bold">Sign-In Required to Book Hijama</strong>
-                      <span className="text-[#59534b]">
+                      <span className="text-ink-body">
                         Please sign in or create an account to reserve your clinical session. Your booking will be automatically linked to your account.
                       </span>
                     </div>
                   </div>
 
                   {/* Auth Tabs */}
-                  <div className="grid grid-cols-2 p-1 bg-white border border-[#e8e2d8] rounded-xl text-xs font-bold max-w-xs">
+                  <div className="grid grid-cols-2 p-1 bg-white border border-line rounded-xl text-xs font-bold max-w-xs">
                     <button
                       type="button"
                       onClick={() => {
@@ -658,8 +658,8 @@ export default function HijamaLandingClient() {
                       }}
                       className={`py-2 rounded-lg transition-colors cursor-pointer ${
                         authTab === "signin"
-                          ? "bg-[#14281D] text-white shadow-xs"
-                          : "text-[#7a7268] hover:text-[#14281D]"
+                          ? "bg-surface-inverse text-white shadow-xs"
+                          : "text-ink-subtle hover:text-ink"
                       }`}
                     >
                       Sign In
@@ -673,8 +673,8 @@ export default function HijamaLandingClient() {
                       }}
                       className={`py-2 rounded-lg transition-colors cursor-pointer ${
                         authTab === "signup"
-                          ? "bg-[#14281D] text-white shadow-xs"
-                          : "text-[#7a7268] hover:text-[#14281D]"
+                          ? "bg-surface-inverse text-white shadow-xs"
+                          : "text-ink-subtle hover:text-ink"
                       }`}
                     >
                       Create Account
@@ -685,43 +685,43 @@ export default function HijamaLandingClient() {
                     <div className="space-y-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <label className="text-[11px] font-semibold text-[#59534b] block">
+                          <label className="text-[11px] font-semibold text-ink-body block">
                             Email Address *
                           </label>
                           <div className="relative">
-                            <Mail className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                             <input
                               type="email"
                               value={authEmail}
                               onChange={(e) => setAuthEmail(e.target.value)}
                               placeholder="name@example.com"
-                              className="w-full pl-9 pr-3 py-2 bg-white border border-[#d6cfc5] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D]"
+                              className="w-full pl-9 pr-3 py-2 bg-white border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                             />
                           </div>
                         </div>
 
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
-                            <label className="text-[11px] font-semibold text-[#59534b]">
+                            <label className="text-[11px] font-semibold text-ink-body">
                               Password *
                             </label>
-                            <Link href="/forgot-password" className="text-[10px] text-[#22623a] hover:underline">
+                            <Link href="/forgot-password" className="text-[10px] text-primary hover:underline">
                               Forgot?
                             </Link>
                           </div>
                           <div className="relative">
-                            <Lock className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                             <input
                               type={showPassword ? "text" : "password"}
                               value={authPassword}
                               onChange={(e) => setAuthPassword(e.target.value)}
                               placeholder="Your password"
-                              className="w-full pl-9 pr-9 py-2 bg-white border border-[#d6cfc5] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D]"
+                              className="w-full pl-9 pr-9 py-2 bg-white border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                             />
                             <button
                               type="button"
                               onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7a7268] hover:text-[#14281D] cursor-pointer"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle hover:text-ink cursor-pointer"
                             >
                               {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                             </button>
@@ -730,7 +730,7 @@ export default function HijamaLandingClient() {
                       </div>
 
                       {authError && (
-                        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-start gap-2">
+                        <div className="p-3 bg-danger-soft border border-danger/20 text-danger text-xs rounded-xl flex items-start gap-2">
                           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                           <span>{authError}</span>
                         </div>
@@ -740,7 +740,7 @@ export default function HijamaLandingClient() {
                         type="button"
                         onClick={handleAuthSignIn}
                         disabled={authLoading}
-                        className="py-2.5 px-6 bg-[#14281D] hover:bg-[#1f3c2c] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                        className="py-2.5 px-6 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                       >
                         {authLoading ? (
                           <>
@@ -759,54 +759,54 @@ export default function HijamaLandingClient() {
                     <div className="space-y-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div className="space-y-1">
-                          <label className="text-[11px] font-semibold text-[#59534b] block">
+                          <label className="text-[11px] font-semibold text-ink-body block">
                             Full Name *
                           </label>
                           <div className="relative">
-                            <User className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <User className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                             <input
                               type="text"
                               value={authName}
                               onChange={(e) => setAuthName(e.target.value)}
                               placeholder="e.g. Usman Ahmed"
-                              className="w-full pl-9 pr-3 py-2 bg-white border border-[#d6cfc5] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D]"
+                              className="w-full pl-9 pr-3 py-2 bg-white border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                             />
                           </div>
                         </div>
 
                         <div className="space-y-1">
-                          <label className="text-[11px] font-semibold text-[#59534b] block">
+                          <label className="text-[11px] font-semibold text-ink-body block">
                             Email Address *
                           </label>
                           <div className="relative">
-                            <Mail className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                             <input
                               type="email"
                               value={authEmail}
                               onChange={(e) => setAuthEmail(e.target.value)}
                               placeholder="name@example.com"
-                              className="w-full pl-9 pr-3 py-2 bg-white border border-[#d6cfc5] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D]"
+                              className="w-full pl-9 pr-3 py-2 bg-white border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                             />
                           </div>
                         </div>
 
                         <div className="space-y-1">
-                          <label className="text-[11px] font-semibold text-[#59534b] block">
+                          <label className="text-[11px] font-semibold text-ink-body block">
                             Password (min 8 chars) *
                           </label>
                           <div className="relative">
-                            <Lock className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                             <input
                               type={showPassword ? "text" : "password"}
                               value={authPassword}
                               onChange={(e) => setAuthPassword(e.target.value)}
                               placeholder="At least 8 chars"
-                              className="w-full pl-9 pr-9 py-2 bg-white border border-[#d6cfc5] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D]"
+                              className="w-full pl-9 pr-9 py-2 bg-white border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                             />
                             <button
                               type="button"
                               onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7a7268] hover:text-[#14281D] cursor-pointer"
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle hover:text-ink cursor-pointer"
                             >
                               {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                             </button>
@@ -814,32 +814,32 @@ export default function HijamaLandingClient() {
                         </div>
 
                         <div className="space-y-1">
-                          <label className="text-[11px] font-semibold text-[#59534b] block">
+                          <label className="text-[11px] font-semibold text-ink-body block">
                             WhatsApp Phone (Optional)
                           </label>
                           <div className="relative">
-                            <Phone className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                            <Phone className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                             <input
                               type="tel"
                               value={authPhone}
                               onChange={(e) => setAuthPhone(e.target.value)}
                               placeholder="0300 1234567"
-                              className="w-full pl-9 pr-3 py-2 bg-white border border-[#d6cfc5] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D]"
+                              className="w-full pl-9 pr-3 py-2 bg-white border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                             />
                           </div>
                         </div>
                       </div>
 
                       {authError && (
-                        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-start gap-2">
+                        <div className="p-3 bg-danger-soft border border-danger/20 text-danger text-xs rounded-xl flex items-start gap-2">
                           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                           <span>{authError}</span>
                         </div>
                       )}
 
                       {authSuccessMsg && (
-                        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs rounded-xl flex items-start gap-2">
-                          <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" />
+                        <div className="p-3 bg-success-soft border border-success-line text-success text-xs rounded-xl flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-success" />
                           <div className="space-y-1">
                             <strong className="block font-bold">Verification Email Sent</strong>
                             <p className="text-[11px] leading-relaxed">{authSuccessMsg}</p>
@@ -851,7 +851,7 @@ export default function HijamaLandingClient() {
                         type="button"
                         onClick={handleAuthRegister}
                         disabled={authLoading}
-                        className="py-2.5 px-6 bg-[#14281D] hover:bg-[#1f3c2c] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
+                        className="py-2.5 px-6 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
                       >
                         {authLoading ? (
                           <>
@@ -871,22 +871,22 @@ export default function HijamaLandingClient() {
               ) : (
                 /* ── AUTHENTICATED: PATIENT FORM ── */
                 <>
-                  <div className="p-2.5 bg-emerald-50/80 border border-emerald-200/80 rounded-xl text-xs flex items-center justify-between">
+                  <div className="p-2.5 bg-success-soft/80 border border-success-line/80 rounded-xl text-xs flex items-center justify-between">
                     <div className="flex items-center gap-2 min-w-0">
-                      <ShieldCheck className="w-4 h-4 text-[#22623a] shrink-0" />
-                      <span className="text-[#14281D] truncate">
+                      <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
+                      <span className="text-ink truncate">
                         Booking as <strong className="font-semibold">{session.user.name || "Patient"}</strong>{" "}
-                        <span className="text-[#6a645a]">({session.user.email})</span>
+                        <span className="text-ink-muted">({session.user.email})</span>
                       </span>
                     </div>
-                    <span className="text-[10px] uppercase font-bold text-[#22623a] bg-white px-2 py-0.5 rounded-md border border-emerald-200/80 shrink-0">
+                    <span className="text-[10px] uppercase font-bold text-primary bg-white px-2 py-0.5 rounded-md border border-success-line/80 shrink-0">
                       Signed In
                     </span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="sm:col-span-1">
-                      <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                      <label className="text-[11px] font-semibold text-ink-body block mb-1">
                         Full Name *
                       </label>
                       <input
@@ -895,12 +895,12 @@ export default function HijamaLandingClient() {
                         placeholder="e.g. Muhammad Usman"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D]"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       />
                     </div>
 
                     <div className="sm:col-span-1">
-                      <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                      <label className="text-[11px] font-semibold text-ink-body block mb-1">
                         WhatsApp Phone *
                       </label>
                       <input
@@ -909,12 +909,12 @@ export default function HijamaLandingClient() {
                         placeholder="0300 1234567"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D]"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       />
                     </div>
 
                     <div className="sm:col-span-1">
-                      <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                      <label className="text-[11px] font-semibold text-ink-body block mb-1">
                         Age *
                       </label>
                       <input
@@ -925,13 +925,13 @@ export default function HijamaLandingClient() {
                         placeholder="e.g. 35"
                         value={age}
                         onChange={(e) => setAge(e.target.value)}
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D]"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                    <label className="text-[11px] font-semibold text-ink-body block mb-1">
                       Reason for Cupping (Optional)
                     </label>
                     <input
@@ -939,7 +939,7 @@ export default function HijamaLandingClient() {
                       placeholder="e.g. Migraine headache, lower back stiffness, Sunnah revival"
                       value={cuppingReason}
                       onChange={(e) => setCuppingReason(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D]"
+                      className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                     />
                   </div>
 
@@ -949,15 +949,15 @@ export default function HijamaLandingClient() {
                       type="checkbox"
                       checked={healthConfirmed}
                       onChange={(e) => setHealthConfirmed(e.target.checked)}
-                      className="mt-0.5 rounded border-[#c59b27] text-[#14281D] focus:ring-0 cursor-pointer"
+                      className="mt-0.5 rounded border-secondary text-ink focus:ring-0 cursor-pointer"
                     />
-                    <span className="text-[11px] text-[#59534b] leading-tight">
+                    <span className="text-[11px] text-ink-body leading-tight">
                       I confirm that I am <strong>not taking active blood-thinners</strong> (e.g. Warfarin), not pregnant, and do not suffer from severe uncontrolled anemia or hemophilia.
                     </span>
                   </label>
 
                   {error && (
-                    <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                    <div className="p-3 bg-danger-soft border border-danger/20 text-danger text-xs rounded-xl flex items-center gap-2">
                       <AlertCircle className="w-4 h-4 shrink-0" />
                       <span>{error}</span>
                     </div>
@@ -968,7 +968,7 @@ export default function HijamaLandingClient() {
                     <button
                       type="submit"
                       disabled={submitting || !selectedSlot}
-                      className="w-full py-3.5 px-6 bg-[#14281D] hover:bg-[#1f3c2c] text-white font-bold text-sm rounded-xl transition-all shadow-sm cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                      className="w-full py-3.5 px-6 bg-surface-inverse hover:bg-brand-green-900 text-white font-bold text-sm rounded-xl transition-all shadow-sm cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       {submitting ? (
                         <>
@@ -982,7 +982,7 @@ export default function HijamaLandingClient() {
                         </>
                       )}
                     </button>
-                    <p className="text-center text-[11px] text-[#7a7268] mt-2">
+                    <p className="text-center text-[11px] text-ink-subtle mt-2">
                       No online payment required. Fee includes sterile single-use cups &amp; certified Hakim procedure.
                     </p>
                   </div>

@@ -29,10 +29,10 @@ const STATUS_OPTIONS = [
 ];
 
 const STATUS_BADGES: Record<string, string> = {
-  CONFIRMED: "bg-blue-50 text-blue-700 border-blue-200",
-  COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  CANCELLED: "bg-rose-50 text-rose-700 border-rose-200",
-  NO_SHOW: "bg-gray-100 text-gray-600 border-gray-300",
+  CONFIRMED: "bg-info-soft text-info border-info-line",
+  COMPLETED: "bg-success-soft text-success border-success-line",
+  CANCELLED: "bg-danger-soft text-danger border-danger/20",
+  NO_SHOW: "bg-surface-sunken text-ink-body border-line-strong",
 };
 
 function pad(n: number) {
@@ -303,14 +303,14 @@ export default function HijamaTab() {
   return (
     <div className="space-y-5">
       {/* Sub-tab Navigation */}
-      <div className="flex items-center gap-1.5 p-1 bg-[#f4eee5]/70 rounded-2xl border border-[#e6dfd5] w-fit shadow-2xs">
+      <div className="flex items-center gap-1.5 p-1 bg-surface-sunken/70 rounded-2xl border border-line w-fit shadow-2xs">
         <button
           type="button"
           onClick={() => setSubTab("bookings")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
             subTab === "bookings"
-              ? "bg-[#14281D] text-white shadow-xs"
-              : "text-[#59534b] hover:text-[#14281D]"
+              ? "bg-surface-inverse text-white shadow-xs"
+              : "text-ink-body hover:text-ink"
           }`}
         >
           <Droplets className="w-3.5 h-3.5" />
@@ -322,11 +322,11 @@ export default function HijamaTab() {
           onClick={() => setSubTab("schedule")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
             subTab === "schedule"
-              ? "bg-[#14281D] text-white shadow-xs"
-              : "text-[#59534b] hover:text-[#14281D]"
+              ? "bg-surface-inverse text-white shadow-xs"
+              : "text-ink-body hover:text-ink"
           }`}
         >
-          <Clock className="w-3.5 h-3.5 text-[#c59b27]" />
+          <Clock className={`w-3.5 h-3.5 ${subTab === "schedule" ? "text-brand-gold-500" : "text-secondary-text"}`} />
           <span>Slots &amp; Schedule Manager</span>
         </button>
       </div>
@@ -336,17 +336,17 @@ export default function HijamaTab() {
       ) : (
         <>
           {/* Header */}
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-[#e6dfd5] shadow-2xs">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-line shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-[#eef7f1] border border-[#cde4d6] flex items-center justify-center text-[#22623a]">
+            <div className="w-9 h-9 rounded-xl bg-brand-green-50 border border-brand-green-200 flex items-center justify-center text-primary">
               <Droplets className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-serif text-lg font-bold text-[#14281D]">
+              <h2 className="font-serif text-lg font-bold text-ink">
                 Hijama Sessions
               </h2>
-              <p className="text-[11px] text-[#6a6660]">
+              <p className="text-[11px] text-ink-muted">
                 {bookings.length} total · {activeCount} active · manual entry
                 for phone / walk-in bookings
               </p>
@@ -356,20 +356,20 @@ export default function HijamaTab() {
 
         <div className="flex items-center gap-2">
           <div className="relative">
-            <Search className="w-3.5 h-3.5 text-[#8c827a] absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search ticket, name, phone"
-              className="w-52 pl-8 pr-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+              className="w-52 pl-8 pr-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
             />
           </div>
 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+            className="px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
           >
             <option value="ALL">All statuses</option>
             {STATUS_OPTIONS.map((option) => (
@@ -381,7 +381,7 @@ export default function HijamaTab() {
 
           <button
             onClick={openNewBooking}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-[#14281D] hover:bg-[#1e3d2c] transition-all cursor-pointer shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-surface-inverse hover:bg-brand-green-900 transition-all cursor-pointer shadow-sm"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>New Booking</span>
@@ -390,7 +390,7 @@ export default function HijamaTab() {
           <button
             onClick={() => fetchBookings(true)}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#4a4640] hover:bg-[#faf8f5] border border-[#e6dfd5] transition-all disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:bg-surface border border-line transition-all disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw
               className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`}
@@ -401,7 +401,7 @@ export default function HijamaTab() {
       </div>
 
       {error && (
-        <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
+        <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
@@ -409,29 +409,29 @@ export default function HijamaTab() {
 
       {/* Table */}
       {loading ? (
-        <div className="bg-white p-12 rounded-2xl border border-[#e6dfd5] text-center">
-          <Loader2 className="w-6 h-6 animate-spin text-[#14281D] mx-auto mb-2" />
-          <p className="text-xs text-[#6a6660]">Loading Hijama bookings…</p>
+        <div className="bg-white p-12 rounded-2xl border border-line text-center">
+          <Loader2 className="w-6 h-6 animate-spin text-ink mx-auto mb-2" />
+          <p className="text-xs text-ink-muted">Loading Hijama bookings…</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white p-12 rounded-2xl border border-[#e6dfd5] text-center space-y-3">
-          <Droplets className="w-10 h-10 text-[#8c827a] opacity-40 mx-auto" />
-          <h3 className="font-serif text-base font-bold text-[#14281D]">
+        <div className="bg-white p-12 rounded-2xl border border-line text-center space-y-3">
+          <Droplets className="w-10 h-10 text-ink-subtle opacity-40 mx-auto" />
+          <h3 className="font-serif text-base font-bold text-ink">
             {bookings.length === 0
               ? "No Hijama bookings yet"
               : "No bookings match your filters"}
           </h3>
-          <p className="text-xs text-[#6a6660] max-w-sm mx-auto">
+          <p className="text-xs text-ink-muted max-w-sm mx-auto">
             Add phone or WhatsApp Hijama appointments manually — each booking
             gets a real ticket and appears in the patient&apos;s dashboard when
             linked to an account.
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-[#e6dfd5] shadow-2xs overflow-hidden">
+        <div className="bg-white rounded-2xl border border-line shadow-2xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#faf8f5] border-b border-[#e6dfd5] text-[10px] uppercase tracking-wide text-[#78716C]">
+              <thead className="bg-surface border-b border-line text-[10px] uppercase tracking-wide text-ink-subtle">
                 <tr>
                   <th className="px-4 py-3 font-bold">Ticket / Patient</th>
                   <th className="px-4 py-3 font-bold">Appointment</th>
@@ -441,7 +441,7 @@ export default function HijamaTab() {
                   <th className="px-4 py-3 font-bold text-right">Fee</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f4eee5]">
+              <tbody className="divide-y divide-line">
                 {filtered.map((booking) => {
                   const inactive =
                     booking.status === "CANCELLED" ||
@@ -454,23 +454,23 @@ export default function HijamaTab() {
                     >
                       <td className="px-4 py-3 align-top">
                         <div className="space-y-0.5">
-                          <span className="font-mono font-bold text-[#14281D]">
+                          <span className="font-mono font-bold text-ink">
                             {booking.ticketNumber}
                           </span>
-                          <div className="font-semibold text-[#1a1816]">
+                          <div className="font-semibold text-ink">
                             {booking.fullName}
                           </div>
-                          <div className="text-[11px] text-[#6a6660] flex items-center gap-1">
+                          <div className="text-[11px] text-ink-muted flex items-center gap-1">
                             <Phone className="w-3 h-3" />
                             {booking.phone}
                           </div>
                           {booking.user ? (
-                            <div className="text-[10px] text-emerald-700 flex items-center gap-1">
+                            <div className="text-[10px] text-success flex items-center gap-1">
                               <Link2 className="w-3 h-3" />
                               Linked account
                             </div>
                           ) : (
-                            <div className="text-[10px] text-[#8c827a]">
+                            <div className="text-[10px] text-ink-subtle">
                               Guest / unlinked
                             </div>
                           )}
@@ -478,27 +478,27 @@ export default function HijamaTab() {
                       </td>
 
                       <td className="px-4 py-3 align-top">
-                        <div className="font-semibold text-[#1a1816]">
+                        <div className="font-semibold text-ink">
                           {booking.appointmentDate}
                         </div>
-                        <div className="text-[11px] text-[#6a6660] flex items-center gap-1">
+                        <div className="text-[11px] text-ink-muted flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {booking.appointmentSlot}
                         </div>
                         {booking.hijriDate && (
-                          <div className="text-[10px] text-[#8c6a15]">
+                          <div className="text-[10px] text-secondary-text">
                             {booking.hijriDate}
                           </div>
                         )}
                       </td>
 
                       <td className="px-4 py-3 align-top">
-                        <div className="font-semibold text-[#1a1816]">
+                        <div className="font-semibold text-ink">
                           {booking.gender === "FEMALE"
                             ? "Female"
                             : "Male"}
                         </div>
-                        <div className="text-[11px] text-[#6a6660]">
+                        <div className="text-[11px] text-ink-muted">
                           {booking.isSunnahDay
                             ? "Sunnah Day"
                             : "Standard"}
@@ -510,7 +510,7 @@ export default function HijamaTab() {
                           <span
                             className={`inline-block px-2 py-0.5 rounded-full border text-[10px] font-bold ${
                               STATUS_BADGES[booking.status] ||
-                              "bg-gray-100 text-gray-600 border-gray-300"
+                              "bg-surface-sunken text-ink-body border-line-strong"
                             }`}
                           >
                             {
@@ -527,7 +527,7 @@ export default function HijamaTab() {
                               })
                             }
                             disabled={updatingId === booking.id}
-                            className="block w-full px-2 py-1.5 bg-white border border-[#e6dfd5] rounded-lg text-[11px] text-[#1a1816] focus:outline-none focus:border-[#14281D] disabled:opacity-50"
+                            className="block w-full px-2 py-1.5 bg-white border border-line rounded-lg text-[11px] text-ink focus:outline-none focus:border-ink disabled:opacity-50"
                           >
                             {STATUS_OPTIONS.map((option) => (
                               <option key={option.value} value={option.value}>
@@ -547,14 +547,14 @@ export default function HijamaTab() {
                             })
                           }
                           disabled={updatingId === booking.id}
-                          className="px-2 py-1.5 bg-white border border-[#e6dfd5] rounded-lg text-[11px] text-[#1a1816] focus:outline-none focus:border-[#14281D] disabled:opacity-50"
+                          className="px-2 py-1.5 bg-white border border-line rounded-lg text-[11px] text-ink focus:outline-none focus:border-ink disabled:opacity-50"
                         >
                           <option value="UNPAID">Unpaid</option>
                           <option value="PAID_AT_CLINIC">Paid at clinic</option>
                         </select>
                       </td>
 
-                      <td className="px-4 py-3 align-top text-right font-bold text-[#14281D]">
+                      <td className="px-4 py-3 align-top text-right font-bold text-ink">
                         ₨ {(booking.feeAmount || 0).toLocaleString()}
                       </td>
                     </tr>
@@ -569,13 +569,13 @@ export default function HijamaTab() {
       {/* New Booking Modal */}
       {isNewOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-[#e6dfd5] max-h-[92vh] overflow-y-auto">
-            <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-[#e6dfd5] sticky top-0 bg-white z-10">
+          <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-line max-h-[92vh] overflow-y-auto">
+            <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-line sticky top-0 bg-white z-10">
               <div>
-                <h3 className="font-serif text-base font-bold text-[#14281D]">
+                <h3 className="font-serif text-base font-bold text-ink">
                   New Hijama Booking — Manual Entry
                 </h3>
-                <p className="text-[11px] text-[#6a6660]">
+                <p className="text-[11px] text-ink-muted">
                   For phone, WhatsApp, or walk-in appointments. Capacity rules
                   still apply.
                 </p>
@@ -583,7 +583,7 @@ export default function HijamaTab() {
               <button
                 type="button"
                 onClick={() => setIsNewOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#faf8f5] hover:bg-gray-200 flex items-center justify-center text-[#1a1816] cursor-pointer shrink-0"
+                className="w-8 h-8 rounded-full bg-surface hover:bg-line flex items-center justify-center text-ink cursor-pointer shrink-0"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -592,31 +592,31 @@ export default function HijamaTab() {
             <div className="p-5">
               {createdBooking ? (
                 <div className="space-y-4">
-                  <div className="text-center space-y-2 bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
-                    <CheckCircle2 className="w-9 h-9 text-emerald-600 mx-auto" />
-                    <h4 className="font-serif text-base font-bold text-emerald-900">
+                  <div className="text-center space-y-2 bg-success-soft border border-success-line rounded-2xl p-5">
+                    <CheckCircle2 className="w-9 h-9 text-success mx-auto" />
+                    <h4 className="font-serif text-base font-bold text-success">
                       Hijama Booking Created
                     </h4>
-                    <p className="text-xs text-emerald-800">
+                    <p className="text-xs text-success">
                       Ticket:{" "}
-                      <strong className="font-mono bg-white px-2 py-0.5 rounded border border-emerald-200">
+                      <strong className="font-mono bg-white px-2 py-0.5 rounded border border-success-line">
                         {createdBooking.ticketNumber}
                       </strong>
                     </p>
-                    <p className="text-[11px] text-emerald-700">
+                    <p className="text-[11px] text-success">
                       {createdBooking.fullName} ·{" "}
                       {createdBooking.appointmentDate} ·{" "}
                       {createdBooking.appointmentSlot}
                     </p>
                     {createdBooking.hijriDate && (
-                      <p className="text-[11px] text-[#6a6660]">
+                      <p className="text-[11px] text-ink-muted">
                         {createdBooking.hijriDate}
                         {createdBooking.isSunnahDay
                           ? " · Sunnah Day"
                           : ""}
                       </p>
                     )}
-                    <p className="text-[11px] text-[#6a6660] leading-relaxed">
+                    <p className="text-[11px] text-ink-muted leading-relaxed">
                       {createdBooking.userId
                         ? "Linked to the patient's account — it now appears in their dashboard."
                         : "Not linked to an account — the patient can track it with the ticket and phone."}
@@ -626,14 +626,14 @@ export default function HijamaTab() {
                     <button
                       type="button"
                       onClick={() => setIsNewOpen(false)}
-                      className="flex-1 h-10 bg-[#14281D] hover:bg-[#1e3d2c] text-white text-xs font-bold rounded-xl cursor-pointer"
+                      className="flex-1 h-10 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold rounded-xl cursor-pointer"
                     >
                       Done
                     </button>
                     <button
                       type="button"
                       onClick={openNewBooking}
-                      className="flex-1 h-10 bg-[#faf8f5] hover:bg-gray-100 border border-[#e6dfd5] text-[#14281D] text-xs font-bold rounded-xl cursor-pointer"
+                      className="flex-1 h-10 bg-surface hover:bg-surface-sunken border border-line text-ink text-xs font-bold rounded-xl cursor-pointer"
                     >
                       Create Another
                     </button>
@@ -642,7 +642,7 @@ export default function HijamaTab() {
               ) : (
                 <form onSubmit={handleCreate} className="space-y-3">
                   {createError && (
-                    <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-[11px] text-rose-700 flex items-center gap-2">
+                    <div className="p-2.5 bg-danger-soft border border-danger/20 rounded-xl text-[11px] text-danger flex items-center gap-2">
                       <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                       <span>{createError}</span>
                     </div>
@@ -650,8 +650,8 @@ export default function HijamaTab() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div className="space-y-0.5">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
-                        Patient Name <span className="text-red-500">*</span>
+                      <label className="text-[11px] font-semibold text-ink">
+                        Patient Name <span className="text-danger">*</span>
                       </label>
                       <input
                         type="text"
@@ -664,12 +664,12 @@ export default function HijamaTab() {
                           }))
                         }
                         placeholder="e.g. Ahmed Khan"
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                       />
                     </div>
                     <div className="space-y-0.5">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
-                        WhatsApp / Phone <span className="text-red-500">*</span>
+                      <label className="text-[11px] font-semibold text-ink">
+                        WhatsApp / Phone <span className="text-danger">*</span>
                       </label>
                       <input
                         type="tel"
@@ -688,16 +688,16 @@ export default function HijamaTab() {
                           }
                         }}
                         placeholder="0300-1234567"
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     <div className="space-y-0.5 sm:col-span-2">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
+                      <label className="text-[11px] font-semibold text-ink">
                         Email{" "}
-                        <span className="text-[#8c827a] font-normal">
+                        <span className="text-ink-subtle font-normal">
                           (optional)
                         </span>
                       </label>
@@ -711,12 +711,12 @@ export default function HijamaTab() {
                           }))
                         }
                         placeholder="patient@example.com"
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                       />
                     </div>
                     <div className="space-y-0.5">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
-                        Age <span className="text-red-500">*</span>
+                      <label className="text-[11px] font-semibold text-ink">
+                        Age <span className="text-danger">*</span>
                       </label>
                       <input
                         type="number"
@@ -731,14 +731,14 @@ export default function HijamaTab() {
                           }))
                         }
                         placeholder="e.g. 38"
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                     <div className="space-y-0.5">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
+                      <label className="text-[11px] font-semibold text-ink">
                         Session For
                       </label>
                       <select
@@ -750,15 +750,15 @@ export default function HijamaTab() {
                             appointmentSlot: "",
                           }))
                         }
-                        className="w-full px-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+                        className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       >
                         <option value="MALE">Male</option>
                         <option value="FEMALE">Female</option>
                       </select>
                     </div>
                     <div className="space-y-0.5">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
-                        Date <span className="text-red-500">*</span>
+                      <label className="text-[11px] font-semibold text-ink">
+                        Date <span className="text-danger">*</span>
                       </label>
                       <input
                         type="date"
@@ -772,12 +772,12 @@ export default function HijamaTab() {
                             appointmentSlot: "",
                           }))
                         }
-                        className="w-full px-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+                        className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       />
                     </div>
                     <div className="space-y-0.5 col-span-2 sm:col-span-1">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
-                        Time Slot <span className="text-red-500">*</span>
+                      <label className="text-[11px] font-semibold text-ink">
+                        Time Slot <span className="text-danger">*</span>
                       </label>
                       <select
                         required
@@ -789,7 +789,7 @@ export default function HijamaTab() {
                           }))
                         }
                         disabled={availabilityLoading || !availability?.isOpen}
-                        className="w-full px-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] disabled:opacity-60"
+                        className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink disabled:opacity-60"
                       >
                         {availabilityLoading ? (
                           <option value="">Loading slots…</option>
@@ -815,27 +815,27 @@ export default function HijamaTab() {
                   </div>
 
                   {!availabilityLoading && availability && (
-                    <div className="text-[10px] text-[#6a6660] flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <div className="text-[10px] text-ink-muted flex flex-wrap items-center gap-x-3 gap-y-1">
                       {availability.isOpen ? (
                         <>
                           <span className="inline-flex items-center gap-1">
-                            <Calendar className="w-3 h-3 text-[#22623a]" />
+                            <Calendar className="w-3 h-3 text-primary" />
                             {availability.dayName} ·{" "}
                             {availability.slots?.length || 0} slots
                           </span>
                           <span className="inline-flex items-center gap-1">
-                            <Droplets className="w-3 h-3 text-[#22623a]" />
+                            <Droplets className="w-3 h-3 text-primary" />
                             Fee ₨{" "}
                             {(availability.standardFee || 0).toLocaleString()}
                           </span>
                           {availability.isSunnahDay && (
-                            <span className="text-[#8c6a15] font-semibold">
+                            <span className="text-secondary-text font-semibold">
                               Sunnah Day
                             </span>
                           )}
                         </>
                       ) : (
-                        <span className="text-amber-700 flex items-center gap-1">
+                        <span className="text-warning flex items-center gap-1">
                           <AlertCircle className="w-3 h-3" />
                           {availability.overrideNote ||
                             `Clinic closed on ${availability.dayName}.`}
@@ -845,7 +845,7 @@ export default function HijamaTab() {
                   )}
 
                   <div className="space-y-0.5">
-                    <label className="text-[11px] font-semibold text-[#1a1816]">
+                    <label className="text-[11px] font-semibold text-ink">
                       Reason / Notes
                     </label>
                     <textarea
@@ -858,26 +858,26 @@ export default function HijamaTab() {
                         }))
                       }
                       placeholder="Pain relief, migraine, general detox, Sunnah revival…"
-                      className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white resize-none"
+                      className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white resize-none"
                     />
                   </div>
 
                   {/* Optional account link */}
-                  <div className="bg-[#faf8f5] border border-[#e6dfd5] rounded-xl p-3 space-y-2">
+                  <div className="bg-surface border border-line rounded-xl p-3 space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <div className="text-[11px]">
-                        <span className="text-[#78716C] block font-semibold uppercase tracking-wide text-[10px]">
+                        <span className="text-ink-subtle block font-semibold uppercase tracking-wide text-[10px]">
                           Patient Account (optional)
                         </span>
                         {linkedAccount ? (
-                          <strong className="text-[#14281D]">
+                          <strong className="text-ink">
                             {linkedAccount.name || linkedAccount.email}
                             {linkedAccount.email
                               ? ` · ${linkedAccount.email}`
                               : ""}
                           </strong>
                         ) : (
-                          <span className="text-[#6a6660]">
+                          <span className="text-ink-muted">
                             Not linked — trackable via ticket + phone only.
                           </span>
                         )}
@@ -886,7 +886,7 @@ export default function HijamaTab() {
                         <button
                           type="button"
                           onClick={() => setLinkedAccount(null)}
-                          className="px-2.5 py-1.5 bg-white border border-[#e6dfd5] hover:bg-rose-50 rounded-lg text-[10px] font-bold text-rose-600 cursor-pointer shrink-0"
+                          className="px-2.5 py-1.5 bg-white border border-line hover:bg-danger-soft rounded-lg text-[10px] font-bold text-danger cursor-pointer shrink-0"
                         >
                           Clear
                         </button>
@@ -899,13 +899,13 @@ export default function HijamaTab() {
                         value={lookupQuery}
                         onChange={(e) => setLookupQuery(e.target.value)}
                         placeholder="Search phone, email, or name"
-                        className="flex-1 px-2.5 py-1.5 bg-white border border-[#e6dfd5] rounded-lg text-[11px] text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+                        className="flex-1 px-2.5 py-1.5 bg-white border border-line rounded-lg text-[11px] text-ink focus:outline-none focus:border-ink"
                       />
                       <button
                         type="button"
                         onClick={() => lookupPatients()}
                         disabled={lookupLoading || lookupQuery.trim().length < 3}
-                        className="px-3 py-1.5 bg-[#14281D] hover:bg-[#1e3d2c] text-white rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 flex items-center gap-1"
+                        className="px-3 py-1.5 bg-surface-inverse hover:bg-brand-green-900 text-white rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 flex items-center gap-1"
                       >
                         {lookupLoading ? (
                           <Loader2 className="w-3 h-3 animate-spin" />
@@ -917,7 +917,7 @@ export default function HijamaTab() {
                     </div>
 
                     {lookupUsers.length > 0 && (
-                      <div className="space-y-1 pt-2 border-t border-[#e6dfd5]">
+                      <div className="space-y-1 pt-2 border-t border-line">
                         {lookupUsers.slice(0, 4).map((u: any) => (
                           <button
                             key={u.id}
@@ -925,8 +925,8 @@ export default function HijamaTab() {
                             onClick={() => setLinkedAccount(u)}
                             className={`w-full text-left text-[11px] px-2 py-1.5 rounded-lg border flex items-center justify-between gap-2 cursor-pointer ${
                               linkedAccount?.id === u.id
-                                ? "bg-emerald-50 border-emerald-300"
-                                : "bg-white border-[#e6dfd5] hover:border-[#14281D]/30"
+                                ? "bg-success-soft border-success-line"
+                                : "bg-white border-line hover:border-ink/30"
                             }`}
                           >
                             <span>
@@ -935,9 +935,9 @@ export default function HijamaTab() {
                               {u.phone ? ` · ${u.phone}` : ""}
                             </span>
                             {linkedAccount?.id === u.id ? (
-                              <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              <Check className="w-3.5 h-3.5 text-success shrink-0" />
                             ) : (
-                              <Link2 className="w-3.5 h-3.5 text-[#78716C] shrink-0" />
+                              <Link2 className="w-3.5 h-3.5 text-ink-subtle shrink-0" />
                             )}
                           </button>
                         ))}
@@ -948,7 +948,7 @@ export default function HijamaTab() {
                   <button
                     type="submit"
                     disabled={submitting || availabilityLoading}
-                    className="w-full h-11 bg-[#14281D] hover:bg-[#1e3d2c] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+                    className="w-full h-11 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
                   >
                     {submitting ? (
                       <>

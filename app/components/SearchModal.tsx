@@ -97,33 +97,33 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-[#22623a]/60 backdrop-blur-xs transition-opacity animate-fade-in"
+        className="fixed inset-0 bg-primary/60 backdrop-blur-xs transition-opacity animate-fade-in"
       />
 
       {/* Modal Box */}
-      <div className="relative mx-auto max-w-2xl bg-[#faf8f5] rounded-xl shadow-2xl border border-[#e6dfd5] overflow-hidden">
+      <div className="relative mx-auto max-w-2xl bg-surface rounded-xl shadow-2xl border border-line overflow-hidden">
         {/* Search Input Bar */}
-        <div className="flex items-center px-4 py-3.5 border-b border-[#e6dfd5] bg-white">
-          <Search className="w-5 h-5 text-[#6a6660] shrink-0 mr-3" />
+        <div className="flex items-center px-4 py-3.5 border-b border-line bg-white">
+          <Search className="w-5 h-5 text-ink-muted shrink-0 mr-3" />
           <input
             ref={inputRef}
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search remedies, preserves, arq, pain oils, or symptoms..."
-            className="w-full bg-transparent text-sm text-[#1a1816] placeholder-[#6a6660] focus:outline-none"
+            className="w-full bg-transparent text-sm text-ink placeholder-ink-muted focus:outline-none"
           />
           {query && (
             <button
               onClick={() => setQuery("")}
-              className="p-1 text-[#6a6660] hover:text-[#22623a] mr-1 cursor-pointer"
+              className="p-1 text-ink-muted hover:text-primary mr-1 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           )}
           <button
             onClick={onClose}
-            className="text-xs font-semibold text-[#22623a] bg-[#f4eee5] px-2.5 py-1 rounded hover:bg-[#e8ded2] transition-colors shrink-0 cursor-pointer"
+            className="text-xs font-semibold text-primary bg-surface-sunken px-2.5 py-1 rounded hover:bg-line transition-colors shrink-0 cursor-pointer"
           >
             ESC
           </button>
@@ -132,8 +132,8 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         {/* Quick Suggestion Chips when no query */}
         {!query.trim() && (
           <div className="p-6 space-y-4">
-            <div className="text-xs uppercase tracking-wider font-semibold text-[#6a6660] flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
+            <div className="text-xs uppercase tracking-wider font-semibold text-ink-muted flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-secondary-text" />
               <span>Popular Health Searches</span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -151,14 +151,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                 <button
                   key={chip}
                   onClick={() => setQuery(chip)}
-                  className="text-xs px-3 py-1.5 bg-white border border-[#e6dfd5] rounded-full text-[#22623a] hover:bg-[#22623a] hover:text-white hover:border-[#22623a] transition-all cursor-pointer"
+                  className="text-xs px-3 py-1.5 bg-white border border-line rounded-full text-primary hover:bg-primary hover:text-white hover:border-primary transition-all cursor-pointer"
                 >
                   {chip}
                 </button>
               ))}
             </div>
 
-            <div className="pt-4 border-t border-[#e6dfd5]/60 text-xs text-[#6a6660]">
+            <div className="pt-4 border-t border-line/60 text-xs text-ink-muted">
               <p>
                 💡 Tip: You can search by remedy name (e.g. <em>Apple Murabba</em>) or symptom (e.g. <em>Joint pain</em>).
               </p>
@@ -170,23 +170,23 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
         {query.trim() && (
           <div
             data-lenis-prevent
-            className="max-h-96 overflow-y-auto p-4 divide-y divide-[#e6dfd5]/60"
+            className="max-h-96 overflow-y-auto p-4 divide-y divide-line/60"
           >
             {isLoading ? (
-              <div className="py-12 text-center text-xs text-[#6a6660]">
-                <Loader2 className="w-6 h-6 animate-spin text-[#22623a] mx-auto mb-2" />
+              <div className="py-12 text-center text-xs text-ink-muted">
+                <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto mb-2" />
                 <span>Searching dispensary database...</span>
               </div>
             ) : results.length === 0 ? (
-              <div className="py-12 text-center text-xs text-[#6a6660]">
-                No remedies found matching &ldquo;<span className="font-semibold text-[#1a1816]">{query}</span>&rdquo;.
+              <div className="py-12 text-center text-xs text-ink-muted">
+                No remedies found matching &ldquo;<span className="font-semibold text-ink">{query}</span>&rdquo;.
                 <p className="mt-2 text-[11px]">
                   Need guidance? You can talk to our Hakim directly for personalized advice.
                 </p>
                 <Link
                   href="/consultation"
                   onClick={onClose}
-                  className="mt-3 inline-block text-xs text-[#22623a] font-semibold underline decoration-[#c59b27]"
+                  className="mt-3 inline-block text-xs text-primary font-semibold underline decoration-secondary"
                 >
                   Talk to Hakim Online &rarr;
                 </Link>
@@ -199,7 +199,7 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   onClick={onClose}
                   className="flex items-center gap-4 py-3 px-2 rounded-lg hover:bg-white transition-colors group"
                 >
-                  <div className="relative w-14 h-14 bg-[#f4eee5] rounded-md overflow-hidden shrink-0">
+                  <div className="relative w-14 h-14 bg-surface-sunken rounded-md overflow-hidden shrink-0">
                     <Image
                       src={getSafeProductImage(product.image)}
                       alt={product.name}
@@ -209,27 +209,27 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] uppercase font-semibold text-[#c59b27] tracking-wider">
+                      <span className="text-[10px] uppercase font-semibold text-secondary-text tracking-wider">
                         {product.categoryLabel || product.category}
                       </span>
                       {product.badge && (
-                        <span className="text-[9px] px-1.5 py-0.5 bg-[#22623a]/10 text-[#22623a] rounded">
+                        <span className="text-[9px] px-1.5 py-0.5 bg-primary/10 text-primary rounded">
                           {product.badge}
                         </span>
                       )}
                     </div>
-                    <h4 className="text-sm font-medium text-[#22623a] group-hover:text-[#c59b27] transition-colors truncate">
+                    <h4 className="text-sm font-medium text-primary group-hover:text-secondary-text transition-colors truncate">
                       {product.name}
                     </h4>
-                    <p className="text-xs text-[#6a6660] truncate">
+                    <p className="text-xs text-ink-muted truncate">
                       {product.traditionalPurpose || product.shortDescription}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="text-sm font-semibold text-[#22623a]">
+                    <div className="text-sm font-semibold text-primary">
                       ₨ {product.price.toLocaleString()}
                     </div>
-                    <div className="text-[11px] text-[#2d7648] font-medium flex items-center justify-end gap-1">
+                    <div className="text-[11px] text-brand-green-600 font-medium flex items-center justify-end gap-1">
                       <span>View</span>
                       <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                     </div>

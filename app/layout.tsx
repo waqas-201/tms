@@ -11,6 +11,7 @@ import WhatsAppFloat from "@/app/components/WhatsAppFloat";
 import Toast from "@/app/components/Toast";
 import ConsultationModal from "@/app/components/ConsultationModal";
 import { CLINIC_INFO } from "@/app/data/products";
+import { BRAND } from "@/lib/brand-colors";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -96,7 +97,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#22623a",
+  themeColor: BRAND.primary,
 };
 
 export default function RootLayout({
@@ -187,7 +188,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(clinicStructuredData) }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-[#faf8f5] text-[#1e1c19] font-sans selection:bg-[#c59b27]/20 selection:text-[#22623a]">
+      <body className="min-h-full flex flex-col bg-surface text-ink font-sans selection:bg-secondary/20 selection:text-primary">
         <CartProvider>
           <ConsultationProvider>
             <SmoothScroll>

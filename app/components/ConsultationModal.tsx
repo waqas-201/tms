@@ -475,10 +475,10 @@ Please confirm my appointment.`;
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 12 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-[#e6dfd5] overflow-hidden flex flex-col max-h-[90vh]"
+            className="relative w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-line overflow-hidden flex flex-col max-h-[90vh]"
           >
             {/* Header */}
-            <div className="bg-[#22623a] text-white p-5 sm:p-6 shrink-0 relative">
+            <div className="bg-primary text-white p-5 sm:p-6 shrink-0 relative">
               <button
                 type="button"
                 onClick={handleClose}
@@ -488,7 +488,7 @@ Please confirm my appointment.`;
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="flex items-center gap-2 mb-1.5 text-[#c59b27] text-xs uppercase tracking-widest font-semibold">
+              <div className="flex items-center gap-2 mb-1.5 text-brand-gold-200 text-xs uppercase tracking-widest font-semibold">
                 <Sparkles className="w-4 h-4" />
                 <span>Hakim Tahir Hameed Matab</span>
               </div>
@@ -513,15 +513,15 @@ Please confirm my appointment.`;
               {/* ── SCREEN 1: SUCCESS CONFIRMATION ── */}
               {bookingSuccess ? (
                 <div className="space-y-5 py-2 text-center">
-                  <div className="w-16 h-16 rounded-full bg-emerald-100 text-[#22623a] flex items-center justify-center mx-auto shadow-inner">
+                  <div className="w-16 h-16 rounded-full bg-success-soft text-primary flex items-center justify-center mx-auto shadow-inner">
                     <CheckCircle2 className="w-9 h-9" />
                   </div>
 
                   <div className="space-y-1">
-                    <h3 className="font-serif text-lg sm:text-xl font-bold text-[#14281D]">
+                    <h3 className="font-serif text-lg sm:text-xl font-bold text-ink">
                       Appointment Slot Reserved!
                     </h3>
-                    <p className="text-xs text-[#59534b] max-w-md mx-auto">
+                    <p className="text-xs text-ink-body max-w-md mx-auto">
                       A confirmation email has been sent to{" "}
                       <strong>{sessionData?.user?.email}</strong>. Our clinical team
                       has registered your slot.
@@ -529,40 +529,40 @@ Please confirm my appointment.`;
                   </div>
 
                   {/* Ticket Card */}
-                  <div className="bg-[#faf8f5] border border-[#e6dfd5] rounded-xl p-4 text-left space-y-3">
-                    <div className="flex items-center justify-between border-b border-[#e6dfd5] pb-2">
-                      <span className="text-xs font-semibold text-[#7a7268] uppercase tracking-wider">
+                  <div className="bg-surface border border-line rounded-xl p-4 text-left space-y-3">
+                    <div className="flex items-center justify-between border-b border-line pb-2">
+                      <span className="text-xs font-semibold text-ink-subtle uppercase tracking-wider">
                         Ticket Number
                       </span>
-                      <span className="font-mono text-sm font-bold text-[#22623a]">
+                      <span className="font-mono text-sm font-bold text-primary">
                         {bookingSuccess.ticketNumber}
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div>
-                        <span className="text-[#7a7268] block">Date</span>
-                        <strong className="text-[#14281D]">
+                        <span className="text-ink-subtle block">Date</span>
+                        <strong className="text-ink">
                           {bookingSuccess.appointmentDate}
                         </strong>
                       </div>
                       <div>
-                        <span className="text-[#7a7268] block">Time Slot</span>
-                        <strong className="text-[#14281D]">
+                        <span className="text-ink-subtle block">Time Slot</span>
+                        <strong className="text-ink">
                           {bookingSuccess.appointmentSlot}
                         </strong>
                       </div>
                       <div>
-                        <span className="text-[#7a7268] block">Type</span>
-                        <strong className="text-[#14281D]">
+                        <span className="text-ink-subtle block">Type</span>
+                        <strong className="text-ink">
                           {bookingSuccess.consultationType === "ONLINE"
                             ? "Online Telehealth"
                             : "In-Person Clinic Visit"}
                         </strong>
                       </div>
                       <div>
-                        <span className="text-[#7a7268] block">Status</span>
-                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-blue-100 text-blue-800">
+                        <span className="text-ink-subtle block">Status</span>
+                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-info-soft text-info">
                           {bookingSuccess.status}
                         </span>
                       </div>
@@ -575,7 +575,7 @@ Please confirm my appointment.`;
                       href={getWhatsAppShareUrl(bookingSuccess.ticketNumber)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-[#25D366] hover:bg-[#1EBE5D] text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-md transition-colors"
+                      className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp rounded-xl text-xs font-bold uppercase tracking-wider shadow-md transition-colors"
                     >
                       <MessageCircle className="w-4 h-4" />
                       <span>Message Hakim on WhatsApp with Ticket</span>
@@ -585,14 +585,14 @@ Please confirm my appointment.`;
                       <Link
                         href="/account"
                         onClick={handleClose}
-                        className="flex-1 py-2.5 px-4 bg-white hover:bg-[#faf8f5] border border-[#e6dfd5] text-[#14281D] rounded-xl text-xs font-semibold text-center transition-colors"
+                        className="flex-1 py-2.5 px-4 bg-white hover:bg-surface border border-line text-ink rounded-xl text-xs font-semibold text-center transition-colors"
                       >
                         View in My Account
                       </Link>
                       <button
                         type="button"
                         onClick={handleClose}
-                        className="flex-1 py-2.5 px-4 bg-[#22623a] hover:bg-[#1b502e] text-white rounded-xl text-xs font-semibold transition-colors"
+                        className="flex-1 py-2.5 px-4 bg-primary hover:bg-brand-green-800 text-white rounded-xl text-xs font-semibold transition-colors"
                       >
                         Done
                       </button>
@@ -603,7 +603,7 @@ Please confirm my appointment.`;
                 /* ── SCREEN 2: AUTH GATING (UNAUTHENTICATED) ── */
                 <div className="space-y-4">
                   {/* Tabs */}
-                  <div className="grid grid-cols-2 p-1 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs font-bold">
+                  <div className="grid grid-cols-2 p-1 bg-surface border border-line rounded-xl text-xs font-bold">
                     <button
                       type="button"
                       onClick={() => {
@@ -612,8 +612,8 @@ Please confirm my appointment.`;
                       }}
                       className={`py-2 rounded-lg transition-colors ${
                         authTab === "signup"
-                          ? "bg-[#22623a] text-white shadow-xs"
-                          : "text-[#7a7268] hover:text-[#14281D]"
+                          ? "bg-primary text-white shadow-xs"
+                          : "text-ink-subtle hover:text-ink"
                       }`}
                     >
                       Create Account
@@ -626,16 +626,16 @@ Please confirm my appointment.`;
                       }}
                       className={`py-2 rounded-lg transition-colors ${
                         authTab === "signin"
-                          ? "bg-[#22623a] text-white shadow-xs"
-                          : "text-[#7a7268] hover:text-[#14281D]"
+                          ? "bg-primary text-white shadow-xs"
+                          : "text-ink-subtle hover:text-ink"
                       }`}
                     >
                       Sign In
                     </button>
                   </div>
 
-                  <div className="p-3 bg-emerald-50/70 border border-emerald-200/80 rounded-xl text-[11px] text-emerald-950 flex items-start gap-2">
-                    <ShieldCheck className="w-4 h-4 text-[#22623a] shrink-0 mt-0.5" />
+                  <div className="p-3 bg-success-soft/70 border border-success-line/80 rounded-xl text-[11px] text-success flex items-start gap-2">
+                    <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                     <span>
                       An account keeps your health records, consultation tickets, and
                       remedy prescriptions organized in one private portal.
@@ -643,7 +643,7 @@ Please confirm my appointment.`;
                   </div>
 
                   {authError && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
+                    <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-center gap-2">
                       <AlertCircle className="w-4 h-4 shrink-0" />
                       <span>{authError}</span>
                     </div>
@@ -652,45 +652,45 @@ Please confirm my appointment.`;
                   {authTab === "signup" ? (
                     <form onSubmit={handleAuthRegister} className="space-y-3">
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-[#14281D]">
-                          Full Name <span className="text-red-500">*</span>
+                        <label className="text-xs font-semibold text-ink">
+                          Full Name <span className="text-danger">*</span>
                         </label>
                         <div className="relative">
-                          <User className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2" />
+                          <User className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
                           <input
                             type="text"
                             required
                             value={authName}
                             onChange={(e) => setAuthName(e.target.value)}
                             placeholder="e.g. Muhammad Bilal"
-                            className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#14281D] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-[#14281D]">
-                          Email Address <span className="text-red-500">*</span>
+                        <label className="text-xs font-semibold text-ink">
+                          Email Address <span className="text-danger">*</span>
                         </label>
                         <div className="relative">
-                          <Mail className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2" />
+                          <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
                           <input
                             type="email"
                             required
                             value={authEmail}
                             onChange={(e) => setAuthEmail(e.target.value)}
                             placeholder="name@example.com"
-                            className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#14281D] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-[#14281D]">
-                          Password <span className="text-red-500">*</span>
+                        <label className="text-xs font-semibold text-ink">
+                          Password <span className="text-danger">*</span>
                         </label>
                         <div className="relative">
-                          <Lock className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2" />
+                          <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
                           <input
                             type="password"
                             required
@@ -698,23 +698,23 @@ Please confirm my appointment.`;
                             value={authPassword}
                             onChange={(e) => setAuthPassword(e.target.value)}
                             placeholder="At least 6 characters"
-                            className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#14281D] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-[#14281D]">
-                          Phone / WhatsApp <span className="text-xs font-normal text-[#7a7268]">(Optional)</span>
+                        <label className="text-xs font-semibold text-ink">
+                          Phone / WhatsApp <span className="text-xs font-normal text-ink-subtle">(Optional)</span>
                         </label>
                         <div className="relative">
-                          <Phone className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2" />
+                          <Phone className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
                           <input
                             type="tel"
                             value={authPhone}
                             onChange={(e) => setAuthPhone(e.target.value)}
                             placeholder="0300-1234567"
-                            className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#14281D] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white"
                           />
                         </div>
                       </div>
@@ -722,7 +722,7 @@ Please confirm my appointment.`;
                       <button
                         type="submit"
                         disabled={authLoading}
-                        className="w-full mt-2 py-3 px-4 bg-[#22623a] hover:bg-[#1b502e] disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-sm"
+                        className="w-full mt-2 py-3 px-4 bg-primary hover:bg-brand-green-800 disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-sm"
                       >
                         {authLoading ? (
                           <>
@@ -740,35 +740,35 @@ Please confirm my appointment.`;
                   ) : (
                     <form onSubmit={handleAuthSignIn} className="space-y-3">
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-[#14281D]">
-                          Email Address <span className="text-red-500">*</span>
+                        <label className="text-xs font-semibold text-ink">
+                          Email Address <span className="text-danger">*</span>
                         </label>
                         <div className="relative">
-                          <Mail className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2" />
+                          <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
                           <input
                             type="email"
                             required
                             value={authEmail}
                             onChange={(e) => setAuthEmail(e.target.value)}
                             placeholder="name@example.com"
-                            className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#14281D] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white"
                           />
                         </div>
                       </div>
 
                       <div className="space-y-1">
-                        <label className="text-xs font-semibold text-[#14281D]">
-                          Password <span className="text-red-500">*</span>
+                        <label className="text-xs font-semibold text-ink">
+                          Password <span className="text-danger">*</span>
                         </label>
                         <div className="relative">
-                          <Lock className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2" />
+                          <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
                           <input
                             type="password"
                             required
                             value={authPassword}
                             onChange={(e) => setAuthPassword(e.target.value)}
                             placeholder="Your account password"
-                            className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#14281D] focus:outline-none focus:border-[#22623a] focus:bg-white"
+                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white"
                           />
                         </div>
                       </div>
@@ -776,7 +776,7 @@ Please confirm my appointment.`;
                       <button
                         type="submit"
                         disabled={authLoading}
-                        className="w-full mt-2 py-3 px-4 bg-[#22623a] hover:bg-[#1b502e] disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-sm"
+                        className="w-full mt-2 py-3 px-4 bg-primary hover:bg-brand-green-800 disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-sm"
                       >
                         {authLoading ? (
                           <>
@@ -797,7 +797,7 @@ Please confirm my appointment.`;
                 /* ── SCREEN 3: AUTHENTICATED SLOT BOOKING ── */
                 <form onSubmit={handleConfirmBooking} className="space-y-4">
                   {bookingError && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
+                    <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-center gap-2">
                       <AlertCircle className="w-4 h-4 shrink-0" />
                       <span>{bookingError}</span>
                     </div>
@@ -805,7 +805,7 @@ Please confirm my appointment.`;
 
                   {/* Consultation Mode Picker */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-[#14281D] uppercase tracking-wider">
+                    <label className="text-xs font-bold text-ink uppercase tracking-wider">
                       1. Consultation Mode
                     </label>
                     <div className="grid grid-cols-2 gap-2.5">
@@ -814,17 +814,17 @@ Please confirm my appointment.`;
                         onClick={() => setConsultationType("ONLINE")}
                         className={`p-3 rounded-xl border text-left transition-all ${
                           consultationType === "ONLINE"
-                            ? "bg-emerald-50/70 border-[#22623a] ring-1 ring-[#22623a]"
-                            : "bg-[#faf8f5] border-[#e6dfd5] hover:bg-white"
+                            ? "bg-success-soft/70 border-primary ring-1 ring-primary"
+                            : "bg-surface border-line hover:bg-white"
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <Globe className="w-4 h-4 text-[#22623a]" />
-                          <span className="text-xs font-bold text-[#14281D]">
+                          <Globe className="w-4 h-4 text-primary" />
+                          <span className="text-xs font-bold text-ink">
                             Online Telehealth
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#7a7268] mt-1">
+                        <p className="text-[11px] text-ink-subtle mt-1">
                           Via WhatsApp Call / Video consultation from anywhere.
                         </p>
                       </button>
@@ -834,17 +834,17 @@ Please confirm my appointment.`;
                         onClick={() => setConsultationType("IN_PERSON")}
                         className={`p-3 rounded-xl border text-left transition-all ${
                           consultationType === "IN_PERSON"
-                            ? "bg-emerald-50/70 border-[#22623a] ring-1 ring-[#22623a]"
-                            : "bg-[#faf8f5] border-[#e6dfd5] hover:bg-white"
+                            ? "bg-success-soft/70 border-primary ring-1 ring-primary"
+                            : "bg-surface border-line hover:bg-white"
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <Building2 className="w-4 h-4 text-[#22623a]" />
-                          <span className="text-xs font-bold text-[#14281D]">
+                          <Building2 className="w-4 h-4 text-primary" />
+                          <span className="text-xs font-bold text-ink">
                             In-Person Clinic
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#7a7268] mt-1">
+                        <p className="text-[11px] text-ink-subtle mt-1">
                           Visit Hakim Tahir Hameed at DHA Phase 6, Karachi.
                         </p>
                       </button>
@@ -853,48 +853,48 @@ Please confirm my appointment.`;
 
                   {/* Date & Slot Picker */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-[#14281D] uppercase tracking-wider flex items-center justify-between">
+                    <label className="text-xs font-bold text-ink uppercase tracking-wider flex items-center justify-between">
                       <span>2. Select Appointment Date &amp; Slot</span>
                       {availability && (
-                        <span className="text-[11px] font-normal text-[#7a7268]">
+                        <span className="text-[11px] font-normal text-ink-subtle">
                           {availability.dayName} Clinical Hours
                         </span>
                       )}
                     </label>
 
                     <div className="relative">
-                      <Calendar className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2" />
+                      <Calendar className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
                       <input
                         type="date"
                         required
                         min={toDateInputValue(new Date())}
                         value={appointmentDate}
                         onChange={(e) => setAppointmentDate(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#14281D] focus:outline-none focus:border-[#22623a] focus:bg-white font-medium"
+                        className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white font-medium"
                       />
                     </div>
 
                     {/* Slots List */}
                     <div className="mt-2">
                       {availabilityLoading ? (
-                        <div className="p-4 bg-[#faf8f5] rounded-xl border border-[#e6dfd5] text-center space-y-1.5">
-                          <Loader2 className="w-4 h-4 animate-spin text-[#22623a] mx-auto" />
-                          <span className="text-xs text-[#7a7268]">
+                        <div className="p-4 bg-surface rounded-xl border border-line text-center space-y-1.5">
+                          <Loader2 className="w-4 h-4 animate-spin text-primary mx-auto" />
+                          <span className="text-xs text-ink-subtle">
                             Checking available slots for {appointmentDate}...
                           </span>
                         </div>
                       ) : availabilityError ? (
-                        <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
+                        <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-center gap-2">
                           <AlertCircle className="w-4 h-4 shrink-0" />
                           <span>{availabilityError}</span>
                         </div>
                       ) : availability && !availability.isOpen ? (
-                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+                        <div className="p-3 bg-warning-soft border border-warning-line rounded-xl text-xs text-warning">
                           The clinic is closed on {availability.dayName}s. Please choose
                           Monday to Saturday.
                         </div>
                       ) : availability && availability.isHoliday ? (
-                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+                        <div className="p-3 bg-warning-soft border border-warning-line rounded-xl text-xs text-warning">
                           Clinic Holiday: {availability.holidayReason || "Official Holiday"}.
                           Please pick another date.
                         </div>
@@ -910,10 +910,10 @@ Please confirm my appointment.`;
                                 onClick={() => setAppointmentSlot(s.slot)}
                                 className={`p-2.5 rounded-lg border text-center transition-all ${
                                   !s.available
-                                    ? "bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed line-through"
+                                    ? "bg-surface-sunken border-line text-ink-subtle cursor-not-allowed line-through"
                                     : isSelected
-                                    ? "bg-[#22623a] text-white border-[#22623a] shadow-xs"
-                                    : "bg-white border-[#e6dfd5] text-[#14281D] hover:border-[#22623a]"
+                                    ? "bg-primary text-white border-primary shadow-xs"
+                                    : "bg-white border-line text-ink hover:border-primary"
                                 }`}
                               >
                                 <span className="block text-xs font-bold font-mono">
@@ -924,8 +924,8 @@ Please confirm my appointment.`;
                                     isSelected
                                       ? "text-white/80"
                                       : s.available
-                                      ? "text-emerald-700 font-semibold"
-                                      : "text-gray-400"
+                                      ? "text-success font-semibold"
+                                      : "text-ink-subtle"
                                   }`}
                                 >
                                   {s.available ? "Available" : "Booked"}
@@ -935,7 +935,7 @@ Please confirm my appointment.`;
                           })}
                         </div>
                       ) : (
-                        <p className="text-xs text-[#7a7268]">
+                        <p className="text-xs text-ink-subtle">
                           No slots available for this date.
                         </p>
                       )}
@@ -943,11 +943,11 @@ Please confirm my appointment.`;
                   </div>
 
                   {/* Health Concern / Symptoms (Optional) */}
-                  <div className="space-y-2 pt-1 border-t border-[#f0eae1]">
+                  <div className="space-y-2 pt-1 border-t border-sand-100">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold text-[#14281D] uppercase tracking-wider">
+                      <label className="text-xs font-bold text-ink uppercase tracking-wider">
                         3. Health Concern / Notes{" "}
-                        <span className="text-[11px] font-normal text-[#7a7268]">
+                        <span className="text-[11px] font-normal text-ink-subtle">
                           (Optional)
                         </span>
                       </label>
@@ -962,8 +962,8 @@ Please confirm my appointment.`;
                           onClick={() => handleTagClick(tag)}
                           className={`text-[10px] px-2.5 py-1 rounded-full border transition-colors ${
                             symptomText.includes(tag)
-                              ? "bg-[#22623a] text-white border-[#22623a]"
-                              : "bg-[#faf8f5] border-[#e6dfd5] text-[#59534b] hover:bg-white"
+                              ? "bg-primary text-white border-primary"
+                              : "bg-surface border-line text-ink-body hover:bg-white"
                           }`}
                         >
                           + {tag}
@@ -976,7 +976,7 @@ Please confirm my appointment.`;
                       value={symptomText}
                       onChange={(e) => setSymptomText(e.target.value)}
                       placeholder="e.g. Chronic acidity for 2 months, knee joint stiffness, or general health inquiry..."
-                      className="w-full p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#14281D] focus:outline-none focus:border-[#22623a] focus:bg-white resize-none"
+                      className="w-full p-2.5 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white resize-none"
                     />
 
                     {/* Attachment Upload */}
@@ -990,20 +990,20 @@ Please confirm my appointment.`;
                       />
 
                       {attachedFile ? (
-                        <div className="flex items-center justify-between p-2 bg-emerald-50/80 border border-emerald-200 rounded-lg text-xs">
+                        <div className="flex items-center justify-between p-2 bg-success-soft/80 border border-success-line rounded-lg text-xs">
                           <div className="flex items-center gap-2 truncate">
-                            <FileText className="w-4 h-4 text-[#22623a] shrink-0" />
-                            <span className="font-medium text-emerald-950 truncate">
+                            <FileText className="w-4 h-4 text-primary shrink-0" />
+                            <span className="font-medium text-success truncate">
                               {attachedFile.name} ({attachedFile.size})
                             </span>
                             {attachedFile.isUploading && (
-                              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#22623a]" />
+                              <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
                             )}
                           </div>
                           <button
                             type="button"
                             onClick={removeAttachedFile}
-                            className="p-1 text-red-600 hover:text-red-800"
+                            className="p-1 text-danger hover:text-danger"
                           >
                             <X className="w-3.5 h-3.5" />
                           </button>
@@ -1012,7 +1012,7 @@ Please confirm my appointment.`;
                         <button
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
-                          className="inline-flex items-center gap-1.5 text-[11px] text-[#22623a] font-semibold hover:underline"
+                          className="inline-flex items-center gap-1.5 text-[11px] text-primary font-semibold hover:underline"
                         >
                           <Paperclip className="w-3.5 h-3.5" />
                           <span>Attach previous medical lab report or prescription (Optional)</span>
@@ -1026,7 +1026,7 @@ Please confirm my appointment.`;
                     <button
                       type="submit"
                       disabled={submitting || !appointmentSlot}
-                      className="w-full py-3 px-4 bg-[#22623a] hover:bg-[#1b502e] disabled:opacity-50 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md"
+                      className="w-full py-3 px-4 bg-primary hover:bg-brand-green-800 disabled:opacity-50 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md"
                     >
                       {submitting ? (
                         <>

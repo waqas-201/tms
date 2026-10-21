@@ -38,11 +38,11 @@ export interface GoogleReviewsResponse {
 }
 
 const AVATAR_COLORS = [
-  "bg-[#22623a]",
-  "bg-[#8c6a15]",
-  "bg-[#143e23]",
-  "bg-[#2d7648]",
-  "bg-[#1a4a2b]",
+  "bg-primary",
+  "bg-brand-gold-700",
+  "bg-brand-green-900",
+  "bg-brand-green-600",
+  "bg-brand-green-800",
 ];
 
 function getAvatarInitials(name: string): string {

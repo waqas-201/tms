@@ -71,22 +71,22 @@ export default function ClinicalOutcomesSection() {
   return (
     <section
       id="clinical-outcomes"
-      className="py-16 sm:py-20 lg:py-24 bg-white border-b border-[#e6dfd5]"
+      className="py-16 sm:py-20 lg:py-24 bg-white border-b border-line"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10 sm:space-y-12">
 
         {/* Section Header */}
         <Reveal className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#eef7f1] border border-[#cde4d6] text-[#22623a] text-xs font-semibold">
-            <TrendingUp className="w-3.5 h-3.5 text-[#c59b27]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-green-50 border border-brand-green-200 text-primary text-xs font-semibold">
+            <TrendingUp className="w-3.5 h-3.5 text-secondary-text" />
             <span>Documented Recoveries</span>
           </div>
 
-          <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#22623a] leading-tight">
+          <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-primary leading-tight">
             Patient Recovery Stories
           </h2>
 
-          <p className="text-xs sm:text-sm text-[#59534b]">
+          <p className="text-xs sm:text-sm text-ink-body">
             Documented cases of patients who resolved chronic ailments with tailored Unani herbal courses.
           </p>
         </Reveal>
@@ -95,24 +95,24 @@ export default function ClinicalOutcomesSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6">
           {CLINICAL_CASES.map((cs, idx) => (
             <Reveal key={cs.id} delay={idx * 0.05} className="h-full">
-              <div className="bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] p-5 sm:p-6 shadow-xs hover:shadow-luxury-hover transition-all duration-300 flex flex-col justify-between h-full space-y-4">
+              <div className="bg-surface rounded-2xl border border-line p-5 sm:p-6 shadow-xs hover:shadow-luxury-hover transition-all duration-300 flex flex-col justify-between h-full space-y-4">
                 <div className="space-y-3.5">
                   {/* Top Bar with Patient Meta */}
-                  <div className="flex items-center justify-between pb-2.5 border-b border-[#e6dfd5]">
+                  <div className="flex items-center justify-between pb-2.5 border-b border-line">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-[#22623a] text-white flex items-center justify-center font-bold text-xs">
+                      <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs">
                         {cs.patientInitials}
                       </div>
                       <div>
-                        <span className="font-bold text-xs text-[#1a1816] block">
+                        <span className="font-bold text-xs text-ink block">
                           Patient {cs.patientInitials}
                         </span>
-                        <span className="text-[11px] text-[#6a6660]">
+                        <span className="text-[11px] text-ink-muted">
                           {cs.patientAge} · {cs.patientCity}
                         </span>
                       </div>
                     </div>
-                    <div className="flex text-[#c59b27]">
+                    <div className="flex text-secondary-text">
                       {[...Array(5)].map((_, i) => (
                         <Star key={i} className="w-3 h-3 fill-current" />
                       ))}
@@ -121,53 +121,53 @@ export default function ClinicalOutcomesSection() {
 
                   {/* Chief Complaint */}
                   <div className="space-y-0.5">
-                    <span className="text-[10px] uppercase font-bold tracking-wider text-[#8c6a15] block">
+                    <span className="text-[10px] uppercase font-bold tracking-wider text-secondary-text block">
                       Chief Complaint:
                     </span>
-                    <h3 className="font-serif text-xs sm:text-sm font-bold text-[#22623a]">
+                    <h3 className="font-serif text-xs sm:text-sm font-bold text-primary">
                       {cs.chiefComplaint}
                     </h3>
-                    <p className="text-[10px] text-[#7a7268]">
+                    <p className="text-[10px] text-ink-subtle">
                       Prior Duration: {cs.duration}
                     </p>
                   </div>
 
                   {/* Prescribed Course */}
-                  <div className="p-2.5 bg-white rounded-xl border border-[#e6dfd5] text-xs space-y-0.5">
-                    <span className="text-[10px] uppercase font-bold text-[#22623a] block">
+                  <div className="p-2.5 bg-white rounded-xl border border-line text-xs space-y-0.5">
+                    <span className="text-[10px] uppercase font-bold text-primary block">
                       Prescribed Course:
                     </span>
-                    <p className="text-[11px] text-[#59534b]">
+                    <p className="text-[11px] text-ink-body">
                       {cs.prescribedRegimen}
                     </p>
                   </div>
 
                   {/* Clinical Outcome */}
-                  <div className="p-2.5 bg-[#e2efe6]/70 rounded-xl border border-[#cde4d6] text-xs space-y-0.5">
-                    <div className="flex items-center justify-between text-[#22623a] font-bold text-[11px]">
+                  <div className="p-2.5 bg-brand-green-100/70 rounded-xl border border-brand-green-200 text-xs space-y-0.5">
+                    <div className="flex items-center justify-between text-primary font-bold text-[11px]">
                       <div className="flex items-center gap-1.5">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>Verified Outcome:</span>
                       </div>
-                      <span className="text-[10px] font-semibold text-[#8c6a15]">
+                      <span className="text-[10px] font-semibold text-secondary-text">
                         ⏱ {cs.recoveryTimeline}
                       </span>
                     </div>
-                    <p className="text-[11px] text-[#1a1816] leading-relaxed pt-0.5">
+                    <p className="text-[11px] text-ink leading-relaxed pt-0.5">
                       {cs.clinicalOutcome}
                     </p>
                   </div>
 
                   {/* Patient Quote */}
-                  <p className="text-xs italic text-[#59534b] leading-relaxed">
+                  <p className="text-xs italic text-ink-body leading-relaxed">
                     &ldquo;{cs.quote}&rdquo;
                   </p>
                 </div>
 
-                <div className="pt-2.5 border-t border-[#e6dfd5]">
+                <div className="pt-2.5 border-t border-line">
                   <Link
                     href={`/consultation?concern=${encodeURIComponent(cs.chiefComplaint)}`}
-                    className="w-full inline-flex items-center justify-center gap-1.5 text-xs font-bold text-[#22623a] hover:text-[#1b502e]"
+                    className="w-full inline-flex items-center justify-center gap-1.5 text-xs font-bold text-primary hover:text-primary"
                   >
                     <span>Request Similar Treatment</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -179,17 +179,17 @@ export default function ClinicalOutcomesSection() {
         </div>
 
         {/* Bottom Callout */}
-        <Reveal className="p-5 sm:p-6 bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] text-center space-y-2.5">
-          <h3 className="font-serif text-base sm:text-lg font-bold text-[#22623a]">
+        <Reveal className="p-5 sm:p-6 bg-surface rounded-2xl border border-line text-center space-y-2.5">
+          <h3 className="font-serif text-base sm:text-lg font-bold text-primary">
             Get a Personalized Assessment for Your Condition
           </h3>
-          <p className="text-xs text-[#59534b] max-w-md mx-auto">
+          <p className="text-xs text-ink-body max-w-md mx-auto">
             Speak with our clinical herbalist to determine the right natural formulation for you.
           </p>
           <div className="pt-1">
             <Link
               href="/consultation"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-brand-green-800 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md"
             >
               <span>Start Free Assessment</span>
               <ArrowRight className="w-3.5 h-3.5" />

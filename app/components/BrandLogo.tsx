@@ -30,14 +30,14 @@ export function BotanicalEmblem({
       style={{ height: size, width }}
       className={`relative shrink-0 ${
         isDark
-          ? "bg-white/10 rounded-lg p-0.5 ring-1 ring-[#c59b27]/40"
+          ? "bg-white/10 rounded-lg p-0.5 ring-1 ring-secondary/40"
           : isInvoice
-          ? "bg-white rounded-md p-0.5 border border-[#e6dfd5]"
+          ? "bg-white rounded-md p-0.5 border border-line"
           : ""
       } ${className}`}
     >
       <Image
-        src="/images/cropped-logo.png"
+        src={isDark ? "/images/logo-mono-light.png" : "/images/cropped-logo.png"}
         alt="Tameer-e-Sehat Official Logo"
         fill
         sizes={`${width}px`}
@@ -73,13 +73,13 @@ export default function BrandLogo({
     );
   }
 
-  // Footer variant - high-contrast container on dark green background (#153e25)
+  // Footer variant - high-contrast container on the inverse surface
   if (variant === "footer") {
     return (
       <div className={`flex items-center gap-3.5 group select-none ${className}`}>
-        <div className="relative h-10 sm:h-11 md:h-12 aspect-[463/214] rounded-lg overflow-hidden bg-white/10 p-0.5 shadow-md ring-1 ring-[#c59b27]/40 group-hover:ring-[#c59b27] group-hover:scale-105 transition-all shrink-0">
+        <div className="relative h-10 sm:h-11 md:h-12 aspect-[463/214] rounded-lg overflow-hidden bg-white/10 p-0.5 shadow-md ring-1 ring-secondary/40 group-hover:ring-secondary group-hover:scale-105 transition-all shrink-0">
           <Image
-            src="/images/cropped-logo.png"
+            src="/images/logo-mono-light.png"
             alt="Tameer-e-Sehat Official Logo"
             fill
             sizes="(max-width: 640px) 95px, 125px"
@@ -90,15 +90,15 @@ export default function BrandLogo({
         </div>
         <div className="flex flex-col">
           <div className="flex items-baseline gap-1.5">
-            <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-white group-hover:text-[#e5c05d] transition-colors leading-tight">
+            <span className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-white group-hover:text-brand-gold-300 transition-colors leading-tight">
               Tameer-e-Sehat
             </span>
           </div>
           {showTagline && (
-            <div className="flex items-center gap-1.5 mt-0.5 text-[11px] font-medium tracking-wide text-[#c59b27]">
+            <div className="flex items-center gap-1.5 mt-0.5 text-[11px] font-medium tracking-wide text-brand-gold-300">
               <span>Herbal Clinic &amp; Dispensary</span>
               <span className="opacity-50">•</span>
-              <span className="text-[#e3ded6]/80 font-normal">Est. 1990</span>
+              <span className="text-on-inverse/80 font-normal">Est. 1990</span>
             </div>
           )}
         </div>
@@ -110,7 +110,7 @@ export default function BrandLogo({
   if (variant === "invoice") {
     return (
       <div className={`flex items-center gap-3 select-none ${className}`}>
-        <div className="relative h-11 sm:h-12 aspect-[463/214] shrink-0 rounded-md border border-[#e6dfd5] bg-white p-0.5 shadow-2xs">
+        <div className="relative h-11 sm:h-12 aspect-[463/214] shrink-0 rounded-md border border-line bg-white p-0.5 shadow-2xs">
           <Image
             src="/images/cropped-logo.png"
             alt="Tameer-e-Sehat Official Logo"
@@ -122,14 +122,14 @@ export default function BrandLogo({
           />
         </div>
         <div className="flex flex-col">
-          <span className="font-serif text-xl sm:text-2xl font-bold text-[#22623a] tracking-tight leading-none">
+          <span className="font-serif text-xl sm:text-2xl font-bold text-primary tracking-tight leading-none">
             Tameer-e-Sehat
           </span>
           {showTagline && (
-            <div className="flex items-center gap-1.5 mt-1 text-[10px] uppercase tracking-wider font-semibold text-[#c59b27]">
+            <div className="flex items-center gap-1.5 mt-1 text-[10px] uppercase tracking-wider font-semibold text-secondary-text">
               <span>Classical Unani Medicine</span>
               <span className="opacity-40">•</span>
-              <span className="text-[#59534b] font-medium">Est. 1990</span>
+              <span className="text-ink-body font-medium">Est. 1990</span>
             </div>
           )}
         </div>
@@ -153,11 +153,11 @@ export default function BrandLogo({
           />
         </div>
         <div className="flex flex-col min-w-0 justify-center">
-          <span className="font-serif text-[15px] sm:text-base font-bold tracking-tight text-[#1b4b2d] leading-none truncate">
+          <span className="font-serif text-[15px] sm:text-base font-bold tracking-tight text-primary leading-none truncate">
             Tameer-e-Sehat
           </span>
           {showTagline && (
-            <span className="text-[9.5px] text-[#8c6a15] font-medium tracking-wide mt-1 leading-none truncate">
+            <span className="text-[9.5px] text-secondary-text font-medium tracking-wide mt-1 leading-none truncate">
               Herbal Clinic &amp; Dispensary
             </span>
           )}
@@ -187,17 +187,17 @@ export default function BrandLogo({
       {/* Typography Lockup */}
       <div className="flex flex-col justify-center">
         <div className="flex items-center gap-2">
-          <span className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#1b4b2d] group-hover:text-[#143e23] transition-colors leading-tight">
+          <span className="font-serif text-lg sm:text-xl font-bold tracking-tight text-primary group-hover:text-brand-green-900 transition-colors leading-tight">
             Tameer-e-Sehat
           </span>
-          <span className="hidden 2xl:inline-block px-1.5 py-0.5 bg-[#c59b27]/15 text-[#8c6a15] text-[9px] font-bold rounded-sm border border-[#c59b27]/30 tracking-wider">
+          <span className="hidden 2xl:inline-block px-1.5 py-0.5 bg-secondary/15 text-brand-gold-800 text-[9px] font-bold rounded-sm border border-secondary/30 tracking-wider">
             EST. 1990
           </span>
         </div>
 
         {showTagline && (
-          <div className="hidden sm:flex items-center gap-1.5 text-[10.5px] font-medium tracking-wide text-[#7a7268] group-hover:text-[#59534b] transition-colors leading-none mt-0.5">
-            <span className="text-[#8c6a15] font-semibold">Herbal Clinic</span>
+          <div className="hidden sm:flex items-center gap-1.5 text-[10.5px] font-medium tracking-wide text-ink-subtle group-hover:text-ink-body transition-colors leading-none mt-0.5">
+            <span className="text-secondary-text font-semibold">Herbal Clinic</span>
             <span className="opacity-40">•</span>
             <span>Online Dispensary</span>
           </div>

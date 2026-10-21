@@ -125,28 +125,28 @@ export default function UnitsManagerModal({
     <div data-lenis-prevent className="fixed inset-0 z-50 overflow-y-auto p-4 flex items-center justify-center">
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-[#22623a]/60 backdrop-blur-xs transition-opacity animate-fade-in"
+        className="fixed inset-0 bg-primary/60 backdrop-blur-xs transition-opacity animate-fade-in"
       />
 
-      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-[#e6dfd5] overflow-hidden my-auto animate-fade-in flex flex-col max-h-[85vh]">
+      <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-line overflow-hidden my-auto animate-fade-in flex flex-col max-h-[85vh]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#e6dfd5] bg-[#faf8f5] flex items-center justify-between shrink-0">
+        <div className="px-6 py-4 border-b border-line bg-surface flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#22623a] text-[#c59b27] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-primary text-brand-gold-300 flex items-center justify-center">
               <Scale className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="font-serif text-base font-bold text-[#22623a]">
+              <h2 className="font-serif text-base font-bold text-primary">
                 Units Catalog Management
               </h2>
-              <p className="text-[11px] text-[#6a6660]">
+              <p className="text-[11px] text-ink-muted">
                 Configure standard and traditional apothecary measurement units.
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-md text-[#6a6660] hover:text-[#22623a] hover:bg-[#e6dfd5]/50 transition-colors"
+            className="p-1.5 rounded-md text-ink-muted hover:text-primary hover:bg-line/50 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -155,57 +155,57 @@ export default function UnitsManagerModal({
         {/* Content Area */}
         <div className="p-6 space-y-5 overflow-y-auto flex-1 text-xs">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+            <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-danger flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {successMsg && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 flex items-center gap-2 font-semibold">
-              <Check className="w-4 h-4 shrink-0 text-emerald-600" />
+            <div className="p-3 bg-success-soft border border-success-line rounded-xl text-success flex items-center gap-2 font-semibold">
+              <Check className="w-4 h-4 shrink-0 text-success" />
               <span>{successMsg}</span>
             </div>
           )}
 
           {/* Add New Unit Form */}
-          <form onSubmit={handleAddUnit} className="p-4 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl space-y-3">
-            <h4 className="font-bold text-[#22623a] flex items-center gap-1.5">
-              <Plus className="w-3.5 h-3.5 text-[#c59b27]" />
+          <form onSubmit={handleAddUnit} className="p-4 bg-surface border border-line rounded-xl space-y-3">
+            <h4 className="font-bold text-primary flex items-center gap-1.5">
+              <Plus className="w-3.5 h-3.5 text-secondary-text" />
               <span>Add New Unit</span>
             </h4>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-1">
-                <label className="font-semibold text-[#1a1816]">Unit Code *</label>
+                <label className="font-semibold text-ink">Unit Code *</label>
                 <input
                   type="text"
                   required
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   placeholder="e.g. tola, sachet"
-                  className="w-full p-2 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816] font-mono"
+                  className="w-full p-2 bg-white border border-line rounded-lg text-ink font-mono"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-[#1a1816]">Full Name *</label>
+                <label className="font-semibold text-ink">Full Name *</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Tola (Apothecary)"
-                  className="w-full p-2 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816]"
+                  className="w-full p-2 bg-white border border-line rounded-lg text-ink"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-semibold text-[#1a1816]">Unit Kind</label>
+                <label className="font-semibold text-ink">Unit Kind</label>
                 <select
                   value={kind}
                   onChange={(e) => setKind(e.target.value)}
-                  className="w-full p-2 bg-white border border-[#e6dfd5] rounded-lg text-[#1a1816]"
+                  className="w-full p-2 bg-white border border-line rounded-lg text-ink"
                 >
                   <option value="WEIGHT">WEIGHT (g, kg, tola)</option>
                   <option value="VOLUME">VOLUME (ml, L)</option>
@@ -219,7 +219,7 @@ export default function UnitsManagerModal({
               <button
                 type="submit"
                 disabled={addingUnit}
-                className="px-4 py-1.5 bg-[#22623a] hover:bg-[#1b502e] text-white font-semibold rounded-lg text-xs flex items-center gap-1.5 shadow-xs disabled:opacity-50"
+                className="px-4 py-1.5 bg-primary hover:bg-brand-green-800 text-white font-semibold rounded-lg text-xs flex items-center gap-1.5 shadow-xs disabled:opacity-50"
               >
                 {addingUnit ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
                 <span>Save Unit</span>
@@ -228,10 +228,10 @@ export default function UnitsManagerModal({
           </form>
 
           {/* Existing Units List */}
-          <div className="border border-[#e6dfd5] rounded-xl overflow-hidden">
+          <div className="border border-line rounded-xl overflow-hidden">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-[#faf8f5] border-b border-[#e6dfd5] text-[#6a6660] font-semibold">
+                <tr className="bg-surface border-b border-line text-ink-muted font-semibold">
                   <th className="p-3">Unit Code</th>
                   <th className="p-3">Display Name</th>
                   <th className="p-3">Category</th>
@@ -239,31 +239,31 @@ export default function UnitsManagerModal({
                   <th className="p-3 text-right">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#f4eee5]">
+              <tbody className="divide-y divide-line">
                 {loading ? (
                   <tr>
-                    <td colSpan={5} className="p-6 text-center text-[#6a6660]">
-                      <Loader2 className="w-4 h-4 animate-spin inline mr-2 text-[#22623a]" />
+                    <td colSpan={5} className="p-6 text-center text-ink-muted">
+                      <Loader2 className="w-4 h-4 animate-spin inline mr-2 text-primary" />
                       Loading units...
                     </td>
                   </tr>
                 ) : units.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="p-6 text-center text-[#6a6660]">
+                    <td colSpan={5} className="p-6 text-center text-ink-muted">
                       No units found.
                     </td>
                   </tr>
                 ) : (
                   units.map((u) => (
-                    <tr key={u.id} className="hover:bg-[#faf8f5]/60 transition-colors">
-                      <td className="p-3 font-mono font-bold text-[#22623a]">{u.code}</td>
-                      <td className="p-3 font-semibold text-[#1a1816]">{u.name}</td>
+                    <tr key={u.id} className="hover:bg-surface/60 transition-colors">
+                      <td className="p-3 font-mono font-bold text-primary">{u.code}</td>
+                      <td className="p-3 font-semibold text-ink">{u.name}</td>
                       <td className="p-3">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-[#f4eee5] text-[#59534b]">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-surface-sunken text-ink-body">
                           {u.kind}
                         </span>
                       </td>
-                      <td className="p-3 text-[#6a6660]">
+                      <td className="p-3 text-ink-muted">
                         {u._count?.sizes || 0} variants
                       </td>
                       <td className="p-3 text-right">
@@ -272,8 +272,8 @@ export default function UnitsManagerModal({
                           onClick={() => handleDeactivateUnit(u)}
                           className={`px-2 py-0.5 rounded text-[10px] font-bold transition-colors ${
                             u.isActive
-                              ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
-                              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                              ? "bg-success-soft text-success hover:bg-success-soft"
+                              : "bg-line text-neutral-700 hover:bg-line-strong"
                           }`}
                         >
                           {u.isActive ? "Active" : "Inactive"}

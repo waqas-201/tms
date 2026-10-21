@@ -96,8 +96,8 @@ function StatusTimeline({
 }) {
   if (cancelled) {
     return (
-      <div className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-stone-500 bg-stone-100 border border-stone-200 px-3 py-1.5 rounded-full">
-        <span className="w-1.5 h-1.5 rounded-full bg-stone-400" />
+      <div className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wide text-ink-muted bg-surface-sunken border border-line px-3 py-1.5 rounded-full">
+        <span className="w-1.5 h-1.5 rounded-full bg-neutral-400" />
         {cancelledLabel}
       </div>
     );
@@ -118,9 +118,9 @@ function StatusTimeline({
               className={`w-9 h-9 mx-auto rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                 reached
                   ? active
-                    ? "bg-[#9E7D3B] text-white ring-4 ring-[#9E7D3B]/20"
-                    : "bg-[#14281D] text-white ring-4 ring-[#14281D]/10"
-                  : "bg-stone-100 text-stone-400"
+                    ? "bg-secondary text-on-secondary ring-4 ring-secondary/20"
+                    : "bg-surface-inverse text-white ring-4 ring-primary/10"
+                  : "bg-surface-sunken text-ink-subtle"
               }`}
             >
               {index < current ? (
@@ -131,7 +131,7 @@ function StatusTimeline({
             </div>
             <span
               className={`text-[11px] font-bold block leading-tight ${
-                reached ? "text-stone-900" : "text-stone-400"
+                reached ? "text-ink" : "text-ink-subtle"
               }`}
             >
               {label}
@@ -276,60 +276,60 @@ function TrackOrderContent() {
     : HIJAMA_STATUS_LABELS[record?.status] || record?.status;
 
   return (
-    <div className="min-h-[85vh] bg-[#FAF9F6] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-[85vh] bg-surface py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto space-y-8">
         {/* Header Title */}
         <div className="text-center space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#14281D]/5 rounded-full text-xs uppercase tracking-widest font-semibold text-[#14281D]">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#9E7D3B]" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-inverse/5 rounded-full text-xs uppercase tracking-widest font-semibold text-ink">
+            <ShieldCheck className="w-3.5 h-3.5 text-secondary-text" />
             <span>Universal Booking &amp; Order Tracking</span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-stone-900">
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-ink">
             Track Your Order or Booking
           </h1>
-          <p className="text-xs sm:text-sm text-stone-600 max-w-xl mx-auto">
+          <p className="text-xs sm:text-sm text-ink-body max-w-xl mx-auto">
             Enter a reference number to check live status: orders{" "}
-            <strong className="text-stone-900 font-mono">TMS-2026-1001</strong>,
+            <strong className="text-ink font-mono">TMS-2026-1001</strong>,
             consultations{" "}
-            <strong className="text-stone-900 font-mono">CON-2026-1234</strong>,
+            <strong className="text-ink font-mono">CON-2026-1234</strong>,
             or Hijama sessions{" "}
-            <strong className="text-stone-900 font-mono">HIJ-2026-1001</strong>.
+            <strong className="text-ink font-mono">HIJ-2026-1001</strong>.
           </p>
         </div>
 
         {/* Search Box */}
-        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-stone-200/80 shadow-sm">
+        <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line/80 shadow-sm">
           <form
             onSubmit={handleTrack}
             className="flex flex-col sm:flex-row gap-3"
           >
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-ink-subtle absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 required
                 value={refQuery}
                 onChange={(e) => setRefQuery(e.target.value.toUpperCase())}
                 placeholder="TMS-2026-1001 / CON-2026-1234 / HIJ-2026-1001"
-                className="w-full pl-10 pr-3.5 py-3 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 uppercase font-mono placeholder:text-stone-400 placeholder:normal-case focus:outline-none focus:border-[#14281D] focus:bg-white transition-colors"
+                className="w-full pl-10 pr-3.5 py-3 bg-surface border border-line rounded-xl text-xs sm:text-sm text-ink uppercase font-mono placeholder:text-ink-subtle placeholder:normal-case focus:outline-none focus:border-ink focus:bg-white transition-colors"
               />
             </div>
 
             <div className="relative sm:w-44">
-              <Phone className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Phone className="w-4 h-4 text-ink-subtle absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="tel"
                 value={phoneQuery}
                 onChange={(e) => setPhoneQuery(e.target.value)}
                 placeholder="Phone (CON-/HIJ-)"
-                className="w-full pl-10 pr-3.5 py-3 bg-stone-50 border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-[#14281D] focus:bg-white transition-colors"
+                className="w-full pl-10 pr-3.5 py-3 bg-surface border border-line rounded-xl text-xs sm:text-sm text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-3 bg-[#14281D] hover:bg-[#0c1b13] text-white text-xs sm:text-sm font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+              className="px-6 py-3 bg-surface-inverse hover:bg-surface-inverse-hover text-white text-xs sm:text-sm font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
             >
               {loading ? (
                 <>
@@ -339,27 +339,27 @@ function TrackOrderContent() {
               ) : (
                 <>
                   <span>Track Status</span>
-                  <ArrowRight className="w-4 h-4 text-[#9E7D3B]" />
+                  <ArrowRight className="w-4 h-4 text-brand-gold-500" />
                 </>
               )}
             </button>
           </form>
 
-          <p className="mt-2.5 text-[10px] text-stone-500">
+          <p className="mt-2.5 text-[10px] text-ink-muted">
             Consultation (CON-) and Hijama (HIJ-) tickets require the phone
             number used when booking. Order references work on their own.
           </p>
 
           {notice && (
-            <div className="mt-4 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-amber-600" />
+            <div className="mt-4 p-3.5 bg-warning-soft border border-warning-line rounded-xl text-xs text-warning flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-warning" />
               <span>{notice}</span>
             </div>
           )}
 
           {error && (
-            <div className="mt-4 p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
+            <div className="mt-4 p-3.5 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 text-danger" />
               <span>{error}</span>
             </div>
           )}
@@ -367,18 +367,18 @@ function TrackOrderContent() {
 
         {/* Result */}
         {record && kind && (
-          <div className="bg-white rounded-2xl border border-stone-200/80 shadow-md overflow-hidden space-y-6">
+          <div className="bg-white rounded-2xl border border-line/80 shadow-md overflow-hidden space-y-6">
             {/* Top Bar */}
-            <div className="bg-[#14281D] text-white p-6 sm:p-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+            <div className="bg-surface-inverse text-white p-6 sm:p-8 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
               <div>
-                <span className="text-[11px] font-mono text-[#9E7D3B] uppercase font-bold tracking-widest block">
+                <span className="text-[11px] font-mono text-brand-gold-500 uppercase font-bold tracking-widest block">
                   Verified {kindLabel}
                 </span>
                 <h2 className="font-serif text-2xl font-bold tracking-tight">
                   {isOrder ? record.orderNumber : record.ticketNumber}
                 </h2>
-                <p className="text-xs text-stone-300 mt-1 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-[#9E7D3B]" />
+                <p className="text-xs text-on-inverse-muted mt-1 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-brand-gold-500" />
                   <span>
                     {isOrder ? "Placed on: " : "Booked on: "}
                     {new Date(record.createdAt).toLocaleDateString("en-PK", {
@@ -395,10 +395,10 @@ function TrackOrderContent() {
               <div className="text-left sm:text-right bg-white/5 sm:bg-transparent p-3 sm:p-0 rounded-xl border border-white/10 sm:border-0">
                 {isOrder && (
                   <>
-                    <span className="text-xs text-stone-300 block">
+                    <span className="text-xs text-on-inverse-muted block">
                       Amount Payable (COD)
                     </span>
-                    <span className="font-serif text-2xl font-bold text-[#9E7D3B]">
+                    <span className="font-serif text-2xl font-bold text-brand-gold-500">
                       ₨ {record.total.toLocaleString()}
                     </span>
                   </>
@@ -406,13 +406,13 @@ function TrackOrderContent() {
 
                 {isHijama && (
                   <>
-                    <span className="text-xs text-stone-300 block">
+                    <span className="text-xs text-on-inverse-muted block">
                       Session Fee
                     </span>
-                    <span className="font-serif text-2xl font-bold text-[#9E7D3B]">
+                    <span className="font-serif text-2xl font-bold text-brand-gold-500">
                       ₨ {(record.feeAmount || 0).toLocaleString()}
                     </span>
-                    <span className="text-[10px] text-stone-300 block">
+                    <span className="text-[10px] text-on-inverse-muted block">
                       {record.paymentStatus === "PAID_AT_CLINIC"
                         ? "Paid at clinic"
                         : "Pay at clinic"}
@@ -422,10 +422,10 @@ function TrackOrderContent() {
 
                 {isConsultation && (
                   <>
-                    <span className="text-xs text-stone-300 block">
+                    <span className="text-xs text-on-inverse-muted block">
                       Consultation Mode
                     </span>
-                    <span className="font-serif text-lg font-bold text-[#9E7D3B]">
+                    <span className="font-serif text-lg font-bold text-brand-gold-500">
                       {record.consultationType === "ONLINE"
                         ? "Online Telehealth"
                         : "In-Person Clinic"}
@@ -438,12 +438,12 @@ function TrackOrderContent() {
             {/* Timeline */}
             <div className="px-6 sm:px-8 py-4">
               <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
-                <h3 className="text-xs font-bold text-stone-900 uppercase tracking-wider">
+                <h3 className="text-xs font-bold text-ink uppercase tracking-wider">
                   {isOrder ? "Delivery Milestones" : "Booking Timeline"}
                 </h3>
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-success-soft text-success border border-success-line">
                   {statusLabel}
-                  <span className="ml-1.5 text-[9px] font-mono text-emerald-600/70">
+                  <span className="ml-1.5 text-[9px] font-mono text-success/70">
                     {isOrder ? record.orderStatus : record.status}
                   </span>
                 </span>
@@ -484,13 +484,13 @@ function TrackOrderContent() {
               )}
 
               {isOrder && record.trackingNote && (
-                <div className="mt-6 p-4 bg-emerald-50/80 border border-emerald-200 rounded-xl flex items-center gap-3">
-                  <Truck className="w-5 h-5 text-emerald-800 shrink-0" />
-                  <div className="text-xs text-stone-900">
-                    <span className="font-bold block text-emerald-950">
+                <div className="mt-6 p-4 bg-success-soft/80 border border-success-line rounded-xl flex items-center gap-3">
+                  <Truck className="w-5 h-5 text-success shrink-0" />
+                  <div className="text-xs text-ink">
+                    <span className="font-bold block text-success">
                       Courier Dispatch &amp; Tracking Details:
                     </span>
-                    <span className="font-mono text-xs text-emerald-900">
+                    <span className="font-mono text-xs text-success">
                       {record.trackingNote}
                     </span>
                   </div>
@@ -498,9 +498,9 @@ function TrackOrderContent() {
               )}
 
               {isConsultation && record.status === "NEW" && (
-                <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
-                  <Clock className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
-                  <div className="text-xs text-amber-900">
+                <div className="mt-6 p-4 bg-warning-soft border border-warning-line rounded-xl flex items-start gap-3">
+                  <Clock className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                  <div className="text-xs text-warning">
                     <span className="font-bold block">
                       Awaiting confirmation
                     </span>
@@ -517,46 +517,46 @@ function TrackOrderContent() {
             {/* Order details */}
             {isOrder && (
               <>
-                <div className="p-6 sm:p-8 bg-[#FAF9F6] border-t border-stone-200/80 grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+                <div className="p-6 sm:p-8 bg-surface border-t border-line/80 grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
                   <div className="space-y-3">
-                    <h4 className="font-bold text-stone-900 flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
-                      <MapPin className="w-4 h-4 text-[#9E7D3B]" />
+                    <h4 className="font-bold text-ink flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
+                      <MapPin className="w-4 h-4 text-secondary-text" />
                       <span>Destination Address</span>
                     </h4>
-                    <div className="text-stone-600 space-y-1 bg-white p-4 rounded-xl border border-stone-200/60 shadow-2xs">
-                      <p className="font-bold text-stone-900">
+                    <div className="text-ink-body space-y-1 bg-white p-4 rounded-xl border border-line/60 shadow-2xs">
+                      <p className="font-bold text-ink">
                         {record.customerName}
                       </p>
-                      <p className="font-mono text-stone-700">{record.phone}</p>
+                      <p className="font-mono text-neutral-700">{record.phone}</p>
                       <p>{record.address}</p>
-                      <p className="font-semibold text-stone-900">
+                      <p className="font-semibold text-ink">
                         {record.city}, Pakistan
                       </p>
                     </div>
                   </div>
 
                   <div className="space-y-3">
-                    <h4 className="font-bold text-stone-900 flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
-                      <Package className="w-4 h-4 text-[#14281D]" />
+                    <h4 className="font-bold text-ink flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
+                      <Package className="w-4 h-4 text-ink" />
                       <span>
                         Remedies Ordered ({record.items?.length || 0})
                       </span>
                     </h4>
-                    <div className="space-y-2 bg-white p-4 rounded-xl border border-stone-200/60 shadow-2xs max-h-48 overflow-y-auto divide-y divide-stone-100">
+                    <div className="space-y-2 bg-white p-4 rounded-xl border border-line/60 shadow-2xs max-h-48 overflow-y-auto divide-y divide-line">
                       {record.items?.map((item: any) => (
                         <div
                           key={item.id}
                           className="pt-2 first:pt-0 flex justify-between items-center text-xs"
                         >
                           <div>
-                            <span className="text-stone-900 font-semibold block">
+                            <span className="text-ink font-semibold block">
                               {item.productName}
                             </span>
-                            <span className="text-[11px] text-stone-500">
+                            <span className="text-[11px] text-ink-muted">
                               {item.sizeWeight} · Qty: {item.quantity}
                             </span>
                           </div>
-                          <span className="font-bold text-stone-900">
+                          <span className="font-bold text-ink">
                             ₨ {item.total.toLocaleString()}
                           </span>
                         </div>
@@ -565,15 +565,15 @@ function TrackOrderContent() {
                   </div>
                 </div>
 
-                <div className="p-6 bg-white border-t border-stone-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-                  <div className="flex items-center gap-2 text-stone-600">
-                    <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                <div className="p-6 bg-white border-t border-line/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+                  <div className="flex items-center gap-2 text-ink-body">
+                    <ShieldCheck className="w-4 h-4 text-success" />
                     <span>Need immediate guidance or rider coordination?</span>
                   </div>
                   <div className="flex items-center gap-2 w-full sm:w-auto">
                     <Link
                       href="/products"
-                      className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-initial"
+                      className="px-4 py-2 bg-surface-sunken hover:bg-line text-neutral-800 font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-initial"
                     >
                       <ShoppingBag className="w-3.5 h-3.5" />
                       <span>Shop More</span>
@@ -584,7 +584,7 @@ function TrackOrderContent() {
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white font-semibold rounded-xl flex items-center justify-center gap-1.5 shadow-2xs transition-colors flex-1 sm:flex-initial"
+                      className="px-4 py-2 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp font-semibold rounded-xl flex items-center justify-center gap-1.5 shadow-2xs transition-colors flex-1 sm:flex-initial"
                     >
                       <Phone className="w-3.5 h-3.5" />
                       <span>WhatsApp Helpline</span>
@@ -597,34 +597,34 @@ function TrackOrderContent() {
             {/* Consultation details */}
             {isConsultation && (
               <>
-                <div className="p-6 sm:p-8 bg-[#FAF9F6] border-t border-stone-200/80 grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+                <div className="p-6 sm:p-8 bg-surface border-t border-line/80 grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
                   <div className="space-y-3">
-                    <h4 className="font-bold text-stone-900 flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
-                      <Calendar className="w-4 h-4 text-[#9E7D3B]" />
+                    <h4 className="font-bold text-ink flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
+                      <Calendar className="w-4 h-4 text-secondary-text" />
                       <span>Appointment Details</span>
                     </h4>
-                    <div className="text-stone-600 space-y-2 bg-white p-4 rounded-xl border border-stone-200/60 shadow-2xs">
+                    <div className="text-ink-body space-y-2 bg-white p-4 rounded-xl border border-line/60 shadow-2xs">
                       <p>
-                        <span className="text-stone-400 block text-[10px] uppercase font-bold">
+                        <span className="text-ink-subtle block text-[10px] uppercase font-bold">
                           Patient
                         </span>
-                        <span className="font-semibold text-stone-900">
+                        <span className="font-semibold text-ink">
                           {record.fullName} · {record.phone}
                         </span>
                       </p>
                       <p>
-                        <span className="text-stone-400 block text-[10px] uppercase font-bold">
+                        <span className="text-ink-subtle block text-[10px] uppercase font-bold">
                           Requested Date
                         </span>
-                        <span className="font-semibold text-stone-900">
+                        <span className="font-semibold text-ink">
                           {record.appointmentDate || "To be coordinated"}
                         </span>
                       </p>
                       <p>
-                        <span className="text-stone-400 block text-[10px] uppercase font-bold">
+                        <span className="text-ink-subtle block text-[10px] uppercase font-bold">
                           Requested Slot
                         </span>
-                        <span className="font-semibold text-stone-900">
+                        <span className="font-semibold text-ink">
                           {record.appointmentSlot ||
                             (record.consultationType === "ONLINE"
                               ? "WhatsApp consultation"
@@ -635,25 +635,25 @@ function TrackOrderContent() {
                   </div>
 
                   <div className="space-y-3">
-                    <h4 className="font-bold text-stone-900 flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
-                      <Sparkles className="w-4 h-4 text-[#14281D]" />
+                    <h4 className="font-bold text-ink flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
+                      <Sparkles className="w-4 h-4 text-ink" />
                       <span>Clinical Summary</span>
                     </h4>
-                    <div className="text-stone-600 space-y-2 bg-white p-4 rounded-xl border border-stone-200/60 shadow-2xs">
+                    <div className="text-ink-body space-y-2 bg-white p-4 rounded-xl border border-line/60 shadow-2xs">
                       <p>
-                        <span className="text-stone-400 block text-[10px] uppercase font-bold">
+                        <span className="text-ink-subtle block text-[10px] uppercase font-bold">
                           Primary Concern
                         </span>
-                        <span className="text-stone-800">
+                        <span className="text-neutral-800">
                           {record.primarySymptoms}
                         </span>
                       </p>
                       {record.duration && (
                         <p>
-                          <span className="text-stone-400 block text-[10px] uppercase font-bold">
+                          <span className="text-ink-subtle block text-[10px] uppercase font-bold">
                             Duration
                           </span>
-                          <span className="text-stone-800">
+                          <span className="text-neutral-800">
                             {record.duration}
                           </span>
                         </p>
@@ -662,19 +662,19 @@ function TrackOrderContent() {
                   </div>
 
                   {record.prescribedTreatment && (
-                    <div className="sm:col-span-2 p-4 bg-purple-50 border border-purple-200 rounded-xl text-purple-950 space-y-1">
-                      <strong className="block text-[11px] uppercase tracking-wider text-purple-900 font-bold">
+                    <div className="sm:col-span-2 p-4 bg-plum-soft border border-plum-line rounded-xl text-plum space-y-1">
+                      <strong className="block text-[11px] uppercase tracking-wider text-plum font-bold">
                         Hakim&apos;s Prescribed Botanical Protocol
                       </strong>
-                      <p className="whitespace-pre-line text-xs font-mono bg-white/80 p-3 rounded-lg border border-purple-200/80">
+                      <p className="whitespace-pre-line text-xs font-mono bg-white/80 p-3 rounded-lg border border-plum-line/80">
                         {record.prescribedTreatment}
                       </p>
                     </div>
                   )}
 
                   {record.hakimNotes && (
-                    <div className="sm:col-span-2 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-950 space-y-1">
-                      <strong className="block text-[11px] uppercase tracking-wider text-emerald-900 font-bold">
+                    <div className="sm:col-span-2 p-4 bg-success-soft border border-success-line rounded-xl text-success space-y-1">
+                      <strong className="block text-[11px] uppercase tracking-wider text-success font-bold">
                         Clinical Advice &amp; Dietary Guidelines (Parhez)
                       </strong>
                       <p className="text-xs whitespace-pre-line">
@@ -684,9 +684,9 @@ function TrackOrderContent() {
                   )}
                 </div>
 
-                <div className="p-6 bg-white border-t border-stone-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-                  <div className="flex items-center gap-2 text-stone-600">
-                    <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                <div className="p-6 bg-white border-t border-line/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+                  <div className="flex items-center gap-2 text-ink-body">
+                    <ShieldCheck className="w-4 h-4 text-success" />
                     <span>
                       Need to reschedule? Quote ticket{" "}
                       <strong className="font-mono">
@@ -698,7 +698,7 @@ function TrackOrderContent() {
                   <div className="flex items-center gap-2 w-full sm:w-auto">
                     <Link
                       href="/account"
-                      className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-initial"
+                      className="px-4 py-2 bg-surface-sunken hover:bg-line text-neutral-800 font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-initial"
                     >
                       <Calendar className="w-3.5 h-3.5" />
                       <span>My Account</span>
@@ -709,7 +709,7 @@ function TrackOrderContent() {
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white font-semibold rounded-xl flex items-center justify-center gap-1.5 shadow-2xs transition-colors flex-1 sm:flex-initial"
+                      className="px-4 py-2 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp font-semibold rounded-xl flex items-center justify-center gap-1.5 shadow-2xs transition-colors flex-1 sm:flex-initial"
                     >
                       <Phone className="w-3.5 h-3.5" />
                       <span>WhatsApp Clinic</span>
@@ -722,43 +722,43 @@ function TrackOrderContent() {
             {/* Hijama details */}
             {isHijama && (
               <>
-                <div className="p-6 sm:p-8 bg-[#FAF9F6] border-t border-stone-200/80 grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+                <div className="p-6 sm:p-8 bg-surface border-t border-line/80 grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
                   <div className="space-y-3">
-                    <h4 className="font-bold text-stone-900 flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
-                      <Droplets className="w-4 h-4 text-[#9E7D3B]" />
+                    <h4 className="font-bold text-ink flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
+                      <Droplets className="w-4 h-4 text-secondary-text" />
                       <span>Session Details</span>
                     </h4>
-                    <div className="text-stone-600 space-y-2 bg-white p-4 rounded-xl border border-stone-200/60 shadow-2xs">
+                    <div className="text-ink-body space-y-2 bg-white p-4 rounded-xl border border-line/60 shadow-2xs">
                       <p>
-                        <span className="text-stone-400 block text-[10px] uppercase font-bold">
+                        <span className="text-ink-subtle block text-[10px] uppercase font-bold">
                           Patient
                         </span>
-                        <span className="font-semibold text-stone-900">
+                        <span className="font-semibold text-ink">
                           {record.fullName} · {record.phone}
                         </span>
                       </p>
                       <p>
-                        <span className="text-stone-400 block text-[10px] uppercase font-bold">
+                        <span className="text-ink-subtle block text-[10px] uppercase font-bold">
                           Date
                         </span>
-                        <span className="font-semibold text-stone-900">
+                        <span className="font-semibold text-ink">
                           {record.appointmentDate}
                           {record.hijriDate ? ` · ${record.hijriDate}` : ""}
                         </span>
                       </p>
                       <p>
-                        <span className="text-stone-400 block text-[10px] uppercase font-bold">
+                        <span className="text-ink-subtle block text-[10px] uppercase font-bold">
                           Time Slot
                         </span>
-                        <span className="font-semibold text-stone-900">
+                        <span className="font-semibold text-ink">
                           {record.appointmentSlot}
                         </span>
                       </p>
                       <p>
-                        <span className="text-stone-400 block text-[10px] uppercase font-bold">
+                        <span className="text-ink-subtle block text-[10px] uppercase font-bold">
                           Session
                         </span>
-                        <span className="font-semibold text-stone-900">
+                        <span className="font-semibold text-ink">
                           {record.gender === "FEMALE" ? "Female" : "Male"}{" "}
                           {record.isSunnahDay
                             ? "· Sunnah Day Cupping"
@@ -769,17 +769,17 @@ function TrackOrderContent() {
                   </div>
 
                   <div className="space-y-3">
-                    <h4 className="font-bold text-stone-900 flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
-                      <Sparkles className="w-4 h-4 text-[#14281D]" />
+                    <h4 className="font-bold text-ink flex items-center gap-1.5 uppercase tracking-wide text-[11px]">
+                      <Sparkles className="w-4 h-4 text-ink" />
                       <span>Cupping Notes</span>
                     </h4>
-                    <div className="text-stone-600 bg-white p-4 rounded-xl border border-stone-200/60 shadow-2xs min-h-[7rem]">
+                    <div className="text-ink-body bg-white p-4 rounded-xl border border-line/60 shadow-2xs min-h-[7rem]">
                       {record.cuppingReason ? (
-                        <p className="text-stone-800 whitespace-pre-line">
+                        <p className="text-neutral-800 whitespace-pre-line">
                           {record.cuppingReason}
                         </p>
                       ) : (
-                        <p className="text-stone-500">
+                        <p className="text-ink-muted">
                           No additional notes were recorded for this session.
                         </p>
                       )}
@@ -787,9 +787,9 @@ function TrackOrderContent() {
                   </div>
                 </div>
 
-                <div className="p-6 bg-white border-t border-stone-200/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-                  <div className="flex items-center gap-2 text-stone-600">
-                    <ShieldCheck className="w-4 h-4 text-emerald-700" />
+                <div className="p-6 bg-white border-t border-line/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+                  <div className="flex items-center gap-2 text-ink-body">
+                    <ShieldCheck className="w-4 h-4 text-success" />
                     <span>
                       Show ticket{" "}
                       <strong className="font-mono">
@@ -801,7 +801,7 @@ function TrackOrderContent() {
                   <div className="flex items-center gap-2 w-full sm:w-auto">
                     <Link
                       href="/account"
-                      className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-initial"
+                      className="px-4 py-2 bg-surface-sunken hover:bg-line text-neutral-800 font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors flex-1 sm:flex-initial"
                     >
                       <Calendar className="w-3.5 h-3.5" />
                       <span>My Account</span>
@@ -812,7 +812,7 @@ function TrackOrderContent() {
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white font-semibold rounded-xl flex items-center justify-center gap-1.5 shadow-2xs transition-colors flex-1 sm:flex-initial"
+                      className="px-4 py-2 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp font-semibold rounded-xl flex items-center justify-center gap-1.5 shadow-2xs transition-colors flex-1 sm:flex-initial"
                     >
                       <Phone className="w-3.5 h-3.5" />
                       <span>WhatsApp Clinic</span>
@@ -832,8 +832,8 @@ export default function TrackOrderPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[85vh] bg-[#FAF9F6] py-20 flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-[#14281D]" />
+        <div className="min-h-[85vh] bg-surface py-20 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 animate-spin text-ink" />
         </div>
       }
     >

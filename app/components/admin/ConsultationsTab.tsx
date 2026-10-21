@@ -73,39 +73,39 @@ const STATUS_BADGES: Record<
 > = {
   NEW: {
     label: "New Request",
-    bg: "bg-blue-50",
-    text: "text-blue-700",
-    border: "border-blue-200",
+    bg: "bg-info-soft",
+    text: "text-info",
+    border: "border-info-line",
   },
   CONFIRMED: {
     label: "Confirmed",
-    bg: "bg-emerald-50",
-    text: "text-emerald-700",
-    border: "border-emerald-200",
+    bg: "bg-success-soft",
+    text: "text-success",
+    border: "border-success-line",
   },
   RESCHEDULED: {
     label: "Rescheduled",
-    bg: "bg-amber-50",
-    text: "text-amber-800",
-    border: "border-amber-200",
+    bg: "bg-warning-soft",
+    text: "text-warning",
+    border: "border-warning-line",
   },
   PRESCRIBED: {
     label: "Prescribed",
-    bg: "bg-purple-50",
-    text: "text-purple-700",
-    border: "border-purple-200",
+    bg: "bg-plum-soft",
+    text: "text-plum",
+    border: "border-plum-line",
   },
   COMPLETED: {
     label: "Completed",
-    bg: "bg-gray-100",
-    text: "text-gray-700",
-    border: "border-gray-300",
+    bg: "bg-surface-sunken",
+    text: "text-neutral-700",
+    border: "border-line-strong",
   },
   CANCELLED: {
     label: "Cancelled",
-    bg: "bg-rose-50",
-    text: "text-rose-700",
-    border: "border-rose-200",
+    bg: "bg-danger-soft",
+    text: "text-danger",
+    border: "border-danger/20",
   },
 };
 
@@ -494,13 +494,13 @@ export default function ConsultationsTab() {
   return (
     <div className="space-y-6">
       {/* Header & Controls */}
-      <div className="bg-white rounded-2xl border border-[#e6dfd5] p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-line p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="font-serif text-lg font-bold text-[#14281D] flex items-center gap-2">
-            <Activity className="w-5 h-5 text-[#c59b27]" />
+          <h2 className="font-serif text-lg font-bold text-ink flex items-center gap-2">
+            <Activity className="w-5 h-5 text-secondary-text" />
             <span>Consultation &amp; Appointment Dossiers</span>
           </h2>
-          <p className="text-xs text-[#6a6660]">
+          <p className="text-xs text-ink-muted">
             Review patient health concerns, manage appointment slots, and dispatch Hakim prescriptions with email alerts.
           </p>
         </div>
@@ -508,7 +508,7 @@ export default function ConsultationsTab() {
         <div className="flex items-center gap-2">
           <button
             onClick={openNewBooking}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-[#14281D] hover:bg-[#1e3d2c] transition-all cursor-pointer shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-surface-inverse hover:bg-brand-green-900 transition-all cursor-pointer shadow-sm"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>New Booking</span>
@@ -516,7 +516,7 @@ export default function ConsultationsTab() {
           <button
             onClick={() => fetchConsultations(true)}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#4a4640] hover:bg-[#faf8f5] border border-[#e6dfd5] transition-all disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:bg-surface border border-line transition-all disabled:opacity-50 cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
             <span>Refresh</span>
@@ -528,13 +528,13 @@ export default function ConsultationsTab() {
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {/* Search */}
         <div className="relative sm:col-span-2">
-          <Search className="w-4 h-4 text-[#8c8880] absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-ink-subtle absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by patient name, phone, ticket, city..."
-            className="w-full pl-9 pr-3.5 py-2.5 bg-white border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+            className="w-full pl-9 pr-3.5 py-2.5 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
           />
         </div>
 
@@ -543,7 +543,7 @@ export default function ConsultationsTab() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full px-3 py-2.5 bg-white border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+            className="w-full px-3 py-2.5 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
           >
             <option value="ALL">All Statuses ({consultations.length})</option>
             <option value="NEW">New Requests</option>
@@ -561,28 +561,28 @@ export default function ConsultationsTab() {
             type="date"
             value={dateFilter}
             onChange={(e) => setDateFilter(e.target.value)}
-            className="w-full px-3 py-2.5 bg-white border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+            className="w-full px-3 py-2.5 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
           />
         </div>
       </div>
 
       {/* Consultations Table */}
-      <div className="bg-white rounded-2xl border border-[#e6dfd5] overflow-hidden shadow-xs">
+      <div className="bg-white rounded-2xl border border-line overflow-hidden shadow-xs">
         {loading ? (
-          <div className="py-16 text-center text-[#14281D] space-y-2">
+          <div className="py-16 text-center text-ink space-y-2">
             <Loader2 className="w-8 h-8 animate-spin mx-auto" />
             <p className="text-xs font-semibold">Loading consultation dossiers...</p>
           </div>
         ) : consultations.length === 0 ? (
-          <div className="py-16 text-center text-[#6a6660] space-y-2">
-            <Calendar className="w-10 h-10 mx-auto text-[#8c8880]/60" />
-            <p className="text-sm font-semibold text-[#1a1816]">No consultations found</p>
+          <div className="py-16 text-center text-ink-muted space-y-2">
+            <Calendar className="w-10 h-10 mx-auto text-ink-subtle/60" />
+            <p className="text-sm font-semibold text-ink">No consultations found</p>
             <p className="text-xs">Adjust your search query or status filter above.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#faf8f5] text-[#78716C] uppercase text-[10px] font-bold border-b border-[#e6dfd5]">
+              <thead className="bg-surface text-ink-subtle uppercase text-[10px] font-bold border-b border-line">
                 <tr>
                   <th className="py-3.5 px-4">Ticket / Date</th>
                   <th className="py-3.5 px-4">Patient Details</th>
@@ -592,20 +592,20 @@ export default function ConsultationsTab() {
                   <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e6dfd5]">
+              <tbody className="divide-y divide-line">
                 {consultations.map((item) => {
                   const badge = STATUS_BADGES[item.status] || STATUS_BADGES.NEW;
                   return (
                     <tr
                       key={item.id}
-                      className="hover:bg-[#faf8f5]/60 transition-colors group cursor-pointer"
+                      className="hover:bg-surface/60 transition-colors group cursor-pointer"
                       onClick={() => handleOpenDrawer(item)}
                     >
                       <td className="py-3.5 px-4">
-                        <div className="font-mono font-bold text-[#14281D]">
+                        <div className="font-mono font-bold text-ink">
                           {item.ticketNumber}
                         </div>
-                        <div className="text-[10px] text-[#78716C]">
+                        <div className="text-[10px] text-ink-subtle">
                           {new Date(item.createdAt).toLocaleDateString("en-US", {
                             month: "short",
                             day: "numeric",
@@ -616,44 +616,44 @@ export default function ConsultationsTab() {
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <div className="font-bold text-[#1a1816]">{item.fullName}</div>
-                        <div className="text-[11px] text-[#6a6660]">
+                        <div className="font-bold text-ink">{item.fullName}</div>
+                        <div className="text-[11px] text-ink-muted">
                           {item.gender}, {item.age} yrs · {item.city}
                         </div>
-                        <div className="text-[11px] text-[#14281D] font-mono">
+                        <div className="text-[11px] text-ink font-mono">
                           {item.phone}
                         </div>
                       </td>
 
                       <td className="py-3.5 px-4">
-                        <div className="inline-flex items-center gap-1 font-semibold text-[#14281D]">
+                        <div className="inline-flex items-center gap-1 font-semibold text-ink">
                           {item.consultationType === "ONLINE" ? (
                             <>
-                              <Video className="w-3.5 h-3.5 text-blue-600" />
+                              <Video className="w-3.5 h-3.5 text-info" />
                               <span>Online Telehealth</span>
                             </>
                           ) : (
                             <>
-                              <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+                              <Building2 className="w-3.5 h-3.5 text-success" />
                               <span>Karachi Clinic</span>
                             </>
                           )}
                         </div>
                         {item.appointmentDate && (
-                          <div className="text-[11px] text-[#78716C] mt-0.5">
+                          <div className="text-[11px] text-ink-subtle mt-0.5">
                             {item.appointmentDate} · {item.appointmentSlot || "Anytime"}
                           </div>
                         )}
                       </td>
 
                       <td className="py-3.5 px-4 max-w-xs">
-                        <p className="line-clamp-2 text-[#44403C] text-[11px]">
+                        <p className="line-clamp-2 text-neutral-700 text-[11px]">
                           {item.primarySymptoms}
                         </p>
                         {item.reportUrl && (
                           <div className="mt-1">
-                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">
-                              <FileText className="w-2.5 h-2.5 text-[#22623a]" />
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-success-soft text-success border border-success-line">
+                              <FileText className="w-2.5 h-2.5 text-primary" />
                               <span>Report Attached</span>
                             </span>
                           </div>
@@ -675,7 +675,7 @@ export default function ConsultationsTab() {
                             e.stopPropagation();
                             handleOpenDrawer(item);
                           }}
-                          className="px-3 py-1.5 bg-[#14281D] hover:bg-[#1e3d2c] text-white rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1 cursor-pointer"
+                          className="px-3 py-1.5 bg-surface-inverse hover:bg-brand-green-900 text-white rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1 cursor-pointer"
                         >
                           <span>Manage</span>
                           <ChevronDown className="w-3 h-3" />
@@ -693,20 +693,20 @@ export default function ConsultationsTab() {
       {/* New Booking Modal — staff manual entry for phone/WhatsApp bookings */}
       {isNewBookingOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-[#e6dfd5] max-h-[92vh] overflow-y-auto">
-            <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-[#e6dfd5] sticky top-0 bg-white z-10">
+          <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-line max-h-[92vh] overflow-y-auto">
+            <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-line sticky top-0 bg-white z-10">
               <div>
-                <h3 className="font-serif text-base font-bold text-[#14281D]">
+                <h3 className="font-serif text-base font-bold text-ink">
                   New Booking — Manual Entry
                 </h3>
-                <p className="text-[11px] text-[#6a6660]">
+                <p className="text-[11px] text-ink-muted">
                   For phone / WhatsApp bookings. Creates a trackable ticket instantly.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsNewBookingOpen(false)}
-                className="w-8 h-8 rounded-full bg-[#faf8f5] hover:bg-gray-200 flex items-center justify-center text-[#1a1816] cursor-pointer shrink-0"
+                className="w-8 h-8 rounded-full bg-surface hover:bg-line flex items-center justify-center text-ink cursor-pointer shrink-0"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -715,21 +715,21 @@ export default function ConsultationsTab() {
             <div className="p-5">
               {newBookingSuccess ? (
                 <div className="space-y-4">
-                  <div className="text-center space-y-2 bg-emerald-50 border border-emerald-200 rounded-2xl p-5">
-                    <CheckCircle2 className="w-9 h-9 text-emerald-600 mx-auto" />
-                    <h4 className="font-serif text-base font-bold text-emerald-900">
+                  <div className="text-center space-y-2 bg-success-soft border border-success-line rounded-2xl p-5">
+                    <CheckCircle2 className="w-9 h-9 text-success mx-auto" />
+                    <h4 className="font-serif text-base font-bold text-success">
                       Booking Created
                     </h4>
-                    <p className="text-xs text-emerald-800">
+                    <p className="text-xs text-success">
                       Ticket:{" "}
-                      <strong className="font-mono bg-white px-2 py-0.5 rounded border border-emerald-200">
+                      <strong className="font-mono bg-white px-2 py-0.5 rounded border border-success-line">
                         {newBookingSuccess.ticketNumber}
                       </strong>
                     </p>
-                    <p className="text-[11px] text-emerald-700">
+                    <p className="text-[11px] text-success">
                       {newBookingSuccess.fullName} · {newBookingSuccess.phone}
                     </p>
-                    <p className="text-[11px] text-[#6a6660] leading-relaxed">
+                    <p className="text-[11px] text-ink-muted leading-relaxed">
                       Status: <strong>{newBookingSuccess.status}</strong>.{" "}
                       {newBookingSuccess.userId
                         ? "Linked to the patient's account — it now appears in their dashboard."
@@ -743,14 +743,14 @@ export default function ConsultationsTab() {
                     <button
                       type="button"
                       onClick={() => setIsNewBookingOpen(false)}
-                      className="flex-1 h-10 bg-[#14281D] hover:bg-[#1e3d2c] text-white text-xs font-bold rounded-xl cursor-pointer"
+                      className="flex-1 h-10 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold rounded-xl cursor-pointer"
                     >
                       Done
                     </button>
                     <button
                       type="button"
                       onClick={openNewBooking}
-                      className="flex-1 h-10 bg-[#faf8f5] hover:bg-gray-100 border border-[#e6dfd5] text-[#14281D] text-xs font-bold rounded-xl cursor-pointer"
+                      className="flex-1 h-10 bg-surface hover:bg-surface-sunken border border-line text-ink text-xs font-bold rounded-xl cursor-pointer"
                     >
                       Create Another
                     </button>
@@ -759,7 +759,7 @@ export default function ConsultationsTab() {
               ) : (
                 <form onSubmit={handleCreateBooking} className="space-y-3">
                   {newBookingError && (
-                    <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl text-[11px] text-red-700 flex items-center gap-2">
+                    <div className="p-2.5 bg-danger-soft border border-danger/20 rounded-xl text-[11px] text-danger flex items-center gap-2">
                       <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                       <span>{newBookingError}</span>
                     </div>
@@ -767,8 +767,8 @@ export default function ConsultationsTab() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div className="space-y-0.5">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
-                        Patient Name <span className="text-red-500">*</span>
+                      <label className="text-[11px] font-semibold text-ink">
+                        Patient Name <span className="text-danger">*</span>
                       </label>
                       <input
                         type="text"
@@ -781,12 +781,12 @@ export default function ConsultationsTab() {
                           }))
                         }
                         placeholder="e.g. Ahmed Khan"
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                       />
                     </div>
                     <div className="space-y-0.5">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
-                        WhatsApp / Phone <span className="text-red-500">*</span>
+                      <label className="text-[11px] font-semibold text-ink">
+                        WhatsApp / Phone <span className="text-danger">*</span>
                       </label>
                       <input
                         type="tel"
@@ -800,16 +800,16 @@ export default function ConsultationsTab() {
                         }
                         onBlur={() => lookupPatients(newBooking.phone)}
                         placeholder="0300-1234567"
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div className="space-y-0.5">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
+                      <label className="text-[11px] font-semibold text-ink">
                         Email{" "}
-                        <span className="text-[#8c827a] font-normal">
+                        <span className="text-ink-subtle font-normal">
                           (optional)
                         </span>
                       </label>
@@ -823,11 +823,11 @@ export default function ConsultationsTab() {
                           }))
                         }
                         placeholder="patient@example.com"
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                       />
                     </div>
                     <div className="space-y-0.5">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
+                      <label className="text-[11px] font-semibold text-ink">
                         City
                       </label>
                       <input
@@ -840,14 +840,14 @@ export default function ConsultationsTab() {
                           }))
                         }
                         placeholder="Karachi"
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     <div className="space-y-0.5">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
+                      <label className="text-[11px] font-semibold text-ink">
                         Visit Mode
                       </label>
                       <select
@@ -858,14 +858,14 @@ export default function ConsultationsTab() {
                             consultationType: e.target.value,
                           }))
                         }
-                        className="w-full px-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+                        className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       >
                         <option value="IN_PERSON">In-Person Clinic</option>
                         <option value="ONLINE">Online / WhatsApp</option>
                       </select>
                     </div>
                     <div className="space-y-0.5">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
+                      <label className="text-[11px] font-semibold text-ink">
                         Contact Channel
                       </label>
                       <select
@@ -876,14 +876,14 @@ export default function ConsultationsTab() {
                             channel: e.target.value,
                           }))
                         }
-                        className="w-full px-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+                        className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       >
                         <option value="WHATSAPP">WhatsApp</option>
                         <option value="EMAIL">Email</option>
                       </select>
                     </div>
                     <div className="space-y-0.5">
-                      <label className="text-[11px] font-semibold text-[#1a1816]">
+                      <label className="text-[11px] font-semibold text-ink">
                         Initial Status
                       </label>
                       <select
@@ -894,7 +894,7 @@ export default function ConsultationsTab() {
                             status: e.target.value,
                           }))
                         }
-                        className="w-full px-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+                        className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       >
                         <option value="CONFIRMED">Confirmed</option>
                         <option value="NEW">New Request</option>
@@ -906,7 +906,7 @@ export default function ConsultationsTab() {
                   </div>
 
                   <div className="space-y-0.5">
-                    <label className="text-[11px] font-semibold text-[#1a1816]">
+                    <label className="text-[11px] font-semibold text-ink">
                       Health Concern / Notes
                     </label>
                     <textarea
@@ -919,7 +919,7 @@ export default function ConsultationsTab() {
                         }))
                       }
                       placeholder="Reason for consultation (from the WhatsApp conversation)"
-                      className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] focus:bg-white resize-none"
+                      className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white resize-none"
                     />
                   </div>
 
@@ -927,7 +927,7 @@ export default function ConsultationsTab() {
                     <>
                       <div className="grid grid-cols-2 gap-2.5">
                         <div className="space-y-0.5">
-                          <label className="text-[11px] font-semibold text-[#1a1816]">
+                          <label className="text-[11px] font-semibold text-ink">
                             Appointment Date
                           </label>
                           <input
@@ -940,11 +940,11 @@ export default function ConsultationsTab() {
                                 appointmentSlot: "",
                               }))
                             }
-                            className="w-full px-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+                            className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                           />
                         </div>
                         <div className="space-y-0.5">
-                          <label className="text-[11px] font-semibold text-[#1a1816]">
+                          <label className="text-[11px] font-semibold text-ink">
                             Time Slot
                           </label>
                           <select
@@ -959,7 +959,7 @@ export default function ConsultationsTab() {
                               newBookingAvailLoading ||
                               !newBookingAvail?.isOpen
                             }
-                            className="w-full px-2.5 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] disabled:opacity-60"
+                            className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink disabled:opacity-60"
                           >
                             {newBookingAvailLoading ? (
                               <option value="">Loading slots…</option>
@@ -988,7 +988,7 @@ export default function ConsultationsTab() {
                       {!newBookingAvailLoading &&
                         newBookingAvail &&
                         !newBookingAvail.isOpen && (
-                          <p className="text-[10px] text-amber-700 flex items-center gap-1">
+                          <p className="text-[10px] text-warning flex items-center gap-1">
                             <AlertCircle className="w-3 h-3 shrink-0" />
                             Clinic closed on this date — pick another day.
                           </p>
@@ -997,21 +997,21 @@ export default function ConsultationsTab() {
                   )}
 
                   {/* Linked account + duplicate search */}
-                  <div className="bg-[#faf8f5] border border-[#e6dfd5] rounded-xl p-3 space-y-2">
+                  <div className="bg-surface border border-line rounded-xl p-3 space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <div className="text-[11px]">
-                        <span className="text-[#78716C] block font-semibold uppercase tracking-wide text-[10px]">
+                        <span className="text-ink-subtle block font-semibold uppercase tracking-wide text-[10px]">
                           Patient Account (optional)
                         </span>
                         {linkedAccount ? (
-                          <strong className="text-[#14281D]">
+                          <strong className="text-ink">
                             {linkedAccount.name || linkedAccount.email}
                             {linkedAccount.email
                               ? ` · ${linkedAccount.email}`
                               : ""}
                           </strong>
                         ) : (
-                          <span className="text-[#6a6660]">
+                          <span className="text-ink-muted">
                             Not linked — trackable via ticket + phone only.
                           </span>
                         )}
@@ -1024,7 +1024,7 @@ export default function ConsultationsTab() {
                               newBooking.phone || newBooking.fullName
                             )
                           }
-                          className="px-2.5 py-1.5 bg-white border border-[#e6dfd5] hover:bg-gray-50 rounded-lg text-[10px] font-bold text-[#14281D] cursor-pointer flex items-center gap-1"
+                          className="px-2.5 py-1.5 bg-white border border-line hover:bg-surface rounded-lg text-[10px] font-bold text-ink cursor-pointer flex items-center gap-1"
                         >
                           {lookupLoading ? (
                             <Loader2 className="w-3 h-3 animate-spin" />
@@ -1037,7 +1037,7 @@ export default function ConsultationsTab() {
                           <button
                             type="button"
                             onClick={() => setLinkedAccount(null)}
-                            className="px-2.5 py-1.5 bg-white border border-[#e6dfd5] hover:bg-rose-50 rounded-lg text-[10px] font-bold text-rose-600 cursor-pointer"
+                            className="px-2.5 py-1.5 bg-white border border-line hover:bg-danger-soft rounded-lg text-[10px] font-bold text-danger cursor-pointer"
                           >
                             Clear
                           </button>
@@ -1046,10 +1046,10 @@ export default function ConsultationsTab() {
                     </div>
 
                     {lookupResults && (
-                      <div className="space-y-2 pt-2 border-t border-[#e6dfd5]">
+                      <div className="space-y-2 pt-2 border-t border-line">
                         {lookupResults.consultations.length > 0 && (
-                          <div className="bg-amber-50 border border-amber-200 rounded-lg p-2 space-y-1">
-                            <p className="text-[10px] font-bold text-amber-800 uppercase tracking-wide">
+                          <div className="bg-warning-soft border border-warning-line rounded-lg p-2 space-y-1">
+                            <p className="text-[10px] font-bold text-warning uppercase tracking-wide">
                               Existing tickets found — edit instead of
                               duplicating:
                             </p>
@@ -1060,7 +1060,7 @@ export default function ConsultationsTab() {
                                   key={c.id}
                                   type="button"
                                   onClick={() => openExistingConsultation(c.id)}
-                                  className="w-full text-left text-[11px] px-2 py-1 rounded bg-white/70 hover:bg-white border border-amber-200 flex items-center justify-between gap-2 cursor-pointer"
+                                  className="w-full text-left text-[11px] px-2 py-1 rounded bg-white/70 hover:bg-white border border-warning-line flex items-center justify-between gap-2 cursor-pointer"
                                 >
                                   <span>
                                     <strong className="font-mono">
@@ -1068,7 +1068,7 @@ export default function ConsultationsTab() {
                                     </strong>{" "}
                                     · {c.fullName} · {c.status}
                                   </span>
-                                  <span className="text-amber-700 font-semibold shrink-0">
+                                  <span className="text-warning font-semibold shrink-0">
                                     Open →
                                   </span>
                                 </button>
@@ -1078,7 +1078,7 @@ export default function ConsultationsTab() {
 
                         {lookupResults.users.length > 0 && (
                           <div className="space-y-1">
-                            <p className="text-[10px] font-bold text-[#78716C] uppercase tracking-wide">
+                            <p className="text-[10px] font-bold text-ink-subtle uppercase tracking-wide">
                               Registered accounts:
                             </p>
                             {lookupResults.users.slice(0, 4).map((u: any) => (
@@ -1094,8 +1094,8 @@ export default function ConsultationsTab() {
                                 }
                                 className={`w-full text-left text-[11px] px-2 py-1.5 rounded-lg border flex items-center justify-between gap-2 cursor-pointer ${
                                   linkedAccount?.id === u.id
-                                    ? "bg-emerald-50 border-emerald-300"
-                                    : "bg-white border-[#e6dfd5] hover:border-[#14281D]/30"
+                                    ? "bg-success-soft border-success-line"
+                                    : "bg-white border-line hover:border-ink/30"
                                 }`}
                               >
                                 <span>
@@ -1104,9 +1104,9 @@ export default function ConsultationsTab() {
                                   {u.phone ? ` · ${u.phone}` : ""}
                                 </span>
                                 {linkedAccount?.id === u.id ? (
-                                  <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                  <Check className="w-3.5 h-3.5 text-success shrink-0" />
                                 ) : (
-                                  <Link2 className="w-3.5 h-3.5 text-[#78716C] shrink-0" />
+                                  <Link2 className="w-3.5 h-3.5 text-ink-subtle shrink-0" />
                                 )}
                               </button>
                             ))}
@@ -1115,7 +1115,7 @@ export default function ConsultationsTab() {
 
                         {lookupResults.users.length === 0 &&
                           lookupResults.consultations.length === 0 && (
-                            <p className="text-[10px] text-[#78716C]">
+                            <p className="text-[10px] text-ink-subtle">
                               No matching accounts or tickets found.
                             </p>
                           )}
@@ -1126,7 +1126,7 @@ export default function ConsultationsTab() {
                   <button
                     type="submit"
                     disabled={newBookingSubmitting}
-                    className="w-full h-11 bg-[#14281D] hover:bg-[#1e3d2c] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+                    className="w-full h-11 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
                   >
                     {newBookingSubmitting ? (
                       <>
@@ -1153,17 +1153,17 @@ export default function ConsultationsTab() {
           <div className="w-full max-w-2xl bg-white h-full overflow-y-auto p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-2xl">
             <div className="space-y-6">
               {/* Drawer Top Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-[#e6dfd5]">
+              <div className="flex items-center justify-between pb-4 border-b border-line">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm font-bold text-[#14281D] bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                    <span className="font-mono text-sm font-bold text-ink bg-success-soft px-2 py-0.5 rounded border border-success-line">
                       {selectedConsultation.ticketNumber}
                     </span>
-                    <span className="text-xs text-[#78716C]">
+                    <span className="text-xs text-ink-subtle">
                       Booked {new Date(selectedConsultation.createdAt).toLocaleString()}
                     </span>
                   </div>
-                  <h3 className="font-serif text-lg font-bold text-[#1a1816]">
+                  <h3 className="font-serif text-lg font-bold text-ink">
                     {selectedConsultation.fullName} ({selectedConsultation.age} yrs, {selectedConsultation.gender})
                   </h3>
                 </div>
@@ -1171,7 +1171,7 @@ export default function ConsultationsTab() {
                 <button
                   type="button"
                   onClick={() => setIsDrawerOpen(false)}
-                  className="w-8 h-8 rounded-full bg-[#faf8f5] hover:bg-gray-200 flex items-center justify-center text-[#1a1816] cursor-pointer"
+                  className="w-8 h-8 rounded-full bg-surface hover:bg-line flex items-center justify-center text-ink cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1183,7 +1183,7 @@ export default function ConsultationsTab() {
                   href={getWhatsAppContactLink(selectedConsultation)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs"
+                  className="px-3 py-2 bg-success hover:bg-success text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs"
                 >
                   <MessageCircle className="w-4 h-4" />
                   <span>WhatsApp Patient ({selectedConsultation.phone})</span>
@@ -1191,32 +1191,32 @@ export default function ConsultationsTab() {
 
                 <a
                   href={`tel:${selectedConsultation.phone}`}
-                  className="px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] hover:bg-gray-100 text-[#1a1816] rounded-xl text-xs font-semibold flex items-center gap-1.5"
+                  className="px-3 py-2 bg-surface border border-line hover:bg-surface-sunken text-ink rounded-xl text-xs font-semibold flex items-center gap-1.5"
                 >
-                  <Phone className="w-4 h-4 text-[#14281D]" />
+                  <Phone className="w-4 h-4 text-ink" />
                   <span>Call Phone</span>
                 </a>
 
                 {selectedConsultation.email && (
                   <a
                     href={`mailto:${selectedConsultation.email}`}
-                    className="px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] hover:bg-gray-100 text-[#1a1816] rounded-xl text-xs font-semibold flex items-center gap-1.5"
+                    className="px-3 py-2 bg-surface border border-line hover:bg-surface-sunken text-ink rounded-xl text-xs font-semibold flex items-center gap-1.5"
                   >
-                    <Mail className="w-4 h-4 text-[#14281D]" />
+                    <Mail className="w-4 h-4 text-ink" />
                     <span>Send Email ({selectedConsultation.email})</span>
                   </a>
                 )}
               </div>
 
               {/* Linked Patient Account */}
-              <div className="bg-white border border-[#e6dfd5] rounded-2xl p-4 space-y-2">
+              <div className="bg-white border border-line rounded-2xl p-4 space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="text-xs">
-                    <span className="text-[#78716C] block text-[10px] uppercase font-bold tracking-wide">
+                    <span className="text-ink-subtle block text-[10px] uppercase font-bold tracking-wide">
                       Linked Patient Account
                     </span>
                     {selectedConsultation.user ? (
-                      <strong className="text-[#14281D]">
+                      <strong className="text-ink">
                         {selectedConsultation.user.name ||
                           selectedConsultation.user.email}
                         {selectedConsultation.user.email
@@ -1224,7 +1224,7 @@ export default function ConsultationsTab() {
                           : ""}
                       </strong>
                     ) : (
-                      <span className="text-[#78716C]">
+                      <span className="text-ink-subtle">
                         Not linked — this ticket won&apos;t appear in the
                         patient&apos;s dashboard.
                       </span>
@@ -1245,7 +1245,7 @@ export default function ConsultationsTab() {
                           if (q.length >= 3) searchAccounts(q);
                         }
                       }}
-                      className="px-2.5 py-1.5 bg-[#faf8f5] border border-[#e6dfd5] hover:bg-gray-100 rounded-lg text-[10px] font-bold text-[#14281D] cursor-pointer flex items-center gap-1"
+                      className="px-2.5 py-1.5 bg-surface border border-line hover:bg-surface-sunken rounded-lg text-[10px] font-bold text-ink cursor-pointer flex items-center gap-1"
                     >
                       <Link2 className="w-3 h-3" />
                       {selectedConsultation.user ? "Change" : "Link account"}
@@ -1254,7 +1254,7 @@ export default function ConsultationsTab() {
                       <button
                         type="button"
                         onClick={() => linkAccount(null)}
-                        className="px-2.5 py-1.5 bg-white border border-rose-200 hover:bg-rose-50 rounded-lg text-[10px] font-bold text-rose-600 cursor-pointer flex items-center gap-1"
+                        className="px-2.5 py-1.5 bg-white border border-danger/20 hover:bg-danger-soft rounded-lg text-[10px] font-bold text-danger cursor-pointer flex items-center gap-1"
                       >
                         <Unlink className="w-3 h-3" />
                         Unlink
@@ -1264,9 +1264,9 @@ export default function ConsultationsTab() {
                 </div>
 
                 {showLinkPanel && (
-                  <div className="space-y-2 pt-2 border-t border-[#e6dfd5]">
+                  <div className="space-y-2 pt-2 border-t border-line">
                     {linkError && (
-                      <p className="text-[10px] text-red-600">{linkError}</p>
+                      <p className="text-[10px] text-danger">{linkError}</p>
                     )}
                     <div className="flex gap-1.5">
                       <input
@@ -1274,13 +1274,13 @@ export default function ConsultationsTab() {
                         value={linkQuery}
                         onChange={(e) => setLinkQuery(e.target.value)}
                         placeholder="Search by phone, email, or name"
-                        className="flex-1 px-2.5 py-1.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-[11px] text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+                        className="flex-1 px-2.5 py-1.5 bg-surface border border-line rounded-lg text-[11px] text-ink focus:outline-none focus:border-ink"
                       />
                       <button
                         type="button"
                         onClick={() => searchAccounts(linkQuery)}
                         disabled={linkLoading}
-                        className="px-3 py-1.5 bg-[#14281D] hover:bg-[#1e3d2c] text-white rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 flex items-center gap-1"
+                        className="px-3 py-1.5 bg-surface-inverse hover:bg-brand-green-900 text-white rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 flex items-center gap-1"
                       >
                         {linkLoading ? (
                           <Loader2 className="w-3 h-3 animate-spin" />
@@ -1295,14 +1295,14 @@ export default function ConsultationsTab() {
                         key={u.id}
                         type="button"
                         onClick={() => linkAccount(u.id)}
-                        className="w-full text-left text-[11px] px-2.5 py-1.5 rounded-lg border border-[#e6dfd5] bg-white hover:border-[#14281D]/40 flex items-center justify-between gap-2 cursor-pointer"
+                        className="w-full text-left text-[11px] px-2.5 py-1.5 rounded-lg border border-line bg-white hover:border-ink/40 flex items-center justify-between gap-2 cursor-pointer"
                       >
                         <span>
                           <strong>{u.name || u.email}</strong>
                           {u.email ? ` · ${u.email}` : ""}
                           {u.phone ? ` · ${u.phone}` : ""}
                         </span>
-                        <span className="text-[#14281D] font-bold shrink-0">
+                        <span className="text-ink font-bold shrink-0">
                           Link
                         </span>
                       </button>
@@ -1312,55 +1312,55 @@ export default function ConsultationsTab() {
               </div>
 
               {/* Medical Dossier Preview */}
-              <div className="bg-[#faf8f5] rounded-2xl border border-[#e6dfd5] p-4 space-y-3 text-xs">
-                <h4 className="font-serif font-bold text-sm text-[#14281D] flex items-center gap-1.5">
-                  <Activity className="w-4 h-4 text-[#c59b27]" />
+              <div className="bg-surface rounded-2xl border border-line p-4 space-y-3 text-xs">
+                <h4 className="font-serif font-bold text-sm text-ink flex items-center gap-1.5">
+                  <Activity className="w-4 h-4 text-secondary-text" />
                   <span>Patient Health Dossier</span>
                 </h4>
 
                 <div className="grid grid-cols-2 gap-3 text-xs">
                   <div>
-                    <span className="text-[#78716C] block">City / Location:</span>
-                    <strong className="text-[#1a1816]">{selectedConsultation.city}</strong>
+                    <span className="text-ink-subtle block">City / Location:</span>
+                    <strong className="text-ink">{selectedConsultation.city}</strong>
                   </div>
                   <div>
-                    <span className="text-[#78716C] block">Condition Duration:</span>
-                    <strong className="text-[#1a1816]">{selectedConsultation.duration}</strong>
+                    <span className="text-ink-subtle block">Condition Duration:</span>
+                    <strong className="text-ink">{selectedConsultation.duration}</strong>
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-[#e6dfd5]">
-                  <span className="text-[#78716C] block mb-1">Primary Symptoms &amp; Notes:</span>
-                  <p className="text-[#1a1816] bg-white p-3 rounded-xl border border-[#e6dfd5] leading-relaxed">
+                <div className="pt-2 border-t border-line">
+                  <span className="text-ink-subtle block mb-1">Primary Symptoms &amp; Notes:</span>
+                  <p className="text-ink bg-white p-3 rounded-xl border border-line leading-relaxed">
                     {selectedConsultation.primarySymptoms}
                   </p>
                 </div>
 
                 {selectedConsultation.currentMedications && (
                   <div>
-                    <span className="text-[#78716C] block mb-1">Current Medications / Allergies:</span>
-                    <p className="text-[#1a1816] bg-white p-2.5 rounded-xl border border-[#e6dfd5]">
+                    <span className="text-ink-subtle block mb-1">Current Medications / Allergies:</span>
+                    <p className="text-ink bg-white p-2.5 rounded-xl border border-line">
                       {selectedConsultation.currentMedications}
                     </p>
                   </div>
                 )}
 
                 {selectedConsultation.reportUrl && (
-                  <div className="pt-2 border-t border-[#e6dfd5]">
-                    <span className="text-[#78716C] block mb-1 font-semibold">
+                  <div className="pt-2 border-t border-line">
+                    <span className="text-ink-subtle block mb-1 font-semibold">
                       Attached Medical Report:
                     </span>
-                    <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-[#cde4d6] shadow-xs">
+                    <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-brand-green-200 shadow-xs">
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-lg bg-emerald-50 text-[#22623a] flex items-center justify-center shrink-0">
+                        <div className="w-8 h-8 rounded-lg bg-success-soft text-primary flex items-center justify-center shrink-0">
                           <FileText className="w-4 h-4" />
                         </div>
                         <div className="min-w-0 pr-2">
-                          <p className="font-semibold text-[#1a1816] text-xs truncate max-w-[220px]">
+                          <p className="font-semibold text-ink text-xs truncate max-w-[220px]">
                             {selectedConsultation.reportName || "Medical Report / Document"}
                           </p>
                           {selectedConsultation.reportSize && (
-                            <p className="text-[10px] text-[#78716C]">
+                            <p className="text-[10px] text-ink-subtle">
                               {selectedConsultation.reportSize}
                             </p>
                           )}
@@ -1370,7 +1370,7 @@ export default function ConsultationsTab() {
                         href={selectedConsultation.reportUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#22623a] hover:bg-[#1a4d2e] text-white rounded-lg text-xs font-semibold transition-colors shrink-0"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-brand-green-800 text-white rounded-lg text-xs font-semibold transition-colors shrink-0"
                       >
                         <span>View / Download</span>
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -1383,22 +1383,22 @@ export default function ConsultationsTab() {
               {/* Status Update & Reschedule Form */}
               <form onSubmit={handleSaveChanges} className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-serif font-bold text-sm text-[#14281D] flex items-center gap-1.5">
-                    <Edit className="w-4 h-4 text-[#c59b27]" />
+                  <h4 className="font-serif font-bold text-sm text-ink flex items-center gap-1.5">
+                    <Edit className="w-4 h-4 text-secondary-text" />
                     <span>Hakim Clinical Actions &amp; Prescription</span>
                   </h4>
                 </div>
 
                 {saveSuccessMsg && (
-                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <div className="p-3 bg-success-soft border border-success-line rounded-xl text-xs text-success flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
                     <span>{saveSuccessMsg}</span>
                   </div>
                 )}
 
                 {saveErrorMsg && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+                  <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-danger shrink-0" />
                     <span>{saveErrorMsg}</span>
                   </div>
                 )}
@@ -1406,11 +1406,11 @@ export default function ConsultationsTab() {
                 {/* Status Selector */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-[#1a1816]">Ticket Status</label>
+                    <label className="text-xs font-semibold text-ink">Ticket Status</label>
                     <select
                       value={editStatus}
                       onChange={(e) => setEditStatus(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-[#e6dfd5] rounded-xl text-xs font-semibold text-[#14281D] focus:outline-none focus:border-[#14281D]"
+                      className="w-full px-3 py-2 bg-white border border-line rounded-xl text-xs font-semibold text-ink focus:outline-none focus:border-ink"
                     >
                       <option value="NEW">NEW REQUEST</option>
                       <option value="CONFIRMED">CONFIRMED (Sends Email)</option>
@@ -1422,32 +1422,32 @@ export default function ConsultationsTab() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-[#1a1816]">Appointment Date</label>
+                    <label className="text-xs font-semibold text-ink">Appointment Date</label>
                     <input
                       type="date"
                       value={editDate}
                       onChange={(e) => setEditDate(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+                      className="w-full px-3 py-2 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-[#1a1816]">Time Slot</label>
+                    <label className="text-xs font-semibold text-ink">Time Slot</label>
                     <input
                       type="text"
                       value={editSlot}
                       onChange={(e) => setEditSlot(e.target.value)}
                       placeholder="e.g. 11:00 AM - 12:00 PM"
-                      className="w-full px-3 py-2 bg-white border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+                      className="w-full px-3 py-2 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                     />
                   </div>
                 </div>
 
                 {/* Prescription Area */}
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-[#1a1816] flex items-center justify-between">
+                  <label className="text-xs font-semibold text-ink flex items-center justify-between">
                     <span>Prescribed Botanical Protocol (Urdu / English)</span>
-                    <span className="text-[10px] text-purple-700 font-bold uppercase">
+                    <span className="text-[10px] text-plum font-bold uppercase">
                       Will be emailed to patient if provided
                     </span>
                   </label>
@@ -1456,13 +1456,13 @@ export default function ConsultationsTab() {
                     value={editPrescription}
                     onChange={(e) => setEditPrescription(e.target.value)}
                     placeholder="e.g. 1. Majoon Dabeed-ul-Ward (1 teaspoon morning & night with warm water)&#10;2. Arq-e-Gulab (1/2 cup before meals)&#10;3. Sharbat Bazoori Motadil (2 tablespoons daily)..."
-                    className="w-full p-3 bg-purple-50/30 border border-purple-200 rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-purple-600 resize-none font-mono"
+                    className="w-full p-3 bg-plum-soft/30 border border-plum-line rounded-xl text-xs text-ink focus:outline-none focus:border-plum resize-none font-mono"
                   />
                 </div>
 
                 {/* Hakim Notes / Dietary Restrictions */}
                 <div className="space-y-1">
-                  <label className="text-xs font-semibold text-[#1a1816]">
+                  <label className="text-xs font-semibold text-ink">
                     Dietary Restrictions (Parhez) &amp; Clinical Hakim Notes
                   </label>
                   <textarea
@@ -1470,15 +1470,15 @@ export default function ConsultationsTab() {
                     value={editHakimNotes}
                     onChange={(e) => setEditHakimNotes(e.target.value)}
                     placeholder="e.g. Strictly avoid sour items, cold water, and heavy fried foods. Drink barley water (Aab-e-Jau)..."
-                    className="w-full p-3 bg-white border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] resize-none"
+                    className="w-full p-3 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink resize-none"
                   />
                 </div>
 
-                <div className="flex items-center justify-between gap-3 pt-4 border-t border-[#e6dfd5]">
+                <div className="flex items-center justify-between gap-3 pt-4 border-t border-line">
                   <button
                     type="button"
                     onClick={() => handleDelete(selectedConsultation.id, selectedConsultation.ticketNumber)}
-                    className="px-3.5 py-2.5 text-xs text-rose-600 hover:bg-rose-50 rounded-xl border border-rose-200 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    className="px-3.5 py-2.5 text-xs text-danger hover:bg-danger-soft rounded-xl border border-danger/20 transition-colors flex items-center gap-1.5 cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>Delete Ticket</span>
@@ -1487,7 +1487,7 @@ export default function ConsultationsTab() {
                   <button
                     type="submit"
                     disabled={savingChanges}
-                    className="px-5 py-2.5 bg-[#14281D] hover:bg-[#1e3d2c] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+                    className="px-5 py-2.5 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
                   >
                     {savingChanges ? (
                       <>

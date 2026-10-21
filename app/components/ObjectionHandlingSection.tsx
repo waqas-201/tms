@@ -37,18 +37,18 @@ export default function ObjectionHandlingSection() {
   const reducedMotion = useReducedMotion();
 
   return (
-    <section id="faq" className="py-16 sm:py-20 lg:py-24 bg-white border-b border-[#e6dfd5]">
+    <section id="faq" className="py-16 sm:py-20 lg:py-24 bg-white border-b border-line">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {/* Section Header */}
         <Reveal className="text-center max-w-xl mx-auto space-y-3">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e2efe6] border border-[#cde4d6] text-[#22623a] text-xs font-semibold">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#c59b27]" />
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-green-100 border border-brand-green-200 text-primary text-xs font-semibold">
+            <ShieldCheck className="w-3.5 h-3.5 text-secondary-text" />
             <span>Honest Answers</span>
           </div>
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#22623a]">
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-primary">
             Questions You Might Have
           </h2>
-          <p className="text-xs sm:text-sm text-[#59534b]">
+          <p className="text-xs sm:text-sm text-ink-body">
             We believe in transparency. Here are the most common concerns — answered directly.
           </p>
         </Reveal>
@@ -60,8 +60,8 @@ export default function ObjectionHandlingSection() {
               <div
                 className={`rounded-xl border transition-all duration-200 ${
                   openIndex === index
-                    ? "bg-white border-[#22623a]/30 shadow-xs"
-                    : "bg-white border-[#e6dfd5] hover:border-[#22623a]/20"
+                    ? "bg-white border-primary/30 shadow-xs"
+                    : "bg-white border-line hover:border-primary/20"
                 }`}
               >
                 <button
@@ -71,11 +71,11 @@ export default function ObjectionHandlingSection() {
                   className="w-full flex items-center justify-between gap-3 p-4 sm:p-5 text-left"
                   aria-expanded={openIndex === index}
                 >
-                  <span className="text-sm sm:text-[15px] font-semibold text-[#22623a] leading-snug pr-2">
+                  <span className="text-sm sm:text-[15px] font-semibold text-primary leading-snug pr-2">
                     {item.q}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 text-[#8c8a84] shrink-0 transition-transform duration-200 ${
+                    className={`w-4 h-4 text-ink-subtle shrink-0 transition-transform duration-200 ${
                       openIndex === index ? "rotate-180" : ""
                     }`}
                   />
@@ -90,7 +90,7 @@ export default function ObjectionHandlingSection() {
                       transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                       className="overflow-hidden"
                     >
-                      <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-[13px] text-[#59534b] leading-relaxed border-t border-[#f4eee5] pt-3">
+                      <div className="px-4 sm:px-5 pb-4 sm:pb-5 text-xs sm:text-[13px] text-ink-body leading-relaxed border-t border-sand-100 pt-3">
                         {item.a}
                       </div>
                     </motion.div>

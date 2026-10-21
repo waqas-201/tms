@@ -144,49 +144,49 @@ function LoginForm() {
   };
 
   return (
-    <div className="max-w-md w-full space-y-7 bg-white p-8 sm:p-10 rounded-2xl border border-[#e6dfd5] shadow-xl">
+    <div className="max-w-md w-full space-y-7 bg-white p-8 sm:p-10 rounded-2xl border border-line shadow-xl">
       <div className="text-center space-y-2">
-        <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
+        <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest font-semibold text-secondary-text">
           <Sparkles className="w-3.5 h-3.5" />
           <span>Clinic &amp; Account Access</span>
         </span>
-        <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#22623a]">
+        <h1 className="font-serif text-2xl sm:text-3xl font-bold text-primary">
           Sign In to Tameer-e-Sehat
         </h1>
-        <p className="text-xs text-[#6a6660]">
+        <p className="text-xs text-ink-muted">
           Access your consultations, order history, and account settings.
         </p>
       </div>
 
       {verifiedParam === "true" && (
-        <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-[#22623a] shrink-0" />
+        <div className="p-3.5 bg-success-soft border border-success-line rounded-xl text-xs text-success flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
           <span>Your email has been verified successfully! You may now sign in.</span>
         </div>
       )}
 
       {error && (
-        <div className="p-3.5 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
+        <div className="p-3.5 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-center gap-2">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {isUnverified && (
-        <div className="p-4 bg-amber-50/90 border border-amber-300 rounded-xl space-y-2.5 text-xs text-amber-900 shadow-xs">
+        <div className="p-4 bg-warning-soft/90 border border-warning-line rounded-xl space-y-2.5 text-xs text-warning shadow-xs">
           <div className="flex items-start gap-2.5">
-            <ShieldAlert className="w-4 h-4 text-amber-800 shrink-0 mt-0.5" />
+            <ShieldAlert className="w-4 h-4 text-warning shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-amber-950">Email Verification Pending</p>
-              <p className="text-[11px] text-amber-900 leading-relaxed mt-0.5">
+              <p className="font-bold text-warning">Email Verification Pending</p>
+              <p className="text-[11px] text-warning leading-relaxed mt-0.5">
                 Check your inbox for the activation link sent to <strong>{email.trim()}</strong>.
               </p>
             </div>
           </div>
 
           {resendSuccess && (
-            <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-[11px] text-emerald-800 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#22623a] shrink-0" />
+            <div className="p-2 bg-success-soft border border-success-line rounded-lg text-[11px] text-success flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
               <span>✓ Fresh activation link dispatched! Please check your spam or inbox.</span>
             </div>
           )}
@@ -195,7 +195,7 @@ function LoginForm() {
             type="button"
             onClick={handleResendVerification}
             disabled={resending || cooldown > 0}
-            className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-amber-900 hover:bg-amber-950 text-white rounded-lg text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer shadow-xs"
+            className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-warning hover:bg-warning text-white rounded-lg text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer shadow-xs"
           >
             {resending ? (
               <>
@@ -216,11 +216,11 @@ function LoginForm() {
 
       <form onSubmit={handleLogin} className="space-y-4">
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-[#1a1816]">
+          <label className="text-xs font-semibold text-ink">
             Email Address
           </label>
           <div className="relative">
-            <Mail className="w-4 h-4 text-[#6a6660] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Mail className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="email"
               required
@@ -230,37 +230,37 @@ function LoginForm() {
                 if (isUnverified) setIsUnverified(false);
               }}
               placeholder="your.email@example.com"
-              className="w-full pl-10 pr-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
+              className="w-full pl-10 pr-3.5 py-2.5 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white transition-colors"
             />
           </div>
         </div>
 
         <div className="space-y-1.5">
           <div className="flex justify-between items-center">
-            <label className="text-xs font-semibold text-[#1a1816]">
+            <label className="text-xs font-semibold text-ink">
               Password
             </label>
             <Link
               href="/forgot-password"
-              className="text-[11px] font-medium text-[#8c6a15] hover:text-[#22623a] transition-colors"
+              className="text-[11px] font-medium text-secondary-text hover:text-primary transition-colors"
             >
               Forgot Password?
             </Link>
           </div>
           <div className="relative">
-            <Lock className="w-4 h-4 text-[#6a6660] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Lock className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type={showPassword ? "text" : "password"}
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full pl-10 pr-10 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
+              className="w-full pl-10 pr-10 py-2.5 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white transition-colors"
             />
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#6a6660] hover:text-[#1a1816] focus:outline-none"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink focus:outline-none"
               aria-label={showPassword ? "Hide password" : "Show password"}
             >
               {showPassword ? (
@@ -275,7 +275,7 @@ function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex items-center justify-center gap-2 py-3 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md disabled:opacity-50 cursor-pointer"
+          className="w-full flex items-center justify-center gap-2 py-3 bg-primary hover:bg-brand-green-800 text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md disabled:opacity-50 cursor-pointer"
         >
           {loading ? (
             <>
@@ -291,12 +291,12 @@ function LoginForm() {
         </button>
       </form>
 
-      <div className="pt-2 text-center text-xs text-[#6a6660]">
+      <div className="pt-2 text-center text-xs text-ink-muted">
         <p>
           Don&apos;t have an account?{" "}
           <Link
             href={redirectParam ? `/register?redirect=${encodeURIComponent(redirectParam)}` : "/register"}
-            className="text-[#22623a] font-semibold hover:underline"
+            className="text-primary font-semibold hover:underline"
           >
             Create an Account
           </Link>
@@ -308,12 +308,12 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-[80vh] bg-[#faf8f5] flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-[80vh] bg-surface flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8">
       <Suspense
         fallback={
-          <div className="max-w-md w-full bg-white p-10 rounded-2xl border border-[#e6dfd5] text-center space-y-3">
-            <Loader2 className="w-6 h-6 animate-spin text-[#22623a] mx-auto" />
-            <p className="text-xs text-[#6a6660]">Loading sign in...</p>
+          <div className="max-w-md w-full bg-white p-10 rounded-2xl border border-line text-center space-y-3">
+            <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto" />
+            <p className="text-xs text-ink-muted">Loading sign in...</p>
           </div>
         }
       >

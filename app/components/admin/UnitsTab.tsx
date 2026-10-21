@@ -213,14 +213,14 @@ export default function UnitsTab() {
   return (
     <div className="space-y-6">
       {/* Add Unit Form */}
-      <div className="bg-white rounded-2xl border border-[#e6dfd5] shadow-xs overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#e6dfd5] bg-[#faf8f5] flex items-center gap-2.5">
-          <Scale className="w-4 h-4 text-[#22623a]" />
+      <div className="bg-white rounded-2xl border border-line shadow-xs overflow-hidden">
+        <div className="px-6 py-4 border-b border-line bg-surface flex items-center gap-2.5">
+          <Scale className="w-4 h-4 text-primary" />
           <div>
-            <h2 className="font-serif text-base font-bold text-[#22623a]">
+            <h2 className="font-serif text-base font-bold text-primary">
               Add Measurement Unit
             </h2>
-            <p className="text-[11px] text-[#6a6660]">
+            <p className="text-[11px] text-ink-muted">
               Units are attached to product pack sizes (e.g. 50g jar, 120ml bottle, 1 tola pack).
             </p>
           </div>
@@ -228,13 +228,13 @@ export default function UnitsTab() {
 
         <form onSubmit={handleAddUnit} className="p-5 sm:p-6 space-y-4">
           {error && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm">
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-danger-soft border border-danger/20 text-danger text-sm">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
           {successMsg && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-success-soft border border-success-line text-success text-sm">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{successMsg}</span>
             </div>
@@ -242,7 +242,7 @@ export default function UnitsTab() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#4a4640] mb-1.5">
+              <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
                 Unit Code
               </label>
               <input
@@ -250,11 +250,11 @@ export default function UnitsTab() {
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="e.g. tola, g, ml"
-                className="w-full px-3 py-2 text-sm bg-[#faf8f5] border border-[#e6dfd5] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#22623a] focus:bg-white font-mono"
+                className="w-full px-3 py-2 text-sm bg-surface border border-line rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:bg-white font-mono"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#4a4640] mb-1.5">
+              <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
                 Display Name
               </label>
               <input
@@ -262,17 +262,17 @@ export default function UnitsTab() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Tola, Gram, Millilitre"
-                className="w-full px-3 py-2 text-sm bg-[#faf8f5] border border-[#e6dfd5] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#22623a] focus:bg-white"
+                className="w-full px-3 py-2 text-sm bg-surface border border-line rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary focus:bg-white"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#4a4640] mb-1.5">
+              <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
                 Kind
               </label>
               <select
                 value={kind}
                 onChange={(e) => setKind(e.target.value)}
-                className="w-full px-3 py-2 text-sm bg-[#faf8f5] border border-[#e6dfd5] rounded-xl focus:outline-hidden focus:ring-2 focus:ring-[#22623a] appearance-none cursor-pointer"
+                className="w-full px-3 py-2 text-sm bg-surface border border-line rounded-xl focus:outline-hidden focus:ring-2 focus:ring-primary appearance-none cursor-pointer"
               >
                 {UNIT_KINDS.map((k) => (
                   <option key={k.value} value={k.value}>
@@ -287,7 +287,7 @@ export default function UnitsTab() {
             <button
               type="submit"
               disabled={addingUnit}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#22623a] hover:bg-[#1a4d2e] text-white rounded-xl text-sm font-semibold disabled:opacity-50 transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary hover:bg-brand-green-800 text-white rounded-xl text-sm font-semibold disabled:opacity-50 transition-all"
             >
               {addingUnit ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -301,7 +301,7 @@ export default function UnitsTab() {
 
         {missingPresets.length > 0 && (
           <div className="px-5 sm:px-6 pb-5">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#6a6660] mb-2">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-ink-muted mb-2">
               Quick add common units
             </p>
             <div className="flex flex-wrap gap-1.5">
@@ -311,7 +311,7 @@ export default function UnitsTab() {
                   type="button"
                   disabled={addingUnit}
                   onClick={() => handleQuickAdd(preset)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-[#faf8f5] border border-[#e6dfd5] text-[#4a4640] hover:border-[#22623a] hover:text-[#22623a] disabled:opacity-50 transition-all"
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium bg-surface border border-line text-neutral-700 hover:border-primary hover:text-primary disabled:opacity-50 transition-all"
                 >
                   <Plus className="w-3 h-3" />
                   {preset.name} ({preset.code})
@@ -323,11 +323,11 @@ export default function UnitsTab() {
       </div>
 
       {/* Units Catalog */}
-      <div className="bg-white rounded-2xl border border-[#e6dfd5] shadow-xs overflow-hidden">
-        <div className="px-6 py-4 border-b border-[#e6dfd5] bg-[#faf8f5] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="bg-white rounded-2xl border border-line shadow-xs overflow-hidden">
+        <div className="px-6 py-4 border-b border-line bg-surface flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <Scale className="w-4 h-4 text-[#22623a]" />
-            <h2 className="font-serif text-base font-bold text-[#22623a]">
+            <Scale className="w-4 h-4 text-primary" />
+            <h2 className="font-serif text-base font-bold text-primary">
               Units Catalog ({filteredUnits.length})
             </h2>
           </div>
@@ -335,7 +335,7 @@ export default function UnitsTab() {
             <select
               value={kindFilter}
               onChange={(e) => setKindFilter(e.target.value)}
-              className="py-1.5 pl-3 pr-8 text-xs bg-white border border-[#e6dfd5] rounded-lg appearance-none cursor-pointer"
+              className="py-1.5 pl-3 pr-8 text-xs bg-white border border-line rounded-lg appearance-none cursor-pointer"
             >
               <option value="all">All Kinds</option>
               {UNIT_KINDS.map((k) => (
@@ -344,12 +344,12 @@ export default function UnitsTab() {
                 </option>
               ))}
             </select>
-            <label className="inline-flex items-center gap-1.5 text-xs text-[#6a6660] cursor-pointer">
+            <label className="inline-flex items-center gap-1.5 text-xs text-ink-muted cursor-pointer">
               <input
                 type="checkbox"
                 checked={showInactive}
                 onChange={(e) => setShowInactive(e.target.checked)}
-                className="rounded border-[#e6dfd5]"
+                className="rounded border-line"
               />
               Show inactive
             </label>
@@ -357,17 +357,17 @@ export default function UnitsTab() {
         </div>
 
         {loading ? (
-          <div className="p-16 flex flex-col items-center justify-center gap-3 text-[#6a6660]">
-            <Loader2 className="w-8 h-8 animate-spin text-[#22623a]" />
+          <div className="p-16 flex flex-col items-center justify-center gap-3 text-ink-muted">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
             <p className="text-sm font-medium">Loading units catalog...</p>
           </div>
         ) : filteredUnits.length === 0 ? (
           <div className="p-16 text-center">
-            <Scale className="w-12 h-12 text-[#c59b27] mx-auto mb-3 opacity-60" />
-            <h3 className="font-serif text-lg font-bold text-[#22623a] mb-1">
+            <Scale className="w-12 h-12 text-secondary-text mx-auto mb-3 opacity-60" />
+            <h3 className="font-serif text-lg font-bold text-primary mb-1">
               No units configured
             </h3>
-            <p className="text-sm text-[#6a6660] max-w-md mx-auto">
+            <p className="text-sm text-ink-muted max-w-md mx-auto">
               Add measurement units so product pack sizes can be labelled consistently (grams, millilitres, tola, jars).
             </p>
           </div>
@@ -375,7 +375,7 @@ export default function UnitsTab() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-[#e6dfd5] bg-[#faf8f5]/60 text-[11px] font-bold uppercase tracking-wider text-[#6a6660]">
+                <tr className="border-b border-line bg-surface/60 text-[11px] font-bold uppercase tracking-wider text-ink-muted">
                   <th className="py-3.5 px-4 sm:px-6">Unit</th>
                   <th className="py-3.5 px-4">Code</th>
                   <th className="py-3.5 px-4">Kind</th>
@@ -384,48 +384,48 @@ export default function UnitsTab() {
                   <th className="py-3.5 px-4 sm:px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e6dfd5] text-sm">
+              <tbody className="divide-y divide-line text-sm">
                 {filteredUnits.map((unit) => {
                   const Icon = kindIcon(unit.kind);
                   return (
                     <tr
                       key={unit.id}
-                      className={`hover:bg-[#faf8f5]/60 transition-colors ${
+                      className={`hover:bg-surface/60 transition-colors ${
                         !unit.isActive ? "opacity-60" : ""
                       }`}
                     >
                       <td className="py-3.5 px-4 sm:px-6">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-lg bg-[#faf8f5] border border-[#e6dfd5] flex items-center justify-center text-[#22623a]">
+                          <div className="w-8 h-8 rounded-lg bg-surface border border-line flex items-center justify-center text-primary">
                             <Icon className="w-4 h-4" />
                           </div>
-                          <span className="font-semibold text-[#1c1917]">
+                          <span className="font-semibold text-ink">
                             {unit.name}
                           </span>
                         </div>
                       </td>
                       <td className="py-3.5 px-4">
-                        <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-[#faf8f5] border border-[#e6dfd5] text-[#4a4640]">
+                        <span className="font-mono text-xs px-2 py-0.5 rounded-md bg-surface border border-line text-neutral-700">
                           {unit.code}
                         </span>
                       </td>
                       <td className="py-3.5 px-4">
-                        <span className="text-xs font-medium text-[#6a6660]">
+                        <span className="text-xs font-medium text-ink-muted">
                           {UNIT_KINDS.find((k) => k.value === unit.kind)?.label ||
                             unit.kind}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-right font-mono text-[#4a4640]">
+                      <td className="py-3.5 px-4 text-right font-mono text-neutral-700">
                         {unit._count?.sizes ?? 0}
                       </td>
                       <td className="py-3.5 px-4">
                         {unit.isActive ? (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-success-soft text-success">
                             <Check className="w-3 h-3" />
                             ACTIVE
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-600">
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-surface-sunken text-ink-body">
                             INACTIVE
                           </span>
                         )}
@@ -435,7 +435,7 @@ export default function UnitsTab() {
                           <button
                             onClick={() => handleToggleActive(unit)}
                             disabled={busyId === unit.id}
-                            className="p-1.5 rounded-lg text-[#6a6660] hover:text-[#22623a] hover:bg-[#faf8f5] transition-colors disabled:opacity-40"
+                            className="p-1.5 rounded-lg text-ink-muted hover:text-primary hover:bg-surface transition-colors disabled:opacity-40"
                             title={unit.isActive ? "Deactivate" : "Reactivate"}
                           >
                             {busyId === unit.id ? (
@@ -449,7 +449,7 @@ export default function UnitsTab() {
                           <button
                             onClick={() => handleDelete(unit)}
                             disabled={busyId === unit.id}
-                            className="p-1.5 rounded-lg text-[#6a6660] hover:text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-40"
+                            className="p-1.5 rounded-lg text-ink-muted hover:text-danger hover:bg-danger-soft transition-colors disabled:opacity-40"
                             title="Delete unit"
                           >
                             <Trash2 className="w-4 h-4" />

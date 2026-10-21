@@ -346,84 +346,84 @@ export default function HijamaCalendarSection() {
   return (
     <section
       id="hijama-calendar"
-      className="py-10 sm:py-14 px-4 bg-[#faf8f5] text-[#1e1c19] border-t border-[#e6dfd5]"
+      className="py-10 sm:py-14 px-4 bg-surface text-ink border-t border-line"
     >
       <div className="max-w-2xl mx-auto space-y-5">
         {/* ─── Header: Minimalist & Clean ─── */}
         <Reveal>
           <div className="text-center space-y-1.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#eef7f1] text-[#22623a] text-[11px] font-bold uppercase tracking-wider border border-[#22623a]/20">
-              <Moon className="w-3.5 h-3.5 text-[#22623a]" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-green-50 text-primary text-[11px] font-bold uppercase tracking-wider border border-primary/20">
+              <Moon className="w-3.5 h-3.5 text-primary" />
               <span>Prophetic Wet Cupping</span>
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#14281D]">
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-ink">
               Sunnah Hijama Calendar
             </h2>
-            <p className="text-xs sm:text-sm text-[#6a645a] max-w-md mx-auto">
+            <p className="text-xs sm:text-sm text-ink-muted max-w-md mx-auto">
               Blessed lunar dates (17th, 19th &amp; 21st). Separate male &amp; female wings.
             </p>
           </div>
         </Reveal>
 
         {/* ─── Main In-Screen Card ─── */}
-        <div className="bg-white rounded-2xl border border-[#e6dfd5] p-5 sm:p-7 shadow-xs space-y-6">
+        <div className="bg-white rounded-2xl border border-line p-5 sm:p-7 shadow-xs space-y-6">
           {/* ═══ SUCCESS RECEIPT STATE ═══ */}
           {confirmedBooking ? (
             <div className="space-y-5 animate-fade-in">
-              <div className="flex items-start justify-between gap-3 pb-4 border-b border-[#f0eae1]">
+              <div className="flex items-start justify-between gap-3 pb-4 border-b border-sand-100">
                 <div className="space-y-1">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#eef7f1] text-[#22623a] text-[11px] font-bold">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-brand-green-50 text-primary text-[11px] font-bold">
                     <CheckCircle2 className="w-3.5 h-3.5" />
                     Appointment Confirmed
                   </span>
-                  <h3 className="text-lg sm:text-xl font-serif font-bold text-[#14281D]">
+                  <h3 className="text-lg sm:text-xl font-serif font-bold text-ink">
                     Ticket #{confirmedBooking.ticketNumber}
                   </h3>
-                  <p className="text-xs text-[#7a7268]">
+                  <p className="text-xs text-ink-subtle">
                     Please arrive 10 minutes prior to your session time.
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] uppercase font-bold text-[#7a7268] tracking-wider block">
+                  <span className="text-[10px] uppercase font-bold text-ink-subtle tracking-wider block">
                     Pay at Clinic
                   </span>
-                  <span className="text-base sm:text-lg font-bold text-[#14281D]">
+                  <span className="text-base sm:text-lg font-bold text-ink">
                     ₨ {confirmedBooking.feeAmount.toLocaleString()}
                   </span>
                 </div>
               </div>
 
               {/* Receipt Summary Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs bg-[#faf8f5] p-3.5 rounded-xl border border-[#e8e2d8]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs bg-surface p-3.5 rounded-xl border border-line">
                 <div>
-                  <span className="text-[#7a7268] block">Patient Name:</span>
-                  <strong className="text-[#14281D]">{confirmedBooking.fullName}</strong>
+                  <span className="text-ink-subtle block">Patient Name:</span>
+                  <strong className="text-ink">{confirmedBooking.fullName}</strong>
                 </div>
                 <div>
-                  <span className="text-[#7a7268] block">Treatment Wing:</span>
-                  <strong className="text-[#14281D]">
+                  <span className="text-ink-subtle block">Treatment Wing:</span>
+                  <strong className="text-ink">
                     {confirmedBooking.gender === "MALE"
                       ? "Male Ward (Hajjam)"
                       : "Female Ward (Hajjama)"}
                   </strong>
                 </div>
                 <div>
-                  <span className="text-[#7a7268] block">Date:</span>
-                  <strong className="text-[#14281D]">
+                  <span className="text-ink-subtle block">Date:</span>
+                  <strong className="text-ink">
                     {confirmedBooking.appointmentDate}{" "}
                     {confirmedBooking.hijriDate ? `(${confirmedBooking.hijriDate})` : ""}
                   </strong>
                   {confirmedBooking.isSunnahDay && (
-                    <span className="ml-1 text-[10px] font-bold text-[#8c6a15]">
+                    <span className="ml-1 text-[10px] font-bold text-secondary-text">
                       ★ Sunnah
                     </span>
                   )}
                 </div>
                 <div>
-                  <span className="text-[#7a7268] block">Time Slot:</span>
-                  <strong className="text-[#14281D]">{confirmedBooking.appointmentSlot}</strong>
+                  <span className="text-ink-subtle block">Time Slot:</span>
+                  <strong className="text-ink">{confirmedBooking.appointmentSlot}</strong>
                 </div>
-                <div className="sm:col-span-2 pt-2 border-t border-[#e8e2d8] text-[11px] text-[#6a645a]">
+                <div className="sm:col-span-2 pt-2 border-t border-line text-[11px] text-ink-muted">
                   <strong>Clinic:</strong> {CLINIC_INFO.clinicName} — Plot L-41, Korangi Crossing Rd, Allah Wala Town, Karachi
                 </div>
               </div>
@@ -436,7 +436,7 @@ export default function HijamaCalendarSection() {
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#25D366] hover:bg-[#20ba59] text-white font-bold text-xs rounded-xl shadow-xs transition-colors"
+                  className="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp font-bold text-xs rounded-xl shadow-xs transition-colors"
                 >
                   <MessageCircle className="w-4 h-4" />
                   <span>Send Confirmation via WhatsApp</span>
@@ -445,7 +445,7 @@ export default function HijamaCalendarSection() {
                 <button
                   type="button"
                   onClick={resetBookingForm}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-[#f0eae1] hover:bg-[#e4dcce] text-[#14281D] font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-surface-sunken hover:bg-line text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Book Another</span>
@@ -456,17 +456,17 @@ export default function HijamaCalendarSection() {
             /* ═══ 3-STEP IN-SCREEN FORM ═══ */
             <div className="space-y-6">
               {/* Minimal Step Indicator */}
-              <div className="flex items-center justify-between pb-3 border-b border-[#f0eae1] text-xs font-semibold">
+              <div className="flex items-center justify-between pb-3 border-b border-sand-100 text-xs font-semibold">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
                   className={`flex items-center gap-1.5 cursor-pointer ${
-                    step >= 1 ? "text-[#14281D] font-bold" : "text-[#9a9388]"
+                    step >= 1 ? "text-ink font-bold" : "text-ink-subtle"
                   }`}
                 >
                   <span
                     className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                      step >= 1 ? "bg-[#14281D] text-white" : "bg-stone-200 text-stone-600"
+                      step >= 1 ? "bg-surface-inverse text-white" : "bg-line text-ink-body"
                     }`}
                   >
                     1
@@ -474,7 +474,7 @@ export default function HijamaCalendarSection() {
                   <span>Date &amp; Ward</span>
                 </button>
 
-                <span className="text-stone-300">──</span>
+                <span className="text-ink-subtle">──</span>
 
                 <button
                   type="button"
@@ -482,13 +482,13 @@ export default function HijamaCalendarSection() {
                   onClick={() => selectedDate && setStep(2)}
                   className={`flex items-center gap-1.5 ${
                     step >= 2
-                      ? "text-[#14281D] font-bold cursor-pointer"
-                      : "text-[#9a9388] cursor-not-allowed"
+                      ? "text-ink font-bold cursor-pointer"
+                      : "text-ink-subtle cursor-not-allowed"
                   }`}
                 >
                   <span
                     className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                      step >= 2 ? "bg-[#14281D] text-white" : "bg-stone-200 text-stone-600"
+                      step >= 2 ? "bg-surface-inverse text-white" : "bg-line text-ink-body"
                     }`}
                   >
                     2
@@ -496,16 +496,16 @@ export default function HijamaCalendarSection() {
                   <span>Time Slot</span>
                 </button>
 
-                <span className="text-stone-300">──</span>
+                <span className="text-ink-subtle">──</span>
 
                 <span
                   className={`flex items-center gap-1.5 ${
-                    step === 3 ? "text-[#14281D] font-bold" : "text-[#9a9388]"
+                    step === 3 ? "text-ink font-bold" : "text-ink-subtle"
                   }`}
                 >
                   <span
                     className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                      step === 3 ? "bg-[#14281D] text-white" : "bg-stone-200 text-stone-600"
+                      step === 3 ? "bg-surface-inverse text-white" : "bg-line text-ink-body"
                     }`}
                   >
                     3
@@ -519,10 +519,10 @@ export default function HijamaCalendarSection() {
                 <div className="space-y-5 animate-fade-in">
                   {/* Countdown notice strip */}
                   {nextSunnahCountdown && (
-                    <div className="p-3 bg-[#f7f5f0] border border-[#e6dfd5] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-xs">
+                    <div className="p-3 bg-surface border border-line rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-xs">
                       <div className="flex items-center gap-2 min-w-0">
-                        <Sparkles className="w-4 h-4 text-[#8c6a15] shrink-0" />
-                        <span className="text-[#14281D] leading-tight">
+                        <Sparkles className="w-4 h-4 text-secondary-text shrink-0" />
+                        <span className="text-ink leading-tight">
                           <strong>
                             {nextSunnahCountdown.daysAway === 0
                               ? "Today is a Sunnah Day!"
@@ -530,12 +530,12 @@ export default function HijamaCalendarSection() {
                                   nextSunnahCountdown.daysAway === 1 ? "day" : "days"
                                 } left to Next Sunnah Cupping`}
                           </strong>{" "}
-                          <span className="text-[#6a645a]">
+                          <span className="text-ink-muted">
                             ({nextSunnahCountdown.hijriDay}th {nextSunnahCountdown.hijriMonthName})
                           </span>
                         </span>
                       </div>
-                      <span className="text-[11px] font-bold text-[#22623a] shrink-0 self-end sm:self-auto">
+                      <span className="text-[11px] font-bold text-primary shrink-0 self-end sm:self-auto">
                         ₨ 2,500
                       </span>
                     </div>
@@ -543,9 +543,9 @@ export default function HijamaCalendarSection() {
 
                   {/* Ward / Gender Selection */}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold uppercase tracking-wider text-[#7a7268] flex items-center justify-between">
+                    <label className="text-xs font-bold uppercase tracking-wider text-ink-subtle flex items-center justify-between">
                       <span>Select Treatment Wing</span>
-                      <span className="text-[10px] font-normal text-[#6a645a]">
+                      <span className="text-[10px] font-normal text-ink-muted">
                         Strict privacy &amp; etiquette
                       </span>
                     </label>
@@ -556,14 +556,14 @@ export default function HijamaCalendarSection() {
                         onClick={() => setGender("MALE")}
                         className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                           gender === "MALE"
-                            ? "bg-[#14281D] text-white border-[#14281D] shadow-xs"
-                            : "bg-[#faf8f5] text-[#59534b] border-[#e8e2d8] hover:border-[#14281D]/40"
+                            ? "bg-surface-inverse text-white border-ink shadow-xs"
+                            : "bg-surface text-ink-body border-line hover:border-ink/40"
                         }`}
                       >
                         <span className="text-xs font-bold">Male Ward</span>
                         <span
                           className={`text-[10px] mt-0.5 ${
-                            gender === "MALE" ? "text-[#c59b27]" : "text-[#7a7268]"
+                            gender === "MALE" ? "text-brand-gold-500" : "text-ink-subtle"
                           }`}
                         >
                           Certified Hajjam
@@ -575,14 +575,14 @@ export default function HijamaCalendarSection() {
                         onClick={() => setGender("FEMALE")}
                         className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                           gender === "FEMALE"
-                            ? "bg-[#14281D] text-white border-[#14281D] shadow-xs"
-                            : "bg-[#faf8f5] text-[#59534b] border-[#e8e2d8] hover:border-[#14281D]/40"
+                            ? "bg-surface-inverse text-white border-ink shadow-xs"
+                            : "bg-surface text-ink-body border-line hover:border-ink/40"
                         }`}
                       >
                         <span className="text-xs font-bold">Female Ward</span>
                         <span
                           className={`text-[10px] mt-0.5 ${
-                            gender === "FEMALE" ? "text-[#c59b27]" : "text-[#7a7268]"
+                            gender === "FEMALE" ? "text-brand-gold-500" : "text-ink-subtle"
                           }`}
                         >
                           Certified Hajjama
@@ -594,13 +594,13 @@ export default function HijamaCalendarSection() {
                   {/* Sunnah Date Cards */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold uppercase tracking-wider text-[#7a7268]">
+                      <label className="text-xs font-bold uppercase tracking-wider text-ink-subtle">
                         Select Date
                       </label>
                       <button
                         type="button"
                         onClick={() => setIsCustomDate(!isCustomDate)}
-                        className="text-xs font-semibold text-[#22623a] hover:underline cursor-pointer"
+                        className="text-xs font-semibold text-primary hover:underline cursor-pointer"
                       >
                         {isCustomDate ? "← Back to Sunnah Dates" : "Choose Custom Date"}
                       </button>
@@ -608,8 +608,8 @@ export default function HijamaCalendarSection() {
 
                     {!isCustomDate ? (
                       loadingSunnah ? (
-                        <div className="py-6 flex items-center justify-center gap-2 text-xs text-[#7a7268]">
-                          <Loader2 className="w-4 h-4 animate-spin text-[#22623a]" />
+                        <div className="py-6 flex items-center justify-center gap-2 text-xs text-ink-subtle">
+                          <Loader2 className="w-4 h-4 animate-spin text-primary" />
                           <span>Checking upcoming Sunnah dates...</span>
                         </div>
                       ) : (
@@ -630,14 +630,14 @@ export default function HijamaCalendarSection() {
                                 onClick={() => setSelectedDate(sd.date)}
                                 className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                                   isPicked
-                                    ? "bg-[#14281D] text-white border-[#14281D] shadow-xs"
-                                    : "bg-[#faf8f5] text-[#1e1c19] border-[#e8e2d8] hover:border-[#14281D]/40"
+                                    ? "bg-surface-inverse text-white border-ink shadow-xs"
+                                    : "bg-surface text-ink border-line hover:border-ink/40"
                                 }`}
                               >
                                 <div className="flex items-center justify-between">
                                   <span
                                     className={`text-[10px] font-bold uppercase tracking-wider ${
-                                      isPicked ? "text-[#c59b27]" : "text-[#8c6a15]"
+                                      isPicked ? "text-secondary-text" : "text-secondary-text"
                                     }`}
                                   >
                                     ★ Sunnah {sd.hijriDay}th
@@ -646,7 +646,7 @@ export default function HijamaCalendarSection() {
                                     className={`text-[9px] px-1.5 py-0.2 rounded-full ${
                                       isPicked
                                         ? "bg-white/20 text-white font-medium"
-                                        : "bg-[#14281D]/5 text-[#14281D] font-semibold"
+                                        : "bg-surface-inverse/5 text-ink font-semibold"
                                     }`}
                                   >
                                     {sd.totalAvailableSeats === 0 ? "Full" : `${sd.totalAvailableSeats} slots`}
@@ -658,7 +658,7 @@ export default function HijamaCalendarSection() {
                                   </div>
                                   <div
                                     className={`text-[10px] ${
-                                      isPicked ? "text-[#a3c2b0]" : "text-[#7a7268]"
+                                      isPicked ? "text-brand-green-300" : "text-ink-subtle"
                                     }`}
                                   >
                                     {sd.hijriMonthName}
@@ -676,12 +676,12 @@ export default function HijamaCalendarSection() {
                           value={selectedDate}
                           min={todayStr}
                           onChange={(e) => setSelectedDate(e.target.value)}
-                          className="px-3.5 py-2.5 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs font-medium text-[#14281D] focus:outline-none focus:border-[#14281D]"
+                          className="px-3.5 py-2.5 bg-surface border border-line rounded-xl text-xs font-medium text-ink focus:outline-none focus:border-ink"
                         />
-                        <span className="text-xs text-[#59534b]">
+                        <span className="text-xs text-ink-body">
                           Hijri: <strong>{selectedHijri.hijriFormatted}</strong>{" "}
                           {selectedHijri.isSunnahDay && (
-                            <span className="text-[#8c6a15] font-bold ml-1">★ Sunnah Day</span>
+                            <span className="text-secondary-text font-bold ml-1">★ Sunnah Day</span>
                           )}
                         </span>
                       </div>
@@ -693,7 +693,7 @@ export default function HijamaCalendarSection() {
                     type="button"
                     disabled={!selectedDate}
                     onClick={() => setStep(2)}
-                    className="w-full py-3 px-4 bg-[#14281D] hover:bg-[#1f3c2c] disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                    className="w-full py-3 px-4 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                   >
                     <span>Continue to Time Slots</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -705,10 +705,10 @@ export default function HijamaCalendarSection() {
               {step === 2 && (
                 <div className="space-y-5 animate-fade-in">
                   {/* Selected Date Summary Header */}
-                  <div className="flex items-center justify-between p-3 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs">
+                  <div className="flex items-center justify-between p-3 bg-surface border border-line rounded-xl text-xs">
                     <div>
-                      <span className="text-[#7a7268] block text-[10px]">Chosen Date &amp; Wing</span>
-                      <strong className="text-[#14281D]">
+                      <span className="text-ink-subtle block text-[10px]">Chosen Date &amp; Wing</span>
+                      <strong className="text-ink">
                         {selectedDateFormatted} ({selectedHijri.hijriFormatted}) ·{" "}
                         {gender === "MALE" ? "Male Ward" : "Female Ward"}
                       </strong>
@@ -716,7 +716,7 @@ export default function HijamaCalendarSection() {
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="text-xs text-[#22623a] font-semibold hover:underline cursor-pointer"
+                      className="text-xs text-primary font-semibold hover:underline cursor-pointer"
                     >
                       Change
                     </button>
@@ -724,28 +724,28 @@ export default function HijamaCalendarSection() {
 
                   {/* Slots list */}
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs font-bold text-[#14281D]">
+                    <div className="flex items-center justify-between text-xs font-bold text-ink">
                       <span className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5 text-[#22623a]" />
+                        <Clock className="w-3.5 h-3.5 text-primary" />
                         <span>Select 45-Minute Session</span>
                       </span>
-                      <span className="text-[10px] text-[#7a7268] font-normal">
+                      <span className="text-[10px] text-ink-subtle font-normal">
                         Fee: ₨ 2,500 (Pay at Clinic)
                       </span>
                     </div>
 
                     {loadingSlots ? (
-                      <div className="py-8 flex items-center justify-center gap-2 text-xs text-[#7a7268]">
-                        <Loader2 className="w-4 h-4 animate-spin text-[#22623a]" />
+                      <div className="py-8 flex items-center justify-center gap-2 text-xs text-ink-subtle">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" />
                         <span>Checking available slots...</span>
                       </div>
                     ) : slotsError ? (
-                      <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                      <div className="p-3 bg-danger-soft border border-danger/20 text-danger text-xs rounded-xl flex items-center gap-2">
                         <AlertCircle className="w-4 h-4 shrink-0" />
                         <span>{slotsError}</span>
                       </div>
                     ) : slots.length === 0 ? (
-                      <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+                      <div className="p-4 bg-warning-soft border border-warning-line rounded-xl text-xs text-warning">
                         No slots available on this date. The clinic may be closed or fully booked. Please select an alternative date.
                       </div>
                     ) : (
@@ -763,10 +763,10 @@ export default function HijamaCalendarSection() {
                               title={isFull ? "This slot is fully booked" : `Select ${s.slot}`}
                               className={`py-2 px-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center relative ${
                                 isFull
-                                  ? "bg-[#eef7f1] text-[#22623a]/70 border-emerald-200/70 opacity-60 blur-[0.4px] hover:blur-[0.4px] cursor-not-allowed select-none"
+                                  ? "bg-brand-green-50 text-primary/70 border-success-line/70 opacity-60 blur-[0.4px] hover:blur-[0.4px] cursor-not-allowed select-none"
                                   : isChosen
-                                  ? "bg-[#14281D] text-white border-[#14281D] shadow-xs font-semibold cursor-pointer"
-                                  : "bg-[#faf8f5] text-[#1a1816] border-[#e8e2d8] hover:border-[#14281D] cursor-pointer"
+                                  ? "bg-surface-inverse text-white border-ink shadow-xs font-semibold cursor-pointer"
+                                  : "bg-surface text-ink border-line hover:border-ink cursor-pointer"
                               }`}
                             >
                               <span className="text-xs font-bold leading-tight">
@@ -775,10 +775,10 @@ export default function HijamaCalendarSection() {
                               <span
                                 className={`text-[10px] mt-0.5 ${
                                   isFull
-                                    ? "text-[#22623a]/60 font-semibold"
+                                    ? "text-primary/60 font-semibold"
                                     : isChosen
-                                    ? "text-[#c59b27] font-semibold"
-                                    : "text-[#7a7268]"
+                                    ? "text-secondary-text font-semibold"
+                                    : "text-ink-subtle"
                                 }`}
                               >
                                 {isFull ? "Booked" : "Available"}
@@ -795,7 +795,7 @@ export default function HijamaCalendarSection() {
                     <button
                       type="button"
                       onClick={() => setStep(1)}
-                      className="px-4 py-3 bg-[#faf8f5] border border-[#e8e2d8] hover:bg-[#f0eae1] text-[#14281D] font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+                      className="px-4 py-3 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
                     >
                       <ArrowLeft className="w-3.5 h-3.5" />
                       <span>Back</span>
@@ -805,7 +805,7 @@ export default function HijamaCalendarSection() {
                       type="button"
                       disabled={!selectedSlot}
                       onClick={() => setStep(3)}
-                      className="flex-1 py-3 px-4 bg-[#14281D] hover:bg-[#1f3c2c] disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                      className="flex-1 py-3 px-4 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                     >
                       <span>Continue to Patient Details</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -818,10 +818,10 @@ export default function HijamaCalendarSection() {
               {step === 3 && (
                 <div className="space-y-4 animate-fade-in">
                   {/* Summary strip */}
-                  <div className="flex items-center justify-between p-3 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs">
+                  <div className="flex items-center justify-between p-3 bg-surface border border-line rounded-xl text-xs">
                     <div>
-                      <span className="text-[#7a7268] block text-[10px]">Session Details</span>
-                      <strong className="text-[#14281D]">
+                      <span className="text-ink-subtle block text-[10px]">Session Details</span>
+                      <strong className="text-ink">
                         {selectedDateFormatted} · {selectedSlot} ·{" "}
                         {gender === "MALE" ? "Male Ward" : "Female Ward"}
                       </strong>
@@ -829,7 +829,7 @@ export default function HijamaCalendarSection() {
                     <button
                       type="button"
                       onClick={() => setStep(2)}
-                      className="text-xs text-[#22623a] font-semibold hover:underline cursor-pointer"
+                      className="text-xs text-primary font-semibold hover:underline cursor-pointer"
                     >
                       Change Slot
                     </button>
@@ -839,18 +839,18 @@ export default function HijamaCalendarSection() {
                     /* ═══ 3A. AUTHENTICATION GATE (UNAUTHENTICATED) ═══ */
                     <div className="space-y-4">
                       {/* Gating info banner */}
-                      <div className="p-3.5 bg-emerald-50/80 border border-emerald-200/90 rounded-xl flex items-start gap-2.5 text-xs text-emerald-950">
-                        <ShieldCheck className="w-4 h-4 text-[#22623a] shrink-0 mt-0.5" />
+                      <div className="p-3.5 bg-success-soft/80 border border-success-line/90 rounded-xl flex items-start gap-2.5 text-xs text-success">
+                        <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                         <div className="space-y-0.5">
-                          <strong className="block font-bold text-[#14281D]">Sign-In Required to Reserve Hijama</strong>
-                          <span className="text-[#59534b]">
+                          <strong className="block font-bold text-ink">Sign-In Required to Reserve Hijama</strong>
+                          <span className="text-ink-body">
                             An account is required to generate your official clinical appointment ticket, issue SMS/WhatsApp reminders, and keep your Sunnah cupping history secure.
                           </span>
                         </div>
                       </div>
 
                       {/* Tabs: Sign In vs Create Account */}
-                      <div className="grid grid-cols-2 p-1 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs font-bold">
+                      <div className="grid grid-cols-2 p-1 bg-surface border border-line rounded-xl text-xs font-bold">
                         <button
                           type="button"
                           onClick={() => {
@@ -860,8 +860,8 @@ export default function HijamaCalendarSection() {
                           }}
                           className={`py-2 rounded-lg transition-colors cursor-pointer ${
                             authTab === "signin"
-                              ? "bg-[#14281D] text-white shadow-xs"
-                              : "text-[#7a7268] hover:text-[#14281D]"
+                              ? "bg-surface-inverse text-white shadow-xs"
+                              : "text-ink-subtle hover:text-ink"
                           }`}
                         >
                           Sign In
@@ -875,8 +875,8 @@ export default function HijamaCalendarSection() {
                           }}
                           className={`py-2 rounded-lg transition-colors cursor-pointer ${
                             authTab === "signup"
-                              ? "bg-[#14281D] text-white shadow-xs"
-                              : "text-[#7a7268] hover:text-[#14281D]"
+                              ? "bg-surface-inverse text-white shadow-xs"
+                              : "text-ink-subtle hover:text-ink"
                           }`}
                         >
                           Create Account
@@ -887,48 +887,48 @@ export default function HijamaCalendarSection() {
                       {authTab === "signin" ? (
                         <form onSubmit={handleAuthSignIn} className="space-y-3">
                           <div className="space-y-1">
-                            <label className="text-[11px] font-semibold text-[#59534b] block">
-                              Email Address <span className="text-red-500">*</span>
+                            <label className="text-[11px] font-semibold text-ink-body block">
+                              Email Address <span className="text-danger">*</span>
                             </label>
                             <div className="relative">
-                              <Mail className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                               <input
                                 type="email"
                                 required
                                 value={authEmail}
                                 onChange={(e) => setAuthEmail(e.target.value)}
                                 placeholder="name@example.com"
-                                className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                                className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                               />
                             </div>
                           </div>
 
                           <div className="space-y-1">
                             <div className="flex items-center justify-between">
-                              <label className="text-[11px] font-semibold text-[#59534b]">
-                                Password <span className="text-red-500">*</span>
+                              <label className="text-[11px] font-semibold text-ink-body">
+                                Password <span className="text-danger">*</span>
                               </label>
                               <Link
                                 href="/forgot-password"
-                                className="text-[10px] text-[#22623a] hover:underline"
+                                className="text-[10px] text-primary hover:underline"
                               >
                                 Forgot password?
                               </Link>
                             </div>
                             <div className="relative">
-                              <Lock className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                               <input
                                 type={showPassword ? "text" : "password"}
                                 required
                                 value={authPassword}
                                 onChange={(e) => setAuthPassword(e.target.value)}
                                 placeholder="Enter your password"
-                                className="w-full pl-9 pr-9 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                                className="w-full pl-9 pr-9 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                               />
                               <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7a7268] hover:text-[#14281D] cursor-pointer"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle hover:text-ink cursor-pointer"
                                 aria-label={showPassword ? "Hide password" : "Show password"}
                               >
                                 {showPassword ? (
@@ -941,7 +941,7 @@ export default function HijamaCalendarSection() {
                           </div>
 
                           {authError && (
-                            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
+                            <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-start gap-2">
                               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                               <span>{authError}</span>
                             </div>
@@ -951,7 +951,7 @@ export default function HijamaCalendarSection() {
                             <button
                               type="button"
                               onClick={() => setStep(2)}
-                              className="px-4 py-2.5 bg-[#faf8f5] border border-[#e8e2d8] hover:bg-[#f0eae1] text-[#14281D] font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+                              className="px-4 py-2.5 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
                             >
                               <ArrowLeft className="w-3.5 h-3.5" />
                               <span>Back</span>
@@ -960,7 +960,7 @@ export default function HijamaCalendarSection() {
                             <button
                               type="submit"
                               disabled={authLoading}
-                              className="flex-1 py-2.5 px-4 bg-[#14281D] hover:bg-[#1f3c2c] disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                              className="flex-1 py-2.5 px-4 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
                             >
                               {authLoading ? (
                                 <>
@@ -980,46 +980,46 @@ export default function HijamaCalendarSection() {
                         /* CREATE ACCOUNT FORM */
                         <form onSubmit={handleAuthRegister} className="space-y-3">
                           <div className="space-y-1">
-                            <label className="text-[11px] font-semibold text-[#59534b] block">
-                              Full Name <span className="text-red-500">*</span>
+                            <label className="text-[11px] font-semibold text-ink-body block">
+                              Full Name <span className="text-danger">*</span>
                             </label>
                             <div className="relative">
-                              <User className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              <User className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                               <input
                                 type="text"
                                 required
                                 value={authName}
                                 onChange={(e) => setAuthName(e.target.value)}
                                 placeholder="e.g. Usman Ahmed"
-                                className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                                className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                               />
                             </div>
                           </div>
 
                           <div className="space-y-1">
-                            <label className="text-[11px] font-semibold text-[#59534b] block">
-                              Email Address <span className="text-red-500">*</span>
+                            <label className="text-[11px] font-semibold text-ink-body block">
+                              Email Address <span className="text-danger">*</span>
                             </label>
                             <div className="relative">
-                              <Mail className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                               <input
                                 type="email"
                                 required
                                 value={authEmail}
                                 onChange={(e) => setAuthEmail(e.target.value)}
                                 placeholder="name@example.com"
-                                className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                                className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                               />
                             </div>
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                             <div className="space-y-1">
-                              <label className="text-[11px] font-semibold text-[#59534b] block">
-                                Password (min 8 chars) <span className="text-red-500">*</span>
+                              <label className="text-[11px] font-semibold text-ink-body block">
+                                Password (min 8 chars) <span className="text-danger">*</span>
                               </label>
                               <div className="relative">
-                                <Lock className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                                 <input
                                   type={showPassword ? "text" : "password"}
                                   required
@@ -1027,12 +1027,12 @@ export default function HijamaCalendarSection() {
                                   value={authPassword}
                                   onChange={(e) => setAuthPassword(e.target.value)}
                                   placeholder="At least 8 characters"
-                                  className="w-full pl-9 pr-9 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                                  className="w-full pl-9 pr-9 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                                 />
                                 <button
                                   type="button"
                                   onClick={() => setShowPassword(!showPassword)}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7a7268] hover:text-[#14281D] cursor-pointer"
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle hover:text-ink cursor-pointer"
                                   aria-label={showPassword ? "Hide password" : "Show password"}
                                 >
                                   {showPassword ? (
@@ -1045,34 +1045,34 @@ export default function HijamaCalendarSection() {
                             </div>
 
                             <div className="space-y-1">
-                              <label className="text-[11px] font-semibold text-[#59534b] block">
+                              <label className="text-[11px] font-semibold text-ink-body block">
                                 WhatsApp Phone (Optional)
                               </label>
                               <div className="relative">
-                                <Phone className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                <Phone className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
                                 <input
                                   type="tel"
                                   value={authPhone}
                                   onChange={(e) => setAuthPhone(e.target.value)}
                                   placeholder="0300 1234567"
-                                  className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                                  className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                                 />
                               </div>
                             </div>
                           </div>
 
                           {authError && (
-                            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
+                            <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-start gap-2">
                               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                               <span>{authError}</span>
                             </div>
                           )}
 
                           {authSuccessMsg && (
-                            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-start gap-2">
-                              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" />
+                            <div className="p-3 bg-success-soft border border-success-line rounded-xl text-xs text-success flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-success" />
                               <div className="space-y-1">
-                                <strong className="block text-emerald-950 font-bold">Verification Email Sent</strong>
+                                <strong className="block text-success font-bold">Verification Email Sent</strong>
                                 <p className="text-[11px] leading-relaxed">{authSuccessMsg}</p>
                               </div>
                             </div>
@@ -1082,7 +1082,7 @@ export default function HijamaCalendarSection() {
                             <button
                               type="button"
                               onClick={() => setStep(2)}
-                              className="px-4 py-2.5 bg-[#faf8f5] border border-[#e8e2d8] hover:bg-[#f0eae1] text-[#14281D] font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+                              className="px-4 py-2.5 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
                             >
                               <ArrowLeft className="w-3.5 h-3.5" />
                               <span>Back</span>
@@ -1091,7 +1091,7 @@ export default function HijamaCalendarSection() {
                             <button
                               type="submit"
                               disabled={authLoading}
-                              className="flex-1 py-2.5 px-4 bg-[#14281D] hover:bg-[#1f3c2c] disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                              className="flex-1 py-2.5 px-4 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
                             >
                               {authLoading ? (
                                 <>
@@ -1110,11 +1110,11 @@ export default function HijamaCalendarSection() {
                       )}
 
                       {/* Direct Link to full login page */}
-                      <div className="text-center pt-1 border-t border-[#f0eae1] text-[11px] text-[#7a7268]">
+                      <div className="text-center pt-1 border-t border-sand-100 text-[11px] text-ink-subtle">
                         <span>Prefer using the full login page? </span>
                         <Link
                           href={`/login?redirect=${encodeURIComponent("/#hijama-calendar")}`}
-                          className="font-semibold text-[#22623a] hover:underline"
+                          className="font-semibold text-primary hover:underline"
                         >
                           Open Login Page →
                         </Link>
@@ -1124,15 +1124,15 @@ export default function HijamaCalendarSection() {
                     /* ═══ 3B. AUTHENTICATED PATIENT FORM ═══ */
                     <form onSubmit={handleBookingSubmit} className="space-y-4">
                       {/* Identity Chip */}
-                      <div className="p-2.5 bg-emerald-50/80 border border-emerald-200/80 rounded-xl text-xs flex items-center justify-between">
+                      <div className="p-2.5 bg-success-soft/80 border border-success-line/80 rounded-xl text-xs flex items-center justify-between">
                         <div className="flex items-center gap-2 min-w-0">
-                          <ShieldCheck className="w-4 h-4 text-[#22623a] shrink-0" />
-                          <span className="text-[#14281D] truncate">
+                          <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
+                          <span className="text-ink truncate">
                             Booking as <strong className="font-semibold">{session.user.name || "Patient"}</strong>{" "}
-                            <span className="text-[#6a645a]">({session.user.email})</span>
+                            <span className="text-ink-muted">({session.user.email})</span>
                           </span>
                         </div>
-                        <span className="text-[10px] uppercase font-bold text-[#22623a] bg-white px-2 py-0.5 rounded-md border border-emerald-200/80 shrink-0">
+                        <span className="text-[10px] uppercase font-bold text-primary bg-white px-2 py-0.5 rounded-md border border-success-line/80 shrink-0">
                           Signed In
                         </span>
                       </div>
@@ -1140,7 +1140,7 @@ export default function HijamaCalendarSection() {
                       {/* Input Fields */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                         <div className="sm:col-span-1">
-                          <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                          <label className="text-[11px] font-semibold text-ink-body block mb-1">
                             Full Name *
                           </label>
                           <input
@@ -1149,12 +1149,12 @@ export default function HijamaCalendarSection() {
                             placeholder="e.g. Usman Ahmed"
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
-                            className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                            className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                           />
                         </div>
 
                         <div className="sm:col-span-1">
-                          <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                          <label className="text-[11px] font-semibold text-ink-body block mb-1">
                             WhatsApp Phone *
                           </label>
                           <input
@@ -1163,12 +1163,12 @@ export default function HijamaCalendarSection() {
                             placeholder="0300 1234567"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                            className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                           />
                         </div>
 
                         <div className="sm:col-span-1">
-                          <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                          <label className="text-[11px] font-semibold text-ink-body block mb-1">
                             Age *
                           </label>
                           <input
@@ -1179,7 +1179,7 @@ export default function HijamaCalendarSection() {
                             placeholder="35"
                             value={age}
                             onChange={(e) => setAge(e.target.value)}
-                            className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                            className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
                           />
                         </div>
                       </div>
@@ -1190,15 +1190,15 @@ export default function HijamaCalendarSection() {
                           type="checkbox"
                           checked={healthConfirmed}
                           onChange={(e) => setHealthConfirmed(e.target.checked)}
-                          className="mt-0.5 rounded border-[#c59b27] text-[#14281D] focus:ring-0 cursor-pointer"
+                          className="mt-0.5 rounded border-secondary text-ink focus:ring-0 cursor-pointer"
                         />
-                        <span className="text-[11px] text-[#59534b] leading-tight">
+                        <span className="text-[11px] text-ink-body leading-tight">
                           I confirm that I am <strong>not taking blood thinners</strong> (e.g. Warfarin), not pregnant, and do not suffer from severe anemia or hemophilia.
                         </span>
                       </label>
 
                       {submitError && (
-                        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                        <div className="p-3 bg-danger-soft border border-danger/20 text-danger text-xs rounded-xl flex items-center gap-2">
                           <AlertCircle className="w-4 h-4 shrink-0" />
                           <span>{submitError}</span>
                         </div>
@@ -1209,7 +1209,7 @@ export default function HijamaCalendarSection() {
                         <button
                           type="button"
                           onClick={() => setStep(2)}
-                          className="px-4 py-3 bg-[#faf8f5] border border-[#e8e2d8] hover:bg-[#f0eae1] text-[#14281D] font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+                          className="px-4 py-3 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
                         >
                           <ArrowLeft className="w-3.5 h-3.5" />
                           <span>Back</span>
@@ -1218,7 +1218,7 @@ export default function HijamaCalendarSection() {
                         <button
                           type="submit"
                           disabled={submitting || !selectedSlot}
-                          className="flex-1 py-3 px-4 bg-[#14281D] hover:bg-[#1f3c2c] disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                          className="flex-1 py-3 px-4 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                         >
                           {submitting ? (
                             <>

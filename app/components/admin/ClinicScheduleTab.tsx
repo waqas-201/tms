@@ -175,7 +175,7 @@ export default function ClinicScheduleTab() {
 
   if (loading) {
     return (
-      <div className="py-16 text-center text-[#14281D] space-y-2">
+      <div className="py-16 text-center text-ink space-y-2">
         <Loader2 className="w-8 h-8 animate-spin mx-auto" />
         <p className="text-xs font-semibold">Loading clinic schedule configuration...</p>
       </div>
@@ -185,14 +185,14 @@ export default function ClinicScheduleTab() {
   return (
     <div className="space-y-8">
       {/* ─── 1. Weekly Operating Hours & Slot Rules ─── */}
-      <div className="bg-white rounded-2xl border border-[#e6dfd5] p-6 shadow-xs space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#e6dfd5]">
+      <div className="bg-white rounded-2xl border border-line p-6 shadow-xs space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-line">
           <div>
-            <h2 className="font-serif text-lg font-bold text-[#14281D] flex items-center gap-2">
-              <Clock className="w-5 h-5 text-[#c59b27]" />
+            <h2 className="font-serif text-lg font-bold text-ink flex items-center gap-2">
+              <Clock className="w-5 h-5 text-secondary-text" />
               <span>Weekly Clinic Operating Hours &amp; Capacity</span>
             </h2>
-            <p className="text-xs text-[#6a6660] mt-0.5">
+            <p className="text-xs text-ink-muted mt-0.5">
               Set active days, opening and closing hours, slot duration, and maximum simultaneous patients.
             </p>
           </div>
@@ -201,7 +201,7 @@ export default function ClinicScheduleTab() {
             type="button"
             onClick={() => fetchScheduleData(true)}
             disabled={refreshing}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#4a4640] hover:bg-[#faf8f5] border border-[#e6dfd5] transition-all disabled:opacity-50 cursor-pointer self-start sm:self-auto"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:bg-surface border border-line transition-all disabled:opacity-50 cursor-pointer self-start sm:self-auto"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
             <span>Refresh</span>
@@ -209,15 +209,15 @@ export default function ClinicScheduleTab() {
         </div>
 
         {scheduleSuccessMsg && (
-          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="p-3 bg-success-soft border border-success-line rounded-xl text-xs text-success flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
             <span>{scheduleSuccessMsg}</span>
           </div>
         )}
 
         {scheduleErrorMsg && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-800 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+          <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-danger shrink-0" />
             <span>{scheduleErrorMsg}</span>
           </div>
         )}
@@ -225,7 +225,7 @@ export default function ClinicScheduleTab() {
         <form onSubmit={handleSaveSchedule} className="space-y-6">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-[#faf8f5] text-[#78716C] uppercase text-[10px] font-bold border-b border-[#e6dfd5]">
+              <thead className="bg-surface text-ink-subtle uppercase text-[10px] font-bold border-b border-line">
                 <tr>
                   <th className="py-3 px-4">Day of Week</th>
                   <th className="py-3 px-4">Status</th>
@@ -235,15 +235,15 @@ export default function ClinicScheduleTab() {
                   <th className="py-3 px-4">Max Patients / Slot</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e6dfd5]">
+              <tbody className="divide-y divide-line">
                 {days.map((day, idx) => (
                   <tr
                     key={day.dayOfWeek}
-                    className={`hover:bg-[#faf8f5]/60 transition-colors ${
-                      !day.isOpen ? "bg-gray-50/70 opacity-60" : ""
+                    className={`hover:bg-surface/60 transition-colors ${
+                      !day.isOpen ? "bg-surface/70 opacity-60" : ""
                     }`}
                   >
-                    <td className="py-3.5 px-4 font-bold text-[#1a1816]">
+                    <td className="py-3.5 px-4 font-bold text-ink">
                       {day.dayName || DAY_NAMES[day.dayOfWeek]}
                     </td>
 
@@ -257,8 +257,8 @@ export default function ClinicScheduleTab() {
                           }
                           className="sr-only peer"
                         />
-                        <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[#14281D]"></div>
-                        <span className="ml-2 text-xs font-semibold text-[#1a1816]">
+                        <div className="w-9 h-5 bg-line peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-line-strong after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-surface-inverse"></div>
+                        <span className="ml-2 text-xs font-semibold text-ink">
                           {day.isOpen ? "Open" : "Closed"}
                         </span>
                       </label>
@@ -272,7 +272,7 @@ export default function ClinicScheduleTab() {
                         onChange={(e) =>
                           handleDayChange(idx, "openTime", e.target.value)
                         }
-                        className="px-2.5 py-1.5 bg-white border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] disabled:bg-gray-100"
+                        className="px-2.5 py-1.5 bg-white border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-ink disabled:bg-surface-sunken"
                       />
                     </td>
 
@@ -284,7 +284,7 @@ export default function ClinicScheduleTab() {
                         onChange={(e) =>
                           handleDayChange(idx, "closeTime", e.target.value)
                         }
-                        className="px-2.5 py-1.5 bg-white border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] disabled:bg-gray-100"
+                        className="px-2.5 py-1.5 bg-white border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-ink disabled:bg-surface-sunken"
                       />
                     </td>
 
@@ -299,7 +299,7 @@ export default function ClinicScheduleTab() {
                             Number(e.target.value)
                           )
                         }
-                        className="px-2.5 py-1.5 bg-white border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] disabled:bg-gray-100"
+                        className="px-2.5 py-1.5 bg-white border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-ink disabled:bg-surface-sunken"
                       >
                         <option value={30}>30 Minutes</option>
                         <option value={45}>45 Minutes</option>
@@ -322,7 +322,7 @@ export default function ClinicScheduleTab() {
                             Number(e.target.value)
                           )
                         }
-                        className="w-20 px-2.5 py-1.5 bg-white border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D] disabled:bg-gray-100"
+                        className="w-20 px-2.5 py-1.5 bg-white border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-ink disabled:bg-surface-sunken"
                       />
                     </td>
                   </tr>
@@ -331,11 +331,11 @@ export default function ClinicScheduleTab() {
             </table>
           </div>
 
-          <div className="flex justify-end pt-3 border-t border-[#e6dfd5]">
+          <div className="flex justify-end pt-3 border-t border-line">
             <button
               type="submit"
               disabled={savingSchedule}
-              className="px-6 py-2.5 bg-[#14281D] hover:bg-[#1e3d2c] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+              className="px-6 py-2.5 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
             >
               {savingSchedule ? (
                 <>
@@ -354,25 +354,25 @@ export default function ClinicScheduleTab() {
       </div>
 
       {/* ─── 2. Clinic Holidays & Blackout Dates Manager ─── */}
-      <div className="bg-white rounded-2xl border border-[#e6dfd5] p-6 shadow-xs space-y-6">
-        <div className="pb-4 border-b border-[#e6dfd5]">
-          <h2 className="font-serif text-lg font-bold text-[#14281D] flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-[#c59b27]" />
+      <div className="bg-white rounded-2xl border border-line p-6 shadow-xs space-y-6">
+        <div className="pb-4 border-b border-line">
+          <h2 className="font-serif text-lg font-bold text-ink flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-secondary-text" />
             <span>Clinic Holidays &amp; Blackout Dates</span>
           </h2>
-          <p className="text-xs text-[#6a6660] mt-0.5">
+          <p className="text-xs text-ink-muted mt-0.5">
             Add official clinic holidays, Eid breaks, or maintenance off-days. Appointment booking will automatically be disabled on these dates.
           </p>
         </div>
 
         {/* Add Holiday Form */}
-        <form onSubmit={handleAddHoliday} className="p-4 bg-[#faf8f5] rounded-xl border border-[#e6dfd5] space-y-3">
-          <span className="text-xs font-bold text-[#14281D] uppercase tracking-wider block">
+        <form onSubmit={handleAddHoliday} className="p-4 bg-surface rounded-xl border border-line space-y-3">
+          <span className="text-xs font-bold text-ink uppercase tracking-wider block">
             Add Off-Day Override:
           </span>
 
           {holidayError && (
-            <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-center gap-2">
+            <div className="p-2.5 bg-danger-soft border border-danger/20 rounded-lg text-xs text-danger flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{holidayError}</span>
             </div>
@@ -380,18 +380,18 @@ export default function ClinicScheduleTab() {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-1">
-              <label className="text-xs font-semibold text-[#1a1816]">Date (YYYY-MM-DD)</label>
+              <label className="text-xs font-semibold text-ink">Date (YYYY-MM-DD)</label>
               <input
                 type="date"
                 required
                 value={newHolidayDate}
                 onChange={(e) => setNewHolidayDate(e.target.value)}
-                className="w-full px-3 py-2 bg-white border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+                className="w-full px-3 py-2 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
               />
             </div>
 
             <div className="space-y-1 sm:col-span-2">
-              <label className="text-xs font-semibold text-[#1a1816]">Reason / Description</label>
+              <label className="text-xs font-semibold text-ink">Reason / Description</label>
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -399,12 +399,12 @@ export default function ClinicScheduleTab() {
                   value={newHolidayReason}
                   onChange={(e) => setNewHolidayReason(e.target.value)}
                   placeholder="e.g. Eid-ul-Fitr Holiday, Annual Inventory & Disinfection..."
-                  className="w-full px-3 py-2 bg-white border border-[#e6dfd5] rounded-xl text-xs text-[#1a1816] focus:outline-none focus:border-[#14281D]"
+                  className="w-full px-3 py-2 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                 />
                 <button
                   type="submit"
                   disabled={addingHoliday}
-                  className="px-4 py-2 bg-[#14281D] hover:bg-[#1e3d2c] text-white text-xs font-bold rounded-xl transition-all shrink-0 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  className="px-4 py-2 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold rounded-xl transition-all shrink-0 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
                   {addingHoliday ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
                   <span>Add Holiday</span>
@@ -416,12 +416,12 @@ export default function ClinicScheduleTab() {
 
         {/* Existing Holidays List */}
         <div className="space-y-2">
-          <span className="text-xs font-bold text-[#1a1816] uppercase tracking-wider block">
+          <span className="text-xs font-bold text-ink uppercase tracking-wider block">
             Scheduled Holidays ({holidays.length})
           </span>
 
           {holidays.length === 0 ? (
-            <p className="text-xs text-[#6a6660] italic">
+            <p className="text-xs text-ink-muted italic">
               No holiday blackout dates registered. Clinic operates based on standard weekly hours.
             </p>
           ) : (
@@ -429,20 +429,20 @@ export default function ClinicScheduleTab() {
               {holidays.map((h) => (
                 <div
                   key={h.date}
-                  className="p-3.5 bg-amber-50/60 border border-amber-200 rounded-xl flex items-center justify-between gap-3 text-xs"
+                  className="p-3.5 bg-warning-soft/60 border border-warning-line rounded-xl flex items-center justify-between gap-3 text-xs"
                 >
                   <div>
-                    <div className="font-bold text-[#1a1816] flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-amber-700" />
+                    <div className="font-bold text-ink flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5 text-warning" />
                       <span>{h.date}</span>
                     </div>
-                    <p className="text-[11px] text-[#78716C] mt-0.5">{h.reason}</p>
+                    <p className="text-[11px] text-ink-subtle mt-0.5">{h.reason}</p>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => handleDeleteHoliday(h.date)}
-                    className="w-7 h-7 rounded-lg bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                    className="w-7 h-7 rounded-lg bg-white border border-danger/20 hover:bg-danger-soft text-danger flex items-center justify-center transition-colors cursor-pointer shrink-0"
                     title="Remove Holiday"
                   >
                     <Trash2 className="w-3.5 h-3.5" />

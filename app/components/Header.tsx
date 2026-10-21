@@ -303,15 +303,15 @@ export default function Header() {
     <>
       {/* ─── 1. HIJAMA TOP BANNER (Mobile-Dedicated & Desktop Versions) ─── */}
       {/* 1A. Dedicated Mobile Version (< sm) — Full text, high visibility CTA, no ellipsis clipping */}
-      <div className="block sm:hidden bg-[#0f2b1d] text-[#f4eee5] px-3 py-2 border-b border-[#c59b27]/30 shadow-xs">
+      <div className="block sm:hidden bg-surface-inverse text-on-inverse px-3 py-2 border-b border-secondary/30 shadow-xs">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#c59b27]/20 text-[#c59b27] font-bold text-[10px] tracking-wider uppercase shrink-0 border border-[#c59b27]/40 shadow-2xs">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary/20 text-brand-gold-500 font-bold text-[10px] tracking-wider uppercase shrink-0 border border-secondary/40 shadow-2xs">
               <Moon className="w-2.5 h-2.5 fill-current" />
               <span>Sunnah Hijama</span>
             </span>
 
-            <strong className="text-[#c59b27] font-bold text-[11px] leading-tight shrink-0">
+            <strong className="text-brand-gold-500 font-bold text-[11px] leading-tight shrink-0">
               {hijamaBannerInfo ? (
                 hijamaBannerInfo.isToday
                   ? "Today is Sunnah Day!"
@@ -337,22 +337,22 @@ export default function Header() {
                 }
               }
             }}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#c59b27] hover:bg-[#d8ab2e] text-[#0f2b1d] font-bold text-[10px] uppercase tracking-wider shadow-2xs active:scale-95 transition-all shrink-0 cursor-pointer"
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-secondary hover:bg-brand-gold-400 text-ink font-bold text-[10px] uppercase tracking-wider shadow-2xs active:scale-95 transition-all shrink-0 cursor-pointer"
           >
             <span>Book Slot</span>
             <ArrowRight className="w-2.5 h-2.5" />
           </Link>
         </div>
 
-        <div className="mt-1 flex items-center justify-between text-[10.5px] text-[#c4d4c9] leading-tight pt-0.5">
-          <span className="font-medium text-[#e3ded6] min-w-0">
+        <div className="mt-1 flex items-center justify-between text-[10.5px] text-brand-green-300 leading-tight pt-0.5">
+          <span className="font-medium text-on-inverse min-w-0">
             {hijamaBannerInfo ? (
               <>
-                <span className="text-[#f4eee5] font-semibold">{hijamaBannerInfo.hijriText}</span>
-                <span className="text-[#86a894] mx-1">·</span>
+                <span className="text-on-inverse font-semibold">{hijamaBannerInfo.hijriText}</span>
+                <span className="text-brand-green-400 mx-1">·</span>
                 <span>{hijamaBannerInfo.gregText}</span>
-                <span className="text-[#86a894] mx-1">·</span>
-                <span className="text-[#86a894]">Male &amp; Female Wards</span>
+                <span className="text-brand-green-400 mx-1">·</span>
+                <span className="text-brand-green-400">Male &amp; Female Wards</span>
               </>
             ) : (
               "17th, 19th & 21st Lunar Dates · Separate Wards"
@@ -361,7 +361,7 @@ export default function Header() {
 
           <Link
             href="/track-order"
-            className="text-[10px] text-[#ded8ce] hover:text-[#c59b27] underline shrink-0 ml-2"
+            className="text-[10px] text-on-inverse hover:text-brand-gold-500 underline shrink-0 ml-2"
           >
             Track Order
           </Link>
@@ -369,26 +369,26 @@ export default function Header() {
       </div>
 
       {/* 1B. Desktop / Tablet Version (sm:block hidden) */}
-      <div className="hidden sm:block bg-[#0f2b1d] text-[#f4eee5] text-xs py-2 px-3 sm:px-6 border-b border-[#c59b27]/30">
+      <div className="hidden sm:block bg-surface-inverse text-on-inverse text-xs py-2 px-3 sm:px-6 border-b border-secondary/30">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#c59b27]/20 text-[#c59b27] font-bold text-[10px] tracking-wider uppercase shrink-0 border border-[#c59b27]/40 shadow-2xs">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary/20 text-brand-gold-500 font-bold text-[10px] tracking-wider uppercase shrink-0 border border-secondary/40 shadow-2xs">
               <Moon className="w-3 h-3 fill-current" />
               <span>Sunnah Hijama</span>
             </span>
 
-            <span className="truncate text-[#e3ded6] font-medium">
+            <span className="truncate text-on-inverse font-medium">
               {hijamaBannerInfo ? (
                 <>
-                  <strong className="text-[#c59b27] font-bold">
+                  <strong className="text-brand-gold-500 font-bold">
                     {hijamaBannerInfo.isToday
                       ? "Today is a Blessed Sunnah Day!"
                       : `${hijamaBannerInfo.daysAway} ${hijamaBannerInfo.daysAway === 1 ? "day" : "days"} left`}
                   </strong>{" "}
-                  <span className="text-[#c4d4c9] opacity-90">
+                  <span className="text-brand-green-300 opacity-90">
                     ({hijamaBannerInfo.hijriText} · {hijamaBannerInfo.gregText})
                   </span>
-                  <span className="hidden md:inline text-[#86a894]">
+                  <span className="hidden md:inline text-brand-green-400">
                     {" "}— Separate Male &amp; Female Wards
                   </span>
                 </>
@@ -414,29 +414,29 @@ export default function Header() {
                   }
                 }
               }}
-              className="inline-flex items-center gap-1 text-[#c59b27] hover:text-[#e8be52] font-bold hover:underline transition-colors shrink-0"
+              className="inline-flex items-center gap-1 text-brand-gold-500 hover:text-brand-gold-300 font-bold hover:underline transition-colors shrink-0"
             >
               <span>View Hijama Calendar &amp; Book</span>
               <ArrowRight className="w-3 h-3" />
             </Link>
 
-            <span className="hidden lg:inline opacity-30 text-[#e3ded6]">|</span>
+            <span className="hidden lg:inline opacity-30 text-on-inverse">|</span>
 
             <Link
               href="/track-order"
-              className="hidden lg:flex items-center gap-1.5 text-[#ded8ce] hover:text-[#c59b27] transition-colors"
+              className="hidden lg:flex items-center gap-1.5 text-on-inverse hover:text-brand-gold-500 transition-colors"
             >
-              <Truck className="w-3 h-3 text-[#c59b27]" />
+              <Truck className="w-3 h-3 text-brand-gold-500" />
               <span>Track Order</span>
             </Link>
 
-            <span className="hidden xl:inline opacity-30 text-[#e3ded6]">|</span>
+            <span className="hidden xl:inline opacity-30 text-on-inverse">|</span>
 
             <a
               href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden xl:flex items-center gap-1.5 text-[#25D366] hover:text-[#3ce27b] transition-colors font-medium"
+              className="hidden xl:flex items-center gap-1.5 text-whatsapp hover:text-whatsapp transition-colors font-medium"
             >
               <MessageCircle className="w-3 h-3 fill-current" />
               <span>WhatsApp Helpline</span>
@@ -449,8 +449,8 @@ export default function Header() {
       <header
         className={`sticky top-0 z-40 transition-all duration-200 ${
           isScrolled
-            ? "bg-white/95 backdrop-blur-md border-b border-[#e6dfd5] shadow-xs py-2"
-            : "bg-[#faf8f5] border-b border-[#e6dfd5] py-2.5 sm:py-3.5"
+            ? "bg-white/95 backdrop-blur-md border-b border-line shadow-xs py-2"
+            : "bg-surface border-b border-line py-2.5 sm:py-3.5"
         }`}
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
@@ -462,7 +462,7 @@ export default function Header() {
                 onClick={() =>
                   isMobileMenuOpen ? closeMobileMenu() : openMobileMenu()
                 }
-                className="xl:hidden p-2 -ml-1 text-[#22623a] hover:bg-black/5 rounded-lg transition-colors"
+                className="xl:hidden p-2 -ml-1 text-primary hover:bg-black/5 rounded-lg transition-colors"
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={isMobileMenuOpen}
                 aria-controls="mobile-nav-sheet"
@@ -504,25 +504,25 @@ export default function Header() {
                         onClick={(e) => handleNavClick(link.href, e)}
                         className={`text-sm font-medium transition-colors duration-150 relative py-1 flex items-center gap-1.5 ${
                           isActive
-                            ? "text-[#22623a]"
-                            : "text-[#59534b] hover:text-[#22623a]"
+                            ? "text-primary"
+                            : "text-ink-body hover:text-primary"
                         }`}
                       >
                         <span>{link.name}</span>
                         <ChevronDown
                           className={`w-3.5 h-3.5 transition-transform duration-200 ${
                             isShopDropdownOpen
-                              ? "rotate-180 text-[#22623a]"
-                              : "text-[#7a7268]"
+                              ? "rotate-180 text-primary"
+                              : "text-ink-subtle"
                           }`}
                         />
                         {link.badge && (
-                          <span className="px-1.5 py-0.5 bg-[#c59b27]/15 text-[#8c6a15] text-[9px] font-bold uppercase tracking-wider rounded-md border border-[#c59b27]/30">
+                          <span className="px-1.5 py-0.5 bg-secondary/15 text-brand-gold-800 text-[9px] font-bold uppercase tracking-wider rounded-md border border-secondary/30">
                             {link.badge}
                           </span>
                         )}
                         {isActive && (
-                          <span className="absolute -bottom-[3px] left-0 w-full h-[2px] bg-[#c59b27] rounded-full" />
+                          <span className="absolute -bottom-[3px] left-0 w-full h-[2px] bg-secondary rounded-full" />
                         )}
                       </Link>
 
@@ -533,21 +533,21 @@ export default function Header() {
                           onMouseEnter={handleShopMouseEnter}
                           onMouseLeave={handleShopMouseLeave}
                         >
-                          <div className="bg-white rounded-2xl shadow-2xl border border-[#e6dfd5] p-5 overflow-hidden">
+                          <div className="bg-white rounded-2xl shadow-2xl border border-line p-5 overflow-hidden">
                             {/* Header bar */}
-                            <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-[#f0eae1]">
+                            <div className="flex items-center justify-between pb-3.5 mb-3.5 border-b border-sand-100">
                               <div>
-                                <h3 className="font-serif font-bold text-sm text-[#22623a]">
+                                <h3 className="font-serif font-bold text-sm text-primary">
                                   Apothecary Collections &amp; Categories
                                 </h3>
-                                <p className="text-[11px] text-[#7a7268]">
+                                <p className="text-[11px] text-ink-subtle">
                                   Pure, unadulterated &amp; clinically verified herbal remedies
                                 </p>
                               </div>
                               <Link
                                 href="/products"
                                 onClick={() => setIsShopDropdownOpen(false)}
-                                className="inline-flex items-center gap-1 text-xs font-bold text-[#8c6a15] hover:text-[#6e520e] transition-colors group"
+                                className="inline-flex items-center gap-1 text-xs font-bold text-secondary-text hover:text-brand-gold-900 transition-colors group"
                               >
                                 <span>All Products</span>
                                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -565,37 +565,37 @@ export default function Header() {
                                     onClick={() => setIsShopDropdownOpen(false)}
                                     className={`group flex items-start gap-3 p-2.5 rounded-xl transition-all border ${
                                       item.highlight
-                                        ? "bg-amber-50/70 border-amber-200/80 hover:bg-amber-100/70 hover:border-amber-300"
-                                        : "bg-[#faf8f5]/60 border-transparent hover:bg-[#f0f6f2] hover:border-[#22623a]/15 hover:shadow-xs"
+                                        ? "bg-warning-soft/70 border-warning-line/80 hover:bg-warning-soft/70 hover:border-warning-line"
+                                        : "bg-surface/60 border-transparent hover:bg-brand-green-50 hover:border-primary/15 hover:shadow-xs"
                                     }`}
                                   >
                                     <div
                                       className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${
                                         item.highlight
-                                          ? "bg-amber-100 text-amber-700"
-                                          : "bg-[#eef7f1] text-[#22623a] group-hover:bg-[#22623a] group-hover:text-white"
+                                          ? "bg-warning-soft text-warning"
+                                          : "bg-brand-green-50 text-primary group-hover:bg-primary group-hover:text-white"
                                       }`}
                                     >
                                       <SubIcon className="w-4 h-4" />
                                     </div>
                                     <div className="min-w-0 flex-1">
                                       <div className="flex items-center gap-2">
-                                        <span className="font-bold text-xs text-[#22623a] group-hover:text-[#174829] transition-colors">
+                                        <span className="font-bold text-xs text-primary group-hover:text-brand-green-900 transition-colors">
                                           {item.name}
                                         </span>
                                         {item.badge && (
                                           <span
                                             className={`px-1.5 py-0.2 text-[8px] font-extrabold uppercase tracking-wider rounded-md border ${
                                               item.highlight
-                                                ? "bg-red-500 text-white border-red-600 animate-pulse"
-                                                : "bg-[#c59b27]/15 text-[#8c6a15] border-[#c59b27]/30"
+                                                ? "bg-danger text-white border-danger animate-pulse"
+                                                : "bg-secondary/15 text-brand-gold-800 border-secondary/30"
                                             }`}
                                           >
                                             {item.badge}
                                           </span>
                                         )}
                                       </div>
-                                      <p className="text-[10px] text-[#7a7268] line-clamp-1 leading-snug mt-0.5">
+                                      <p className="text-[10px] text-ink-subtle line-clamp-1 leading-snug mt-0.5">
                                         {item.subtitle}
                                       </p>
                                     </div>
@@ -605,9 +605,9 @@ export default function Header() {
                             </div>
 
                             {/* Footer Bar */}
-                            <div className="mt-3.5 pt-3 border-t border-[#f0eae1] flex items-center justify-between text-[11px] text-[#7a7268] bg-[#faf8f5] -mx-5 -mb-5 px-5 py-2.5">
+                            <div className="mt-3.5 pt-3 border-t border-sand-100 flex items-center justify-between text-[11px] text-ink-subtle bg-surface -mx-5 -mb-5 px-5 py-2.5">
                               <span className="flex items-center gap-1.5">
-                                <Sparkles className="w-3.5 h-3.5 text-[#c59b27]" />
+                                <Sparkles className="w-3.5 h-3.5 text-secondary-text" />
                                 <span>Free delivery on orders above Rs. 2,000 across Pakistan</span>
                               </span>
                               <button
@@ -616,7 +616,7 @@ export default function Header() {
                                   setIsShopDropdownOpen(false);
                                   openConsult();
                                 }}
-                                className="text-[#22623a] font-bold hover:underline"
+                                className="text-primary font-bold hover:underline"
                               >
                                 Ask a Hakim →
                               </button>
@@ -642,18 +642,18 @@ export default function Header() {
                       }
                       className={`text-sm font-medium transition-colors duration-150 relative py-1 flex items-center gap-1.5 cursor-pointer ${
                         isConsultOpen
-                          ? "text-[#22623a]"
-                          : "text-[#59534b] hover:text-[#22623a]"
+                          ? "text-primary"
+                          : "text-ink-body hover:text-primary"
                       }`}
                     >
                       <span>{link.name}</span>
                       {link.badge && (
-                        <span className="px-1.5 py-0.5 bg-[#c59b27]/15 text-[#8c6a15] text-[9px] font-bold uppercase tracking-wider rounded-md border border-[#c59b27]/30">
+                        <span className="px-1.5 py-0.5 bg-secondary/15 text-brand-gold-800 text-[9px] font-bold uppercase tracking-wider rounded-md border border-secondary/30">
                           {link.badge}
                         </span>
                       )}
                       {isConsultOpen && (
-                        <span className="absolute -bottom-[3px] left-0 w-full h-[2px] bg-[#c59b27] rounded-full" />
+                        <span className="absolute -bottom-[3px] left-0 w-full h-[2px] bg-secondary rounded-full" />
                       )}
                     </button>
                   );
@@ -666,8 +666,8 @@ export default function Header() {
                     onClick={(e) => handleNavClick(link.href, e)}
                     className={`text-sm font-medium transition-colors duration-150 relative py-1 flex items-center gap-1.5 ${
                       isActive
-                        ? "text-[#22623a]"
-                        : "text-[#59534b] hover:text-[#22623a]"
+                        ? "text-primary"
+                        : "text-ink-body hover:text-primary"
                     }`}
                   >
                     <span>{link.name}</span>
@@ -675,15 +675,15 @@ export default function Header() {
                       <span
                         className={`px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md border transition-all ${
                           link.badge === "Sunnah"
-                            ? "bg-[#0f2b1d] text-[#c59b27] border-[#c59b27]/60 shadow-xs"
-                            : "bg-[#c59b27]/15 text-[#8c6a15] border-[#c59b27]/30"
+                            ? "bg-surface-inverse text-brand-gold-500 border-secondary/60 shadow-xs"
+                            : "bg-secondary/15 text-brand-gold-800 border-secondary/30"
                         }`}
                       >
                         {link.badge}
                       </span>
                     )}
                     {isActive && (
-                      <span className="absolute -bottom-[3px] left-0 w-full h-[2px] bg-[#c59b27] rounded-full" />
+                      <span className="absolute -bottom-[3px] left-0 w-full h-[2px] bg-secondary rounded-full" />
                     )}
                   </Link>
                 );
@@ -695,7 +695,7 @@ export default function Header() {
               <button
                 type="button"
                 onClick={openSearch}
-                className="p-2 text-[#59534b] hover:text-[#22623a] hover:bg-black/5 rounded-full transition-colors"
+                className="p-2 text-ink-body hover:text-primary hover:bg-black/5 rounded-full transition-colors"
                 title="Search Remedies & Symptoms"
                 aria-label="Search"
               >
@@ -708,8 +708,8 @@ export default function Header() {
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className={`p-2 rounded-full transition-colors ${
                     session
-                      ? "text-[#22623a] bg-[#f0eae1] hover:bg-[#e6dfd5]"
-                      : "text-[#59534b] hover:text-[#22623a] hover:bg-black/5"
+                      ? "text-primary bg-surface-sunken hover:bg-line"
+                      : "text-ink-body hover:text-primary hover:bg-black/5"
                   }`}
                   title={session ? session.user.name : "Account & Orders"}
                   aria-label="User Account"
@@ -719,36 +719,36 @@ export default function Header() {
                 </button>
 
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-[#e6dfd5] py-1.5 z-50 animate-fade-in text-xs">
+                  <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-xl border border-line py-1.5 z-50 animate-fade-in text-xs">
                     {session ? (
                       <>
-                        <div className="px-3.5 py-2 border-b border-[#f4eee5]">
-                          <p className="font-bold text-[#22623a] truncate">
+                        <div className="px-3.5 py-2 border-b border-sand-100">
+                          <p className="font-bold text-primary truncate">
                             {session.user.name}
                           </p>
-                          <p className="text-[10px] text-[#6a6660] truncate">
+                          <p className="text-[10px] text-ink-muted truncate">
                             {session.user.email}
                           </p>
                         </div>
                         <Link
                           href="/account"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="w-full px-3.5 py-2 text-left text-[#22623a] hover:bg-[#faf8f5] flex items-center gap-2 font-semibold"
+                          className="w-full px-3.5 py-2 text-left text-primary hover:bg-surface flex items-center gap-2 font-semibold"
                         >
-                          <User className="w-3.5 h-3.5 text-[#2d7648]" />
+                          <User className="w-3.5 h-3.5 text-brand-green-600" />
                           <span>My Account &amp; Orders</span>
                         </Link>
                         <Link
                           href="/wishlist"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="w-full px-3.5 py-2 text-left text-[#59534b] hover:bg-[#faf8f5] flex items-center justify-between"
+                          className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center justify-between"
                         >
                           <div className="flex items-center gap-2">
-                            <Heart className="w-3.5 h-3.5 text-red-500" />
+                            <Heart className="w-3.5 h-3.5 text-danger" />
                             <span>Saved Remedies</span>
                           </div>
                           {wishlist.length > 0 && (
-                            <span className="px-1.5 py-0.2 bg-red-100 text-red-700 text-[10px] font-bold rounded-full">
+                            <span className="px-1.5 py-0.2 bg-danger-soft text-danger text-[10px] font-bold rounded-full">
                               {wishlist.length}
                             </span>
                           )}
@@ -757,16 +757,16 @@ export default function Header() {
                           <Link
                             href="/admin"
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="w-full px-3.5 py-2 text-left text-[#22623a] hover:bg-[#faf8f5] flex items-center gap-2 font-medium"
+                            className="w-full px-3.5 py-2 text-left text-primary hover:bg-surface flex items-center gap-2 font-medium"
                           >
-                            <Shield className="w-3.5 h-3.5 text-[#c59b27]" />
+                            <Shield className="w-3.5 h-3.5 text-secondary-text" />
                             <span>Staff / Admin Portal</span>
                           </Link>
                         )}
                         <Link
                           href="/track-order"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="w-full px-3.5 py-2 text-left text-[#59534b] hover:bg-[#faf8f5] flex items-center gap-2"
+                          className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center gap-2"
                         >
                           <Truck className="w-3.5 h-3.5" />
                           <span>Track My Orders</span>
@@ -777,7 +777,7 @@ export default function Header() {
                             signOut();
                             setIsUserMenuOpen(false);
                           }}
-                          className="w-full px-3.5 py-2 text-left text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-[#f4eee5] mt-1"
+                          className="w-full px-3.5 py-2 text-left text-danger hover:bg-danger-soft flex items-center gap-2 border-t border-sand-100 mt-1"
                         >
                           <LogOut className="w-3.5 h-3.5" />
                           <span>Sign Out</span>
@@ -788,22 +788,22 @@ export default function Header() {
                         <Link
                           href="/account"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="w-full px-3.5 py-2 text-left text-[#22623a] hover:bg-[#faf8f5] flex items-center gap-2 font-semibold"
+                          className="w-full px-3.5 py-2 text-left text-primary hover:bg-surface flex items-center gap-2 font-semibold"
                         >
-                          <User className="w-3.5 h-3.5 text-[#2d7648]" />
+                          <User className="w-3.5 h-3.5 text-brand-green-600" />
                           <span>My Account</span>
                         </Link>
                         <Link
                           href="/wishlist"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="w-full px-3.5 py-2 text-left text-[#59534b] hover:bg-[#faf8f5] flex items-center justify-between"
+                          className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center justify-between"
                         >
                           <div className="flex items-center gap-2">
-                            <Heart className="w-3.5 h-3.5 text-red-500" />
+                            <Heart className="w-3.5 h-3.5 text-danger" />
                             <span>Saved Remedies</span>
                           </div>
                           {wishlist.length > 0 && (
-                            <span className="px-1.5 py-0.2 bg-red-100 text-red-700 text-[10px] font-bold rounded-full">
+                            <span className="px-1.5 py-0.2 bg-danger-soft text-danger text-[10px] font-bold rounded-full">
                               {wishlist.length}
                             </span>
                           )}
@@ -811,21 +811,21 @@ export default function Header() {
                         <Link
                           href="/login"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="w-full px-3.5 py-2 text-left text-[#59534b] hover:bg-[#faf8f5] flex items-center gap-2"
+                          className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center gap-2"
                         >
                           <span>Sign In</span>
                         </Link>
                         <Link
                           href="/register"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="w-full px-3.5 py-2 text-left text-[#59534b] hover:bg-[#faf8f5] flex items-center gap-2"
+                          className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center gap-2"
                         >
                           <span>Create Account</span>
                         </Link>
                         <Link
                           href="/track-order"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="w-full px-3.5 py-2 text-left text-[#59534b] hover:bg-[#faf8f5] flex items-center gap-2 border-t border-[#f4eee5]"
+                          className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center gap-2 border-t border-sand-100"
                         >
                           <Truck className="w-3.5 h-3.5" />
                           <span>Track Order (COD)</span>
@@ -838,19 +838,19 @@ export default function Header() {
 
               <Link
                 href="/wishlist"
-                className="relative hidden xl:inline-flex p-2 text-[#59534b] hover:text-[#22623a] hover:bg-black/5 rounded-full transition-colors"
+                className="relative hidden xl:inline-flex p-2 text-ink-body hover:text-primary hover:bg-black/5 rounded-full transition-colors"
                 title="Saved Remedies & Wishlist"
                 aria-label="Wishlist"
               >
                 <Heart
                   className={`w-4 h-4 transition-colors ${
                     wishlist.length > 0
-                      ? "text-red-500 fill-red-500"
-                      : "text-[#59534b]"
+                      ? "text-danger fill-danger"
+                      : "text-ink-body"
                   }`}
                 />
                 {wishlist.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white font-bold text-[9px] rounded-full flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-danger text-white font-bold text-[9px] rounded-full flex items-center justify-center shadow-xs">
                     {wishlist.length}
                   </span>
                 )}
@@ -859,30 +859,30 @@ export default function Header() {
               <button
                 type="button"
                 onClick={openCart}
-                className="relative p-2 text-[#22623a] hover:bg-white rounded-full transition-colors border border-[#e6dfd5] bg-white shadow-2xs hover:shadow-xs"
+                className="relative p-2 text-primary hover:bg-white rounded-full transition-colors border border-line bg-white shadow-2xs hover:shadow-xs"
                 aria-label="Shopping Cart"
               >
                 <ShoppingBag
                   key={totalItems}
-                  className={`w-4 h-4 text-[#22623a] ${
+                  className={`w-4 h-4 text-primary ${
                     totalItems > 0 ? "animate-pop" : ""
                   }`}
                 />
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#c59b27] text-[#22623a] font-bold text-[9px] rounded-full flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-secondary text-on-secondary font-bold text-[9px] rounded-full flex items-center justify-center shadow-xs">
                     {totalItems}
                   </span>
                 )}
               </button>
 
               {/* CTA button hidden for now per instructions */}
-              {/* <div className="hidden xl:block h-6 w-[1px] bg-[#e6dfd5] mx-0.5" />
+              {/* <div className="hidden xl:block h-6 w-[1px] bg-line mx-0.5" />
               <button
                 type="button"
                 onClick={openConsult}
-                className="hidden xl:inline-flex items-center gap-2 px-4 py-2.5 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs hover:shadow-md active:scale-98"
+                className="hidden xl:inline-flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-brand-green-800 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs hover:shadow-md active:scale-98"
               >
-                <Calendar className="w-3.5 h-3.5 text-[#c59b27]" />
+                <Calendar className="w-3.5 h-3.5 text-secondary-text" />
                 <span>Book Appointment</span>
               </button> */}
             </div>
@@ -895,7 +895,7 @@ export default function Header() {
         <div className="fixed inset-0 z-50 overflow-hidden xl:hidden">
           <div
             onClick={closeMobileMenu}
-            className="absolute inset-0 bg-[#0c2417]/50 backdrop-blur-xs animate-fade-in"
+            className="absolute inset-0 bg-surface-inverse/50 backdrop-blur-xs animate-fade-in"
             aria-hidden="true"
           />
 
@@ -905,9 +905,9 @@ export default function Header() {
               role="dialog"
               aria-modal="true"
               aria-label="Site menu"
-              className="w-screen max-w-sm bg-[#faf8f5] shadow-drawer flex flex-col h-full border-l border-[#e6dfd5] animate-slide-in-right"
+              className="w-screen max-w-sm bg-surface shadow-drawer flex flex-col h-full border-l border-line animate-slide-in-right"
             >
-              <div className="p-4 border-b border-[#e6dfd5] bg-white flex items-center justify-between shrink-0">
+              <div className="p-4 border-b border-line bg-white flex items-center justify-between shrink-0">
                 <Link
                   href="/"
                   onClick={(e) => handleMobileNavClick("/", e)}
@@ -920,7 +920,7 @@ export default function Header() {
                   ref={closeMenuRef}
                   type="button"
                   onClick={closeMobileMenu}
-                  className="p-2 rounded-full text-[#7a7268] hover:text-[#22623a] hover:bg-[#faf8f5] transition-colors"
+                  className="p-2 rounded-full text-ink-subtle hover:text-primary hover:bg-surface transition-colors"
                   aria-label="Close menu"
                 >
                   <X className="w-5 h-5" />
@@ -947,14 +947,14 @@ export default function Header() {
                               onClick={(e) => handleMobileNavClick(link.href, e)}
                               className={`flex items-center gap-3 py-2.5 px-3 text-sm font-semibold rounded-xl flex-1 ${
                                 isActive
-                                  ? "bg-[#eef7f1] text-[#22623a] font-bold"
-                                  : "text-[#59534b]"
+                                  ? "bg-brand-green-50 text-primary font-bold"
+                                  : "text-ink-body"
                               }`}
                             >
-                              <Icon className="w-4 h-4 text-[#22623a] shrink-0" />
+                              <Icon className="w-4 h-4 text-primary shrink-0" />
                               <span className="flex-1">{link.name}</span>
                               {link.badge && (
-                                <span className="px-1.5 py-0.5 bg-[#c59b27]/15 text-[#8c6a15] text-[9px] font-bold uppercase tracking-wider rounded-md border border-[#c59b27]/30">
+                                <span className="px-1.5 py-0.5 bg-secondary/15 text-brand-gold-800 text-[9px] font-bold uppercase tracking-wider rounded-md border border-secondary/30">
                                   {link.badge}
                                 </span>
                               )}
@@ -962,12 +962,12 @@ export default function Header() {
                             <button
                               type="button"
                               onClick={() => setIsMobileShopExpanded(!isMobileShopExpanded)}
-                              className="p-2.5 text-[#7a7268] hover:text-[#22623a] transition-colors"
+                              className="p-2.5 text-ink-subtle hover:text-primary transition-colors"
                               aria-label="Toggle Shop categories"
                             >
                               <ChevronDown
                                 className={`w-4 h-4 transition-transform duration-200 ${
-                                  isMobileShopExpanded ? "rotate-180 text-[#22623a]" : ""
+                                  isMobileShopExpanded ? "rotate-180 text-primary" : ""
                                 }`}
                               />
                             </button>
@@ -975,7 +975,7 @@ export default function Header() {
 
                           {/* Mobile Submenu Accordion */}
                           {isMobileShopExpanded && (
-                            <div className="pl-3 pr-1 py-1 space-y-1 animate-fade-in border-l-2 border-[#22623a]/20 ml-4 my-1">
+                            <div className="pl-3 pr-1 py-1 space-y-1 animate-fade-in border-l-2 border-primary/20 ml-4 my-1">
                               {SHOP_SUBMENU_ITEMS.map((item) => {
                                 const SubIcon = item.icon;
                                 return (
@@ -985,14 +985,14 @@ export default function Header() {
                                     onClick={(e) => handleMobileNavClick(item.href, e)}
                                     className={`flex items-center justify-between py-2 px-2.5 rounded-lg text-xs font-medium transition-colors ${
                                       item.highlight
-                                        ? "bg-amber-50 text-amber-900 hover:bg-amber-100"
-                                        : "text-[#59534b] hover:bg-white hover:text-[#22623a]"
+                                        ? "bg-warning-soft text-warning hover:bg-warning-soft"
+                                        : "text-ink-body hover:bg-white hover:text-primary"
                                     }`}
                                   >
                                     <div className="flex items-center gap-2.5 min-w-0">
                                       <SubIcon
                                         className={`w-3.5 h-3.5 shrink-0 ${
-                                          item.highlight ? "text-amber-600" : "text-[#22623a]"
+                                          item.highlight ? "text-warning" : "text-primary"
                                         }`}
                                       />
                                       <span className="truncate">{item.name}</span>
@@ -1001,8 +1001,8 @@ export default function Header() {
                                       <span
                                         className={`px-1.5 py-0.2 text-[8px] font-extrabold uppercase rounded-md shrink-0 border ${
                                           item.highlight
-                                            ? "bg-red-500 text-white border-red-600"
-                                            : "bg-[#c59b27]/15 text-[#8c6a15] border-[#c59b27]/30"
+                                            ? "bg-danger text-white border-danger"
+                                            : "bg-secondary/15 text-brand-gold-800 border-secondary/30"
                                         }`}
                                       >
                                         {item.badge}
@@ -1014,7 +1014,7 @@ export default function Header() {
                               <Link
                                 href="/products"
                                 onClick={(e) => handleMobileNavClick("/products", e)}
-                                className="flex items-center gap-2 py-2 px-2.5 rounded-lg text-xs font-bold text-[#8c6a15] hover:bg-white transition-colors"
+                                className="flex items-center gap-2 py-2 px-2.5 rounded-lg text-xs font-bold text-secondary-text hover:bg-white transition-colors"
                               >
                                 <ArrowRight className="w-3.5 h-3.5" />
                                 <span>View All Products</span>
@@ -1039,14 +1039,14 @@ export default function Header() {
                           }
                           className={`flex items-center gap-3 py-2.5 px-3 text-sm font-semibold rounded-xl transition-colors w-full text-left cursor-pointer ${
                             isConsultOpen
-                              ? "bg-[#eef7f1] text-[#22623a] font-bold"
-                              : "text-[#59534b] hover:bg-white"
+                              ? "bg-brand-green-50 text-primary font-bold"
+                              : "text-ink-body hover:bg-white"
                           }`}
                         >
-                          <Icon className="w-4 h-4 text-[#22623a] shrink-0" />
+                          <Icon className="w-4 h-4 text-primary shrink-0" />
                           <span className="flex-1">{link.name}</span>
                           {link.badge && (
-                            <span className="px-1.5 py-0.5 bg-[#c59b27]/15 text-[#8c6a15] text-[9px] font-bold uppercase tracking-wider rounded-md border border-[#c59b27]/30">
+                            <span className="px-1.5 py-0.5 bg-secondary/15 text-brand-gold-800 text-[9px] font-bold uppercase tracking-wider rounded-md border border-secondary/30">
                               {link.badge}
                             </span>
                           )}
@@ -1061,15 +1061,15 @@ export default function Header() {
                         onClick={(e) => handleMobileNavClick(link.href, e)}
                         className={`flex items-center gap-3 py-2.5 px-3 text-sm font-semibold rounded-xl transition-colors ${
                           isActive
-                            ? "bg-[#eef7f1] text-[#22623a] font-bold"
-                            : "text-[#59534b] hover:bg-white"
+                            ? "bg-brand-green-50 text-primary font-bold"
+                            : "text-ink-body hover:bg-white"
                         }`}
                       >
                         <Icon
                           className={`w-4 h-4 shrink-0 ${
                             link.badge === "Sunnah"
-                              ? "text-[#c59b27]"
-                              : "text-[#22623a]"
+                              ? "text-secondary-text"
+                              : "text-primary"
                           }`}
                         />
                         <span className="flex-1">{link.name}</span>
@@ -1077,8 +1077,8 @@ export default function Header() {
                           <span
                             className={`px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md border transition-all ${
                               link.badge === "Sunnah"
-                                ? "bg-[#0f2b1d] text-[#c59b27] border-[#c59b27]/60 shadow-xs"
-                                : "bg-[#c59b27]/15 text-[#8c6a15] border-[#c59b27]/30"
+                                ? "bg-surface-inverse text-brand-gold-500 border-secondary/60 shadow-xs"
+                                : "bg-secondary/15 text-brand-gold-800 border-secondary/30"
                             }`}
                           >
                             {link.badge}
@@ -1091,14 +1091,14 @@ export default function Header() {
                   <Link
                     href="/wishlist"
                     onClick={closeMobileMenu}
-                    className="flex items-center justify-between py-2.5 px-3 text-sm font-semibold text-[#59534b] hover:bg-white rounded-xl transition-colors"
+                    className="flex items-center justify-between py-2.5 px-3 text-sm font-semibold text-ink-body hover:bg-white rounded-xl transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <Heart className="w-4 h-4 text-red-500" />
+                      <Heart className="w-4 h-4 text-danger" />
                       <span>Saved Remedies</span>
                     </div>
                     {wishlist.length > 0 && (
-                      <span className="px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-bold rounded-full">
+                      <span className="px-2 py-0.5 bg-danger-soft text-danger text-[10px] font-bold rounded-full">
                         {wishlist.length}
                       </span>
                     )}
@@ -1107,9 +1107,9 @@ export default function Header() {
                   <Link
                     href="/track-order"
                     onClick={closeMobileMenu}
-                    className="flex items-center gap-3 py-2.5 px-3 text-sm font-semibold text-[#59534b] hover:bg-white rounded-xl transition-colors"
+                    className="flex items-center gap-3 py-2.5 px-3 text-sm font-semibold text-ink-body hover:bg-white rounded-xl transition-colors"
                   >
-                    <Truck className="w-4 h-4 text-[#8c6a15]" />
+                    <Truck className="w-4 h-4 text-secondary-text" />
                     <span>Track Order</span>
                   </Link>
 
@@ -1118,16 +1118,16 @@ export default function Header() {
                       <Link
                         href="/admin"
                         onClick={closeMobileMenu}
-                        className="flex items-center gap-3 py-2.5 px-3 text-sm font-semibold text-[#59534b] hover:bg-white rounded-xl transition-colors"
+                        className="flex items-center gap-3 py-2.5 px-3 text-sm font-semibold text-ink-body hover:bg-white rounded-xl transition-colors"
                       >
-                        <Shield className="w-4 h-4 text-[#2d7648]" />
+                        <Shield className="w-4 h-4 text-brand-green-600" />
                         <span>Staff / Admin Portal</span>
                       </Link>
                     )}
                 </nav>
               </div>
 
-              <div className="p-4 border-t border-[#e6dfd5] bg-white shrink-0">
+              <div className="p-4 border-t border-line bg-white shrink-0">
                 {session ? (
                   <div className="flex items-center justify-between gap-3">
                     <Link
@@ -1135,8 +1135,8 @@ export default function Header() {
                       onClick={closeMobileMenu}
                       className="text-xs min-w-0"
                     >
-                      <span className="text-[#6a6660] block">Signed in as</span>
-                      <strong className="text-[#22623a] truncate block">
+                      <span className="text-ink-muted block">Signed in as</span>
+                      <strong className="text-primary truncate block">
                         {session.user.name}
                       </strong>
                     </Link>
@@ -1146,7 +1146,7 @@ export default function Header() {
                         signOut();
                         closeMobileMenu();
                       }}
-                      className="text-xs text-red-600 font-semibold px-3 py-1.5 bg-red-50 rounded-lg shrink-0"
+                      className="text-xs text-danger font-semibold px-3 py-1.5 bg-danger-soft rounded-lg shrink-0"
                     >
                       Sign Out
                     </button>
@@ -1156,14 +1156,14 @@ export default function Header() {
                     <Link
                       href="/login"
                       onClick={closeMobileMenu}
-                      className="flex-1 text-center py-2.5 bg-[#22623a] text-white font-semibold text-xs rounded-lg"
+                      className="flex-1 text-center py-2.5 bg-primary text-white font-semibold text-xs rounded-lg"
                     >
                       Sign In
                     </Link>
                     <Link
                       href="/register"
                       onClick={closeMobileMenu}
-                      className="flex-1 text-center py-2.5 bg-[#faf8f5] border border-[#e6dfd5] text-[#59534b] font-semibold text-xs rounded-lg"
+                      className="flex-1 text-center py-2.5 bg-surface border border-line text-ink-body font-semibold text-xs rounded-lg"
                     >
                       Register
                     </Link>

@@ -439,15 +439,15 @@ export default function HijamaScheduleManager() {
   return (
     <div className="space-y-6">
       {/* ─── Mode Switcher Bar ─── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-[#e6dfd5] shadow-2xs">
-        <div className="flex items-center gap-1.5 p-1 bg-[#f4eee5]/70 rounded-xl border border-[#e6dfd5]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-line shadow-2xs">
+        <div className="flex items-center gap-1.5 p-1 bg-surface-sunken/70 rounded-xl border border-line">
           <button
             type="button"
             onClick={() => setActiveMode("weekly")}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               activeMode === "weekly"
-                ? "bg-[#14281D] text-white shadow-xs"
-                : "text-[#59534b] hover:text-[#14281D]"
+                ? "bg-surface-inverse text-white shadow-xs"
+                : "text-ink-body hover:text-ink"
             }`}
           >
             <Calendar className="w-3.5 h-3.5" />
@@ -459,8 +459,8 @@ export default function HijamaScheduleManager() {
             onClick={() => setActiveMode("dates")}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               activeMode === "dates"
-                ? "bg-[#14281D] text-white shadow-xs"
-                : "text-[#59534b] hover:text-[#14281D]"
+                ? "bg-surface-inverse text-white shadow-xs"
+                : "text-ink-body hover:text-ink"
             }`}
           >
             <CalendarDays className="w-3.5 h-3.5" />
@@ -472,8 +472,8 @@ export default function HijamaScheduleManager() {
             onClick={() => setActiveMode("settings")}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               activeMode === "settings"
-                ? "bg-[#14281D] text-white shadow-xs"
-                : "text-[#59534b] hover:text-[#14281D]"
+                ? "bg-surface-inverse text-white shadow-xs"
+                : "text-ink-body hover:text-ink"
             }`}
           >
             <Moon className="w-3.5 h-3.5" />
@@ -485,7 +485,7 @@ export default function HijamaScheduleManager() {
           type="button"
           onClick={fetchConfig}
           disabled={loading}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-[#59534b] hover:bg-[#faf8f5] border border-[#e6dfd5] transition-all cursor-pointer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-ink-body hover:bg-surface border border-line transition-all cursor-pointer"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
           <span>Refresh</span>
@@ -497,22 +497,22 @@ export default function HijamaScheduleManager() {
         <div
           className={`p-3.5 rounded-xl text-xs flex items-center justify-between gap-2 animate-fade-in ${
             statusMsg.type === "success"
-              ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
-              : "bg-rose-50 border border-rose-200 text-rose-800"
+              ? "bg-success-soft border border-success-line text-success"
+              : "bg-danger-soft border border-danger/20 text-danger"
           }`}
         >
           <div className="flex items-center gap-2">
             {statusMsg.type === "success" ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              <AlertCircle className="w-4 h-4 text-danger shrink-0" />
             )}
             <span>{statusMsg.text}</span>
           </div>
           <button
             type="button"
             onClick={() => setStatusMsg(null)}
-            className="text-stone-400 hover:text-stone-700 font-bold"
+            className="text-ink-subtle hover:text-neutral-700 font-bold"
           >
             ×
           </button>
@@ -538,11 +538,11 @@ export default function HijamaScheduleManager() {
                   onClick={() => setSelectedDayIdx(idx)}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 border shrink-0 ${
                     isSelected
-                      ? "bg-[#14281D] text-white border-[#14281D] shadow-xs"
-                      : "bg-white text-[#59534b] border-[#e6dfd5] hover:border-[#14281D]"
+                      ? "bg-surface-inverse text-white border-ink shadow-xs"
+                      : "bg-white text-ink-body border-line hover:border-ink"
                   }`}
                 >
-                  <span className={`w-2 h-2 rounded-full ${isOpen ? "bg-emerald-500" : "bg-stone-300"}`} />
+                  <span className={`w-2 h-2 rounded-full ${isOpen ? "bg-success" : "bg-line-strong"}`} />
                   <span>{dName}</span>
                 </button>
               );
@@ -551,13 +551,13 @@ export default function HijamaScheduleManager() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left 6 cols: Operating hours, Slicer & Capacity Controls */}
-            <div className="lg:col-span-6 bg-white rounded-2xl border border-[#e6dfd5] p-5 shadow-2xs space-y-5">
-              <div className="flex items-center justify-between pb-3 border-b border-[#f0eae1]">
+            <div className="lg:col-span-6 bg-white rounded-2xl border border-line p-5 shadow-2xs space-y-5">
+              <div className="flex items-center justify-between pb-3 border-b border-sand-100">
                 <div>
-                  <h3 className="font-serif text-base font-bold text-[#14281D]">
+                  <h3 className="font-serif text-base font-bold text-ink">
                     {currentDay.dayName} Timing &amp; Slicer
                   </h3>
-                  <p className="text-[11px] text-[#7a7268]">
+                  <p className="text-[11px] text-ink-subtle">
                     Set hours, choose slot duration, and auto-slice into slots.
                   </p>
                 </div>
@@ -567,8 +567,8 @@ export default function HijamaScheduleManager() {
                   onClick={() => updateCurrentDay({ isOpen: !currentDay.isOpen })}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     currentDay.isOpen
-                      ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
-                      : "bg-stone-100 text-stone-600 border border-stone-300"
+                      ? "bg-success-soft text-success border border-success-line"
+                      : "bg-surface-sunken text-ink-body border border-line-strong"
                   }`}
                 >
                   {currentDay.isOpen ? "Clinic Open" : "Closed on this Day"}
@@ -578,25 +578,25 @@ export default function HijamaScheduleManager() {
               {/* Operating Hours Inputs */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                  <label className="text-[11px] font-semibold text-ink-body block mb-1">
                     Opening Time (24h)
                   </label>
                   <input
                     type="time"
                     value={currentDay.openTime}
                     onChange={(e) => updateCurrentDay({ openTime: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#14281D] font-medium"
+                    className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink font-medium"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                  <label className="text-[11px] font-semibold text-ink-body block mb-1">
                     Closing Time (24h)
                   </label>
                   <input
                     type="time"
                     value={currentDay.closeTime}
                     onChange={(e) => updateCurrentDay({ closeTime: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#14281D] font-medium"
+                    className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink font-medium"
                   />
                 </div>
               </div>
@@ -604,7 +604,7 @@ export default function HijamaScheduleManager() {
               {/* Capacities */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                  <label className="text-[11px] font-semibold text-ink-body block mb-1">
                     Male Ward Capacity (per slot)
                   </label>
                   <input
@@ -613,11 +613,11 @@ export default function HijamaScheduleManager() {
                     max={20}
                     value={currentDay.maxMaleCapacity}
                     onChange={(e) => updateCurrentDay({ maxMaleCapacity: Number(e.target.value) })}
-                    className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#14281D] font-medium"
+                    className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink font-medium"
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                  <label className="text-[11px] font-semibold text-ink-body block mb-1">
                     Female Ward Capacity (per slot)
                   </label>
                   <input
@@ -626,19 +626,19 @@ export default function HijamaScheduleManager() {
                     max={20}
                     value={currentDay.maxFemaleCapacity}
                     onChange={(e) => updateCurrentDay({ maxFemaleCapacity: Number(e.target.value) })}
-                    className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#14281D] font-medium"
+                    className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink font-medium"
                   />
                 </div>
               </div>
 
               {/* ─── DYNAMIC SLOT DURATION SLICER ─── */}
-              <div className="p-4 rounded-xl bg-[#faf8f5] border border-[#e6dfd5] space-y-3">
+              <div className="p-4 rounded-xl bg-surface border border-line space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-[#14281D] flex items-center gap-1.5">
-                    <Scissors className="w-3.5 h-3.5 text-[#22623a]" />
+                  <label className="text-xs font-bold text-ink flex items-center gap-1.5">
+                    <Scissors className="w-3.5 h-3.5 text-primary" />
                     <span>Dynamic Slot Duration Slicer</span>
                   </label>
-                  <span className="text-[11px] font-bold text-[#22623a]">
+                  <span className="text-[11px] font-bold text-primary">
                     Active: {currentDay.slotDurationMins || 45} mins
                   </span>
                 </div>
@@ -656,8 +656,8 @@ export default function HijamaScheduleManager() {
                         }}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                           isSelected
-                            ? "bg-[#14281D] text-white shadow-2xs"
-                            : "bg-white text-[#59534b] border border-[#e6dfd5] hover:border-[#14281D]"
+                            ? "bg-surface-inverse text-white shadow-2xs"
+                            : "bg-white text-ink-body border border-line hover:border-ink"
                         }`}
                       >
                         {mins}m
@@ -677,10 +677,10 @@ export default function HijamaScheduleManager() {
                         setCustomSlotDuration(val);
                         updateCurrentDay({ slotDurationMins: val });
                       }}
-                      className="w-16 px-2 py-1 bg-white border border-[#e6dfd5] rounded-lg text-xs font-bold text-center text-[#14281D]"
+                      className="w-16 px-2 py-1 bg-white border border-line rounded-lg text-xs font-bold text-center text-ink"
                       placeholder="Mins"
                     />
-                    <span className="text-[10px] text-[#7a7268]">mins</span>
+                    <span className="text-[10px] text-ink-subtle">mins</span>
                   </div>
                 </div>
 
@@ -688,7 +688,7 @@ export default function HijamaScheduleManager() {
                 <button
                   type="button"
                   onClick={() => handleAutoSliceDay(currentDay.slotDurationMins || 45)}
-                  className="w-full py-2.5 px-4 bg-[#eef7f1] hover:bg-[#d8edd9] text-[#22623a] border border-[#22623a]/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
+                  className="w-full py-2.5 px-4 bg-brand-green-50 hover:bg-brand-green-100 text-primary border border-primary/30 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-2xs"
                 >
                   <Scissors className="w-3.5 h-3.5" />
                   <span>Auto-Slice Day ({currentDay.openTime} to {currentDay.closeTime} in {currentDay.slotDurationMins || 45}m intervals)</span>
@@ -700,7 +700,7 @@ export default function HijamaScheduleManager() {
                 type="button"
                 disabled={saving}
                 onClick={handleSaveDaySchedule}
-                className="w-full py-3 px-4 bg-[#14281D] hover:bg-[#1f3c2c] disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                className="w-full py-3 px-4 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
               >
                 {saving ? (
                   <>
@@ -717,20 +717,20 @@ export default function HijamaScheduleManager() {
             </div>
 
             {/* Right 6 cols: Sliced Slots List with Individual Add / Remove / Disable */}
-            <div className="lg:col-span-6 bg-white rounded-2xl border border-[#e6dfd5] p-5 shadow-2xs space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-[#f0eae1]">
+            <div className="lg:col-span-6 bg-white rounded-2xl border border-line p-5 shadow-2xs space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-sand-100">
                 <div>
-                  <h3 className="font-serif text-base font-bold text-[#14281D]">
+                  <h3 className="font-serif text-base font-bold text-ink">
                     Active Slots ({currentDaySlots.length})
                   </h3>
-                  <p className="text-[11px] text-[#7a7268]">
+                  <p className="text-[11px] text-ink-subtle">
                     Delete breaks, toggle disabled slots, or add custom slot times.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsAddingCustomSlot(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#14281D] hover:bg-[#1f3c2c] text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-2xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-inverse hover:bg-brand-green-900 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-2xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Custom Slot</span>
@@ -739,41 +739,41 @@ export default function HijamaScheduleManager() {
 
               {/* Inline Add Custom Slot Box */}
               {isAddingCustomSlot && (
-                <div className="p-3.5 bg-[#faf8f5] border border-[#22623a]/30 rounded-xl space-y-2.5 animate-fade-in">
-                  <div className="flex items-center justify-between text-xs font-bold text-[#14281D]">
+                <div className="p-3.5 bg-surface border border-primary/30 rounded-xl space-y-2.5 animate-fade-in">
+                  <div className="flex items-center justify-between text-xs font-bold text-ink">
                     <span>Add Custom Time Slot</span>
                     <button
                       type="button"
                       onClick={() => setIsAddingCustomSlot(false)}
-                      className="text-stone-400 hover:text-stone-700"
+                      className="text-ink-subtle hover:text-neutral-700"
                     >
                       ×
                     </button>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <span className="text-[10px] text-[#7a7268] block">Start Time</span>
+                      <span className="text-[10px] text-ink-subtle block">Start Time</span>
                       <input
                         type="time"
                         value={newSlotStart}
                         onChange={(e) => setNewSlotStart(e.target.value)}
-                        className="w-full px-2.5 py-1.5 bg-white border border-[#e6dfd5] rounded-lg text-xs"
+                        className="w-full px-2.5 py-1.5 bg-white border border-line rounded-lg text-xs"
                       />
                     </div>
                     <div>
-                      <span className="text-[10px] text-[#7a7268] block">End Time</span>
+                      <span className="text-[10px] text-ink-subtle block">End Time</span>
                       <input
                         type="time"
                         value={newSlotEnd}
                         onChange={(e) => setNewSlotEnd(e.target.value)}
-                        className="w-full px-2.5 py-1.5 bg-white border border-[#e6dfd5] rounded-lg text-xs"
+                        className="w-full px-2.5 py-1.5 bg-white border border-line rounded-lg text-xs"
                       />
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={handleAddSlotToDay}
-                    className="w-full py-2 bg-[#22623a] text-white rounded-lg text-xs font-bold cursor-pointer hover:bg-[#1a4e2e]"
+                    className="w-full py-2 bg-primary text-white rounded-lg text-xs font-bold cursor-pointer hover:bg-brand-green-800"
                   >
                     Confirm &amp; Insert Slot
                   </button>
@@ -788,15 +788,15 @@ export default function HijamaScheduleManager() {
                       key={slot.id || slot.startTime || index}
                       className={`p-2.5 rounded-xl border flex items-center justify-between transition-all ${
                         slot.disabled
-                          ? "bg-[#eef7f1] text-[#22623a]/70 border-emerald-200/70 opacity-60 blur-[0.3px]"
-                          : "bg-[#faf8f5] text-[#1e1c19] border-[#e8e2d8]"
+                          ? "bg-brand-green-50 text-primary/70 border-success-line/70 opacity-60 blur-[0.3px]"
+                          : "bg-surface text-ink border-line"
                       }`}
                     >
                       <div className="flex items-center gap-2 min-w-0">
-                        <Clock className="w-3.5 h-3.5 text-[#22623a] shrink-0" />
+                        <Clock className="w-3.5 h-3.5 text-primary shrink-0" />
                         <div>
                           <span className="text-xs font-bold block">{slot.slot}</span>
-                          <span className="text-[10px] text-[#7a7268]">
+                          <span className="text-[10px] text-ink-subtle">
                             {slot.startTime} – {slot.endTime}
                           </span>
                         </div>
@@ -810,8 +810,8 @@ export default function HijamaScheduleManager() {
                           title={slot.disabled ? "Enable Slot" : "Disable Slot"}
                           className={`px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-colors ${
                             slot.disabled
-                              ? "bg-amber-100 text-amber-800"
-                              : "bg-stone-100 text-stone-600 hover:bg-stone-200"
+                              ? "bg-warning-soft text-warning"
+                              : "bg-surface-sunken text-ink-body hover:bg-line"
                           }`}
                         >
                           {slot.disabled ? "Disabled" : "Active"}
@@ -822,7 +822,7 @@ export default function HijamaScheduleManager() {
                           type="button"
                           onClick={() => handleDeleteSlotFromDay(slot.id || slot.startTime)}
                           title="Delete this slot"
-                          className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-ink-subtle hover:text-danger hover:bg-danger-soft rounded-lg transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -833,8 +833,8 @@ export default function HijamaScheduleManager() {
               </div>
 
               {/* Visual preview note */}
-              <div className="p-3 bg-[#f7f5f0] border border-[#e6dfd5] rounded-xl text-[11px] text-[#6a645a] flex items-center gap-2">
-                <Eye className="w-4 h-4 text-[#8c6a15] shrink-0" />
+              <div className="p-3 bg-surface border border-line rounded-xl text-[11px] text-ink-muted flex items-center gap-2">
+                <Eye className="w-4 h-4 text-secondary-text shrink-0" />
                 <span>
                   Booked slots automatically appear in <strong>light green with soft blur and muted cursor</strong> on the public calendar.
                 </span>
@@ -851,34 +851,34 @@ export default function HijamaScheduleManager() {
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left 6 cols: Date selection & Override settings */}
-            <div className="lg:col-span-6 bg-white rounded-2xl border border-[#e6dfd5] p-5 shadow-2xs space-y-5">
-              <div className="pb-3 border-b border-[#f0eae1]">
-                <h3 className="font-serif text-base font-bold text-[#14281D]">
+            <div className="lg:col-span-6 bg-white rounded-2xl border border-line p-5 shadow-2xs space-y-5">
+              <div className="pb-3 border-b border-sand-100">
+                <h3 className="font-serif text-base font-bold text-ink">
                   Configure Specific Calendar Date
                 </h3>
-                <p className="text-[11px] text-[#7a7268]">
+                <p className="text-[11px] text-ink-subtle">
                   Override timings, slots, or close clinic on holidays and special Sunnah dates.
                 </p>
               </div>
 
               {/* Date Input */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-[#14281D] block">
+                <label className="text-xs font-bold text-ink block">
                   Select Calendar Date (YYYY-MM-DD)
                 </label>
                 <input
                   type="date"
                   value={selectedOverrideDate}
                   onChange={(e) => setSelectedOverrideDate(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs font-bold text-[#14281D]"
+                  className="w-full px-3.5 py-2.5 bg-surface border border-line rounded-xl text-xs font-bold text-ink"
                 />
               </div>
 
               {/* Open / Closed Switch */}
-              <div className="flex items-center justify-between p-3.5 bg-[#faf8f5] rounded-xl border border-[#e6dfd5]">
+              <div className="flex items-center justify-between p-3.5 bg-surface rounded-xl border border-line">
                 <div>
-                  <span className="text-xs font-bold text-[#14281D] block">Clinic Status for this Date</span>
-                  <span className="text-[10px] text-[#7a7268]">
+                  <span className="text-xs font-bold text-ink block">Clinic Status for this Date</span>
+                  <span className="text-[10px] text-ink-subtle">
                     {overrideClosed ? "Clinic is marked fully closed" : "Clinic is open for cupping"}
                   </span>
                 </div>
@@ -887,8 +887,8 @@ export default function HijamaScheduleManager() {
                   onClick={() => setOverrideClosed(!overrideClosed)}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     overrideClosed
-                      ? "bg-rose-100 text-rose-800 border border-rose-300"
-                      : "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                      ? "bg-danger-soft text-danger border border-danger/30"
+                      : "bg-success-soft text-success border border-success-line"
                   }`}
                 >
                   {overrideClosed ? "Closed (Holiday)" : "Open (Operating)"}
@@ -900,40 +900,40 @@ export default function HijamaScheduleManager() {
                   {/* Hours and Duration */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                      <label className="text-[11px] font-semibold text-ink-body block mb-1">
                         Open Time
                       </label>
                       <input
                         type="time"
                         value={overrideOpenTime}
                         onChange={(e) => setOverrideOpenTime(e.target.value)}
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#14281D]"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink"
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                      <label className="text-[11px] font-semibold text-ink-body block mb-1">
                         Close Time
                       </label>
                       <input
                         type="time"
                         value={overrideCloseTime}
                         onChange={(e) => setOverrideCloseTime(e.target.value)}
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#14281D]"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink"
                       />
                     </div>
                   </div>
 
                   {/* Slicer for this specific date */}
-                  <div className="p-3.5 bg-[#faf8f5] rounded-xl border border-[#e6dfd5] space-y-2.5">
+                  <div className="p-3.5 bg-surface rounded-xl border border-line space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#14281D]">Slot Duration (Mins)</span>
+                      <span className="text-xs font-bold text-ink">Slot Duration (Mins)</span>
                       <button
                         type="button"
                         onClick={() => {
                           const sliced = autoSliceSlots(overrideOpenTime, overrideCloseTime, overrideDuration);
                           setOverrideCustomSlots(sliced);
                         }}
-                        className="text-[11px] text-[#22623a] font-bold hover:underline cursor-pointer"
+                        className="text-[11px] text-primary font-bold hover:underline cursor-pointer"
                       >
                         Auto-Slice Date →
                       </button>
@@ -950,8 +950,8 @@ export default function HijamaScheduleManager() {
                           }}
                           className={`px-2.5 py-1 rounded-lg text-xs font-bold cursor-pointer ${
                             overrideDuration === m
-                              ? "bg-[#14281D] text-white"
-                              : "bg-white text-[#59534b] border border-[#e6dfd5]"
+                              ? "bg-surface-inverse text-white"
+                              : "bg-white text-ink-body border border-line"
                           }`}
                         >
                           {m}m
@@ -963,7 +963,7 @@ export default function HijamaScheduleManager() {
                   {/* Capacities */}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                      <label className="text-[11px] font-semibold text-ink-body block mb-1">
                         Male Beds Capacity
                       </label>
                       <input
@@ -972,11 +972,11 @@ export default function HijamaScheduleManager() {
                         max={30}
                         value={overrideMaleCap}
                         onChange={(e) => setOverrideMaleCap(Number(e.target.value))}
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs"
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                      <label className="text-[11px] font-semibold text-ink-body block mb-1">
                         Female Beds Capacity
                       </label>
                       <input
@@ -985,14 +985,14 @@ export default function HijamaScheduleManager() {
                         max={30}
                         value={overrideFemaleCap}
                         onChange={(e) => setOverrideFemaleCap(Number(e.target.value))}
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs"
+                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs"
                       />
                     </div>
                   </div>
 
                   {/* Note */}
                   <div>
-                    <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                    <label className="text-[11px] font-semibold text-ink-body block mb-1">
                       Reason / Note (Optional)
                     </label>
                     <input
@@ -1000,7 +1000,7 @@ export default function HijamaScheduleManager() {
                       placeholder="e.g. Special Sunnah Night Session, Eid Holiday, etc."
                       value={overrideNote}
                       onChange={(e) => setOverrideNote(e.target.value)}
-                      className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs"
+                      className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs"
                     />
                   </div>
                 </>
@@ -1012,7 +1012,7 @@ export default function HijamaScheduleManager() {
                   type="button"
                   disabled={saving}
                   onClick={handleSaveDateOverride}
-                  className="flex-1 py-3 bg-[#14281D] hover:bg-[#1f3c2c] disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2"
+                  className="flex-1 py-3 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2"
                 >
                   <Save className="w-4 h-4" />
                   <span>Save Override for {selectedOverrideDate}</span>
@@ -1023,7 +1023,7 @@ export default function HijamaScheduleManager() {
                     type="button"
                     disabled={saving}
                     onClick={() => handleDeleteDateOverride(selectedOverrideDate)}
-                    className="px-4 py-3 bg-rose-50 text-rose-700 hover:bg-rose-100 rounded-xl text-xs font-bold transition-all cursor-pointer"
+                    className="px-4 py-3 bg-danger-soft text-danger hover:bg-danger-soft rounded-xl text-xs font-bold transition-all cursor-pointer"
                   >
                     Remove Override
                   </button>
@@ -1032,18 +1032,18 @@ export default function HijamaScheduleManager() {
             </div>
 
             {/* Right 6 cols: Existing Overrides List */}
-            <div className="lg:col-span-6 bg-white rounded-2xl border border-[#e6dfd5] p-5 shadow-2xs space-y-4">
-              <div className="pb-3 border-b border-[#f0eae1]">
-                <h3 className="font-serif text-base font-bold text-[#14281D]">
+            <div className="lg:col-span-6 bg-white rounded-2xl border border-line p-5 shadow-2xs space-y-4">
+              <div className="pb-3 border-b border-sand-100">
+                <h3 className="font-serif text-base font-bold text-ink">
                   Active Date Overrides ({overrides.length})
                 </h3>
-                <p className="text-[11px] text-[#7a7268]">
+                <p className="text-[11px] text-ink-subtle">
                   Click any existing override to edit or delete it.
                 </p>
               </div>
 
               {overrides.length === 0 ? (
-                <div className="py-8 text-center text-xs text-[#7a7268]">
+                <div className="py-8 text-center text-xs text-ink-subtle">
                   No date overrides active. All dates use the weekly master schedule.
                 </div>
               ) : (
@@ -1055,8 +1055,8 @@ export default function HijamaScheduleManager() {
                         key={ov.date}
                         className={`p-3 rounded-xl border flex items-center justify-between transition-all ${
                           isSelected
-                            ? "bg-[#faf8f5] border-[#14281D] shadow-xs"
-                            : "bg-white border-[#e6dfd5] hover:border-[#14281D]"
+                            ? "bg-surface border-ink shadow-xs"
+                            : "bg-white border-line hover:border-ink"
                         }`}
                       >
                         <div>
@@ -1064,22 +1064,22 @@ export default function HijamaScheduleManager() {
                             <button
                               type="button"
                               onClick={() => setSelectedOverrideDate(ov.date)}
-                              className="text-xs font-bold text-[#14281D] hover:underline cursor-pointer"
+                              className="text-xs font-bold text-ink hover:underline cursor-pointer"
                             >
                               {ov.date}
                             </button>
                             <span
                               className={`text-[9px] px-1.5 py-0.2 rounded-full font-bold ${
                                 ov.isClosed
-                                  ? "bg-rose-100 text-rose-700"
-                                  : "bg-emerald-100 text-emerald-700"
+                                  ? "bg-danger-soft text-danger"
+                                  : "bg-success-soft text-success"
                               }`}
                             >
                               {ov.isClosed ? "Closed" : "Custom Hours"}
                             </span>
                           </div>
                           {ov.note && (
-                            <p className="text-[10px] text-[#7a7268] mt-0.5">{ov.note}</p>
+                            <p className="text-[10px] text-ink-subtle mt-0.5">{ov.note}</p>
                           )}
                         </div>
 
@@ -1087,7 +1087,7 @@ export default function HijamaScheduleManager() {
                           type="button"
                           onClick={() => handleDeleteDateOverride(ov.date)}
                           title="Delete override"
-                          className="p-1.5 text-stone-400 hover:text-red-600 rounded-lg transition-colors cursor-pointer"
+                          className="p-1.5 text-ink-subtle hover:text-danger rounded-lg transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -1105,25 +1105,25 @@ export default function HijamaScheduleManager() {
       {/* ─── MODE 3: LUNAR CALENDAR & GLOBAL CAPACITY SETTINGS ───────── */}
       {/* ═══════════════════════════════════════════════════════════════ */}
       {activeMode === "settings" && (
-        <div className="bg-white rounded-2xl border border-[#e6dfd5] p-5 sm:p-6 shadow-2xs max-w-xl mx-auto space-y-5">
-          <div className="pb-3 border-b border-[#f0eae1]">
-            <h3 className="font-serif text-base font-bold text-[#14281D]">
+        <div className="bg-white rounded-2xl border border-line p-5 sm:p-6 shadow-2xs max-w-xl mx-auto space-y-5">
+          <div className="pb-3 border-b border-sand-100">
+            <h3 className="font-serif text-base font-bold text-ink">
               Global Sunnah &amp; Lunar Settings
             </h3>
-            <p className="text-[11px] text-[#7a7268]">
+            <p className="text-[11px] text-ink-subtle">
               Configure Pakistan Ruet-e-Hilal moon sighting offset and Sunnah day capacity boosts.
             </p>
           </div>
 
           <div className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-[#14281D] block mb-1">
+              <label className="text-xs font-bold text-ink block mb-1">
                 Moon Sighting Offset (Pakistan Ruet-e-Hilal)
               </label>
               <select
                 value={settings.moonSightingOffset}
                 onChange={(e) => setSettings({ ...settings, moonSightingOffset: Number(e.target.value) })}
-                className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs text-[#14281D] font-bold"
+                className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink font-bold"
               >
                 <option value="-2">-2 Days (Early sighting adjustment)</option>
                 <option value="-1">-1 Day (1 day earlier than global calculation)</option>
@@ -1135,7 +1135,7 @@ export default function HijamaScheduleManager() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                <label className="text-[11px] font-semibold text-ink-body block mb-1">
                   Sunnah Male Capacity (per slot)
                 </label>
                 <input
@@ -1144,11 +1144,11 @@ export default function HijamaScheduleManager() {
                   max={20}
                   value={settings.sunnahMaleCapacity}
                   onChange={(e) => setSettings({ ...settings, sunnahMaleCapacity: Number(e.target.value) })}
-                  className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs font-medium"
+                  className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs font-medium"
                 />
               </div>
               <div>
-                <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                <label className="text-[11px] font-semibold text-ink-body block mb-1">
                   Sunnah Female Capacity (per slot)
                 </label>
                 <input
@@ -1157,13 +1157,13 @@ export default function HijamaScheduleManager() {
                   max={20}
                   value={settings.sunnahFemaleCapacity}
                   onChange={(e) => setSettings({ ...settings, sunnahFemaleCapacity: Number(e.target.value) })}
-                  className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs font-medium"
+                  className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs font-medium"
                 />
               </div>
             </div>
 
             <div>
-              <label className="text-xs font-bold text-[#14281D] block mb-1">
+              <label className="text-xs font-bold text-ink block mb-1">
                 Standard Cupping Fee (PKR)
               </label>
               <input
@@ -1173,7 +1173,7 @@ export default function HijamaScheduleManager() {
                 step={100}
                 value={settings.standardFee}
                 onChange={(e) => setSettings({ ...settings, standardFee: Number(e.target.value) })}
-                className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-xs font-medium"
+                className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs font-medium"
               />
             </div>
 
@@ -1181,7 +1181,7 @@ export default function HijamaScheduleManager() {
               type="button"
               disabled={saving}
               onClick={handleSaveGeneralSettings}
-              className="w-full py-3 bg-[#14281D] hover:bg-[#1f3c2c] disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2"
+              className="w-full py-3 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all cursor-pointer shadow-sm flex items-center justify-center gap-2"
             >
               <Save className="w-4 h-4" />
               <span>Save Global Settings</span>

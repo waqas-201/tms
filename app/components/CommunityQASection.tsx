@@ -142,33 +142,33 @@ export default function CommunityQASection() {
   };
 
   return (
-    <section id="community-qa" className="py-16 sm:py-20 lg:py-24 bg-[#faf8f5] border-b border-[#e6dfd5]">
+    <section id="community-qa" className="py-16 sm:py-20 lg:py-24 bg-surface border-b border-line">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
 
         {/* Section Header */}
         <Reveal className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#eef7f1] border border-[#cde4d6] text-[#22623a] text-xs font-semibold">
-            <HelpCircle className="w-3.5 h-3.5 text-[#c59b27]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-green-50 border border-brand-green-200 text-primary text-xs font-semibold">
+            <HelpCircle className="w-3.5 h-3.5 text-secondary-text" />
             <span>Community Knowledge Base</span>
           </div>
 
-          <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#22623a]">
+          <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
             Community Health Forum &amp; Hakim Q&amp;A
           </h2>
 
-          <p className="text-xs sm:text-sm text-[#59534b]">
+          <p className="text-xs sm:text-sm text-ink-body">
             Common patient health questions answered with classical Unani wisdom.
           </p>
 
           {/* Search bar */}
           <div className="pt-2 max-w-md mx-auto relative">
-            <Search className="w-4 h-4 text-[#7a7268] absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-ink-subtle absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search symptoms, remedies (e.g. gas, liver, joints)..."
-              className="w-full pl-10 pr-4 py-2.5 text-xs bg-white rounded-xl border border-[#e6dfd5] text-[#1a1816] focus:outline-none focus:border-[#22623a] shadow-2xs transition-colors"
+              className="w-full pl-10 pr-4 py-2.5 text-xs bg-white rounded-xl border border-line text-ink focus:outline-none focus:border-primary shadow-2xs transition-colors"
             />
           </div>
         </Reveal>
@@ -179,8 +179,8 @@ export default function CommunityQASection() {
           {/* Left Column: Community Questions & Answers Accordion */}
           <div className="lg:col-span-7 space-y-3.5">
             {filteredQA.length === 0 ? (
-              <div className="p-8 bg-white rounded-2xl border border-[#e6dfd5] text-center space-y-3">
-                <p className="text-xs text-[#59534b]">
+              <div className="p-8 bg-white rounded-2xl border border-line text-center space-y-3">
+                <p className="text-xs text-ink-body">
                   No matching health question found for &ldquo;{searchTerm}&rdquo;.
                 </p>
                 <button
@@ -188,7 +188,7 @@ export default function CommunityQASection() {
                     setSearchTerm("");
                     setSelectedCategory("all");
                   }}
-                  className="text-xs font-bold text-[#22623a] underline"
+                  className="text-xs font-bold text-primary underline"
                 >
                   Clear search filters
                 </button>
@@ -198,28 +198,28 @@ export default function CommunityQASection() {
                 const isExpanded = expandedId === item.id;
                 return (
                   <Reveal key={item.id} delay={idx * 0.03}>
-                    <div className="bg-white rounded-2xl border border-[#e6dfd5] overflow-hidden transition-all shadow-xs hover:border-[#22623a]/30">
+                    <div className="bg-white rounded-2xl border border-line overflow-hidden transition-all shadow-xs hover:border-primary/30">
                       {/* Accordion Header */}
                       <button
                         type="button"
                         onClick={() =>
                           setExpandedId(isExpanded ? "" : item.id)
                         }
-                        className="w-full text-left p-4 sm:p-5 flex items-start justify-between gap-4 hover:bg-[#faf8f5] transition-colors"
+                        className="w-full text-left p-4 sm:p-5 flex items-start justify-between gap-4 hover:bg-surface transition-colors"
                       >
                         <div className="space-y-1">
-                          <div className="flex items-center gap-2 text-[11px] text-[#7a7268]">
-                            <span className="font-semibold text-[#22623a] bg-[#eef7f1] px-2 py-0.5 rounded">
+                          <div className="flex items-center gap-2 text-[11px] text-ink-subtle">
+                            <span className="font-semibold text-primary bg-brand-green-50 px-2 py-0.5 rounded">
                               Asked by {item.askedBy} ({item.city})
                             </span>
                           </div>
-                          <h4 className="font-serif text-xs sm:text-sm font-bold text-[#1a1816] leading-snug">
+                          <h4 className="font-serif text-xs sm:text-sm font-bold text-ink leading-snug">
                             {item.question}
                           </h4>
                         </div>
                         <div
-                          className={`w-7 h-7 rounded-full bg-[#faf8f5] border border-[#e6dfd5] flex items-center justify-center shrink-0 text-[#22623a] transition-all duration-200 ${
-                            isExpanded ? "rotate-180 bg-[#22623a] text-white" : ""
+                          className={`w-7 h-7 rounded-full bg-surface border border-line flex items-center justify-center shrink-0 text-primary transition-all duration-200 ${
+                            isExpanded ? "rotate-180 bg-primary text-white" : ""
                           }`}
                         >
                           <ChevronDown className="w-4 h-4" />
@@ -236,28 +236,28 @@ export default function CommunityQASection() {
                             transition={{ duration: 0.25, ease: "easeInOut" }}
                             className="overflow-hidden"
                           >
-                            <div className="px-4 sm:px-5 pb-5 pt-1 border-t border-[#f4eee5] space-y-3.5 text-xs">
+                            <div className="px-4 sm:px-5 pb-5 pt-1 border-t border-sand-100 space-y-3.5 text-xs">
                               {/* Diagnostic Answer */}
-                              <div className="space-y-1 text-[#59534b] leading-relaxed">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-[#8c6a15] block">
+                              <div className="space-y-1 text-ink-body leading-relaxed">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-secondary-text block">
                                   Clinical Assessment:
                                 </span>
                                 <p>{item.answer}</p>
                               </div>
 
                               {/* Hakim's Step-by-Step Guidance */}
-                              <div className="p-3.5 bg-[#fcfbf3] rounded-xl border border-[#e8ded2] space-y-2">
-                                <div className="flex items-center gap-2 font-bold text-[#22623a] text-xs">
-                                  <Stethoscope className="w-3.5 h-3.5 text-[#c59b27]" />
+                              <div className="p-3.5 bg-brand-gold-50 rounded-xl border border-line space-y-2">
+                                <div className="flex items-center gap-2 font-bold text-primary text-xs">
+                                  <Stethoscope className="w-3.5 h-3.5 text-secondary-text" />
                                   <span>Hakim Tahir Hameed&apos;s Advice:</span>
                                 </div>
                                 <ul className="space-y-1 pl-1">
                                   {item.hakimAdvice.map((adv, aIdx) => (
                                     <li
                                       key={aIdx}
-                                      className="flex items-start gap-2 text-[11px] text-[#3f3b35]"
+                                      className="flex items-start gap-2 text-[11px] text-neutral-800"
                                     >
-                                      <span className="w-1.5 h-1.5 rounded-full bg-[#c59b27] shrink-0 mt-1.5" />
+                                      <span className="w-1.5 h-1.5 rounded-full bg-secondary shrink-0 mt-1.5" />
                                       <span>{adv}</span>
                                     </li>
                                   ))}
@@ -277,30 +277,30 @@ export default function CommunityQASection() {
           {/* Right Column: Interactive "Ask Hakim a Health Question" Form */}
           <div className="lg:col-span-5">
             <Reveal delay={0.08}>
-              <div className="bg-white rounded-2xl border border-[#e6dfd5] p-5 sm:p-6 shadow-xs space-y-4">
+              <div className="bg-white rounded-2xl border border-line p-5 sm:p-6 shadow-xs space-y-4">
                 <div className="space-y-1">
-                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8c6a15]">
-                    <HeartHandshake className="w-4 h-4 text-[#22623a]" />
+                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-secondary-text">
+                    <HeartHandshake className="w-4 h-4 text-primary" />
                     <span>Free Community Health Help</span>
                   </div>
-                  <h3 className="font-serif text-lg sm:text-xl font-bold text-[#22623a]">
+                  <h3 className="font-serif text-lg sm:text-xl font-bold text-primary">
                     Ask Hakim Sahib a Question
                   </h3>
-                  <p className="text-xs text-[#59534b]">
+                  <p className="text-xs text-ink-body">
                     Have a chronic symptom? Send it directly to Hakim Sahib on WhatsApp.
                   </p>
                 </div>
 
                 {submitted && (
-                  <div className="p-3 bg-[#eef7f1] border border-[#cde4d6] rounded-xl text-xs text-[#22623a] flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[#22623a] shrink-0" />
+                  <div className="p-3 bg-brand-green-50 border border-brand-green-200 rounded-xl text-xs text-primary flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
                     <span>WhatsApp conversation opened with Hakim Sahib!</span>
                   </div>
                 )}
 
                 <form onSubmit={handleAskSubmit} className="space-y-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-[#1a1816]">
+                    <label className="text-xs font-semibold text-ink">
                       Your Name
                     </label>
                     <input
@@ -308,12 +308,12 @@ export default function CommunityQASection() {
                       value={askName}
                       onChange={(e) => setAskName(e.target.value)}
                       placeholder="e.g. Asad Ullah"
-                      className="w-full text-xs px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
+                      className="w-full text-xs px-3 py-2 bg-surface border border-line rounded-xl text-ink focus:outline-none focus:border-primary"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-[#1a1816]">
+                    <label className="text-xs font-semibold text-ink">
                       Your City
                     </label>
                     <input
@@ -321,13 +321,13 @@ export default function CommunityQASection() {
                       value={askCity}
                       onChange={(e) => setAskCity(e.target.value)}
                       placeholder="e.g. Karachi, Lahore, Islamabad"
-                      className="w-full text-xs px-3 py-2 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
+                      className="w-full text-xs px-3 py-2 bg-surface border border-line rounded-xl text-ink focus:outline-none focus:border-primary"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-[#1a1816]">
-                      Your Health Question <span className="text-red-500">*</span>
+                    <label className="text-xs font-semibold text-ink">
+                      Your Health Question <span className="text-danger">*</span>
                     </label>
                     <textarea
                       rows={3}
@@ -335,20 +335,20 @@ export default function CommunityQASection() {
                       value={askQuestion}
                       onChange={(e) => setAskQuestion(e.target.value)}
                       placeholder="Describe your symptoms or ask about remedies..."
-                      className="w-full text-xs p-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-xl text-[#1a1816] focus:outline-none focus:border-[#22623a]"
+                      className="w-full text-xs p-2.5 bg-surface border border-line rounded-xl text-ink focus:outline-none focus:border-primary"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-2.5 px-4 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 active:scale-98"
+                    className="w-full py-2.5 px-4 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 active:scale-98"
                   >
                     <MessageCircle className="w-4 h-4 fill-current" />
                     <span>Send to Hakim on WhatsApp</span>
                   </button>
 
-                  <div className="flex items-center justify-center gap-2 text-[10px] text-[#7a7268] pt-0.5">
-                    <UserCheck className="w-3 h-3 text-[#22623a]" />
+                  <div className="flex items-center justify-center gap-2 text-[10px] text-ink-subtle pt-0.5">
+                    <UserCheck className="w-3 h-3 text-primary" />
                     <span>Confidential · Direct Review by Certified Hakim</span>
                   </div>
                 </form>

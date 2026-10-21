@@ -134,44 +134,44 @@ export default function WishlistPage() {
   }, [productsList, wishlist]);
 
   return (
-    <div className="bg-[#faf8f5] min-h-screen">
+    <div className="bg-surface min-h-screen">
       {/* ─── 1. BREADCRUMBS ─── */}
-      <div className="bg-white border-b border-[#e6dfd5] py-3 text-xs text-[#59534b]">
+      <div className="bg-white border-b border-line py-3 text-xs text-ink-body">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link href="/" className="hover:text-[#22623a]">
+            <Link href="/" className="hover:text-primary">
               Home
             </Link>
-            <ChevronRight className="w-3.5 h-3.5 text-[#d7c9b8]" />
-            <Link href="/products" className="hover:text-[#22623a]">
+            <ChevronRight className="w-3.5 h-3.5 text-on-inverse" />
+            <Link href="/products" className="hover:text-primary">
               Apothecary
             </Link>
-            <ChevronRight className="w-3.5 h-3.5 text-[#d7c9b8]" />
-            <span className="text-[#22623a] font-semibold">
+            <ChevronRight className="w-3.5 h-3.5 text-on-inverse" />
+            <span className="text-primary font-semibold">
               Saved Remedies &amp; Wishlist ({totalSavedCount})
             </span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-xs text-[#7a7268]">
-            <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" />
+          <div className="hidden sm:flex items-center gap-2 text-xs text-ink-subtle">
+            <Heart className="w-3.5 h-3.5 text-danger fill-danger" />
             <span>Saved in your private browser session</span>
           </div>
         </div>
       </div>
 
       {/* ─── 2. HEADER BANNER ─── */}
-      <section className="bg-gradient-to-b from-white to-[#faf8f5] border-b border-[#e6dfd5] py-8 sm:py-10">
+      <section className="bg-gradient-to-b from-white to-sand-50 border-b border-line py-8 sm:py-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#f4f9f5] border border-[#d8ecde] rounded-full text-xs font-bold text-[#22623a]">
-                <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-brand-green-50 border border-brand-green-100 rounded-full text-xs font-bold text-primary">
+                <Heart className="w-3.5 h-3.5 text-danger fill-danger" />
                 <span>Personal Apothecary Wishlist</span>
               </div>
-              <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-[#22623a]">
+              <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
                 My Saved Remedies &amp; Formulations
               </h1>
-              <p className="text-xs sm:text-sm text-[#59534b] max-w-2xl leading-relaxed">
+              <p className="text-xs sm:text-sm text-ink-body max-w-2xl leading-relaxed">
                 Review your saved Unani herbs, natural syrups, and therapeutic oils. You can move items directly to your shopping bag, order via Cash on Delivery, or share your selection with Hakim Muhammad Waqas on WhatsApp.
               </p>
             </div>
@@ -180,16 +180,16 @@ export default function WishlistPage() {
               <div className="flex flex-wrap items-center gap-3 shrink-0">
                 <button
                   onClick={handleAddAllToCart}
-                  className="px-4 py-2.5 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs hover:shadow-md flex items-center gap-2 cursor-pointer"
+                  className="px-4 py-2.5 bg-primary hover:bg-brand-green-800 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs hover:shadow-md flex items-center gap-2 cursor-pointer"
                 >
-                  <ShoppingBag className="w-4 h-4 text-[#c59b27]" />
+                  <ShoppingBag className="w-4 h-4 text-brand-gold-300" />
                   <span>Move All to Bag</span>
                 </button>
 
                 <button
                   onClick={handleShareWishlistWhatsApp}
                   disabled={isSharing}
-                  className="px-4 py-2.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold rounded-xl transition-all shadow-xs hover:shadow-md flex items-center gap-2 cursor-pointer"
+                  className="px-4 py-2.5 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs font-bold rounded-xl transition-all shadow-xs hover:shadow-md flex items-center gap-2 cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4" />
                   <span>Share with Hakim</span>
@@ -205,21 +205,21 @@ export default function WishlistPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {isLoading ? (
             <div className="py-16 text-center">
-              <Loader2 className="w-8 h-8 text-[#22623a] animate-spin mx-auto mb-2" />
-              <p className="text-xs text-[#7a7268]">Loading your saved remedies...</p>
+              <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-2" />
+              <p className="text-xs text-ink-subtle">Loading your saved remedies...</p>
             </div>
           ) : totalSavedCount === 0 ? (
             /* Empty State */
-            <div className="bg-white rounded-3xl border border-[#e6dfd5] p-8 sm:p-14 text-center max-w-2xl mx-auto space-y-6 shadow-xs">
-              <div className="w-20 h-20 bg-[#faf8f5] rounded-full flex items-center justify-center mx-auto border border-[#e6dfd5]">
-                <Heart className="w-10 h-10 text-[#d7c9b8]" />
+            <div className="bg-white rounded-3xl border border-line p-8 sm:p-14 text-center max-w-2xl mx-auto space-y-6 shadow-xs">
+              <div className="w-20 h-20 bg-surface rounded-full flex items-center justify-center mx-auto border border-line">
+                <Heart className="w-10 h-10 text-on-inverse" />
               </div>
 
               <div className="space-y-2">
-                <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#22623a]">
+                <h2 className="font-serif text-xl sm:text-2xl font-bold text-primary">
                   Your Wishlist is Empty
                 </h2>
-                <p className="text-xs sm:text-sm text-[#59534b] leading-relaxed max-w-md mx-auto">
+                <p className="text-xs sm:text-sm text-ink-body leading-relaxed max-w-md mx-auto">
                   You haven&apos;t saved any remedies yet. Click the heart icon on any formulation in our apothecary to bookmark it for later review or clinical consult.
                 </p>
               </div>
@@ -227,9 +227,9 @@ export default function WishlistPage() {
               <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                 <Link
                   href="/products"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-[#22623a] text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-[#1b502e] transition-all shadow-xs"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white text-xs font-bold uppercase tracking-wider rounded-xl hover:bg-brand-green-800 transition-all shadow-xs"
                 >
-                  <ShoppingBag className="w-4 h-4 text-[#c59b27]" />
+                  <ShoppingBag className="w-4 h-4 text-brand-gold-300" />
                   <span>Explore Apothecary</span>
                 </Link>
               </div>
@@ -238,11 +238,11 @@ export default function WishlistPage() {
             /* Populated Wishlist Grid */
             <div className="space-y-10">
               {/* Top Controls Bar */}
-              <div className="flex items-center justify-between text-xs text-[#7a7268] pb-3 border-b border-[#e6dfd5]">
+              <div className="flex items-center justify-between text-xs text-ink-subtle pb-3 border-b border-line">
                 <span>
                   Showing <strong>{totalSavedCount}</strong> saved {totalSavedCount === 1 ? "item" : "items"}
                 </span>
-                <span className="text-[#2d7648] font-semibold flex items-center gap-1">
+                <span className="text-brand-green-600 font-semibold flex items-center gap-1">
                   <Truck className="w-3.5 h-3.5" /> Free Nationwide Delivery above Rs. {CLINIC_INFO.freeShippingThreshold.toLocaleString()}
                 </span>
               </div>
@@ -264,7 +264,7 @@ export default function WishlistPage() {
                       return (
                         <div
                           key={product.id}
-                          className="group bg-white rounded-2xl border border-[#e6dfd5] hover:border-[#22623a]/40 p-5 shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4 relative"
+                          className="group bg-white rounded-2xl border border-line hover:border-primary/40 p-5 shadow-2xs hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4 relative"
                         >
                           {/* Remove Button */}
                           <button
@@ -272,7 +272,7 @@ export default function WishlistPage() {
                               removeFromWishlist(product.id);
                               showToast(`Removed "${product.name}" from your wishlist.`);
                             }}
-                            className="absolute top-4 right-4 p-2 text-[#7a7268] hover:text-red-600 hover:bg-red-50 rounded-full transition-colors z-10 cursor-pointer"
+                            className="absolute top-4 right-4 p-2 text-ink-subtle hover:text-danger hover:bg-danger-soft rounded-full transition-colors z-10 cursor-pointer"
                             title="Remove from saved"
                             aria-label="Remove from wishlist"
                           >
@@ -284,7 +284,7 @@ export default function WishlistPage() {
                             <div className="flex gap-4 items-start">
                               <Link
                                 href={`/products/${product.slug}`}
-                                className="relative w-24 h-24 sm:w-28 sm:h-28 bg-[#faf8f5] rounded-xl overflow-hidden shrink-0 border border-[#f4eee5] block"
+                                className="relative w-24 h-24 sm:w-28 sm:h-28 bg-surface rounded-xl overflow-hidden shrink-0 border border-sand-100 block"
                               >
                                 <Image
                                   src={getSafeProductImage(product.image)}
@@ -294,37 +294,37 @@ export default function WishlistPage() {
                                   sizes="120px"
                                 />
                                 {product.badge && (
-                                  <span className="absolute bottom-1.5 left-1.5 bg-[#22623a]/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-xs backdrop-blur-2xs">
+                                  <span className="absolute bottom-1.5 left-1.5 bg-primary/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-xs backdrop-blur-2xs">
                                     {product.badge}
                                   </span>
                                 )}
                               </Link>
 
                               <div className="flex-1 min-w-0 pr-6">
-                                <span className="text-[10px] font-bold text-[#c59b27] uppercase tracking-wider block truncate">
+                                <span className="text-[10px] font-bold text-secondary-text uppercase tracking-wider block truncate">
                                   {product.categoryLabel || product.category}
                                 </span>
                                 <Link
                                   href={`/products/${product.slug}`}
-                                  className="font-serif text-sm sm:text-base font-bold text-[#22623a] hover:text-[#c59b27] transition-colors line-clamp-2 block leading-snug"
+                                  className="font-serif text-sm sm:text-base font-bold text-primary hover:text-secondary-text transition-colors line-clamp-2 block leading-snug"
                                 >
                                   {product.name}
                                 </Link>
                                 {product.urduName && (
-                                  <span className="font-urdu text-xs text-[#7a7268] block mt-0.5">
+                                  <span className="font-urdu text-xs text-ink-subtle block mt-0.5">
                                     {product.urduName}
                                   </span>
                                 )}
 
                                 {/* Rating */}
                                 <div className="flex items-center gap-1.5 mt-1.5 text-xs">
-                                  <div className="flex items-center text-[#c59b27]">
+                                  <div className="flex items-center text-secondary-text">
                                     <Star className="w-3 h-3 fill-current" />
                                   </div>
-                                  <span className="font-bold text-[#22623a] text-[11px]">
+                                  <span className="font-bold text-primary text-[11px]">
                                     {product.rating || 5.0}
                                   </span>
-                                  <span className="text-[10px] text-[#7a7268]">
+                                  <span className="text-[10px] text-ink-subtle">
                                     ({product.reviewCount || 0})
                                   </span>
                                 </div>
@@ -332,16 +332,16 @@ export default function WishlistPage() {
                             </div>
 
                             {/* Short Description */}
-                            <p className="text-xs text-[#59534b] line-clamp-2 leading-relaxed">
+                            <p className="text-xs text-ink-body line-clamp-2 leading-relaxed">
                               {product.shortDescription || product.traditionalPurpose}
                             </p>
 
                             {/* Size / Weight Selector */}
                             {product.sizes && product.sizes.length > 0 && (
-                              <div className="space-y-1.5 pt-2 border-t border-[#f4eee5]">
+                              <div className="space-y-1.5 pt-2 border-t border-sand-100">
                                 <div className="flex items-center justify-between text-[11px]">
-                                  <span className="text-[#7a7268] font-medium">Select Packaging:</span>
-                                  <span className="text-[#22623a] font-bold">
+                                  <span className="text-ink-subtle font-medium">Select Packaging:</span>
+                                  <span className="text-primary font-bold">
                                     Rs. {currentSelectedSize.price.toLocaleString()}
                                   </span>
                                 </div>
@@ -355,8 +355,8 @@ export default function WishlistPage() {
                                         onClick={() => handleSizeChange(product.id, size)}
                                         className={`px-2.5 py-1 text-[11px] rounded-lg border transition-all cursor-pointer ${
                                           isSelected
-                                            ? "bg-[#22623a] text-white border-[#22623a] font-bold shadow-2xs"
-                                            : "bg-white text-[#59534b] border-[#e6dfd5] hover:border-[#22623a]"
+                                            ? "bg-primary text-white border-primary font-bold shadow-2xs"
+                                            : "bg-white text-ink-body border-line hover:border-primary"
                                         }`}
                                       >
                                         {size.weight}
@@ -369,16 +369,16 @@ export default function WishlistPage() {
                           </div>
 
                           {/* Action Footer */}
-                          <div className="pt-3 border-t border-[#f4eee5] space-y-2">
+                          <div className="pt-3 border-t border-sand-100 space-y-2">
                             <div className="flex items-center justify-between">
-                              <span className="font-serif text-base font-bold text-[#22623a]">
+                              <span className="font-serif text-base font-bold text-primary">
                                 Rs. {currentSelectedSize.price.toLocaleString()}
                               </span>
                               <span
                                 className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                                   inStock
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-red-100 text-red-800"
+                                    ? "bg-success-soft text-success"
+                                    : "bg-danger-soft text-danger"
                                 }`}
                               >
                                 {inStock ? "In Stock" : "Sold Out"}
@@ -391,10 +391,10 @@ export default function WishlistPage() {
                                 disabled={!inStock}
                                 className={`flex-1 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer ${
                                   !inStock
-                                    ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                    ? "bg-surface-sunken text-ink-subtle cursor-not-allowed"
                                     : isAdded
-                                    ? "bg-[#2d7648] text-white"
-                                    : "bg-[#22623a] hover:bg-[#1b502e] text-white"
+                                    ? "bg-brand-green-600 text-white"
+                                    : "bg-primary hover:bg-brand-green-800 text-white"
                                 }`}
                               >
                                 {isAdded ? (
@@ -404,7 +404,7 @@ export default function WishlistPage() {
                                   </>
                                 ) : (
                                   <>
-                                    <ShoppingBag className="w-3.5 h-3.5 text-[#c59b27]" />
+                                    <ShoppingBag className="w-3.5 h-3.5 text-secondary-text" />
                                     <span>+ Add to Bag</span>
                                   </>
                                 )}
@@ -412,7 +412,7 @@ export default function WishlistPage() {
 
                               <Link
                                 href={`/products/${product.slug}`}
-                                className="p-2.5 bg-[#faf8f5] hover:bg-[#f4eee5] border border-[#e6dfd5] text-[#22623a] rounded-xl transition-colors shrink-0"
+                                className="p-2.5 bg-surface hover:bg-surface-sunken border border-line text-primary rounded-xl transition-colors shrink-0"
                                 title="View Details"
                               >
                                 <ExternalLink className="w-4 h-4" />
@@ -430,20 +430,20 @@ export default function WishlistPage() {
 
           {/* ─── 4. RECOMMENDED SECTION ─── */}
           {recommendedProducts.length > 0 && (
-            <div className="mt-16 pt-12 border-t border-[#e6dfd5] space-y-6">
+            <div className="mt-16 pt-12 border-t border-line space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2">
                 <div>
-                  <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#c59b27] uppercase tracking-wider">
+                  <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-secondary-text uppercase tracking-wider">
                     <Sparkles className="w-3.5 h-3.5" />
                     <span>Popular Unani Remedies</span>
                   </div>
-                  <h2 className="font-serif text-xl sm:text-2xl font-bold text-[#22623a]">
+                  <h2 className="font-serif text-xl sm:text-2xl font-bold text-primary">
                     Frequently Saved by Patients
                   </h2>
                 </div>
                 <Link
                   href="/products"
-                  className="text-xs font-bold text-[#22623a] hover:text-[#c59b27] flex items-center gap-1 transition-colors"
+                  className="text-xs font-bold text-primary hover:text-secondary-text flex items-center gap-1 transition-colors"
                 >
                   <span>View All Formulations</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -459,38 +459,38 @@ export default function WishlistPage() {
           )}
 
           {/* ─── 5. CLINICAL ASSURANCE FOOTER ─── */}
-          <div className="mt-14 p-6 bg-white rounded-2xl border border-[#e6dfd5] grid grid-cols-1 sm:grid-cols-3 gap-6 shadow-2xs">
+          <div className="mt-14 p-6 bg-white rounded-2xl border border-line grid grid-cols-1 sm:grid-cols-3 gap-6 shadow-2xs">
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-[#f4f9f5] rounded-xl text-[#22623a] shrink-0 border border-[#d8ecde]">
-                <Truck className="w-5 h-5 text-[#22623a]" />
+              <div className="p-2 bg-brand-green-50 rounded-xl text-primary shrink-0 border border-brand-green-100">
+                <Truck className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-[#22623a]">Nationwide Cash on Delivery</h3>
-                <p className="text-[11px] text-[#59534b] mt-0.5">
+                <h3 className="text-xs font-bold text-primary">Nationwide Cash on Delivery</h3>
+                <p className="text-[11px] text-ink-body mt-0.5">
                   Delivered safely to your doorstep across Karachi, Lahore, Islamabad, and all cities.
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-[#fdfbf3] rounded-xl text-[#c59b27] shrink-0 border border-[#fbf3dc]">
-                <ShieldCheck className="w-5 h-5 text-[#c59b27]" />
+              <div className="p-2 bg-brand-gold-50 rounded-xl text-secondary-text shrink-0 border border-brand-gold-100">
+                <ShieldCheck className="w-5 h-5 text-secondary-text" />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-[#22623a]">100% Pure &amp; Chemical-Free</h3>
-                <p className="text-[11px] text-[#59534b] mt-0.5">
+                <h3 className="text-xs font-bold text-primary">100% Pure &amp; Chemical-Free</h3>
+                <p className="text-[11px] text-ink-body mt-0.5">
                   Prepared according to authentic Unani pharmacopoeia with lab-tested botanical roots.
                 </p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="p-2 bg-[#f4f9f5] rounded-xl text-[#22623a] shrink-0 border border-[#d8ecde]">
-                <Stethoscope className="w-5 h-5 text-[#22623a]" />
+              <div className="p-2 bg-brand-green-50 rounded-xl text-primary shrink-0 border border-brand-green-100">
+                <Stethoscope className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-[#22623a]">Qualified Hakim Guidance</h3>
-                <p className="text-[11px] text-[#59534b] mt-0.5">
+                <h3 className="text-xs font-bold text-primary">Qualified Hakim Guidance</h3>
+                <p className="text-[11px] text-ink-body mt-0.5">
                   Free consultation on herbal Mizaj compatibility, dosages, and dietary precautions.
                 </p>
               </div>

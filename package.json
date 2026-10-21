@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "test:e2e": "npx tsx scripts/e2e-test.ts"
+    "test:e2e": "npx tsx scripts/e2e-test.ts",
+    "test:auth": "npx tsx scripts/test-auth-flows.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

@@ -111,6 +111,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const userRole = (session.user as any)?.role;
+    const staffSession = isStaffRole(userRole);
+
+    if (!staffSession) {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { id: true, email: true, emailVerified: true },
+      });
+
+      if (!dbUser || !dbUser.emailVerified) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Email verification required. Please verify your email address (${dbUser?.email || session.user.email}) before booking a consultation slot.`,
+            emailUnverified: true,
+            email: dbUser?.email || session.user.email,
+          },
+          { status: 403 }
+        );
+      }
+    }
+
     const body = await request.json();
     const {
       appointmentDate,
@@ -179,8 +201,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Determine target user and permissions
-    const userRole = (session.user as any)?.role;
-    const staffSession = isStaffRole(userRole);
     let targetUserId = session.user.id;
     let initialStatus = "NEW";
 

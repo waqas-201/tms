@@ -566,10 +566,10 @@ export default function AccountPage() {
                 )}
               </button>
               <Link
-                href="/verify-email"
+                href={`/verify-email?email=${encodeURIComponent(user.email)}`}
                 className="flex-1 sm:flex-initial text-center px-4 py-2 bg-white hover:bg-amber-100/60 text-amber-950 border border-amber-300 font-semibold rounded-xl text-xs transition-colors"
               >
-                Verify Code
+                Verification Help
               </Link>
             </div>
           </div>

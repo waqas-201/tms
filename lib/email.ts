@@ -4,7 +4,7 @@ const resendApiKey = process.env.RESEND_API_KEY;
 export const resend = new Resend(resendApiKey || "re_placeholder_key_for_build");
 
 const DEFAULT_FROM = process.env.EMAIL_FROM || "Tameer-e-Sehat <onboarding@resend.dev>";
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL || "http://localhost:3000";
+const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL || "http://localhost:3000").replace(/\/+$/, "");
 
 interface SendEmailParams {
   to: string;
@@ -19,7 +19,13 @@ interface SendEmailParams {
 export async function sendVerificationEmail({ to, name, url }: SendEmailParams) {
   try {
     const recipientName = name || "Valued Patient";
-    const verificationUrl = url.startsWith("http") ? url : `${APP_URL}${url}`;
+    const verificationUrl = url.startsWith("http")
+      ? url
+      : `${APP_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`\n📧 [EMAIL DISPATCH - VERIFY EMAIL] To: ${to}\n🔗 Verification Link: ${verificationUrl}\n`);
+    }
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -116,9 +122,10 @@ export async function sendVerificationEmail({ to, name, url }: SendEmailParams) 
     }
 
     return { success: true, data };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
     console.error("[sendVerificationEmail Exception]:", err);
-    return { success: false, error: err.message };
+    return { success: false, error: errorMsg };
   }
 }
 
@@ -128,7 +135,13 @@ export async function sendVerificationEmail({ to, name, url }: SendEmailParams) 
 export async function sendPasswordResetEmail({ to, name, url }: SendEmailParams) {
   try {
     const recipientName = name || "Valued Patient";
-    const resetUrl = url.startsWith("http") ? url : `${APP_URL}${url}`;
+    const resetUrl = url.startsWith("http")
+      ? url
+      : `${APP_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`\n📧 [EMAIL DISPATCH - PASSWORD RESET] To: ${to}\n🔗 Reset Link: ${resetUrl}\n`);
+    }
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -225,9 +238,10 @@ export async function sendPasswordResetEmail({ to, name, url }: SendEmailParams)
     }
 
     return { success: true, data };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
     console.error("[sendPasswordResetEmail Exception]:", err);
-    return { success: false, error: err.message };
+    return { success: false, error: errorMsg };
   }
 }
 

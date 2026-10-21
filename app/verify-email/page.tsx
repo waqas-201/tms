@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   RefreshCw,
   ShieldCheck,
+  Inbox,
 } from "lucide-react";
 
 function VerifyEmailContent() {
@@ -21,6 +22,14 @@ function VerifyEmailContent() {
   const router = useRouter();
   const token = searchParams.get("token");
   const errorParam = searchParams.get("error");
+  const emailParam = searchParams.get("email");
+  const isNewSignup = searchParams.get("new") === "true";
+  const redirectParam = searchParams.get("redirect") || searchParams.get("callbackURL") || "/account";
+
+  const safeRedirect =
+    redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")
+      ? redirectParam
+      : "/account";
 
   const [status, setStatus] = useState<"loading" | "success" | "error" | "prompt">(
     token ? "loading" : "prompt"
@@ -28,10 +37,21 @@ function VerifyEmailContent() {
   const [errorMessage, setErrorMessage] = useState<string | null>(
     errorParam ? "The verification link is invalid or has expired." : null
   );
-  const [emailInput, setEmailInput] = useState("");
+  const [emailInput, setEmailInput] = useState(emailParam || "");
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
+  const [cooldown, setCooldown] = useState(isNewSignup ? 30 : 0);
 
+  // Decrement cooldown timer
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
+  // Execute verification when a token is provided in URL
   useEffect(() => {
     if (!token) return;
 
@@ -56,13 +76,19 @@ function VerifyEmailContent() {
 
         if (isMounted) {
           setStatus("success");
+          // Smooth auto-redirect after brief celebration
+          setTimeout(() => {
+            router.push(safeRedirect);
+          }, 1800);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (isMounted) {
           setStatus("error");
-          setErrorMessage(
-            err.message || "The verification link is invalid or has expired. Please request a new link."
-          );
+          const msg =
+            err instanceof Error
+              ? err.message
+              : "The verification link is invalid or has expired. Please request a new link.";
+          setErrorMessage(msg);
         }
       }
     }
@@ -72,22 +98,22 @@ function VerifyEmailContent() {
     return () => {
       isMounted = false;
     };
-  }, [token]);
+  }, [token, safeRedirect, router]);
 
   const handleResend = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    if (!emailInput.trim()) return;
+    const targetEmail = (emailInput || emailParam || "").trim().toLowerCase();
+    if (!targetEmail || resending || cooldown > 0) return;
 
     setResending(true);
     setResendSuccess(false);
     setErrorMessage(null);
 
     try {
-      const cleanEmail = emailInput.trim().toLowerCase();
       if (typeof sendVerificationEmail === "function") {
         const res = await sendVerificationEmail({
-          email: cleanEmail,
-          callbackURL: "/account",
+          email: targetEmail,
+          callbackURL: safeRedirect,
         });
         if (res?.error) {
           throw new Error(res.error.message || "Failed to dispatch verification email.");
@@ -97,8 +123,8 @@ function VerifyEmailContent() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            email: cleanEmail,
-            callbackURL: "/account",
+            email: targetEmail,
+            callbackURL: safeRedirect,
           }),
         });
         const data = await res.json();
@@ -108,8 +134,11 @@ function VerifyEmailContent() {
       }
 
       setResendSuccess(true);
-    } catch (err: any) {
-      setErrorMessage(err.message || "Failed to send verification email. Please try again.");
+      setCooldown(60);
+    } catch (err: unknown) {
+      const msg =
+        err instanceof Error ? err.message : "Failed to send verification email. Please try again.";
+      setErrorMessage(msg);
     } finally {
       setResending(false);
     }
@@ -127,7 +156,7 @@ function VerifyEmailContent() {
               Verifying Your Email
             </h2>
             <p className="text-xs text-[#6a6660]">
-              Please wait while we validate your patient account credentials...
+              Validating your patient credentials and establishing secure session...
             </p>
           </div>
         </div>
@@ -148,13 +177,16 @@ function VerifyEmailContent() {
               Email Verified Successfully
             </h2>
             <p className="text-xs text-[#59534b] leading-relaxed">
-              Assalam-o-Alaikum! Your email address has been verified. Your patient profile, consultations, and herbal remedy tracking are now active.
+              Assalam-o-Alaikum! Your email address has been verified. Your patient profile, consultations, and remedy orders are now fully active.
+            </p>
+            <p className="text-[11px] text-[#8c6a15] font-medium pt-1">
+              Redirecting you to your account in a moment...
             </p>
           </div>
 
           <div className="pt-2">
             <Link
-              href="/account"
+              href={safeRedirect}
               className="w-full flex items-center justify-center gap-2 py-3 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md"
             >
               <span>Go to My Patient Account</span>
@@ -167,19 +199,25 @@ function VerifyEmailContent() {
       {(status === "error" || status === "prompt") && (
         <div className="space-y-5">
           <div className="text-center space-y-2">
-            <div className="w-12 h-12 rounded-full bg-amber-50 border border-amber-200 text-[#c59b27] flex items-center justify-center mx-auto">
-              <Mail className="w-6 h-6" />
+            <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-200 text-[#22623a] flex items-center justify-center mx-auto">
+              {isNewSignup ? <Inbox className="w-7 h-7" /> : <Mail className="w-7 h-7 text-[#c59b27]" />}
             </div>
             <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest font-semibold text-[#c59b27]">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Email Verification</span>
+              <span>{isNewSignup ? "Registration Step 2 of 2" : "Email Verification"}</span>
             </span>
             <h1 className="font-serif text-2xl font-bold text-[#22623a]">
-              {status === "error" ? "Verification Link Expired" : "Verify Your Account"}
+              {status === "error"
+                ? "Verification Link Expired"
+                : isNewSignup
+                ? "Check Your Email"
+                : "Verify Your Account"}
             </h1>
             <p className="text-xs text-[#6a6660] leading-relaxed">
               {status === "error"
-                ? "This verification link is invalid or has expired. Enter your email below to receive a new activation link."
+                ? "This verification link is invalid or has expired. Enter your email below to receive a fresh activation link."
+                : isNewSignup && emailParam
+                ? `Assalam-o-Alaikum! We have sent a secure activation link to ${emailParam}. Please click the link in your email to activate your account.`
                 : "Please verify your email address to access your consultations and order records."}
             </p>
           </div>
@@ -192,9 +230,9 @@ function VerifyEmailContent() {
           )}
 
           {resendSuccess && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-700 flex items-center gap-2">
+            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 shrink-0 text-[#22623a]" />
-              <span>Verification email dispatched! Please check your inbox.</span>
+              <span>Activation email dispatched! Please check your inbox and spam folder.</span>
             </div>
           )}
 
@@ -218,14 +256,16 @@ function VerifyEmailContent() {
 
             <button
               type="submit"
-              disabled={resending}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md disabled:opacity-50"
+              disabled={resending || cooldown > 0}
+              className="w-full flex items-center justify-center gap-2 py-3 bg-[#22623a] hover:bg-[#1b502e] text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md disabled:opacity-50 cursor-pointer"
             >
               {resending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Dispatching Email...</span>
+                  <span>Dispatching Link...</span>
                 </>
+              ) : cooldown > 0 ? (
+                <span>Resend available in {cooldown}s</span>
               ) : (
                 <>
                   <RefreshCw className="w-4 h-4" />
@@ -235,13 +275,20 @@ function VerifyEmailContent() {
             </button>
           </form>
 
-          <div className="pt-2 text-center text-xs text-[#6a6660]">
+          <div className="pt-2 flex items-center justify-between text-xs text-[#6a6660]">
             <Link
               href="/login"
               className="inline-flex items-center gap-1.5 text-[#22623a] font-semibold hover:underline"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Return to Sign In</span>
+              <span>Already verified? Sign In</span>
+            </Link>
+
+            <Link
+              href="/register"
+              className="text-[#8c6a15] hover:text-[#22623a] hover:underline"
+            >
+              Wrong email?
             </Link>
           </div>
         </div>

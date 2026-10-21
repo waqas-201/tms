@@ -4,7 +4,7 @@ import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signUp } from "@/lib/auth-client";
-import { Sparkles, Lock, Mail, User, ArrowRight, Loader2, AlertCircle, ShieldCheck } from "lucide-react";
+import { Sparkles, Lock, Mail, User, ArrowRight, Loader2, AlertCircle, ShieldCheck, Eye, EyeOff } from "lucide-react";
 
 function RegisterForm() {
   const router = useRouter();
@@ -21,6 +21,7 @@ function RegisterForm() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,25 +36,34 @@ function RegisterForm() {
         throw new Error("This email is reserved for administrative access. Please use a personal email.");
       }
 
+      if (formData.password.length < 8) {
+        throw new Error("Password must be at least 8 characters long.");
+      }
+
+      const safeRedirect =
+        redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")
+          ? redirectParam
+          : "/account";
+
       const res = await signUp.email({
-        name: formData.name,
+        name: formData.name.trim(),
         email: lowerEmail,
         password: formData.password,
-        phone: formData.phone,
-        city: formData.city,
-      } as any);
+        phone: formData.phone.trim(),
+        city: formData.city.trim(),
+        callbackURL: safeRedirect,
+      } as Parameters<typeof signUp.email>[0]);
 
       if (res.error) {
         throw new Error(res.error.message || "Failed to create account.");
       }
 
-      if (redirectParam && redirectParam.startsWith("/")) {
-        router.push(redirectParam);
-      } else {
-        router.push("/account");
-      }
-    } catch (err: any) {
-      setError(err.message || "An error occurred during registration.");
+      // Strict gating: user account requires email verification before login/access.
+      const verifyUrl = `/verify-email?email=${encodeURIComponent(lowerEmail)}&redirect=${encodeURIComponent(safeRedirect)}&new=true`;
+      router.push(verifyUrl);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "An error occurred during registration.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -158,14 +168,26 @@ function RegisterForm() {
           <div className="relative">
             <Lock className="w-4 h-4 text-[#6a6660] absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               required
               minLength={8}
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               placeholder="••••••••"
-              className="w-full pl-10 pr-3.5 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
+              className="w-full pl-10 pr-10 py-2.5 bg-[#faf8f5] border border-[#e6dfd5] rounded-lg text-xs text-[#1a1816] focus:outline-none focus:border-[#22623a] focus:bg-white transition-colors"
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[#6a6660] hover:text-[#1a1816] focus:outline-none"
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
+            </button>
           </div>
         </div>
 

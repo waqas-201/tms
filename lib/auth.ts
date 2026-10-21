@@ -11,10 +11,10 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   secret: process.env.BETTER_AUTH_SECRET || "dev_secret_replace_in_production_key_12345",
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  baseURL: (process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/+$/, ""),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
+    requireEmailVerification: true,
     resetPasswordTokenExpiresIn: 60 * 60, // 1 hour
     sendResetPassword: async ({ user, url, token }) => {
       await sendPasswordResetEmail({
@@ -83,6 +83,7 @@ export const auth = betterAuth({
               data: {
                 ...user,
                 role: "admin",
+                emailVerified: true,
               },
             };
           }

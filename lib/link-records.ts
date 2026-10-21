@@ -8,8 +8,8 @@ export interface LinkRecordsResult {
 
 /**
  * Retro-links guest bookings to a registered patient account using the
- * VERIFIED email address. Consultations are created strictly by authenticated
- * accounts, while Hijama bookings and Orders still support guest checkout linking.
+ * VERIFIED email address. Consultations and Hijama bookings are created strictly by authenticated
+ * accounts, while legacy guest bookings and Orders still support checkout linking.
  */
 export async function linkGuestRecordsToUser(params: {
   userId: string;

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createHijamaBooking } from "@/lib/hijama";
 import { auth } from "@/lib/auth";
 import { isStaffRole } from "@/lib/rbac-base";
+import prisma from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,8 +10,39 @@ export async function POST(request: NextRequest) {
       headers: request.headers,
     });
 
-    const body = await request.json();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Authentication required. Please sign in or create an account to reserve your Sunnah Hijama appointment.",
+          requiresAuth: true,
+        },
+        { status: 401 }
+      );
+    }
+
     const isStaff = isStaffRole((session?.user as any)?.role);
+
+    if (!isStaff) {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { id: true, email: true, emailVerified: true },
+      });
+
+      if (!dbUser || !dbUser.emailVerified) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Email verification required. Please verify your email address (${dbUser?.email || session.user.email}) before booking a Hijama session.`,
+            emailUnverified: true,
+            email: dbUser?.email || session.user.email,
+          },
+          { status: 403 }
+        );
+      }
+    }
+
+    const body = await request.json();
 
     const booking = await createHijamaBooking({
       fullName: body.fullName,
@@ -29,7 +61,7 @@ export async function POST(request: NextRequest) {
       adminNotes: isStaff ? body.adminNotes : undefined,
       userId: isStaff
         ? body.userId || null
-        : session?.user?.id || null,
+        : session.user.id,
     });
 
     return NextResponse.json(

@@ -16,9 +16,17 @@ import {
   MessageCircle,
   RotateCcw,
   Sparkles,
+  Lock,
+  Mail,
+  User,
+  Phone,
+  Eye,
+  EyeOff,
+  Shield,
+  KeyRound,
 } from "lucide-react";
 import { CLINIC_INFO } from "@/app/data/products";
-import { useSession } from "@/lib/auth-client";
+import { useSession, signIn, signUp } from "@/lib/auth-client";
 import {
   getHijriDate,
   formatDateStr,
@@ -50,6 +58,17 @@ export default function HijamaCalendarSection() {
   const [phone, setPhone] = useState("");
   const [age, setAge] = useState("");
   const [healthConfirmed, setHealthConfirmed] = useState(false);
+
+  // Step 3 Auth Gating State (when unauthenticated)
+  const [authTab, setAuthTab] = useState<"signin" | "signup">("signin");
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authName, setAuthName] = useState("");
+  const [authPhone, setAuthPhone] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [authSuccessMsg, setAuthSuccessMsg] = useState<string | null>(null);
 
   // Data fetching state
   const [sunnahDates, setSunnahDates] = useState<UpcomingSunnahDate[]>([]);
@@ -186,6 +205,82 @@ export default function HijamaCalendarSection() {
       return selectedDate;
     }
   }, [selectedDate]);
+
+  // Handle Step 3 Authentication Gate: Inline Sign In
+  const handleAuthSignIn = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError(null);
+    setAuthSuccessMsg(null);
+
+    try {
+      const cleanEmail = authEmail.trim().toLowerCase();
+      if (!cleanEmail || !authPassword) {
+        throw new Error("Please enter both email and password.");
+      }
+
+      const res = await signIn.email({
+        email: cleanEmail,
+        password: authPassword,
+      });
+
+      if (res.error) {
+        const errorMsg = (res.error.message || "").toLowerCase();
+        const errorCode = (res.error as { code?: string })?.code;
+
+        if (errorCode === "EMAIL_NOT_VERIFIED" || errorMsg.includes("email not verified")) {
+          throw new Error("Your email address is not verified yet. Please verify your email via the link sent to your inbox before booking.");
+        }
+        throw new Error(res.error.message || "Invalid email or password.");
+      }
+    } catch (err: any) {
+      setAuthError(err.message || "Sign in failed. Check your credentials.");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  // Handle Step 3 Authentication Gate: Inline Registration
+  const handleAuthRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError(null);
+    setAuthSuccessMsg(null);
+
+    try {
+      const cleanEmail = authEmail.trim().toLowerCase();
+      if (!authName.trim()) throw new Error("Full name is required.");
+      if (!cleanEmail) throw new Error("Email address is required.");
+      if (cleanEmail === "admin@tameeresehat.com") {
+        throw new Error("This email is reserved for administrative access. Please use a personal email.");
+      }
+      if (authPassword.length < 8) {
+        throw new Error("Password must be at least 8 characters long.");
+      }
+
+      const callbackUrl = typeof window !== "undefined" ? window.location.href : "/#hijama-calendar";
+
+      const res = await signUp.email({
+        name: authName.trim(),
+        email: cleanEmail,
+        password: authPassword,
+        phone: authPhone.trim() || undefined,
+        callbackURL: callbackUrl,
+      } as any);
+
+      if (res.error) {
+        throw new Error(res.error.message || "Failed to create account.");
+      }
+
+      setAuthSuccessMsg(
+        `Account created successfully! A verification link has been sent to ${cleanEmail}. Please click the verification link in your email to activate your account and complete booking.`
+      );
+    } catch (err: any) {
+      setAuthError(err.message || "Registration failed. Please try again.");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
 
   // Handle final booking submission
   const handleBookingSubmit = async (e: React.FormEvent) => {
@@ -424,10 +519,10 @@ export default function HijamaCalendarSection() {
                 <div className="space-y-5 animate-fade-in">
                   {/* Countdown notice strip */}
                   {nextSunnahCountdown && (
-                    <div className="p-3 bg-[#f7f5f0] border border-[#e6dfd5] rounded-xl flex items-center justify-between text-xs">
+                    <div className="p-3 bg-[#f7f5f0] border border-[#e6dfd5] rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-xs">
                       <div className="flex items-center gap-2 min-w-0">
                         <Sparkles className="w-4 h-4 text-[#8c6a15] shrink-0" />
-                        <span className="text-[#14281D] truncate">
+                        <span className="text-[#14281D] leading-tight">
                           <strong>
                             {nextSunnahCountdown.daysAway === 0
                               ? "Today is a Sunnah Day!"
@@ -440,7 +535,7 @@ export default function HijamaCalendarSection() {
                           </span>
                         </span>
                       </div>
-                      <span className="text-[11px] font-bold text-[#22623a] shrink-0">
+                      <span className="text-[11px] font-bold text-[#22623a] shrink-0 self-end sm:self-auto">
                         ₨ 2,500
                       </span>
                     </div>
@@ -719,9 +814,9 @@ export default function HijamaCalendarSection() {
                 </div>
               )}
 
-              {/* ──────────────── STEP 3: PATIENT DETAILS ──────────────── */}
+              {/* ──────────────── STEP 3: DETAILS & AUTHENTICATION GATE ──────────────── */}
               {step === 3 && (
-                <form onSubmit={handleBookingSubmit} className="space-y-4 animate-fade-in">
+                <div className="space-y-4 animate-fade-in">
                   {/* Summary strip */}
                   <div className="flex items-center justify-between p-3 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs">
                     <div>
@@ -736,107 +831,411 @@ export default function HijamaCalendarSection() {
                       onClick={() => setStep(2)}
                       className="text-xs text-[#22623a] font-semibold hover:underline cursor-pointer"
                     >
-                      Change
+                      Change Slot
                     </button>
                   </div>
 
-                  {/* Input Fields */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    <div className="sm:col-span-1">
-                      <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
-                        Full Name *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="e.g. Usman Ahmed"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D]"
-                      />
-                    </div>
+                  {!session?.user ? (
+                    /* ═══ 3A. AUTHENTICATION GATE (UNAUTHENTICATED) ═══ */
+                    <div className="space-y-4">
+                      {/* Gating info banner */}
+                      <div className="p-3.5 bg-emerald-50/80 border border-emerald-200/90 rounded-xl flex items-start gap-2.5 text-xs text-emerald-950">
+                        <ShieldCheck className="w-4 h-4 text-[#22623a] shrink-0 mt-0.5" />
+                        <div className="space-y-0.5">
+                          <strong className="block font-bold text-[#14281D]">Sign-In Required to Reserve Hijama</strong>
+                          <span className="text-[#59534b]">
+                            An account is required to generate your official clinical appointment ticket, issue SMS/WhatsApp reminders, and keep your Sunnah cupping history secure.
+                          </span>
+                        </div>
+                      </div>
 
-                    <div className="sm:col-span-1">
-                      <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
-                        WhatsApp Phone *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        placeholder="0300 1234567"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D]"
-                      />
-                    </div>
+                      {/* Tabs: Sign In vs Create Account */}
+                      <div className="grid grid-cols-2 p-1 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs font-bold">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAuthTab("signin");
+                            setAuthError(null);
+                            setAuthSuccessMsg(null);
+                          }}
+                          className={`py-2 rounded-lg transition-colors cursor-pointer ${
+                            authTab === "signin"
+                              ? "bg-[#14281D] text-white shadow-xs"
+                              : "text-[#7a7268] hover:text-[#14281D]"
+                          }`}
+                        >
+                          Sign In
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAuthTab("signup");
+                            setAuthError(null);
+                            setAuthSuccessMsg(null);
+                          }}
+                          className={`py-2 rounded-lg transition-colors cursor-pointer ${
+                            authTab === "signup"
+                              ? "bg-[#14281D] text-white shadow-xs"
+                              : "text-[#7a7268] hover:text-[#14281D]"
+                          }`}
+                        >
+                          Create Account
+                        </button>
+                      </div>
 
-                    <div className="sm:col-span-1">
-                      <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
-                        Age *
-                      </label>
-                      <input
-                        type="number"
-                        required
-                        min={12}
-                        max={95}
-                        placeholder="35"
-                        value={age}
-                        onChange={(e) => setAge(e.target.value)}
-                        className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D]"
-                      />
-                    </div>
-                  </div>
+                      {/* SIGN IN FORM */}
+                      {authTab === "signin" ? (
+                        <form onSubmit={handleAuthSignIn} className="space-y-3">
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-semibold text-[#59534b] block">
+                              Email Address <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <Mail className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              <input
+                                type="email"
+                                required
+                                value={authEmail}
+                                onChange={(e) => setAuthEmail(e.target.value)}
+                                placeholder="name@example.com"
+                                className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                              />
+                            </div>
+                          </div>
 
-                  {/* Safety Checkbox */}
-                  <label className="flex items-start gap-2.5 pt-1 cursor-pointer select-none">
-                    <input
-                      type="checkbox"
-                      checked={healthConfirmed}
-                      onChange={(e) => setHealthConfirmed(e.target.checked)}
-                      className="mt-0.5 rounded border-[#c59b27] text-[#14281D] focus:ring-0 cursor-pointer"
-                    />
-                    <span className="text-[11px] text-[#59534b] leading-tight">
-                      I confirm that I am <strong>not taking blood thinners</strong> (e.g. Warfarin), not pregnant, and do not suffer from severe anemia or hemophilia.
-                    </span>
-                  </label>
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between">
+                              <label className="text-[11px] font-semibold text-[#59534b]">
+                                Password <span className="text-red-500">*</span>
+                              </label>
+                              <Link
+                                href="/forgot-password"
+                                className="text-[10px] text-[#22623a] hover:underline"
+                              >
+                                Forgot password?
+                              </Link>
+                            </div>
+                            <div className="relative">
+                              <Lock className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              <input
+                                type={showPassword ? "text" : "password"}
+                                required
+                                value={authPassword}
+                                onChange={(e) => setAuthPassword(e.target.value)}
+                                placeholder="Enter your password"
+                                className="w-full pl-9 pr-9 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7a7268] hover:text-[#14281D] cursor-pointer"
+                                aria-label={showPassword ? "Hide password" : "Show password"}
+                              >
+                                {showPassword ? (
+                                  <EyeOff className="w-3.5 h-3.5" />
+                                ) : (
+                                  <Eye className="w-3.5 h-3.5" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
 
-                  {submitError && (
-                    <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0" />
-                      <span>{submitError}</span>
-                    </div>
-                  )}
+                          {authError && (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
+                              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                              <span>{authError}</span>
+                            </div>
+                          )}
 
-                  {/* Submission and Back Buttons */}
-                  <div className="flex items-center gap-2.5 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setStep(2)}
-                      className="px-4 py-3 bg-[#faf8f5] border border-[#e8e2d8] hover:bg-[#f0eae1] text-[#14281D] font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
-                    >
-                      <ArrowLeft className="w-3.5 h-3.5" />
-                      <span>Back</span>
-                    </button>
+                          <div className="flex items-center gap-2.5 pt-1">
+                            <button
+                              type="button"
+                              onClick={() => setStep(2)}
+                              className="px-4 py-2.5 bg-[#faf8f5] border border-[#e8e2d8] hover:bg-[#f0eae1] text-[#14281D] font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+                            >
+                              <ArrowLeft className="w-3.5 h-3.5" />
+                              <span>Back</span>
+                            </button>
 
-                    <button
-                      type="submit"
-                      disabled={submitting || !selectedSlot}
-                      className="flex-1 py-3 px-4 bg-[#14281D] hover:bg-[#1f3c2c] disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-                    >
-                      {submitting ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Confirming Booking...</span>
-                        </>
+                            <button
+                              type="submit"
+                              disabled={authLoading}
+                              className="flex-1 py-2.5 px-4 bg-[#14281D] hover:bg-[#1f3c2c] disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                            >
+                              {authLoading ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  <span>Signing In...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>Sign In &amp; Continue Booking</span>
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </form>
                       ) : (
-                        <>
-                          <span>Confirm Booking (Pay ₨ 2,500 at Clinic)</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </>
+                        /* CREATE ACCOUNT FORM */
+                        <form onSubmit={handleAuthRegister} className="space-y-3">
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-semibold text-[#59534b] block">
+                              Full Name <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <User className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              <input
+                                type="text"
+                                required
+                                value={authName}
+                                onChange={(e) => setAuthName(e.target.value)}
+                                placeholder="e.g. Usman Ahmed"
+                                className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1">
+                            <label className="text-[11px] font-semibold text-[#59534b] block">
+                              Email Address <span className="text-red-500">*</span>
+                            </label>
+                            <div className="relative">
+                              <Mail className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                              <input
+                                type="email"
+                                required
+                                value={authEmail}
+                                onChange={(e) => setAuthEmail(e.target.value)}
+                                placeholder="name@example.com"
+                                className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                            <div className="space-y-1">
+                              <label className="text-[11px] font-semibold text-[#59534b] block">
+                                Password (min 8 chars) <span className="text-red-500">*</span>
+                              </label>
+                              <div className="relative">
+                                <Lock className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                <input
+                                  type={showPassword ? "text" : "password"}
+                                  required
+                                  minLength={8}
+                                  value={authPassword}
+                                  onChange={(e) => setAuthPassword(e.target.value)}
+                                  placeholder="At least 8 characters"
+                                  className="w-full pl-9 pr-9 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setShowPassword(!showPassword)}
+                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#7a7268] hover:text-[#14281D] cursor-pointer"
+                                  aria-label={showPassword ? "Hide password" : "Show password"}
+                                >
+                                  {showPassword ? (
+                                    <EyeOff className="w-3.5 h-3.5" />
+                                  ) : (
+                                    <Eye className="w-3.5 h-3.5" />
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[11px] font-semibold text-[#59534b] block">
+                                WhatsApp Phone (Optional)
+                              </label>
+                              <div className="relative">
+                                <Phone className="w-4 h-4 text-[#7a7268] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                <input
+                                  type="tel"
+                                  value={authPhone}
+                                  onChange={(e) => setAuthPhone(e.target.value)}
+                                  placeholder="0300 1234567"
+                                  className="w-full pl-9 pr-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {authError && (
+                            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
+                              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                              <span>{authError}</span>
+                            </div>
+                          )}
+
+                          {authSuccessMsg && (
+                            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-900 flex items-start gap-2">
+                              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" />
+                              <div className="space-y-1">
+                                <strong className="block text-emerald-950 font-bold">Verification Email Sent</strong>
+                                <p className="text-[11px] leading-relaxed">{authSuccessMsg}</p>
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="flex items-center gap-2.5 pt-1">
+                            <button
+                              type="button"
+                              onClick={() => setStep(2)}
+                              className="px-4 py-2.5 bg-[#faf8f5] border border-[#e8e2d8] hover:bg-[#f0eae1] text-[#14281D] font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+                            >
+                              <ArrowLeft className="w-3.5 h-3.5" />
+                              <span>Back</span>
+                            </button>
+
+                            <button
+                              type="submit"
+                              disabled={authLoading}
+                              className="flex-1 py-2.5 px-4 bg-[#14281D] hover:bg-[#1f3c2c] disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                            >
+                              {authLoading ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                  <span>Creating Account...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>Create Account &amp; Continue</span>
+                                  <ArrowRight className="w-3.5 h-3.5" />
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </form>
                       )}
-                    </button>
-                  </div>
-                </form>
+
+                      {/* Direct Link to full login page */}
+                      <div className="text-center pt-1 border-t border-[#f0eae1] text-[11px] text-[#7a7268]">
+                        <span>Prefer using the full login page? </span>
+                        <Link
+                          href={`/login?redirect=${encodeURIComponent("/#hijama-calendar")}`}
+                          className="font-semibold text-[#22623a] hover:underline"
+                        >
+                          Open Login Page →
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    /* ═══ 3B. AUTHENTICATED PATIENT FORM ═══ */
+                    <form onSubmit={handleBookingSubmit} className="space-y-4">
+                      {/* Identity Chip */}
+                      <div className="p-2.5 bg-emerald-50/80 border border-emerald-200/80 rounded-xl text-xs flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <ShieldCheck className="w-4 h-4 text-[#22623a] shrink-0" />
+                          <span className="text-[#14281D] truncate">
+                            Booking as <strong className="font-semibold">{session.user.name || "Patient"}</strong>{" "}
+                            <span className="text-[#6a645a]">({session.user.email})</span>
+                          </span>
+                        </div>
+                        <span className="text-[10px] uppercase font-bold text-[#22623a] bg-white px-2 py-0.5 rounded-md border border-emerald-200/80 shrink-0">
+                          Signed In
+                        </span>
+                      </div>
+
+                      {/* Input Fields */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                        <div className="sm:col-span-1">
+                          <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                            Full Name *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. Usman Ahmed"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                            className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                          />
+                        </div>
+
+                        <div className="sm:col-span-1">
+                          <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                            WhatsApp Phone *
+                          </label>
+                          <input
+                            type="tel"
+                            required
+                            placeholder="0300 1234567"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                          />
+                        </div>
+
+                        <div className="sm:col-span-1">
+                          <label className="text-[11px] font-semibold text-[#59534b] block mb-1">
+                            Age *
+                          </label>
+                          <input
+                            type="number"
+                            required
+                            min={12}
+                            max={95}
+                            placeholder="35"
+                            value={age}
+                            onChange={(e) => setAge(e.target.value)}
+                            className="w-full px-3 py-2 bg-[#faf8f5] border border-[#e8e2d8] rounded-xl text-xs text-[#14281D] focus:outline-none focus:border-[#14281D] focus:bg-white"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Safety Checkbox */}
+                      <label className="flex items-start gap-2.5 pt-1 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={healthConfirmed}
+                          onChange={(e) => setHealthConfirmed(e.target.checked)}
+                          className="mt-0.5 rounded border-[#c59b27] text-[#14281D] focus:ring-0 cursor-pointer"
+                        />
+                        <span className="text-[11px] text-[#59534b] leading-tight">
+                          I confirm that I am <strong>not taking blood thinners</strong> (e.g. Warfarin), not pregnant, and do not suffer from severe anemia or hemophilia.
+                        </span>
+                      </label>
+
+                      {submitError && (
+                        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-xl flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 shrink-0" />
+                          <span>{submitError}</span>
+                        </div>
+                      )}
+
+                      {/* Submission and Back Buttons */}
+                      <div className="flex items-center gap-2.5 pt-2">
+                        <button
+                          type="button"
+                          onClick={() => setStep(2)}
+                          className="px-4 py-3 bg-[#faf8f5] border border-[#e8e2d8] hover:bg-[#f0eae1] text-[#14281D] font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+                        >
+                          <ArrowLeft className="w-3.5 h-3.5" />
+                          <span>Back</span>
+                        </button>
+
+                        <button
+                          type="submit"
+                          disabled={submitting || !selectedSlot}
+                          className="flex-1 py-3 px-4 bg-[#14281D] hover:bg-[#1f3c2c] disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                        >
+                          {submitting ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>Confirming Booking...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>Confirm Booking (Pay ₨ 2,500 at Clinic)</span>
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
               )}
             </div>
           )}

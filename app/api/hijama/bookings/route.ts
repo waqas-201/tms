@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { isStaffRole } from "@/lib/rbac";
+import prisma from "@/lib/prisma";
 import {
   createHijamaBooking,
   getHijamaBookingByTicket,
@@ -88,28 +89,56 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Attach the patient account.
-    // - Patients: their own session account.
-    // - Staff: the explicitly selected patient account (or unlinked for a
-    //   phone/guest booking) — never the staff member's own account.
-    let userId: string | null = null;
-    try {
-      const session = await auth.api.getSession({
-        headers: request.headers,
-      });
-      const userRole = (session?.user as any)?.role;
-      const isStaff = isStaffRole(userRole);
+    // Enforce authentication gate on Hijama booking
+    const session = await auth.api.getSession({
+      headers: request.headers,
+    });
 
-      if (isStaff) {
-        userId =
-          typeof body.userId === "string" && body.userId.trim()
-            ? body.userId.trim()
-            : null;
-      } else if (session?.user?.id) {
-        userId = session.user.id;
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Authentication required. Please sign in or create an account to reserve your Sunnah Hijama appointment.",
+          requiresAuth: true,
+        },
+        { status: 401 }
+      );
+    }
+
+    const userRole = (session.user as any)?.role;
+    const staffSession = isStaffRole(userRole);
+
+    if (!staffSession) {
+      const dbUser = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { id: true, email: true, emailVerified: true },
+      });
+
+      if (!dbUser || !dbUser.emailVerified) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Email verification required. Please verify your email address (${dbUser?.email || session.user.email}) before booking a Hijama session.`,
+            emailUnverified: true,
+            email: dbUser?.email || session.user.email,
+          },
+          { status: 403 }
+        );
       }
-    } catch {
-      // Guest booking allowed if session retrieval fails
+    }
+
+    // Attach the patient account.
+    // - Patients: their own verified session account.
+    // - Staff: the explicitly selected patient account (or unlinked for a
+    //   phone booking) — never the staff member's own account.
+    let userId: string | null = null;
+    if (staffSession) {
+      userId =
+        typeof body.userId === "string" && body.userId.trim()
+          ? body.userId.trim()
+          : null;
+    } else {
+      userId = session.user.id;
     }
 
     const booking = await createHijamaBooking({

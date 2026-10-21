@@ -301,8 +301,75 @@ export default function Header() {
 
   return (
     <>
-      {/* ─── 1. HIJAMA TOP BANNER (Replaces old green strip with Sunnah Hijama announcement) ─── */}
-      <div className="bg-[#0f2b1d] text-[#f4eee5] text-[11px] sm:text-xs py-2 px-3 sm:px-6 border-b border-[#c59b27]/30">
+      {/* ─── 1. HIJAMA TOP BANNER (Mobile-Dedicated & Desktop Versions) ─── */}
+      {/* 1A. Dedicated Mobile Version (< sm) — Full text, high visibility CTA, no ellipsis clipping */}
+      <div className="block sm:hidden bg-[#0f2b1d] text-[#f4eee5] px-3 py-2 border-b border-[#c59b27]/30 shadow-xs">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#c59b27]/20 text-[#c59b27] font-bold text-[10px] tracking-wider uppercase shrink-0 border border-[#c59b27]/40 shadow-2xs">
+              <Moon className="w-2.5 h-2.5 fill-current" />
+              <span>Sunnah Hijama</span>
+            </span>
+
+            <strong className="text-[#c59b27] font-bold text-[11px] leading-tight shrink-0">
+              {hijamaBannerInfo ? (
+                hijamaBannerInfo.isToday
+                  ? "Today is Sunnah Day!"
+                  : `${hijamaBannerInfo.daysAway} ${hijamaBannerInfo.daysAway === 1 ? "day" : "days"} left`
+              ) : (
+                "Lunar Cupping"
+              )}
+            </strong>
+          </div>
+
+          <Link
+            href={pathname === "/" ? "#hijama-calendar" : "/#hijama-calendar"}
+            onClick={(e) => {
+              if (pathname === "/") {
+                e.preventDefault();
+                const target = document.getElementById("hijama-calendar");
+                if (target) {
+                  if (lenis) {
+                    lenis.scrollTo(target, { offset: -60, duration: 1.2 });
+                  } else {
+                    target.scrollIntoView({ behavior: "smooth" });
+                  }
+                }
+              }
+            }}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#c59b27] hover:bg-[#d8ab2e] text-[#0f2b1d] font-bold text-[10px] uppercase tracking-wider shadow-2xs active:scale-95 transition-all shrink-0 cursor-pointer"
+          >
+            <span>Book Slot</span>
+            <ArrowRight className="w-2.5 h-2.5" />
+          </Link>
+        </div>
+
+        <div className="mt-1 flex items-center justify-between text-[10.5px] text-[#c4d4c9] leading-tight pt-0.5">
+          <span className="font-medium text-[#e3ded6] min-w-0">
+            {hijamaBannerInfo ? (
+              <>
+                <span className="text-[#f4eee5] font-semibold">{hijamaBannerInfo.hijriText}</span>
+                <span className="text-[#86a894] mx-1">·</span>
+                <span>{hijamaBannerInfo.gregText}</span>
+                <span className="text-[#86a894] mx-1">·</span>
+                <span className="text-[#86a894]">Male &amp; Female Wards</span>
+              </>
+            ) : (
+              "17th, 19th & 21st Lunar Dates · Separate Wards"
+            )}
+          </span>
+
+          <Link
+            href="/track-order"
+            className="text-[10px] text-[#ded8ce] hover:text-[#c59b27] underline shrink-0 ml-2"
+          >
+            Track Order
+          </Link>
+        </div>
+      </div>
+
+      {/* 1B. Desktop / Tablet Version (sm:block hidden) */}
+      <div className="hidden sm:block bg-[#0f2b1d] text-[#f4eee5] text-xs py-2 px-3 sm:px-6 border-b border-[#c59b27]/30">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#c59b27]/20 text-[#c59b27] font-bold text-[10px] tracking-wider uppercase shrink-0 border border-[#c59b27]/40 shadow-2xs">

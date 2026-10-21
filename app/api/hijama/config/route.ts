@@ -108,6 +108,10 @@ async function handleConfigUpdate(request: NextRequest) {
               typeof day.maxFemaleCapacity === "number"
                 ? day.maxFemaleCapacity
                 : undefined,
+            customSlots:
+              typeof day.customSlots === "string" || day.customSlots === null
+                ? day.customSlots
+                : undefined,
           });
         }
       }
@@ -129,6 +133,19 @@ async function handleConfigUpdate(request: NextRequest) {
         date: override.date,
         isClosed:
           typeof override.isClosed === "boolean" ? override.isClosed : undefined,
+        openTime:
+          typeof override.openTime === "string" || override.openTime === null
+            ? override.openTime
+            : undefined,
+        closeTime:
+          typeof override.closeTime === "string" || override.closeTime === null
+            ? override.closeTime
+            : undefined,
+        slotDurationMins:
+          typeof override.slotDurationMins === "number" ||
+          override.slotDurationMins === null
+            ? override.slotDurationMins
+            : undefined,
         maxMaleCapacity:
           typeof override.maxMaleCapacity === "number" ||
           override.maxMaleCapacity === null
@@ -138,6 +155,11 @@ async function handleConfigUpdate(request: NextRequest) {
           typeof override.maxFemaleCapacity === "number" ||
           override.maxFemaleCapacity === null
             ? override.maxFemaleCapacity
+            : undefined,
+        customSlots:
+          typeof override.customSlots === "string" ||
+          override.customSlots === null
+            ? override.customSlots
             : undefined,
         note:
           typeof override.note === "string" || override.note === null

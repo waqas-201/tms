@@ -11,6 +11,7 @@ import SearchModal from "./SearchModal";
 import { useConsultation } from "@/app/context/ConsultationContext";
 import BrandLogo from "./BrandLogo";
 import { isStaffRole } from "@/lib/rbac-base";
+import { getHijriDate } from "@/lib/hijama-types";
 import {
   Search,
   ShoppingBag,
@@ -37,6 +38,7 @@ import {
   Flame,
   Droplets,
   Sun,
+  Moon,
   Package,
 } from "lucide-react";
 
@@ -113,6 +115,38 @@ export default function Header() {
   const [isShopDropdownOpen, setIsShopDropdownOpen] = useState(false);
   const [isMobileShopExpanded, setIsMobileShopExpanded] = useState(true);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [hijamaBannerInfo, setHijamaBannerInfo] = useState<{
+    daysAway: number;
+    hijriText: string;
+    gregText: string;
+    isToday: boolean;
+  } | null>(null);
+
+  useEffect(() => {
+    try {
+      const today = new Date();
+      for (let i = 0; i < 35; i++) {
+        const check = new Date(today);
+        check.setDate(today.getDate() + i);
+        const h = getHijriDate(check, 0);
+        if (h.isSunnahDay) {
+          const greg = check.toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+          });
+          setHijamaBannerInfo({
+            daysAway: i,
+            hijriText: `${h.hijriDay}th ${h.hijriMonthName}`,
+            gregText: greg,
+            isToday: i === 0,
+          });
+          break;
+        }
+      }
+    } catch {
+      // fallback
+    }
+  }, []);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const shopMenuRef = useRef<HTMLDivElement>(null);
   const shopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -256,7 +290,8 @@ export default function Header() {
     { name: "Shop", href: "/products", icon: ShoppingBag },
     // Specialties hidden for now per instructions (A/B/C testing)
     // { name: "Specialties", href: "/specialties", icon: Activity },
-    { name: "Hijama", href: "/hijama", icon: Droplets },
+    // Hijama removed from nav - now an emphasized inline calendar section on home page
+    // { name: "Hijama", href: "/hijama", icon: Droplets },
     { name: "Consult", href: "/consultation", icon: Stethoscope },
     { name: "About Us", href: "/about", icon: Building2 },
   ];
@@ -266,50 +301,78 @@ export default function Header() {
 
   return (
     <>
-      {/* ─── 1. TOP UTILITY STRIP (desktop only — too wide for phone/tablet) ─── */}
-      <div className="bg-[#11351e] text-[#f4eee5] text-[11px] py-1.5 px-4 border-b border-[#143e23]/60 hidden lg:block">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-          <div className="hidden xl:flex items-center gap-2 text-[#e3ded6] min-w-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#c59b27] shrink-0" />
-            <span className="font-medium truncate">
-              Herbal Clinic &amp; Online Consult
+      {/* ─── 1. HIJAMA TOP BANNER (Replaces old green strip with Sunnah Hijama announcement) ─── */}
+      <div className="bg-[#0f2b1d] text-[#f4eee5] text-[11px] sm:text-xs py-2 px-3 sm:px-6 border-b border-[#c59b27]/30">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#c59b27]/20 text-[#c59b27] font-bold text-[10px] tracking-wider uppercase shrink-0 border border-[#c59b27]/40 shadow-2xs">
+              <Moon className="w-3 h-3 fill-current" />
+              <span>Sunnah Hijama</span>
             </span>
-            <span className="text-[#a59f95] opacity-60 shrink-0">|</span>
-            <span className="text-[#c59b27] font-semibold shrink-0">
-              Karachi, Pakistan (Est. 1990)
+
+            <span className="truncate text-[#e3ded6] font-medium">
+              {hijamaBannerInfo ? (
+                <>
+                  <strong className="text-[#c59b27] font-bold">
+                    {hijamaBannerInfo.isToday
+                      ? "Today is a Blessed Sunnah Day!"
+                      : `${hijamaBannerInfo.daysAway} ${hijamaBannerInfo.daysAway === 1 ? "day" : "days"} left`}
+                  </strong>{" "}
+                  <span className="text-[#c4d4c9] opacity-90">
+                    ({hijamaBannerInfo.hijriText} · {hijamaBannerInfo.gregText})
+                  </span>
+                  <span className="hidden md:inline text-[#86a894]">
+                    {" "}— Separate Male &amp; Female Wards
+                  </span>
+                </>
+              ) : (
+                "Islamic Lunar Wet Cupping (17th, 19th & 21st) — Reserve your session"
+              )}
             </span>
           </div>
 
-          <div className="flex items-center gap-3 xl:gap-4 text-[#ded8ce] ml-auto">
-            <a
-              href={`tel:${CLINIC_INFO.phone}`}
-              className="flex items-center gap-1.5 hover:text-[#c59b27] transition-colors"
+          <div className="flex items-center gap-3 sm:gap-4 shrink-0 text-[11px]">
+            <Link
+              href={pathname === "/" ? "#hijama-calendar" : "/#hijama-calendar"}
+              onClick={(e) => {
+                if (pathname === "/") {
+                  e.preventDefault();
+                  const target = document.getElementById("hijama-calendar");
+                  if (target) {
+                    if (lenis) {
+                      lenis.scrollTo(target, { offset: -60, duration: 1.2 });
+                    } else {
+                      target.scrollIntoView({ behavior: "smooth" });
+                    }
+                  }
+                }
+              }}
+              className="inline-flex items-center gap-1 text-[#c59b27] hover:text-[#e8be52] font-bold hover:underline transition-colors shrink-0"
             >
-              <Phone className="w-3 h-3 text-[#c59b27]" />
-              <span>{CLINIC_INFO.phoneFormatted}</span>
-            </a>
+              <span>View Hijama Calendar &amp; Book</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
 
-            <span className="opacity-30">|</span>
+            <span className="hidden lg:inline opacity-30 text-[#e3ded6]">|</span>
 
             <Link
               href="/track-order"
-              className="flex items-center gap-1.5 hover:text-[#c59b27] transition-colors"
+              className="hidden lg:flex items-center gap-1.5 text-[#ded8ce] hover:text-[#c59b27] transition-colors"
             >
               <Truck className="w-3 h-3 text-[#c59b27]" />
               <span>Track Order</span>
             </Link>
 
-            <span className="opacity-30">|</span>
+            <span className="hidden xl:inline opacity-30 text-[#e3ded6]">|</span>
 
             <a
               href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 hover:text-[#25D366] transition-colors font-medium text-[#25D366]"
+              className="hidden xl:flex items-center gap-1.5 text-[#25D366] hover:text-[#3ce27b] transition-colors font-medium"
             >
               <MessageCircle className="w-3 h-3 fill-current" />
-              <span className="hidden xl:inline">WhatsApp Helpline</span>
-              <span className="xl:hidden">WhatsApp</span>
+              <span>WhatsApp Helpline</span>
             </a>
           </div>
         </div>

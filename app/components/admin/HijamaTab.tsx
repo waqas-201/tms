@@ -17,7 +17,9 @@ import {
   Search,
   User,
   X,
+  Sliders,
 } from "lucide-react";
+import HijamaScheduleManager from "./HijamaScheduleManager";
 
 const STATUS_OPTIONS = [
   { value: "CONFIRMED", label: "Slot confirmed" },
@@ -76,6 +78,7 @@ function emptyForm(): BookingFormState {
 }
 
 export default function HijamaTab() {
+  const [subTab, setSubTab] = useState<"bookings" | "schedule">("bookings");
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -299,8 +302,41 @@ export default function HijamaTab() {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-[#e6dfd5] shadow-2xs">
+      {/* Sub-tab Navigation */}
+      <div className="flex items-center gap-1.5 p-1 bg-[#f4eee5]/70 rounded-2xl border border-[#e6dfd5] w-fit shadow-2xs">
+        <button
+          type="button"
+          onClick={() => setSubTab("bookings")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            subTab === "bookings"
+              ? "bg-[#14281D] text-white shadow-xs"
+              : "text-[#59534b] hover:text-[#14281D]"
+          }`}
+        >
+          <Droplets className="w-3.5 h-3.5" />
+          <span>Bookings &amp; Patients ({bookings.length})</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setSubTab("schedule")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 ${
+            subTab === "schedule"
+              ? "bg-[#14281D] text-white shadow-xs"
+              : "text-[#59534b] hover:text-[#14281D]"
+          }`}
+        >
+          <Clock className="w-3.5 h-3.5 text-[#c59b27]" />
+          <span>Slots &amp; Schedule Manager</span>
+        </button>
+      </div>
+
+      {subTab === "schedule" ? (
+        <HijamaScheduleManager />
+      ) : (
+        <>
+          {/* Header */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white p-5 sm:p-6 rounded-2xl border border-[#e6dfd5] shadow-2xs">
         <div>
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-[#eef7f1] border border-[#cde4d6] flex items-center justify-center text-[#22623a]">
@@ -929,6 +965,8 @@ export default function HijamaTab() {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

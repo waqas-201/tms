@@ -120,6 +120,16 @@ export function formatSlotLabel(
   return `${formatTime(startH, startM)} - ${formatTime(endH, endM)}`;
 }
 
+export interface CustomSlotItem {
+  id: string; // e.g. "10:00"
+  slot: string; // e.g. "10:00 AM - 10:45 AM"
+  startTime: string; // e.g. "10:00"
+  endTime: string; // e.g. "10:45"
+  maleCapacity?: number;
+  femaleCapacity?: number;
+  disabled?: boolean;
+}
+
 export interface HijamaSlotAvailability {
   slot: string; // e.g. "10:00 AM - 10:45 AM"
   startTime: string; // e.g. "10:00"

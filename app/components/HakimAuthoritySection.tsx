@@ -21,6 +21,9 @@ import {
   Building2,
   Calendar,
   Sparkles,
+  ShoppingBag,
+  Activity,
+  Check,
 } from "lucide-react";
 import Reveal from "./motion/Reveal";
 import { useConsultation } from "@/app/context/ConsultationContext";
@@ -38,9 +41,8 @@ export default function HakimAuthoritySection() {
     {
       value: "150K+",
       label: "Patients Consulted & Treated",
-      subLabel: "Verified Reviews on Google ↗",
+      subLabel: "Documented Clinical Case Histories",
       icon: Users,
-      href: CLINIC_INFO.googleMapsUrl,
     },
     {
       value: "100%",
@@ -70,59 +72,65 @@ export default function HakimAuthoritySection() {
         {/* ─── 1. Hakim Clinical Pedigree & Philosophy ─── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
-          {/* Hakim Portrait Visual Column (5 cols) */}
+          {/* Hakim Portrait & Clinical Practice Card (5 cols) */}
           <Reveal className="lg:col-span-5 relative">
-            {/* Desktop Full Portrait View */}
-            <div className="hidden lg:block relative aspect-[4/4.9] rounded-3xl overflow-hidden shadow-xl border-2 border-[#e6dfd5] bg-[#f6f2ea] group">
-              <Image
-                src="/images/2-scaled.png"
-                alt="Hakim Muhammad Tariq - Senior Tibbi Consultant at Tameer-e-Sehat Karachi"
-                fill
-                className="object-cover object-top transition-transform duration-700 group-hover:scale-102"
-                sizes="(max-width: 1024px) 100vw, 480px"
-                priority={false}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#143e23] via-[#22623a]/30 to-transparent" />
+            <div className="relative rounded-3xl overflow-hidden shadow-xl border-2 border-[#e6dfd5] bg-white group">
+              {/* Image Frame */}
+              <div className="relative aspect-[4/4.2] sm:aspect-[4/4.4] w-full overflow-hidden bg-gradient-to-b from-[#f3eee5] to-[#e8e0d2]">
+                <Image
+                  src="/images/hkm.png"
+                  alt="Hakim Muhammad Tariq Mahmood - Senior Tibbi Consultant at Tameer-e-Sehat Karachi"
+                  fill
+                  className="object-cover object-top transition-transform duration-700 group-hover:scale-102"
+                  sizes="(max-width: 1024px) 100vw, 480px"
+                  priority={false}
+                />
 
-              <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#c59b27] text-white text-[11px] font-bold uppercase tracking-wider shadow-xs">
-                  <Award className="w-3.5 h-3.5" />
-                  <span>Certified Tibbi Lineage · Est. 1990</span>
+                {/* Subtle soft lighting overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                {/* Top Floating Badge */}
+                <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-xs text-[#22623a] text-[11px] font-bold uppercase tracking-wider shadow-sm border border-[#e6dfd5]">
+                    <Award className="w-3.5 h-3.5 text-[#c59b27]" />
+                    <span>Est. 1990 · 35+ Yrs Heritage</span>
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-600/90 text-white text-[10px] font-semibold backdrop-blur-xs shadow-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                    <span>Consultations Open</span>
+                  </span>
                 </div>
-                <div>
-                  <h3 className="font-serif text-2xl font-bold tracking-tight text-white">
+
+                {/* Bottom Overlay on Image */}
+                <div className="absolute bottom-4 left-5 right-5 text-white space-y-0.5">
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-white drop-shadow-xs">
                     Hakim Muhammad Tariq
                   </h3>
-                  <p className="text-xs text-[#f4eee5]/90 font-medium pt-0.5 leading-snug">
-                    Senior Tibbi Consultant &amp; Master Herbalist · Serving Karachi Since 1990
+                  <p className="text-xs text-white/90 font-medium leading-snug drop-shadow-xs">
+                    Senior Tibbi Consultant &amp; Master Herbalist · Karachi Clinic
                   </p>
                 </div>
               </div>
-            </div>
 
-            {/* Mobile Dignified Editorial Portrait Card */}
-            <div className="block lg:hidden relative rounded-2xl sm:rounded-3xl overflow-hidden border border-[#e6dfd5] bg-[#f6f2ea] shadow-md">
-              <div className="relative aspect-[16/11] sm:aspect-[16/10] w-full">
-                <Image
-                  src="/images/2-scaled.png"
-                  alt="Hakim Muhammad Tariq"
-                  fill
-                  className="object-cover object-top"
-                  sizes="(max-width: 1024px) 100vw, 400px"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#143e23] via-[#22623a]/40 to-transparent" />
-
-                <div className="absolute bottom-4 left-4 right-4 text-white space-y-1">
-                  <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#c59b27] text-white text-[10px] font-bold uppercase tracking-wider">
-                    <Award className="w-3 h-3" />
-                    <span>Est. 1990 · 35+ Yrs Heritage</span>
+              {/* Informative Clinical Highlights Panel */}
+              <div className="p-4 sm:p-5 bg-white space-y-2.5 border-t border-[#e6dfd5]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#59534b]">
+                  <div className="flex items-center gap-2 p-2 rounded-xl bg-[#faf8f5] border border-[#e6dfd5]/80">
+                    <Activity className="w-4 h-4 text-[#22623a] shrink-0" />
+                    <span className="font-semibold text-[#1a1816]">Pulse Diagnosis (Nabz)</span>
                   </div>
-                  <h3 className="font-serif text-lg sm:text-xl font-bold text-white leading-tight">
-                    Hakim Muhammad Tariq
-                  </h3>
-                  <p className="text-[11px] sm:text-xs text-[#f4eee5]/90 leading-snug">
-                    Senior Tibbi Consultant &amp; Master Herbalist · Karachi Matab
-                  </p>
+                  <div className="flex items-center gap-2 p-2 rounded-xl bg-[#faf8f5] border border-[#e6dfd5]/80">
+                    <ShieldCheck className="w-4 h-4 text-[#22623a] shrink-0" />
+                    <span className="font-semibold text-[#1a1816]">100% Pure Botanical</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-1 text-[11px] text-[#7a7268] border-t border-[#f0eae1]">
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-[#c59b27]" />
+                    <span>Rahat Commercial, DHA Phase 6, Karachi</span>
+                  </span>
+                  <span className="font-semibold text-[#22623a]">Walk-ins &amp; Online</span>
                 </div>
               </div>
             </div>
@@ -184,13 +192,12 @@ export default function HakimAuthoritySection() {
               </div>
             </div>
 
-            {/* Actions */}
+            {/* Actions: One for Consultation, One for Purchasing Remedies */}
             <div className="pt-2 flex flex-col sm:flex-row flex-wrap gap-3 items-stretch sm:items-center">
               <button
                 type="button"
                 onClick={() =>
                   openConsultation({
-                    mode: "WHATSAPP",
                     message:
                       "Assalam-o-Alaikum Hakim Sahib, I would like to consult with you regarding authentic herbal guidance for my health condition.",
                   })
@@ -202,20 +209,13 @@ export default function HakimAuthoritySection() {
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0" />
               </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  openConsultation({
-                    mode: "PHYSICAL",
-                    message:
-                      "Assalam-o-Alaikum Hakim Sahib, I would like to book an in-person consultation appointment at the Karachi clinic (Korangi Crossing).",
-                  })
-                }
-                className="px-5 py-3.5 bg-white hover:bg-[#faf8f5] text-[#22623a] border border-[#22623a]/30 hover:border-[#22623a] text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+              <Link
+                href="/products"
+                className="px-6 py-3.5 bg-white hover:bg-[#faf8f5] text-[#22623a] border border-[#22623a]/30 hover:border-[#22623a] text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2"
               >
-                <Calendar className="w-4 h-4 text-[#8c6a15] shrink-0" />
-                <span>Book Clinic Appointment</span>
-              </button>
+                <ShoppingBag className="w-4 h-4 text-[#8c6a15] shrink-0" />
+                <span>Browse Remedies</span>
+              </Link>
 
               <Link
                 href="/about"
@@ -232,8 +232,11 @@ export default function HakimAuthoritySection() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 bg-white p-4 sm:p-6 lg:p-7 rounded-2xl sm:rounded-3xl border border-[#e6dfd5] shadow-xs">
             {clinicalMetrics.map((metric, i) => {
               const Icon = metric.icon;
-              const content = (
-                <>
+              return (
+                <div
+                  key={i}
+                  className="text-center space-y-1 p-2 sm:p-3 rounded-2xl hover:bg-[#faf8f5] transition-colors group"
+                >
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#eef7f1] text-[#22623a] flex items-center justify-center mx-auto mb-1 group-hover:scale-105 transition-transform">
                     <Icon className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
                   </div>
@@ -246,34 +249,13 @@ export default function HakimAuthoritySection() {
                   <span className="text-[10px] sm:text-[11px] text-[#8c6a15] font-medium block pt-0.5">
                     {metric.subLabel}
                   </span>
-                </>
-              );
-
-              if ("href" in metric && metric.href) {
-                return (
-                  <a
-                    key={i}
-                    href={metric.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-center space-y-1 p-2 sm:p-3 rounded-xl sm:rounded-2xl hover:bg-[#faf8f5] transition-all group cursor-pointer border border-transparent hover:border-[#cde4d6]"
-                    title="Click to view verified reviews on Google Maps"
-                  >
-                    {content}
-                  </a>
-                );
-              }
-
-              return (
-                <div key={i} className="text-center space-y-1 p-2 sm:p-3">
-                  {content}
                 </div>
               );
             })}
           </div>
         </Reveal>
 
-        {/* ─── 3. In-Person Karachi Clinic Visit Card ─── */}
+        {/* ─── 3. In-Person Karachi Clinic & Pulse Diagnosis ─── */}
         <Reveal className="p-5 sm:p-8 lg:p-10 bg-white rounded-3xl border border-[#e6dfd5] shadow-sm">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-stretch">
 
@@ -282,7 +264,7 @@ export default function HakimAuthoritySection() {
               <div className="space-y-3">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#eef7f1] border border-[#cde4d6] text-[#22623a] text-xs font-semibold">
                   <Building2 className="w-3.5 h-3.5 text-[#c59b27]" />
-                  <span>Physical Dispensary &amp; Matab in Karachi</span>
+                  <span>Karachi Clinic · DHA Phase 6</span>
                 </div>
 
                 <div className="space-y-1.5">
@@ -290,7 +272,7 @@ export default function HakimAuthoritySection() {
                     Visit Our Clinic for Pulse Diagnosis (Nabz)
                   </h3>
                   <p className="text-xs sm:text-sm text-[#59534b] leading-relaxed">
-                    Prefer an in-person consultation? Visit Hakim Muhammad Tariq at our established Karachi dispensary at Korangi Crossing for on-the-spot pulse examination (<span className="font-medium text-[#22623a]">Nabz Shanasi</span>) and freshly compounded botanical remedies.
+                    Prefer to visit in person? Come see Hakim Sahib at our Karachi clinic for a personal pulse check (<em>Nabz</em>) and custom herbal remedies prepared for your health.
                   </p>
                 </div>
               </div>
@@ -308,7 +290,7 @@ export default function HakimAuthoritySection() {
                       {CLINIC_INFO.address}
                     </p>
                     <p className="text-[11px] text-[#7a7268]">
-                      Near Korangi Crossing Road, Sector 31-B, Karachi.
+                      Easily accessible from DHA, Clifton, and across Karachi.
                     </p>
                   </div>
                   <div className="pt-2 border-t border-[#e6dfd5]/60">
@@ -343,7 +325,7 @@ export default function HakimAuthoritySection() {
                   <div className="pt-2 border-t border-[#e6dfd5]/60">
                     <p className="text-[11px] text-[#7a7268] flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 shrink-0" />
-                      <span>Walk-ins welcome; prior slot advised.</span>
+                      <span>Walk-ins welcome, or book ahead to skip the wait.</span>
                     </p>
                   </div>
                 </div>
@@ -353,7 +335,7 @@ export default function HakimAuthoritySection() {
               <div className="p-3 bg-[#eef7f1] rounded-xl border border-[#cde4d6] text-xs text-[#22623a] flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-[#22623a] shrink-0" />
                 <span>
-                  Convenient access from DHA Phase 7/8, Clifton, Malir, and Korangi Industrial Area.
+                  Located at Rahat Commercial in DHA Phase 6, with convenient parking outside the clinic.
                 </span>
               </div>
             </div>
@@ -366,15 +348,15 @@ export default function HakimAuthoritySection() {
               <div className="space-y-3 relative z-10">
                 <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#143e23] text-[#c59b27] text-xs font-bold uppercase tracking-wider">
                   <Calendar className="w-3.5 h-3.5" />
-                  <span>Reserve Consultation</span>
+                  <span>In-Person Visit</span>
                 </div>
 
                 <h4 className="font-serif text-xl sm:text-2xl font-bold text-white">
-                  Book Clinic Appointment
+                  Book Your Clinic Visit
                 </h4>
 
                 <p className="text-xs sm:text-sm text-[#f4eee5]/85 leading-relaxed">
-                  Reserve your dedicated time slot with Hakim Muhammad Tariq to receive thorough pulse diagnosis without long waiting lines at our Karachi Matab.
+                  Reserve your preferred time slot with Hakim Sahib to get a personal pulse check without waiting in line.
                 </p>
               </div>
 
@@ -385,7 +367,7 @@ export default function HakimAuthoritySection() {
                     openConsultation({
                       mode: "PHYSICAL",
                       message:
-                        "Assalam-o-Alaikum Hakim Sahib, I would like to book an in-person consultation appointment at the Karachi clinic (Korangi Crossing).",
+                        "Assalam-o-Alaikum Hakim Sahib, I would like to book an in-person consultation appointment at your DHA Phase 6 Karachi clinic.",
                     })
                   }
                   className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer"
@@ -396,14 +378,14 @@ export default function HakimAuthoritySection() {
 
                 <a
                   href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(
-                    "Assalam-o-Alaikum Hakim Sahib, I would like to schedule an in-person clinic visit at your Korangi Crossing Matab in Karachi."
+                    "Assalam-o-Alaikum Hakim Sahib, I would like to schedule an in-person clinic visit at your DHA Phase 6 Matab in Karachi."
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-semibold rounded-xl border border-white/20 transition-all text-center"
                 >
                   <MessageCircle className="w-4 h-4 text-[#25D366] shrink-0" />
-                  <span>Direct WhatsApp Booking</span>
+                  <span>WhatsApp Clinic</span>
                 </a>
 
                 <a

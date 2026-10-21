@@ -22,7 +22,7 @@ export async function GET(
         OR: [{ id: id }, { ticketNumber: id }],
       },
       include: {
-        user: { select: { id: true, name: true, email: true } },
+        user: { select: { id: true, name: true, email: true, phone: true } },
       },
     });
 
@@ -36,10 +36,8 @@ export async function GET(
     const userRole = (session?.user as any)?.role;
 
     if (
-      consultation.userId &&
-      session &&
-      !isStaffRole(userRole) &&
-      session.user.id !== consultation.userId
+      !session ||
+      (!isStaffRole(userRole) && session.user.id !== consultation.userId)
     ) {
       return NextResponse.json(
         { success: false, error: "Access denied." },
@@ -47,7 +45,15 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({ success: true, data: consultation });
+    const mapped = {
+      ...consultation,
+      fullName: consultation.patientName || consultation.user?.name || "Patient",
+      phone: consultation.patientPhone || (consultation.user as any)?.phone || "Via Account",
+      email: consultation.patientEmail || consultation.user?.email || null,
+      city: (consultation.user as any)?.city || "Pakistan",
+    };
+
+    return NextResponse.json({ success: true, data: mapped });
   } catch (error) {
     console.error("Error retrieving consultation:", error);
     return NextResponse.json(
@@ -80,6 +86,8 @@ export async function PATCH(
       status,
       appointmentDate,
       appointmentSlot,
+      consultationType,
+      primarySymptoms,
       hakimNotes,
       prescribedTreatment,
       userId,
@@ -87,6 +95,7 @@ export async function PATCH(
 
     const existing = await prisma.consultationRequest.findFirst({
       where: { OR: [{ id }, { ticketNumber: id }] },
+      include: { user: true },
     });
 
     if (!existing) {
@@ -99,24 +108,19 @@ export async function PATCH(
     const previousStatus = existing.status;
     const previousPrescription = existing.prescribedTreatment;
 
-    // Link / unlink this booking to a registered patient account
-    let linkedUserId: string | null | undefined = undefined;
-    if (userId !== undefined) {
-      if (userId) {
-        const linkedUser = await prisma.user.findUnique({
-          where: { id: userId },
-          select: { id: true },
-        });
-        if (!linkedUser) {
-          return NextResponse.json(
-            { success: false, error: "The selected patient account was not found." },
-            { status: 400 }
-          );
-        }
-        linkedUserId = linkedUser.id;
-      } else {
-        linkedUserId = null;
+    let targetUserId = existing.userId;
+    if (userId) {
+      const linkedUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true },
+      });
+      if (!linkedUser) {
+        return NextResponse.json(
+          { success: false, error: "The selected patient account was not found." },
+          { status: 400 }
+        );
       }
+      targetUserId = linkedUser.id;
     }
 
     const updated = await prisma.consultationRequest.update({
@@ -125,25 +129,30 @@ export async function PATCH(
         ...(status && { status }),
         ...(appointmentDate !== undefined && { appointmentDate }),
         ...(appointmentSlot !== undefined && { appointmentSlot }),
+        ...(consultationType !== undefined && { consultationType }),
+        ...(primarySymptoms !== undefined && { primarySymptoms }),
         ...(hakimNotes !== undefined && { hakimNotes }),
         ...(prescribedTreatment !== undefined && { prescribedTreatment }),
-        ...(linkedUserId !== undefined && { userId: linkedUserId }),
+        ...(userId && { userId: targetUserId }),
       },
       include: {
-        user: { select: { id: true, name: true, email: true } },
+        user: { select: { id: true, name: true, email: true, phone: true } },
       },
     });
 
+    const patientEmail = updated.patientEmail || updated.user?.email;
+    const patientName = updated.patientName || updated.user?.name || "Valued Patient";
+
     // Email Triggers for Patient:
-    if (updated.email) {
+    if (patientEmail) {
       // 1. If status changed or rescheduled
       if (
         (status && status !== previousStatus) ||
         (appointmentDate && appointmentDate !== existing.appointmentDate)
       ) {
         sendAppointmentStatusEmail({
-          to: updated.email,
-          fullName: updated.fullName,
+          to: patientEmail,
+          fullName: patientName,
           ticketNumber: updated.ticketNumber,
           status: updated.status,
           appointmentDate: updated.appointmentDate,
@@ -159,8 +168,8 @@ export async function PATCH(
         prescribedTreatment !== previousPrescription
       ) {
         sendHakimPrescriptionEmail({
-          to: updated.email,
-          fullName: updated.fullName,
+          to: patientEmail,
+          fullName: patientName,
           ticketNumber: updated.ticketNumber,
           prescribedTreatment: updated.prescribedTreatment || prescribedTreatment,
           hakimNotes: updated.hakimNotes,
@@ -168,9 +177,17 @@ export async function PATCH(
       }
     }
 
+    const mapped = {
+      ...updated,
+      fullName: updated.patientName || updated.user?.name || patientName,
+      phone: updated.patientPhone || (updated.user as any)?.phone || "Via Account",
+      email: updated.patientEmail || updated.user?.email || patientEmail,
+      city: (updated.user as any)?.city || "Pakistan",
+    };
+
     return NextResponse.json({
       success: true,
-      data: updated,
+      data: mapped,
       message: "Consultation updated successfully.",
     });
   } catch (error: any) {

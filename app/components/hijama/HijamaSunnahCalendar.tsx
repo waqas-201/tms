@@ -622,10 +622,10 @@ export default function HijamaSunnahCalendar({
                         onClick={() => handleSlotClick(slot)}
                         className={`w-full p-2.5 rounded-xl border text-left flex items-center justify-between transition-all ${
                           isSlotSelected
-                            ? "bg-[#22623a] text-white border-[#22623a] shadow-md"
+                            ? "bg-[#22623a] text-white border-[#22623a] shadow-md cursor-pointer"
                             : isAvailable
-                            ? "bg-white border-[#e6dfd5] hover:border-[#22623a] hover:bg-emerald-50/40 text-[#1e1c19]"
-                            : "bg-[#f5f2ed] border-transparent text-[#a59f95] cursor-not-allowed opacity-60"
+                            ? "bg-white border-[#e6dfd5] hover:border-[#22623a] hover:bg-emerald-50/40 text-[#1e1c19] cursor-pointer"
+                            : "bg-[#eef7f1] text-[#22623a]/60 border-emerald-200/70 opacity-60 blur-[0.4px] hover:blur-[0.4px] cursor-not-allowed select-none"
                         }`}
                       >
                         <div className="flex items-center gap-2 min-w-0">
@@ -661,8 +661,8 @@ export default function HijamaSunnahCalendar({
                               left
                             </span>
                           ) : (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700">
-                              Full
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[#eef7f1] text-[#22623a]/70">
+                              Booked
                             </span>
                           )}
 

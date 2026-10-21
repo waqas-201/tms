@@ -46,8 +46,9 @@ export const DEFAULT_HIJAMA_SCHEDULE: Omit<
     openTime: "10:00",
     closeTime: "21:00",
     slotDurationMins: 45,
-    maxMaleCapacity: 2,
-    maxFemaleCapacity: 2,
+    maxMaleCapacity: 1,
+    maxFemaleCapacity: 1,
+    customSlots: null,
   },
   {
     dayOfWeek: 1,
@@ -56,8 +57,9 @@ export const DEFAULT_HIJAMA_SCHEDULE: Omit<
     openTime: "10:00",
     closeTime: "21:00",
     slotDurationMins: 45,
-    maxMaleCapacity: 2,
-    maxFemaleCapacity: 2,
+    maxMaleCapacity: 1,
+    maxFemaleCapacity: 1,
+    customSlots: null,
   },
   {
     dayOfWeek: 2,
@@ -66,8 +68,9 @@ export const DEFAULT_HIJAMA_SCHEDULE: Omit<
     openTime: "10:00",
     closeTime: "21:00",
     slotDurationMins: 45,
-    maxMaleCapacity: 2,
-    maxFemaleCapacity: 2,
+    maxMaleCapacity: 1,
+    maxFemaleCapacity: 1,
+    customSlots: null,
   },
   {
     dayOfWeek: 3,
@@ -76,8 +79,9 @@ export const DEFAULT_HIJAMA_SCHEDULE: Omit<
     openTime: "10:00",
     closeTime: "21:00",
     slotDurationMins: 45,
-    maxMaleCapacity: 2,
-    maxFemaleCapacity: 2,
+    maxMaleCapacity: 1,
+    maxFemaleCapacity: 1,
+    customSlots: null,
   },
   {
     dayOfWeek: 4,
@@ -86,8 +90,9 @@ export const DEFAULT_HIJAMA_SCHEDULE: Omit<
     openTime: "10:00",
     closeTime: "21:00",
     slotDurationMins: 45,
-    maxMaleCapacity: 2,
-    maxFemaleCapacity: 2,
+    maxMaleCapacity: 1,
+    maxFemaleCapacity: 1,
+    customSlots: null,
   },
   {
     dayOfWeek: 5,
@@ -96,8 +101,9 @@ export const DEFAULT_HIJAMA_SCHEDULE: Omit<
     openTime: "10:00",
     closeTime: "21:00",
     slotDurationMins: 45,
-    maxMaleCapacity: 2,
-    maxFemaleCapacity: 2,
+    maxMaleCapacity: 1,
+    maxFemaleCapacity: 1,
+    customSlots: null,
   },
   {
     dayOfWeek: 6,
@@ -106,16 +112,17 @@ export const DEFAULT_HIJAMA_SCHEDULE: Omit<
     openTime: "10:00",
     closeTime: "21:00",
     slotDurationMins: 45,
-    maxMaleCapacity: 2,
-    maxFemaleCapacity: 2,
+    maxMaleCapacity: 1,
+    maxFemaleCapacity: 1,
+    customSlots: null,
   },
 ];
 
 export const DEFAULT_HIJAMA_SETTING = {
   id: "default",
   moonSightingOffset: 0,
-  sunnahMaleCapacity: 4,
-  sunnahFemaleCapacity: 4,
+  sunnahMaleCapacity: 1,
+  sunnahFemaleCapacity: 1,
   standardFee: 2500,
 };
 
@@ -194,8 +201,8 @@ export async function updateHijamaSettings(data: {
     create: {
       id: "default",
       moonSightingOffset: data.moonSightingOffset ?? 0,
-      sunnahMaleCapacity: data.sunnahMaleCapacity ?? 4,
-      sunnahFemaleCapacity: data.sunnahFemaleCapacity ?? 4,
+      sunnahMaleCapacity: data.sunnahMaleCapacity ?? 1,
+      sunnahFemaleCapacity: data.sunnahFemaleCapacity ?? 1,
       standardFee: data.standardFee ?? 2500,
     },
   });
@@ -204,27 +211,41 @@ export async function updateHijamaSettings(data: {
 export async function setHijamaDateOverride(data: {
   date: string;
   isClosed?: boolean;
+  openTime?: string | null;
+  closeTime?: string | null;
+  slotDurationMins?: number | null;
   maxMaleCapacity?: number | null;
   maxFemaleCapacity?: number | null;
+  customSlots?: string | null;
   note?: string | null;
 }): Promise<HijamaDateOverride> {
   return prisma.hijamaDateOverride.upsert({
     where: { date: data.date },
     update: {
       ...(data.isClosed !== undefined ? { isClosed: data.isClosed } : {}),
+      ...(data.openTime !== undefined ? { openTime: data.openTime } : {}),
+      ...(data.closeTime !== undefined ? { closeTime: data.closeTime } : {}),
+      ...(data.slotDurationMins !== undefined
+        ? { slotDurationMins: data.slotDurationMins }
+        : {}),
       ...(data.maxMaleCapacity !== undefined
         ? { maxMaleCapacity: data.maxMaleCapacity }
         : {}),
       ...(data.maxFemaleCapacity !== undefined
         ? { maxFemaleCapacity: data.maxFemaleCapacity }
         : {}),
+      ...(data.customSlots !== undefined ? { customSlots: data.customSlots } : {}),
       ...(data.note !== undefined ? { note: data.note } : {}),
     },
     create: {
       date: data.date,
       isClosed: data.isClosed ?? false,
+      openTime: data.openTime,
+      closeTime: data.closeTime,
+      slotDurationMins: data.slotDurationMins,
       maxMaleCapacity: data.maxMaleCapacity,
       maxFemaleCapacity: data.maxFemaleCapacity,
+      customSlots: data.customSlots,
       note: data.note,
     },
   });
@@ -257,6 +278,7 @@ export async function updateHijamaScheduleDay(
     slotDurationMins: number;
     maxMaleCapacity: number;
     maxFemaleCapacity: number;
+    customSlots: string | null;
   }>
 ): Promise<HijamaScheduleConfig> {
   await getOrInitHijamaSchedule();
@@ -351,37 +373,66 @@ export async function getHijamaAvailabilityForDate(
       ? override.maxFemaleCapacity
       : baseFemaleCapacity;
 
-  // Generate slots
-  const [openH, openM = 0] = daySchedule.openTime.split(":").map(Number);
-  const [closeH, closeM = 0] = daySchedule.closeTime.split(":").map(Number);
-  const durationMins = daySchedule.slotDurationMins || 45;
+  // Effective operating times & duration
+  const openTimeEffective = override?.openTime || daySchedule.openTime || "10:00";
+  const closeTimeEffective = override?.closeTime || daySchedule.closeTime || "21:00";
+  const durationMins = override?.slotDurationMins || daySchedule.slotDurationMins || 45;
 
-  let currentMinutes = openH * 60 + openM;
-  const endMinutes = closeH * 60 + closeM;
-
-  const generatedSlots: {
+  let generatedSlots: {
     slot: string;
     startTime: string;
     endTime: string;
+    maleCapacity?: number;
+    femaleCapacity?: number;
   }[] = [];
 
-  while (currentMinutes + durationMins <= endMinutes) {
-    const startH = Math.floor(currentMinutes / 60);
-    const startM = currentMinutes % 60;
-    const endH = Math.floor((currentMinutes + durationMins) / 60);
-    const endM = (currentMinutes + durationMins) % 60;
+  // 1. Check customSlots on override first, then on daySchedule
+  const customSlotsRaw = override?.customSlots || (daySchedule as any).customSlots;
+  let parsedCustomSlots: any[] | null = null;
+  if (customSlotsRaw) {
+    try {
+      parsedCustomSlots = JSON.parse(customSlotsRaw);
+    } catch {
+      parsedCustomSlots = null;
+    }
+  }
 
-    const slotLabel = formatSlotLabel(startH, startM, endH, endM);
-    const startTimeStr = `${startH.toString().padStart(2, "0")}:${startM.toString().padStart(2, "0")}`;
-    const endTimeStr = `${endH.toString().padStart(2, "0")}:${endM.toString().padStart(2, "0")}`;
+  if (Array.isArray(parsedCustomSlots) && parsedCustomSlots.length > 0) {
+    generatedSlots = parsedCustomSlots
+      .filter((s: any) => !s.disabled)
+      .map((s: any) => ({
+        slot: s.slot,
+        startTime: s.startTime,
+        endTime: s.endTime,
+        maleCapacity: s.maleCapacity,
+        femaleCapacity: s.femaleCapacity,
+      }));
+  } else {
+    // 2. Standard duration slicing based on openTime, closeTime, and slotDurationMins
+    const [openH, openM = 0] = openTimeEffective.split(":").map(Number);
+    const [closeH, closeM = 0] = closeTimeEffective.split(":").map(Number);
 
-    generatedSlots.push({
-      slot: slotLabel,
-      startTime: startTimeStr,
-      endTime: endTimeStr,
-    });
+    let currentMinutes = openH * 60 + openM;
+    const endMinutes = closeH * 60 + closeM;
 
-    currentMinutes += durationMins;
+    while (currentMinutes + durationMins <= endMinutes) {
+      const startH = Math.floor(currentMinutes / 60);
+      const startM = currentMinutes % 60;
+      const endH = Math.floor((currentMinutes + durationMins) / 60);
+      const endM = (currentMinutes + durationMins) % 60;
+
+      const slotLabel = formatSlotLabel(startH, startM, endH, endM);
+      const startTimeStr = `${startH.toString().padStart(2, "0")}:${startM.toString().padStart(2, "0")}`;
+      const endTimeStr = `${endH.toString().padStart(2, "0")}:${endM.toString().padStart(2, "0")}`;
+
+      generatedSlots.push({
+        slot: slotLabel,
+        startTime: startTimeStr,
+        endTime: endTimeStr,
+      });
+
+      currentMinutes += durationMins;
+    }
   }
 
   // Query database for all active bookings on this date
@@ -408,10 +459,13 @@ export async function getHijamaAvailabilityForDate(
       (b) => b.gender === "FEMALE"
     ).length;
 
-    const maleSeatsRemaining = Math.max(0, effectiveMaleCapacity - maleBooked);
+    const slotMaleCapacity = s.maleCapacity != null ? s.maleCapacity : effectiveMaleCapacity;
+    const slotFemaleCapacity = s.femaleCapacity != null ? s.femaleCapacity : effectiveFemaleCapacity;
+
+    const maleSeatsRemaining = Math.max(0, slotMaleCapacity - maleBooked);
     const femaleSeatsRemaining = Math.max(
       0,
-      effectiveFemaleCapacity - femaleBooked
+      slotFemaleCapacity - femaleBooked
     );
 
     let seatsRemaining: number;
@@ -434,8 +488,8 @@ export async function getHijamaAvailabilityForDate(
       endTime: s.endTime,
       maleBooked,
       femaleBooked,
-      maleCapacity: effectiveMaleCapacity,
-      femaleCapacity: effectiveFemaleCapacity,
+      maleCapacity: slotMaleCapacity,
+      femaleCapacity: slotFemaleCapacity,
       maleSeatsRemaining,
       femaleSeatsRemaining,
       seatsRemaining,

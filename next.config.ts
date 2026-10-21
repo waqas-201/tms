@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
+  // Playwright and local tooling reach the dev server via 127.0.0.1, which
+  // Next treats as a different origin from localhost. Allow it so dev-only
+  // HMR/client resources are not blocked during browser tests.
+  allowedDevOrigins: ["127.0.0.1"],
   // A stray lockfile in the user home directory made Turbopack walk past
   // this app. Pin the root so PostCSS can resolve @tailwindcss/postcss.
   turbopack: {

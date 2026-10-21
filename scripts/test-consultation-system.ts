@@ -71,22 +71,24 @@ async function runConsultationTests() {
     // -------------------------------------------------------------------------
     console.log("\n--- TEST 3: Consultation Booking & Capacity Depletion ---");
     const testTicket = `TEST-CON-${Date.now()}`;
+    let testConsultUser = await prisma.user.findFirst();
+    if (!testConsultUser) {
+      testConsultUser = await prisma.user.create({
+        data: { name: "Test Patient Aisha", email: "aisha.test@tameersehat.pk", role: "user" },
+      });
+    }
+
     const createdConsultation = await prisma.consultationRequest.create({
       data: {
         ticketNumber: testTicket,
-        fullName: "Test Patient Aisha",
-        age: 34,
-        gender: "Female",
-        phone: "03009998877",
-        email: "aisha.test@tameersehat.pk",
-        city: "Karachi",
+        userId: testConsultUser.id,
+        patientName: "Test Patient Aisha",
+        patientPhone: "03009998877",
+        patientEmail: "aisha.test@tameersehat.pk",
         primarySymptoms: "Gastric pain and acid reflux",
-        duration: "1 to 3 Months",
-        channel: "EMAIL",
         consultationType: "ONLINE",
-        appointmentDate: mondayStr,
-        appointmentSlot: firstSlot.slot,
-        preferredContact: "EMAIL",
+        appointmentDate: tomorrowDate,
+        appointmentSlot: targetSlot.slot,
         status: "NEW",
       },
     });

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createHijamaBooking } from "@/lib/hijama";
 import { auth } from "@/lib/auth";
+import { isStaffRole } from "@/lib/rbac-base";
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,6 +10,7 @@ export async function POST(request: NextRequest) {
     });
 
     const body = await request.json();
+    const isStaff = isStaffRole((session?.user as any)?.role);
 
     const booking = await createHijamaBooking({
       fullName: body.fullName,
@@ -20,10 +22,14 @@ export async function POST(request: NextRequest) {
       appointmentSlot: body.appointmentSlot,
       cuppingReason: body.cuppingReason,
       contraindications: body.contraindications,
-      feeAmount: body.feeAmount,
-      paymentStatus: body.paymentStatus || "UNPAID",
-      adminNotes: body.adminNotes,
-      userId: session?.user?.id || body.userId || null,
+      // Patients can never set their own fee, payment state, notes, or
+      // attach a booking to someone else's account.
+      feeAmount: isStaff ? body.feeAmount : undefined,
+      paymentStatus: isStaff ? body.paymentStatus || "UNPAID" : "UNPAID",
+      adminNotes: isStaff ? body.adminNotes : undefined,
+      userId: isStaff
+        ? body.userId || null
+        : session?.user?.id || null,
     });
 
     return NextResponse.json(

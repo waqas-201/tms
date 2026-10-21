@@ -699,10 +699,10 @@ export default function HijamaBookingModal({
                         onClick={() => setSelectedSlot(slot.slot)}
                         className={`p-2.5 rounded-xl border text-left flex items-center justify-between text-xs transition-all ${
                           isChosen
-                            ? "bg-[#22623a] text-white border-[#22623a] shadow-sm font-semibold"
+                            ? "bg-[#22623a] text-white border-[#22623a] shadow-sm font-semibold cursor-pointer"
                             : isAvailable
-                            ? "bg-white border-[#e6dfd5] hover:border-[#22623a] hover:bg-emerald-50/50 text-[#1e1c19]"
-                            : "bg-[#f5f2ed] border-transparent text-[#a59f95] cursor-not-allowed opacity-60"
+                            ? "bg-white border-[#e6dfd5] hover:border-[#22623a] hover:bg-emerald-50/50 text-[#1e1c19] cursor-pointer"
+                            : "bg-[#eef7f1] text-[#22623a]/60 border-emerald-200/70 opacity-60 blur-[0.4px] hover:blur-[0.4px] cursor-not-allowed select-none"
                         }`}
                       >
                         <span className="truncate">{slot.slot}</span>
@@ -719,8 +719,8 @@ export default function HijamaBookingModal({
                             {slot.seatsRemaining} left
                           </span>
                         ) : (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-rose-100 text-rose-700 shrink-0 ml-1">
-                            Full
+                          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-[#eef7f1] text-[#22623a]/70 shrink-0 ml-1">
+                            Booked
                           </span>
                         )}
                       </button>

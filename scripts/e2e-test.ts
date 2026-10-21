@@ -89,7 +89,7 @@ async function runEndToEndTests() {
       where: {
         OR: [
           { ticketNumber: { startsWith: "CON-" } },
-          { email: { contains: "test" } },
+          { patientEmail: { contains: "test" } },
           { id: { in: cleanupContext.consultationIds } },
         ],
       },
@@ -343,22 +343,28 @@ async function runEndToEndTests() {
     const randomTicketSuffix = Math.floor(1000 + Math.random() * 9000);
     const testTicket = `CON-TEST-${randomTicketSuffix}`;
 
+    let testConsultUser = await prisma.user.findFirst();
+    if (!testConsultUser) {
+      testConsultUser = await prisma.user.create({
+        data: {
+          name: "Fatima Noor",
+          email: "fatima.noor@test.com",
+          role: "user",
+        },
+      });
+    }
+
     const createdConsultation = await prisma.consultationRequest.create({
       data: {
         ticketNumber: testTicket,
-        fullName: "Fatima Noor",
-        age: 38,
-        gender: "Female",
-        phone: "0333-7654321",
-        email: "fatima.noor@test.com",
-        city: "Rawalpindi",
+        userId: testConsultUser.id,
+        patientName: "Fatima Noor",
+        patientPhone: "0333-7654321",
+        patientEmail: "fatima.noor@test.com",
         primarySymptoms: "Chronic digestive weakness and fatigue after meals",
-        duration: "6 months",
-        previousTreatments: "Allopathic antacids without lasting relief",
-        currentMedications: "None currently",
-        digestiveState: "Bloating and slow metabolism",
-        sleepEnergyState: "Low morning energy",
-        preferredContact: "WHATSAPP",
+        appointmentDate: "2026-10-25",
+        appointmentSlot: "11:00 AM - 12:00 PM",
+        consultationType: "ONLINE",
         status: "NEW",
       },
     });

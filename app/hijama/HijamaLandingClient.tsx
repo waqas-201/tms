@@ -492,26 +492,27 @@ export default function HijamaLandingClient() {
                           key={s.slot}
                           type="button"
                           disabled={isFull}
-                          onClick={() => setSelectedSlot(s.slot)}
-                          className={`py-2 px-2.5 rounded-xl border text-center transition-all cursor-pointer flex flex-col items-center justify-center ${
+                          onClick={() => !isFull && setSelectedSlot(s.slot)}
+                          title={isFull ? "This slot is fully booked" : `Select ${s.slot}`}
+                          className={`py-2 px-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center relative ${
                             isFull
-                              ? "bg-stone-100 text-stone-400 border-stone-200 cursor-not-allowed opacity-60"
+                              ? "bg-[#eef7f1] text-[#22623a]/70 border-emerald-200/70 opacity-60 blur-[0.4px] hover:blur-[0.4px] cursor-not-allowed select-none"
                               : isSelected
-                              ? "bg-[#14281D] text-white border-[#14281D] shadow-xs"
-                              : "bg-[#faf8f5] text-[#1a1816] border-[#e8e2d8] hover:border-[#14281D]"
+                              ? "bg-[#14281D] text-white border-[#14281D] shadow-xs cursor-pointer"
+                              : "bg-[#faf8f5] text-[#1a1816] border-[#e8e2d8] hover:border-[#14281D] cursor-pointer"
                           }`}
                         >
                           <span className="text-xs font-bold leading-tight">{s.startTime}</span>
                           <span
                             className={`text-[10px] mt-0.5 ${
                               isFull
-                                ? "text-stone-400 font-medium"
+                                ? "text-[#22623a]/60 font-semibold"
                                 : isSelected
                                 ? "text-[#c59b27] font-semibold"
                                 : "text-[#7a7268]"
                             }`}
                           >
-                            {isFull ? "Full" : `${s.seatsRemaining} left`}
+                            {isFull ? "Booked" : `${s.seatsRemaining} left`}
                           </span>
                         </button>
                       );

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { ROLES, isStaffRole } from "@/lib/rbac-base";
+import { isStaffRole } from "@/lib/rbac-base";
 import {
   sendAppointmentConfirmationEmail,
   sendAdminAppointmentNotificationEmail,
@@ -15,73 +15,30 @@ export async function GET(request: NextRequest) {
       headers: request.headers,
     });
 
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Authentication required to view consultations. Please sign in.",
+        },
+        { status: 401 }
+      );
+    }
+
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const search = searchParams.get("search");
     const ticketParam = searchParams.get("ticket");
     const dateParam = searchParams.get("date");
 
+    const userRole = (session.user as any)?.role;
     const where: Record<string, unknown> = {};
-
-    const userRole = (session?.user as any)?.role;
-
-    if (!session) {
-      const phoneParam = searchParams.get("phone");
-
-      if (!ticketParam) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Authentication required to view consultations.",
-          },
-          { status: 401 }
-        );
-      }
-
-      if (!phoneParam || phoneParam.replace(/\D/g, "").length < 7) {
-        return NextResponse.json(
-          {
-            success: false,
-            error:
-              "Please enter the phone number used when booking to view this consultation.",
-          },
-          { status: 400 }
-        );
-      }
-
-      // Guests must verify with BOTH the ticket number and the booking phone.
-      const guestConsultation = await prisma.consultationRequest.findUnique({
-        where: { ticketNumber: ticketParam.trim() },
-      });
-
-      const digits = phoneParam.replace(/\D/g, "");
-      if (
-        !guestConsultation ||
-        guestConsultation.phone.replace(/\D/g, "") !== digits
-      ) {
-        return NextResponse.json(
-          {
-            success: false,
-            error:
-              "No consultation found for that ticket and phone number. Please check both and try again.",
-          },
-          { status: 404 }
-        );
-      }
-
-      return NextResponse.json({
-        success: true,
-        data: [guestConsultation],
-      });
-    }
 
     // Admin/Hakim sees all; regular user sees only their own
     if (!isStaffRole(userRole)) {
       where.userId = session.user.id;
     }
 
-    // Exact ticket lookups (e.g. from the public track page) must stay
-    // scoped to the signed-in patient's own records.
     if (ticketParam && ticketParam.trim()) {
       where.ticketNumber = ticketParam.trim();
     }
@@ -98,11 +55,12 @@ export async function GET(request: NextRequest) {
       const q = search.trim();
       where.OR = [
         { ticketNumber: { contains: q, mode: "insensitive" } },
-        { fullName: { contains: q, mode: "insensitive" } },
-        { phone: { contains: q, mode: "insensitive" } },
-        { email: { contains: q, mode: "insensitive" } },
-        { city: { contains: q, mode: "insensitive" } },
+        { patientName: { contains: q, mode: "insensitive" } },
+        { patientPhone: { contains: q, mode: "insensitive" } },
+        { patientEmail: { contains: q, mode: "insensitive" } },
         { primarySymptoms: { contains: q, mode: "insensitive" } },
+        { user: { name: { contains: q, mode: "insensitive" } } },
+        { user: { email: { contains: q, mode: "insensitive" } } },
       ];
     }
 
@@ -114,12 +72,20 @@ export async function GET(request: NextRequest) {
       ],
       include: {
         user: {
-          select: { id: true, name: true, email: true },
+          select: { id: true, name: true, email: true, phone: true, city: true },
         },
       },
     });
 
-    return NextResponse.json({ success: true, data: consultations });
+    const mapped = consultations.map((c) => ({
+      ...c,
+      fullName: c.patientName || c.user?.name || "Patient",
+      phone: c.patientPhone || c.user?.phone || "Via Account",
+      email: c.patientEmail || c.user?.email || null,
+      city: c.user?.city || "Pakistan",
+    }));
+
+    return NextResponse.json({ success: true, data: mapped });
   } catch (error) {
     console.error("Error fetching consultation requests:", error);
     return NextResponse.json(
@@ -135,104 +101,89 @@ export async function POST(request: NextRequest) {
       headers: request.headers,
     });
 
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Authentication required. Please sign in or create an account to book a consultation slot.",
+        },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const {
-      fullName,
-      age,
-      gender = "Not Specified",
-      phone,
-      email,
-      city = "Pakistan",
-      primarySymptoms,
-      duration = "Recent / Ongoing",
-      previousTreatments,
-      currentMedications,
-      digestiveState,
-      sleepEnergyState,
-      channel = "EMAIL",
-      consultationType = "ONLINE",
       appointmentDate,
       appointmentSlot,
-      preferredContact = "EMAIL",
-      status: requestedStatus,
-      userId: requestedUserId,
+      consultationType = "ONLINE",
+      primarySymptoms,
+      patientName,
+      patientPhone,
+      patientEmail,
       reportUrl,
       reportName,
       reportSize,
+      status: requestedStatus,
+      userId: requestedUserId,
     } = body;
 
-    const effectivePhone = phone ? phone.trim() : "";
-    let effectiveEmail = email
-      ? email.trim().toLowerCase()
-      : session?.user?.email
-      ? session.user.email.toLowerCase()
-      : null;
-
-    if (!fullName || (!effectivePhone && !effectiveEmail) || !primarySymptoms) {
+    // Validate required appointment slot
+    if (!appointmentDate || !/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)) {
       return NextResponse.json(
-        { success: false, error: "Please provide your full name, contact details (email or phone), and primary health concern." },
+        { success: false, error: "Please select a valid consultation appointment date (YYYY-MM-DD)." },
         { status: 400 }
       );
     }
 
-    if (appointmentDate && !/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)) {
+    if (!appointmentSlot || typeof appointmentSlot !== "string") {
       return NextResponse.json(
-        { success: false, error: "Invalid appointment date format. Use YYYY-MM-DD." },
+        { success: false, error: "Please select an available consultation time slot." },
         { status: 400 }
       );
     }
 
-    if (appointmentDate && !appointmentSlot) {
+    // Verify slot capacity in real-time
+    const availability = await getAvailableSlotsForDate(appointmentDate);
+    if (availability.isHoliday) {
       return NextResponse.json(
-        { success: false, error: "Please select an available time slot for your clinic appointment." },
-        { status: 400 }
+        {
+          success: false,
+          error: `The clinic is closed on ${appointmentDate} due to: ${availability.holidayReason || "Official Holiday"}. Please choose another date.`,
+        },
+        { status: 409 }
       );
     }
 
-    // If appointment date & slot are specified, verify slot capacity in real-time
-    if (appointmentDate && appointmentSlot) {
-      const availability = await getAvailableSlotsForDate(appointmentDate);
-      if (availability.isHoliday) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: `The clinic is closed on ${appointmentDate} due to: ${availability.holidayReason || "Official Holiday"}. Please pick another date.`,
-          },
-          { status: 409 }
-        );
-      }
-
-      if (!availability.isOpen) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: `The clinic is closed on ${availability.dayName}s. Please choose an active clinic day (Monday to Saturday).`,
-          },
-          { status: 409 }
-        );
-      }
-
-      const matchedSlot = availability.slots.find(
-        (s) => s.slot === appointmentSlot || s.slot.startsWith(appointmentSlot.split(" - ")[0])
+    if (!availability.isOpen) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `The clinic is closed on ${availability.dayName}s. Please choose an active clinic day.`,
+        },
+        { status: 409 }
       );
-
-      if (matchedSlot && !matchedSlot.available) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: `The slot "${appointmentSlot}" on ${appointmentDate} is already booked. Please choose another available time slot.`,
-          },
-          { status: 409 }
-        );
-      }
     }
 
-    // Generate ticket number: CON-YYYY-XXXX
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const ticketNumber = `CON-${new Date().getFullYear()}-${randomSuffix}`;
+    const matchedSlot = availability.slots.find(
+      (s) => s.slot === appointmentSlot || s.slot.startsWith(appointmentSlot.split(" - ")[0])
+    );
 
-    const staffSession =
-      !!session && isStaffRole((session?.user as any)?.role);
+    if (matchedSlot && !matchedSlot.available) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `The time slot "${appointmentSlot}" on ${appointmentDate} has already been reserved. Please select another slot.`,
+        },
+        { status: 409 }
+      );
+    }
+
+    // Determine target user and permissions
+    const userRole = (session.user as any)?.role;
+    const staffSession = isStaffRole(userRole);
+    let targetUserId = session.user.id;
+    let initialStatus = "NEW";
+
     const ALLOWED_STATUSES = [
       "NEW",
       "CONFIRMED",
@@ -242,88 +193,82 @@ export async function POST(request: NextRequest) {
       "CANCELLED",
     ];
 
-    let effectiveUserId: string | null = session?.user?.id || null;
-    let initialStatus = "NEW";
-
     if (staffSession) {
-      // Staff can create bookings on behalf of a patient (e.g. WhatsApp bookings)
-      // and choose the starting status. Never fall back to the staff member's
-      // own email for a guest booking.
       initialStatus = ALLOWED_STATUSES.includes(requestedStatus)
         ? requestedStatus
         : "NEW";
-      effectiveUserId = null;
-      effectiveEmail = email ? email.trim().toLowerCase() : null;
 
       if (requestedUserId) {
         const linkedUser = await prisma.user.findUnique({
           where: { id: requestedUserId },
-          select: { id: true, email: true },
+          select: { id: true, email: true, name: true, phone: true },
         });
         if (!linkedUser) {
           return NextResponse.json(
-            { success: false, error: "The selected patient account was not found." },
+            { success: false, error: "The target patient account was not found." },
             { status: 400 }
           );
         }
-        effectiveUserId = linkedUser.id;
-        if (!effectiveEmail && linkedUser.email) {
-          effectiveEmail = linkedUser.email.toLowerCase();
-        }
+        targetUserId = linkedUser.id;
       }
-    } else if (!effectiveEmail && session?.user?.email) {
-      effectiveEmail = session.user.email.toLowerCase();
     }
+
+    // Contact resolution (defaults to user account info)
+    const effectiveName = patientName?.trim() || session.user.name || "Patient";
+    const effectiveEmail = (patientEmail?.trim() || session.user.email || "").toLowerCase();
+    const effectivePhone = patientPhone?.trim() || (session.user as any)?.phone || null;
+
+    // Generate ticket number: CON-YYYY-XXXX
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    const ticketNumber = `CON-${new Date().getFullYear()}-${randomSuffix}`;
 
     const consultation = await prisma.consultationRequest.create({
       data: {
         ticketNumber,
-        fullName: fullName.trim(),
-        age: Number(age) || 35,
-        gender: gender || "Not Specified",
-        phone: effectivePhone || effectiveEmail || "Via Email",
-        email: effectiveEmail,
-        city: city ? city.trim() : "Pakistan",
-        primarySymptoms: primarySymptoms.trim(),
-        duration: duration || "Recent / Ongoing",
-        previousTreatments: previousTreatments || null,
-        currentMedications: currentMedications || null,
-        digestiveState: digestiveState || null,
-        sleepEnergyState: sleepEnergyState || null,
-        channel: channel || "EMAIL",
-        consultationType: consultationType || "ONLINE",
-        appointmentDate: appointmentDate || null,
-        appointmentSlot: appointmentSlot || null,
-        preferredContact: preferredContact || "EMAIL",
-        status: initialStatus,
+        userId: targetUserId,
+        consultationType: consultationType === "IN_PERSON" ? "IN_PERSON" : "ONLINE",
+        appointmentDate,
+        appointmentSlot,
+        patientName: effectiveName,
+        patientPhone: effectivePhone,
+        patientEmail: effectiveEmail || null,
+        primarySymptoms: primarySymptoms?.trim() || null,
         reportUrl: reportUrl ? String(reportUrl).trim() : null,
         reportName: reportName ? String(reportName).trim() : null,
         reportSize: reportSize ? String(reportSize).trim() : null,
-        userId: effectiveUserId,
+        status: initialStatus,
+      },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, phone: true, city: true },
+        },
       },
     });
 
     // Background Email Triggers (non-blocking)
+    const emailPhone = effectivePhone || "Via Account";
+    const emailCity = (consultation.user as any)?.city || "Pakistan";
+    const emailSymptoms = consultation.primarySymptoms || "General Clinical Health Assessment";
+
     if (effectiveEmail) {
       if (initialStatus === "NEW") {
         sendAppointmentConfirmationEmail({
           to: effectiveEmail,
-          fullName: consultation.fullName,
+          fullName: effectiveName,
           ticketNumber: consultation.ticketNumber,
           consultationType: consultation.consultationType,
           appointmentDate: consultation.appointmentDate,
           appointmentSlot: consultation.appointmentSlot,
-          phone: consultation.phone,
-          city: consultation.city,
-          primarySymptoms: consultation.primarySymptoms,
-          channel: consultation.channel,
+          phone: emailPhone,
+          city: emailCity,
+          primarySymptoms: emailSymptoms,
         }).catch((err) =>
           console.error("[Appointment Confirmation Email Async Error]:", err)
         );
       } else {
         sendAppointmentStatusEmail({
           to: effectiveEmail,
-          fullName: consultation.fullName,
+          fullName: effectiveName,
           ticketNumber: consultation.ticketNumber,
           status: initialStatus,
           appointmentDate: consultation.appointmentDate,
@@ -337,28 +282,32 @@ export async function POST(request: NextRequest) {
 
     sendAdminAppointmentNotificationEmail({
       to: "admin",
-      fullName: consultation.fullName,
+      fullName: effectiveName,
       ticketNumber: consultation.ticketNumber,
       consultationType: consultation.consultationType,
       appointmentDate: consultation.appointmentDate,
       appointmentSlot: consultation.appointmentSlot,
-      phone: consultation.phone,
-      email: effectiveEmail,
-      city: consultation.city,
-      primarySymptoms: consultation.primarySymptoms,
-      channel: consultation.channel,
-      duration: consultation.duration,
+      phone: emailPhone,
+      email: effectiveEmail || undefined,
+      city: emailCity,
+      primarySymptoms: emailSymptoms,
     }).catch((err) =>
       console.error("[Admin Appointment Notification Email Async Error]:", err)
     );
 
+    const mappedConsultation = {
+      ...consultation,
+      fullName: consultation.patientName || consultation.user?.name || effectiveName,
+      phone: consultation.patientPhone || consultation.user?.phone || effectivePhone || "Via Account",
+      email: consultation.patientEmail || consultation.user?.email || effectiveEmail || null,
+      city: consultation.user?.city || "Pakistan",
+    };
+
     return NextResponse.json(
       {
         success: true,
-        data: consultation,
-        message: effectiveEmail
-          ? "Consultation booking request received. A confirmation email has been dispatched."
-          : "Consultation booking request received. Keep your ticket number to track its status.",
+        data: mappedConsultation,
+        message: "Consultation slot booked successfully.",
       },
       { status: 201 }
     );

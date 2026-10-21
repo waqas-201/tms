@@ -8,9 +8,8 @@ export interface LinkRecordsResult {
 
 /**
  * Retro-links guest bookings to a registered patient account using the
- * VERIFIED email address. Phone numbers are deliberately never used here:
- * families often share a phone, so phone matches stay as admin suggestions
- * that staff can link manually from the consultation dossier.
+ * VERIFIED email address. Consultations are created strictly by authenticated
+ * accounts, while Hijama bookings and Orders still support guest checkout linking.
  */
 export async function linkGuestRecordsToUser(params: {
   userId: string;
@@ -22,14 +21,7 @@ export async function linkGuestRecordsToUser(params: {
     return { consultations: 0, hijamaBookings: 0, orders: 0 };
   }
 
-  const [consultations, hijamaBookings, orders] = await Promise.all([
-    prisma.consultationRequest.updateMany({
-      where: {
-        userId: null,
-        email: { equals: email, mode: "insensitive" },
-      },
-      data: { userId: params.userId },
-    }),
+  const [hijamaBookings, orders] = await Promise.all([
     prisma.hijamaBooking.updateMany({
       where: {
         userId: null,
@@ -47,7 +39,7 @@ export async function linkGuestRecordsToUser(params: {
   ]);
 
   return {
-    consultations: consultations.count,
+    consultations: 0,
     hijamaBookings: hijamaBookings.count,
     orders: orders.count,
   };

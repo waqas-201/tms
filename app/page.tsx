@@ -1,11 +1,9 @@
 import React from "react";
 import HeroSection from "@/app/components/HeroSection";
 import ClinicalSpecialtiesSection from "@/app/components/ClinicalSpecialtiesSection";
-import HijamaHeroWidget from "@/app/components/HijamaHeroWidget";
+import HijamaCalendarSection from "@/app/components/HijamaCalendarSection";
 import PrescribedRemediesSection from "@/app/components/PrescribedRemediesSection";
 import HakimAuthoritySection from "@/app/components/HakimAuthoritySection";
-import CommunityReviewsSection from "@/app/components/CommunityReviewsSection";
-import WhatsAppConsultationBanner from "@/app/components/WhatsAppConsultationBanner";
 
 export default function Home() {
   return (
@@ -16,20 +14,14 @@ export default function Home() {
       {/* 2. Clinical Specialties & What We Treat (6 core conditions, Unani root causes) */}
       <ClinicalSpecialtiesSection />
 
-      {/* 3. Sunnah Hijama & Cupping Therapy Hero Feature */}
-      <HijamaHeroWidget />
+      {/* 3. Sunnah Hijama Calendar — emphasized booking section with countdown, calendar, & live slots */}
+      <HijamaCalendarSection />
 
       {/* 4. Curated Physician-Formulated Remedies (Live apothecary dispensary grid) */}
       <PrescribedRemediesSection />
 
-      {/* 4. Hakim Authority & Physical Karachi Clinic Visit (Lineage, standards & Matab details) */}
+      {/* 5. Hakim Authority & Physical Karachi Clinic Visit (Lineage, standards & Matab details) */}
       <HakimAuthoritySection />
-
-      {/* 5. Patient Social Proof (5.0★ Google reviews & community recovery stories) */}
-      <CommunityReviewsSection />
-
-      {/* 6. Final High-Intent WhatsApp Consultation Triage Banner */}
-      <WhatsAppConsultationBanner />
     </>
   );
 }

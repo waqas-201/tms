@@ -230,33 +230,27 @@ model OrderItem {
 model ConsultationRequest {
   id                  String   @id @default(cuid())
   ticketNumber        String   @unique // e.g. CON-2026-8921
-  fullName            String
-  age                 Int
-  gender              String // "Male" | "Female" | "Other"
-  phone               String
-  email               String?
-  city                String
-  primarySymptoms     String
-  duration            String
-  previousTreatments  String?
-  currentMedications  String?
-  digestiveState      String?
-  sleepEnergyState    String?
-  channel             String   @default("EMAIL") // "EMAIL" | "WHATSAPP"
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   consultationType    String   @default("ONLINE") // "ONLINE" | "IN_PERSON"
   appointmentDate     String?  // "YYYY-MM-DD" e.g. "2026-10-05"
   appointmentSlot     String?  // "10:00 AM - 11:00 AM"
-  preferredContact    String   @default("EMAIL") // "EMAIL" | "WHATSAPP" | "PHONE"
-  status              String   @default("NEW") // "NEW" | "CONFIRMED" | "RESCHEDULED" | "PRESCRIBED" | "COMPLETED" | "CANCELLED"
-  hakimNotes          String?
-  prescribedTreatment String?
+  patientName         String?
+  patientPhone        String?
+  patientEmail        String?
+  primarySymptoms     String?  // Health concern or brief notes
   reportUrl           String?
   reportName          String?
   reportSize          String?
-  userId              String?
-  user                User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  status              String   @default("NEW") // "NEW" | "CONFIRMED" | "RESCHEDULED" | "PRESCRIBED" | "COMPLETED" | "CANCELLED"
+  hakimNotes          String?
+  prescribedTreatment String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+
+  @@index([userId])
+  @@index([appointmentDate, appointmentSlot])
+  @@index([status])
 }
 
 model ClinicSchedule {
@@ -370,6 +364,7 @@ model HijamaScheduleConfig {
   slotDurationMins   Int      @default(45)
   maxMaleCapacity    Int      @default(2) // 2 male beds/practitioner capacity
   maxFemaleCapacity  Int      @default(2) // 2 female beds/practitioner capacity
+  customSlots        String?  // JSON stringified array of custom slots [{ slot, startTime, endTime, disabled }]
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -392,8 +387,12 @@ model HijamaDateOverride {
   id                 String   @id @default(cuid())
   date               String   @unique // "YYYY-MM-DD"
   isClosed           Boolean  @default(false)
+  openTime           String?  // optional override open time
+  closeTime          String?  // optional override close time
+  slotDurationMins   Int?     // optional override slot duration in minutes
   maxMaleCapacity    Int?     // override capacity
   maxFemaleCapacity  Int?
+  customSlots        String?  // JSON stringified array of custom slots [{ slot, startTime, endTime, disabled }]
   note               String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt

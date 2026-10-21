@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { BRAND } from "@/lib/brand-colors";
 import fs from "fs";
 import path from "path";
 
@@ -173,8 +174,8 @@ function renderAudioHtmlPlayer(id: string) {
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #faf8f5;
-      color: #1a1816;
+      background: ${BRAND.surface};
+      color: ${BRAND.ink};
       min-height: 100vh;
       display: flex;
       align-items: center;
@@ -182,20 +183,20 @@ function renderAudioHtmlPlayer(id: string) {
       padding: 20px;
     }
     .card {
-      background: #ffffff;
-      border: 1px solid #e6dfd5;
+      background: ${BRAND.surfaceRaised};
+      border: 1px solid ${BRAND.line};
       border-radius: 24px;
       padding: 32px 24px;
       max-width: 440px;
       width: 100%;
       text-align: center;
-      box-shadow: 0 10px 30px rgba(34,98,58,0.08);
+      box-shadow: 0 10px 30px ${BRAND.primaryA08};
     }
     .badge {
       display: inline-block;
       padding: 4px 12px;
-      background: #eef7f1;
-      color: #22623a;
+      background: ${BRAND.primarySoft};
+      color: ${BRAND.primary};
       border-radius: 999px;
       font-size: 11px;
       font-weight: 700;
@@ -205,13 +206,13 @@ function renderAudioHtmlPlayer(id: string) {
     }
     h1 {
       font-size: 20px;
-      color: #22623a;
+      color: ${BRAND.primary};
       font-weight: 800;
       margin-bottom: 6px;
     }
     p {
       font-size: 13px;
-      color: #6a6660;
+      color: ${BRAND.inkMuted};
       line-height: 1.5;
       margin-bottom: 24px;
     }
@@ -223,9 +224,9 @@ function renderAudioHtmlPlayer(id: string) {
     }
     .clinic-tag {
       font-size: 11px;
-      color: #8c6a15;
+      color: ${BRAND.secondaryText};
       font-weight: 600;
-      border-top: 1px solid #f4eee5;
+      border-top: 1px solid ${BRAND.surfaceSunken};
       padding-top: 16px;
     }
   </style>

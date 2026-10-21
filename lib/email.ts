@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { BRAND } from "./brand-colors";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 export const resend = new Resend(resendApiKey || "re_placeholder_key_for_build");
@@ -35,19 +36,19 @@ export async function sendVerificationEmail({ to, name, url }: SendEmailParams) 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Verify Your Email - Tameer-e-Sehat</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #faf8f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1a1816; -webkit-font-smoothing: antialiased;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #faf8f5; padding: 30px 15px;">
+<body style="margin: 0; padding: 0; background-color: ${BRAND.surface}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: ${BRAND.ink}; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: ${BRAND.surface}; padding: 30px 15px;">
     <tr>
       <td align="center">
-        <table role="presentation" width="100%" style="max-width: 580px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e6dfd5; overflow: hidden; box-shadow: 0 4px 12px rgba(34, 98, 58, 0.05);">
+        <table role="presentation" width="100%" style="max-width: 580px; background-color: ${BRAND.surfaceRaised}; border-radius: 16px; border: 1px solid ${BRAND.line}; overflow: hidden; box-shadow: 0 4px 12px ${BRAND.primaryA05};">
 
           <!-- Header Banner -->
           <tr>
-            <td style="background-color: #22623a; padding: 32px 28px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">
+            <td style="background-color: ${BRAND.primary}; padding: 32px 28px; text-align: center;">
+              <h1 style="margin: 0; color: ${BRAND.surfaceRaised}; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">
                 Tameer-e-Sehat
               </h1>
-              <p style="margin: 6px 0 0 0; color: #c59b27; font-size: 13px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">
+              <p style="margin: 6px 0 0 0; color: ${BRAND.secondaryOnDark}; font-size: 13px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">
                 Classical Unani Herbal Clinic · Est. 1990
               </p>
             </td>
@@ -56,10 +57,10 @@ export async function sendVerificationEmail({ to, name, url }: SendEmailParams) 
           <!-- Body Content -->
           <tr>
             <td style="padding: 36px 32px;">
-              <h2 style="margin: 0 0 16px 0; color: #22623a; font-size: 20px; font-weight: 600;">
+              <h2 style="margin: 0 0 16px 0; color: ${BRAND.primary}; font-size: 20px; font-weight: 600;">
                 Assalam-o-Alaikum, ${recipientName}!
               </h2>
-              <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: #59534b;">
+              <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: ${BRAND.inkBody};">
                 Thank you for joining <strong>Tameer-e-Sehat</strong>. To activate your patient account and secure your consultations and remedy orders, please verify your email address.
               </p>
 
@@ -67,23 +68,23 @@ export async function sendVerificationEmail({ to, name, url }: SendEmailParams) 
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 28px 0;">
                 <tr>
                   <td align="center">
-                    <a href="${verificationUrl}" target="_blank" style="display: inline-block; padding: 14px 32px; background-color: #22623a; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: bold; border-radius: 10px; letter-spacing: 0.5px; box-shadow: 0 2px 6px rgba(34, 98, 58, 0.2);">
+                    <a href="${verificationUrl}" target="_blank" style="display: inline-block; padding: 14px 32px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 14px; font-weight: bold; border-radius: 10px; letter-spacing: 0.5px; box-shadow: 0 2px 6px ${BRAND.primaryA2};">
                       Verify Email Address
                     </a>
                   </td>
                 </tr>
               </table>
 
-              <p style="margin: 0 0 16px 0; font-size: 13px; line-height: 1.5; color: #8c8a84;">
+              <p style="margin: 0 0 16px 0; font-size: 13px; line-height: 1.5; color: ${BRAND.inkSubtle};">
                 If the button above does not work, copy and paste this link into your browser:
               </p>
-              <p style="margin: 0 0 24px 0; font-size: 12px; line-height: 1.4; word-break: break-all; color: #8c6a15; background-color: #faf8f5; padding: 10px; border-radius: 6px; border: 1px dashed #e6dfd5;">
+              <p style="margin: 0 0 24px 0; font-size: 12px; line-height: 1.4; word-break: break-all; color: ${BRAND.secondaryText}; background-color: ${BRAND.surface}; padding: 10px; border-radius: 6px; border: 1px dashed ${BRAND.line};">
                 ${verificationUrl}
               </p>
 
-              <hr style="border: 0; border-top: 1px solid #f4eee5; margin: 24px 0;" />
+              <hr style="border: 0; border-top: 1px solid ${BRAND.surfaceSunken}; margin: 24px 0;" />
 
-              <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #8c8a84;">
+              <p style="margin: 0; font-size: 12px; line-height: 1.5; color: ${BRAND.inkSubtle};">
                 This link will expire in <strong>24 hours</strong>. If you did not create an account with Tameer-e-Sehat, please disregard this email.
               </p>
             </td>
@@ -91,11 +92,11 @@ export async function sendVerificationEmail({ to, name, url }: SendEmailParams) 
 
           <!-- Footer -->
           <tr>
-            <td style="background-color: #fcfbf9; padding: 20px 32px; border-top: 1px solid #f4eee5; text-align: center;">
-              <p style="margin: 0 0 6px 0; font-size: 12px; color: #7a7268; font-weight: 500;">
+            <td style="background-color: ${BRAND.surface}; padding: 20px 32px; border-top: 1px solid ${BRAND.surfaceSunken}; text-align: center;">
+              <p style="margin: 0 0 6px 0; font-size: 12px; color: ${BRAND.inkSubtle}; font-weight: 500;">
                 Matab Tameer-e-Sehat · Korangi Crossing, Karachi, Pakistan
               </p>
-              <p style="margin: 0; font-size: 11px; color: #a39e97;">
+              <p style="margin: 0; font-size: 11px; color: ${BRAND.inkSubtle};">
                 Zero Steroids · 100% Herbal · Classical Tibb-e-Unani
               </p>
             </td>
@@ -151,19 +152,19 @@ export async function sendPasswordResetEmail({ to, name, url }: SendEmailParams)
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reset Your Password - Tameer-e-Sehat</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #faf8f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1a1816; -webkit-font-smoothing: antialiased;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #faf8f5; padding: 30px 15px;">
+<body style="margin: 0; padding: 0; background-color: ${BRAND.surface}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: ${BRAND.ink}; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: ${BRAND.surface}; padding: 30px 15px;">
     <tr>
       <td align="center">
-        <table role="presentation" width="100%" style="max-width: 580px; background-color: #ffffff; border-radius: 16px; border: 1px solid #e6dfd5; overflow: hidden; box-shadow: 0 4px 12px rgba(34, 98, 58, 0.05);">
+        <table role="presentation" width="100%" style="max-width: 580px; background-color: ${BRAND.surfaceRaised}; border-radius: 16px; border: 1px solid ${BRAND.line}; overflow: hidden; box-shadow: 0 4px 12px ${BRAND.primaryA05};">
 
           <!-- Header Banner -->
           <tr>
-            <td style="background-color: #22623a; padding: 32px 28px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">
+            <td style="background-color: ${BRAND.primary}; padding: 32px 28px; text-align: center;">
+              <h1 style="margin: 0; color: ${BRAND.surfaceRaised}; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">
                 Tameer-e-Sehat
               </h1>
-              <p style="margin: 6px 0 0 0; color: #c59b27; font-size: 13px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">
+              <p style="margin: 6px 0 0 0; color: ${BRAND.secondaryOnDark}; font-size: 13px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase;">
                 Account Security & Password Recovery
               </p>
             </td>
@@ -172,10 +173,10 @@ export async function sendPasswordResetEmail({ to, name, url }: SendEmailParams)
           <!-- Body Content -->
           <tr>
             <td style="padding: 36px 32px;">
-              <h2 style="margin: 0 0 16px 0; color: #22623a; font-size: 20px; font-weight: 600;">
+              <h2 style="margin: 0 0 16px 0; color: ${BRAND.primary}; font-size: 20px; font-weight: 600;">
                 Password Reset Request
               </h2>
-              <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: #59534b;">
+              <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: ${BRAND.inkBody};">
                 Hello <strong>${recipientName}</strong>, we received a request to reset the password for your account associated with <strong>${to}</strong>.
               </p>
 
@@ -183,23 +184,23 @@ export async function sendPasswordResetEmail({ to, name, url }: SendEmailParams)
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 28px 0;">
                 <tr>
                   <td align="center">
-                    <a href="${resetUrl}" target="_blank" style="display: inline-block; padding: 14px 32px; background-color: #22623a; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: bold; border-radius: 10px; letter-spacing: 0.5px; box-shadow: 0 2px 6px rgba(34, 98, 58, 0.2);">
+                    <a href="${resetUrl}" target="_blank" style="display: inline-block; padding: 14px 32px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 14px; font-weight: bold; border-radius: 10px; letter-spacing: 0.5px; box-shadow: 0 2px 6px ${BRAND.primaryA2};">
                       Reset My Password
                     </a>
                   </td>
                 </tr>
               </table>
 
-              <p style="margin: 0 0 16px 0; font-size: 13px; line-height: 1.5; color: #8c8a84;">
+              <p style="margin: 0 0 16px 0; font-size: 13px; line-height: 1.5; color: ${BRAND.inkSubtle};">
                 If you are having trouble clicking the button, copy and paste the link below:
               </p>
-              <p style="margin: 0 0 24px 0; font-size: 12px; line-height: 1.4; word-break: break-all; color: #8c6a15; background-color: #faf8f5; padding: 10px; border-radius: 6px; border: 1px dashed #e6dfd5;">
+              <p style="margin: 0 0 24px 0; font-size: 12px; line-height: 1.4; word-break: break-all; color: ${BRAND.secondaryText}; background-color: ${BRAND.surface}; padding: 10px; border-radius: 6px; border: 1px dashed ${BRAND.line};">
                 ${resetUrl}
               </p>
 
-              <hr style="border: 0; border-top: 1px solid #f4eee5; margin: 24px 0;" />
+              <hr style="border: 0; border-top: 1px solid ${BRAND.surfaceSunken}; margin: 24px 0;" />
 
-              <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #8c8a84;">
+              <p style="margin: 0; font-size: 12px; line-height: 1.5; color: ${BRAND.inkSubtle};">
                 <strong>Security Notice:</strong> This password reset link is valid for <strong>1 hour</strong>. If you did not make this request, please safely ignore this email; your password will remain unchanged.
               </p>
             </td>
@@ -207,11 +208,11 @@ export async function sendPasswordResetEmail({ to, name, url }: SendEmailParams)
 
           <!-- Footer -->
           <tr>
-            <td style="background-color: #fcfbf9; padding: 20px 32px; border-top: 1px solid #f4eee5; text-align: center;">
-              <p style="margin: 0 0 6px 0; font-size: 12px; color: #7a7268; font-weight: 500;">
+            <td style="background-color: ${BRAND.surface}; padding: 20px 32px; border-top: 1px solid ${BRAND.surfaceSunken}; text-align: center;">
+              <p style="margin: 0 0 6px 0; font-size: 12px; color: ${BRAND.inkSubtle}; font-weight: 500;">
                 Matab Tameer-e-Sehat · Korangi Crossing, Karachi, Pakistan
               </p>
-              <p style="margin: 0; font-size: 11px; color: #a39e97;">
+              <p style="margin: 0; font-size: 11px; color: ${BRAND.inkSubtle};">
                 Need help? Contact our clinical helpline on WhatsApp.
               </p>
             </td>
@@ -303,19 +304,19 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
     const itemsHtml = items
       .map(
         (item) => `
-        <tr style="border-bottom: 1px solid #f0ebe1;">
-          <td style="padding: 12px 10px; font-size: 13px; color: #1a1816;">
+        <tr style="border-bottom: 1px solid ${BRAND.surfaceSunken};">
+          <td style="padding: 12px 10px; font-size: 13px; color: ${BRAND.ink};">
             <strong>${item.productName}</strong>
             <br />
-            <span style="font-size: 11px; color: #8c8275;">Packaging: ${item.sizeWeight}</span>
+            <span style="font-size: 11px; color: ${BRAND.inkSubtle};">Packaging: ${item.sizeWeight}</span>
           </td>
-          <td align="center" style="padding: 12px 10px; font-size: 13px; color: #59534b;">
+          <td align="center" style="padding: 12px 10px; font-size: 13px; color: ${BRAND.inkBody};">
             ${item.quantity}
           </td>
-          <td align="right" style="padding: 12px 10px; font-size: 13px; color: #59534b;">
+          <td align="right" style="padding: 12px 10px; font-size: 13px; color: ${BRAND.inkBody};">
             ₨ ${item.price.toLocaleString()}
           </td>
-          <td align="right" style="padding: 12px 10px; font-size: 13px; font-weight: 700; color: #14281D;">
+          <td align="right" style="padding: 12px 10px; font-size: 13px; font-weight: 700; color: ${BRAND.primary};">
             ₨ ${item.total.toLocaleString()}
           </td>
         </tr>
@@ -327,10 +328,10 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
       discountAmount > 0
         ? `
         <tr>
-          <td colspan="3" align="right" style="padding: 6px 10px; font-size: 13px; color: #166534; font-weight: 600;">
+          <td colspan="3" align="right" style="padding: 6px 10px; font-size: 13px; color: ${BRAND.success}; font-weight: 600;">
             Promotional Discount:
           </td>
-          <td align="right" style="padding: 6px 10px; font-size: 13px; color: #166534; font-weight: 700;">
+          <td align="right" style="padding: 6px 10px; font-size: 13px; color: ${BRAND.success}; font-weight: 700;">
             - ₨ ${discountAmount.toLocaleString()}
           </td>
         </tr>
@@ -339,7 +340,7 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
 
     const shippingDisplay =
       shippingFee === 0
-        ? `<span style="color: #166534; font-weight: 700; text-transform: uppercase;">Free</span>`
+        ? `<span style="color: ${BRAND.success}; font-weight: 700; text-transform: uppercase;">Free</span>`
         : `₨ ${shippingFee}`;
 
     const htmlContent = `
@@ -350,19 +351,19 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order Confirmation - ${orderNumber}</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #FAF9F6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1a1816; -webkit-font-smoothing: antialiased;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #FAF9F6; padding: 32px 16px;">
+<body style="margin: 0; padding: 0; background-color: ${BRAND.surface}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: ${BRAND.ink}; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: ${BRAND.surface}; padding: 32px 16px;">
     <tr>
       <td align="center">
-        <table role="presentation" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #E7E5E4; overflow: hidden; box-shadow: 0 4px 16px rgba(20, 40, 29, 0.06);">
+        <table role="presentation" width="100%" style="max-width: 600px; background-color: ${BRAND.surfaceRaised}; border-radius: 16px; border: 1px solid ${BRAND.line}; overflow: hidden; box-shadow: 0 4px 16px ${BRAND.primaryA06};">
 
           <!-- Header Banner -->
           <tr>
-            <td style="background-color: #14281D; padding: 32px 28px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; font-family: Georgia, serif;">
+            <td style="background-color: ${BRAND.primary}; padding: 32px 28px; text-align: center;">
+              <h1 style="margin: 0; color: ${BRAND.surfaceRaised}; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; font-family: Georgia, serif;">
                 Tameer-e-Sehat
               </h1>
-              <p style="margin: 6px 0 0 0; color: #9E7D3B; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;">
+              <p style="margin: 6px 0 0 0; color: ${BRAND.secondaryOnDark}; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;">
                 Classical Unani Apothecary &amp; Clinic · Est. 1990
               </p>
             </td>
@@ -374,13 +375,13 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                 <tr>
                   <td>
-                    <span style="display: inline-block; background-color: #ECFDF5; color: #047857; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; border: 1px solid #A7F3D0; margin-bottom: 8px;">
+                    <span style="display: inline-block; background-color: ${BRAND.successSoft}; color: ${BRAND.success}; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; border: 1px solid ${BRAND.successLine}; margin-bottom: 8px;">
                       ✓ Order Confirmed
                     </span>
-                    <h2 style="margin: 4px 0 8px 0; color: #14281D; font-size: 20px; font-weight: 700; font-family: Georgia, serif;">
+                    <h2 style="margin: 4px 0 8px 0; color: ${BRAND.primary}; font-size: 20px; font-weight: 700; font-family: Georgia, serif;">
                       Assalam-o-Alaikum, ${customerName}!
                     </h2>
-                    <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #57534E;">
+                    <p style="margin: 0; font-size: 14px; line-height: 1.6; color: ${BRAND.inkBody};">
                       JazakAllah Khair for your order. Our dispensary team is preparing your pure herbal remedies with utmost care and classical precision.
                     </p>
                   </td>
@@ -392,17 +393,17 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
           <!-- Order Summary Card -->
           <tr>
             <td style="padding: 0 28px 24px 28px;">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #FAF9F6; border: 1px solid #E7E5E4; border-radius: 12px; padding: 16px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: ${BRAND.surface}; border: 1px solid ${BRAND.line}; border-radius: 12px; padding: 16px;">
                 <tr>
-                  <td style="font-size: 12px; color: #78716C;">
+                  <td style="font-size: 12px; color: ${BRAND.inkSubtle};">
                     Order Reference:
                     <br />
-                    <strong style="font-size: 15px; color: #14281D; font-family: monospace;">${orderNumber}</strong>
+                    <strong style="font-size: 15px; color: ${BRAND.primary}; font-family: monospace;">${orderNumber}</strong>
                   </td>
-                  <td align="right" style="font-size: 12px; color: #78716C;">
+                  <td align="right" style="font-size: 12px; color: ${BRAND.inkSubtle};">
                     Date &amp; Payment:
                     <br />
-                    <strong style="font-size: 13px; color: #14281D;">${formattedDate} · ${paymentMethod}</strong>
+                    <strong style="font-size: 13px; color: ${BRAND.primary};">${formattedDate} · ${paymentMethod}</strong>
                   </td>
                 </tr>
               </table>
@@ -414,11 +415,11 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
             <td style="padding: 0 28px 24px 28px;">
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
                 <thead>
-                  <tr style="background-color: #F5F5F4; border-bottom: 2px solid #E7E5E4;">
-                    <th align="left" style="padding: 10px; font-size: 11px; font-weight: 700; color: #44403C; text-transform: uppercase; letter-spacing: 0.5px;">Remedy</th>
-                    <th align="center" style="padding: 10px; font-size: 11px; font-weight: 700; color: #44403C; text-transform: uppercase; letter-spacing: 0.5px;">Qty</th>
-                    <th align="right" style="padding: 10px; font-size: 11px; font-weight: 700; color: #44403C; text-transform: uppercase; letter-spacing: 0.5px;">Price</th>
-                    <th align="right" style="padding: 10px; font-size: 11px; font-weight: 700; color: #44403C; text-transform: uppercase; letter-spacing: 0.5px;">Total</th>
+                  <tr style="background-color: ${BRAND.surface}; border-bottom: 2px solid ${BRAND.line};">
+                    <th align="left" style="padding: 10px; font-size: 11px; font-weight: 700; color: ${BRAND.inkBody}; text-transform: uppercase; letter-spacing: 0.5px;">Remedy</th>
+                    <th align="center" style="padding: 10px; font-size: 11px; font-weight: 700; color: ${BRAND.inkBody}; text-transform: uppercase; letter-spacing: 0.5px;">Qty</th>
+                    <th align="right" style="padding: 10px; font-size: 11px; font-weight: 700; color: ${BRAND.inkBody}; text-transform: uppercase; letter-spacing: 0.5px;">Price</th>
+                    <th align="right" style="padding: 10px; font-size: 11px; font-weight: 700; color: ${BRAND.inkBody}; text-transform: uppercase; letter-spacing: 0.5px;">Total</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -426,27 +427,27 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
                 </tbody>
                 <tfoot>
                   <tr>
-                    <td colspan="3" align="right" style="padding: 12px 10px 4px 10px; font-size: 13px; color: #78716C;">
+                    <td colspan="3" align="right" style="padding: 12px 10px 4px 10px; font-size: 13px; color: ${BRAND.inkSubtle};">
                       Subtotal:
                     </td>
-                    <td align="right" style="padding: 12px 10px 4px 10px; font-size: 13px; font-weight: 600; color: #1a1816;">
+                    <td align="right" style="padding: 12px 10px 4px 10px; font-size: 13px; font-weight: 600; color: ${BRAND.ink};">
                       ₨ ${subtotal.toLocaleString()}
                     </td>
                   </tr>
                   ${discountRow}
                   <tr>
-                    <td colspan="3" align="right" style="padding: 4px 10px; font-size: 13px; color: #78716C;">
+                    <td colspan="3" align="right" style="padding: 4px 10px; font-size: 13px; color: ${BRAND.inkSubtle};">
                       Courier Delivery (Pakistan):
                     </td>
-                    <td align="right" style="padding: 4px 10px; font-size: 13px; font-weight: 600; color: #1a1816;">
+                    <td align="right" style="padding: 4px 10px; font-size: 13px; font-weight: 600; color: ${BRAND.ink};">
                       ${shippingDisplay}
                     </td>
                   </tr>
-                  <tr style="border-top: 2px solid #14281D;">
-                    <td colspan="3" align="right" style="padding: 12px 10px; font-size: 15px; font-weight: 700; color: #14281D;">
+                  <tr style="border-top: 2px solid ${BRAND.primary};">
+                    <td colspan="3" align="right" style="padding: 12px 10px; font-size: 15px; font-weight: 700; color: ${BRAND.primary};">
                       Total Payable (COD):
                     </td>
-                    <td align="right" style="padding: 12px 10px; font-size: 16px; font-weight: 800; color: #14281D;">
+                    <td align="right" style="padding: 12px 10px; font-size: 16px; font-weight: 800; color: ${BRAND.primary};">
                       ₨ ${total.toLocaleString()}
                     </td>
                   </tr>
@@ -458,24 +459,24 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
           <!-- Delivery Address Section -->
           <tr>
             <td style="padding: 0 28px 28px 28px;">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #FAF9F6; border: 1px solid #E7E5E4; border-radius: 12px; padding: 16px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: ${BRAND.surface}; border: 1px solid ${BRAND.line}; border-radius: 12px; padding: 16px;">
                 <tr>
                   <td>
-                    <h4 style="margin: 0 0 8px 0; color: #14281D; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
+                    <h4 style="margin: 0 0 8px 0; color: ${BRAND.primary}; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">
                       📦 Delivery &amp; Contact Details
                     </h4>
-                    <p style="margin: 0 0 4px 0; font-size: 13px; color: #1a1816; font-weight: 600;">
+                    <p style="margin: 0 0 4px 0; font-size: 13px; color: ${BRAND.ink}; font-weight: 600;">
                       ${customerName}
                     </p>
-                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #57534E;">
+                    <p style="margin: 0 0 4px 0; font-size: 12px; color: ${BRAND.inkBody};">
                       <strong>Phone:</strong> ${phone}
                     </p>
-                    <p style="margin: 0 0 4px 0; font-size: 12px; color: #57534E;">
+                    <p style="margin: 0 0 4px 0; font-size: 12px; color: ${BRAND.inkBody};">
                       <strong>Address:</strong> ${address}, ${city}, Pakistan
                     </p>
                     ${
                       deliveryNotes
-                        ? `<p style="margin: 6px 0 0 0; font-size: 11px; color: #78716C; font-style: italic;"><strong>Note:</strong> ${deliveryNotes}</p>`
+                        ? `<p style="margin: 6px 0 0 0; font-size: 11px; color: ${BRAND.inkSubtle}; font-style: italic;"><strong>Note:</strong> ${deliveryNotes}</p>`
                         : ""
                     }
                   </td>
@@ -490,13 +491,13 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
               <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
                 <tr>
                   <td align="center">
-                    <a href="${trackingUrl}" target="_blank" style="display: inline-block; width: 85%; padding: 14px 24px; background-color: #14281D; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; border-radius: 10px; letter-spacing: 0.5px; text-align: center; box-shadow: 0 3px 8px rgba(20, 40, 29, 0.2);">
+                    <a href="${trackingUrl}" target="_blank" style="display: inline-block; width: 85%; padding: 14px 24px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 14px; font-weight: 700; border-radius: 10px; letter-spacing: 0.5px; text-align: center; box-shadow: 0 3px 8px ${BRAND.primaryA2};">
                       Track Order Live Status →
                     </a>
                   </td>
                 </tr>
               </table>
-              <p style="margin: 14px 0 0 0; font-size: 12px; color: #78716C;">
+              <p style="margin: 14px 0 0 0; font-size: 12px; color: ${BRAND.inkSubtle};">
                 Questions? Reply directly to this email or chat with our Hakim on WhatsApp (+92 312 2589073).
               </p>
             </td>
@@ -504,11 +505,11 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
 
           <!-- Footer -->
           <tr>
-            <td style="background-color: #F5F5F4; padding: 20px 28px; border-top: 1px solid #E7E5E4; text-align: center;">
-              <p style="margin: 0 0 4px 0; font-size: 12px; color: #57534E; font-weight: 600;">
+            <td style="background-color: ${BRAND.surface}; padding: 20px 28px; border-top: 1px solid ${BRAND.line}; text-align: center;">
+              <p style="margin: 0 0 4px 0; font-size: 12px; color: ${BRAND.inkBody}; font-weight: 600;">
                 Matab Tameer-e-Sehat · Korangi Crossing, Karachi, Pakistan
               </p>
-              <p style="margin: 0; font-size: 11px; color: #A8A29E;">
+              <p style="margin: 0; font-size: 11px; color: ${BRAND.inkSubtle};">
                 100% Botanical Unani Formulations · Zero Steroids · Registered Tabib
               </p>
             </td>
@@ -576,15 +577,15 @@ export async function sendAdminOrderNotificationEmail(params: OrderConfirmationE
   <meta charset="UTF-8">
   <title>New Order Alert: ${orderNumber}</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAF9F6; padding: 24px; color: #1a1816;">
-  <div style="max-width: 560px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #E7E5E4; padding: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-    <div style="background-color: #14281D; color: #ffffff; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: ${BRAND.surface}; padding: 24px; color: ${BRAND.ink};">
+  <div style="max-width: 560px; margin: 0 auto; background: ${BRAND.surfaceRaised}; border-radius: 12px; border: 1px solid ${BRAND.line}; padding: 28px; box-shadow: 0 4px 12px ${BRAND.blackA05};">
+    <div style="background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px;">
       <h2 style="margin: 0; font-size: 18px;">🌿 New COD Order Received</h2>
-      <p style="margin: 4px 0 0 0; font-size: 12px; color: #9E7D3B;">Order Ref: ${orderNumber} · Total: ₨ ${total.toLocaleString()}</p>
+      <p style="margin: 4px 0 0 0; font-size: 12px; color: ${BRAND.secondaryOnDark};">Order Ref: ${orderNumber} · Total: ₨ ${total.toLocaleString()}</p>
     </div>
 
-    <h3 style="font-size: 14px; color: #14281D; margin: 0 0 10px 0;">Customer Details</h3>
-    <ul style="font-size: 13px; color: #44403C; line-height: 1.6; padding-left: 20px; margin: 0 0 16px 0;">
+    <h3 style="font-size: 14px; color: ${BRAND.primary}; margin: 0 0 10px 0;">Customer Details</h3>
+    <ul style="font-size: 13px; color: ${BRAND.inkBody}; line-height: 1.6; padding-left: 20px; margin: 0 0 16px 0;">
       <li><strong>Name:</strong> ${customerName}</li>
       <li><strong>Phone / WhatsApp:</strong> ${phone}</li>
       <li><strong>City & Address:</strong> ${address}, ${city}</li>
@@ -592,13 +593,13 @@ export async function sendAdminOrderNotificationEmail(params: OrderConfirmationE
       ${deliveryNotes ? `<li><strong>Instructions:</strong> ${deliveryNotes}</li>` : ""}
     </ul>
 
-    <h3 style="font-size: 14px; color: #14281D; margin: 0 0 10px 0;">Remedies Ordered</h3>
-    <ul style="font-size: 13px; color: #44403C; line-height: 1.6; padding-left: 20px; margin: 0 0 24px 0;">
+    <h3 style="font-size: 14px; color: ${BRAND.primary}; margin: 0 0 10px 0;">Remedies Ordered</h3>
+    <ul style="font-size: 13px; color: ${BRAND.inkBody}; line-height: 1.6; padding-left: 20px; margin: 0 0 24px 0;">
       ${itemsSummary}
     </ul>
 
     <div style="text-align: center;">
-      <a href="${adminOrdersUrl}" target="_blank" style="display: inline-block; padding: 12px 24px; background-color: #14281D; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 8px;">
+      <a href="${adminOrdersUrl}" target="_blank" style="display: inline-block; padding: 12px 24px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 8px;">
         Open Admin Order Dispatch →
       </a>
     </div>
@@ -683,19 +684,19 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Consultation Confirmed - ${ticketNumber}</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #FAF9F6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1a1816; -webkit-font-smoothing: antialiased;">
-  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #FAF9F6; padding: 32px 16px;">
+<body style="margin: 0; padding: 0; background-color: ${BRAND.surface}; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: ${BRAND.ink}; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: ${BRAND.surface}; padding: 32px 16px;">
     <tr>
       <td align="center">
-        <table role="presentation" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; border: 1px solid #E7E5E4; overflow: hidden; box-shadow: 0 4px 16px rgba(20, 40, 29, 0.06);">
+        <table role="presentation" width="100%" style="max-width: 600px; background-color: ${BRAND.surfaceRaised}; border-radius: 16px; border: 1px solid ${BRAND.line}; overflow: hidden; box-shadow: 0 4px 16px ${BRAND.primaryA06};">
 
           <!-- Header Banner -->
           <tr>
-            <td style="background-color: #14281D; padding: 32px 28px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; font-family: Georgia, serif;">
+            <td style="background-color: ${BRAND.primary}; padding: 32px 28px; text-align: center;">
+              <h1 style="margin: 0; color: ${BRAND.surfaceRaised}; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; font-family: Georgia, serif;">
                 Tameer-e-Sehat
               </h1>
-              <p style="margin: 6px 0 0 0; color: #9E7D3B; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;">
+              <p style="margin: 6px 0 0 0; color: ${BRAND.secondaryOnDark}; font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase;">
                 Classical Unani Herbal Clinic · Est. 1990
               </p>
             </td>
@@ -704,13 +705,13 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
           <!-- Confirmation Title -->
           <tr>
             <td style="padding: 32px 28px 16px 28px;">
-              <span style="display: inline-block; background-color: #ECFDF5; color: #047857; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; border: 1px solid #A7F3D0; margin-bottom: 8px;">
+              <span style="display: inline-block; background-color: ${BRAND.successSoft}; color: ${BRAND.success}; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; border: 1px solid ${BRAND.successLine}; margin-bottom: 8px;">
                 ✓ Consultation Booking Received
               </span>
-              <h2 style="margin: 4px 0 8px 0; color: #14281D; font-size: 20px; font-weight: 700; font-family: Georgia, serif;">
+              <h2 style="margin: 4px 0 8px 0; color: ${BRAND.primary}; font-size: 20px; font-weight: 700; font-family: Georgia, serif;">
                 Assalam-o-Alaikum, ${fullName}!
               </h2>
-              <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #57534E;">
+              <p style="margin: 0; font-size: 14px; line-height: 1.6; color: ${BRAND.inkBody};">
                 Your clinical consultation request with <strong>Hakim Muhammad Tariq</strong> has been received. Our clinic team will review it and confirm your appointment on WhatsApp or phone. You can check its status anytime using the tracking link below.
               </p>
             </td>
@@ -719,28 +720,28 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
           <!-- Appointment Summary Card -->
           <tr>
             <td style="padding: 0 28px 20px 28px;">
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #FAF9F6; border: 1px solid #E7E5E4; border-radius: 12px; padding: 18px;">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: ${BRAND.surface}; border: 1px solid ${BRAND.line}; border-radius: 12px; padding: 18px;">
                 <tr>
-                  <td style="padding-bottom: 12px; border-bottom: 1px dashed #E7E5E4;" colspan="2">
-                    <span style="font-size: 11px; color: #78716C; text-transform: uppercase; letter-spacing: 0.5px;">Ticket Reference:</span>
+                  <td style="padding-bottom: 12px; border-bottom: 1px dashed ${BRAND.line};" colspan="2">
+                    <span style="font-size: 11px; color: ${BRAND.inkSubtle}; text-transform: uppercase; letter-spacing: 0.5px;">Ticket Reference:</span>
                     <br />
-                    <strong style="font-size: 16px; color: #14281D; font-family: monospace;">${ticketNumber}</strong>
+                    <strong style="font-size: 16px; color: ${BRAND.primary}; font-family: monospace;">${ticketNumber}</strong>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding-top: 12px; font-size: 13px; color: #44403C; width: 50%;">
+                  <td style="padding-top: 12px; font-size: 13px; color: ${BRAND.inkBody}; width: 50%;">
                     <strong>Consultation Mode:</strong>
                     <br />
-                    <span style="color: #166534; font-weight: 600;">${modeBadge}</span>
+                    <span style="color: ${BRAND.success}; font-weight: 600;">${modeBadge}</span>
                   </td>
-                  <td style="padding-top: 12px; font-size: 13px; color: #44403C; width: 50%;">
+                  <td style="padding-top: 12px; font-size: 13px; color: ${BRAND.inkBody}; width: 50%;">
                     <strong>Requested Slot:</strong>
                     <br />
-                    <span style="color: #14281D; font-weight: 600;">${dateDisplay}</span>
+                    <span style="color: ${BRAND.primary}; font-weight: 600;">${dateDisplay}</span>
                     <br />
-                    <span style="font-size: 12px; color: #78716C;">${slotDisplay} (PKT)</span>
+                    <span style="font-size: 12px; color: ${BRAND.inkSubtle};">${slotDisplay} (PKT)</span>
                     <br />
-                    <span style="font-size: 11px; color: #92400E; font-weight: 600;">Status: Awaiting confirmation</span>
+                    <span style="font-size: 11px; color: ${BRAND.warning}; font-weight: 600;">Status: Awaiting confirmation</span>
                   </td>
                 </tr>
               </table>
@@ -750,10 +751,10 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
           <!-- Health Dossier Preview -->
           <tr>
             <td style="padding: 0 28px 24px 28px;">
-              <h3 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #14281D; font-family: Georgia, serif;">
+              <h3 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: ${BRAND.primary}; font-family: Georgia, serif;">
                 Primary Health Concern Registered:
               </h3>
-              <div style="background-color: #ffffff; border: 1px solid #E7E5E4; border-left: 4px solid #14281D; border-radius: 8px; padding: 14px 16px; font-size: 13px; color: #44403C; line-height: 1.5;">
+              <div style="background-color: ${BRAND.surfaceRaised}; border: 1px solid ${BRAND.line}; border-left: 4px solid ${BRAND.primary}; border-radius: 8px; padding: 14px 16px; font-size: 13px; color: ${BRAND.inkBody}; line-height: 1.5;">
                 ${primarySymptoms}
               </div>
             </td>
@@ -762,11 +763,11 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
           <!-- Preparation Guidelines -->
           <tr>
             <td style="padding: 0 28px 28px 28px;">
-              <div style="background-color: #FEF3C7; border: 1px solid #FDE68A; border-radius: 12px; padding: 16px;">
-                <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #92400E;">
+              <div style="background-color: ${BRAND.warningSoft}; border: 1px solid ${BRAND.warningLine}; border-radius: 12px; padding: 16px;">
+                <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: ${BRAND.warning};">
                   💡 What to Expect Next:
                 </h4>
-                <ul style="margin: 0; padding-left: 18px; font-size: 12px; color: #78350F; line-height: 1.6;">
+                <ul style="margin: 0; padding-left: 18px; font-size: 12px; color: ${BRAND.warning}; line-height: 1.6;">
                   ${
                     isOnline
                       ? `<li>Hakim Sahib or clinic assistants will contact you via Phone/Email or WhatsApp at <strong>${phone}</strong> during your designated slot.</li>
@@ -782,16 +783,16 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
 
           <!-- Contact Support Footer -->
           <tr>
-            <td style="background-color: #FCFBF9; padding: 20px 28px; border-top: 1px solid #E7E5E4; text-align: center;">
+            <td style="background-color: ${BRAND.surface}; padding: 20px 28px; border-top: 1px solid ${BRAND.line}; text-align: center;">
               <p style="margin: 0 0 12px 0;">
-                <a href="${trackUrl}" target="_blank" style="display: inline-block; padding: 10px 22px; background-color: #14281D; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 8px;">
+                <a href="${trackUrl}" target="_blank" style="display: inline-block; padding: 10px 22px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 8px;">
                   Track Your Booking →
                 </a>
               </p>
-              <p style="margin: 0 0 6px 0; font-size: 12px; color: #78716C;">
-                Need to reschedule? WhatsApp us at <strong style="color: #14281D;">+92 300 8921892</strong> quoting ticket <strong style="font-family: monospace;">${ticketNumber}</strong>
+              <p style="margin: 0 0 6px 0; font-size: 12px; color: ${BRAND.inkSubtle};">
+                Need to reschedule? WhatsApp us at <strong style="color: ${BRAND.primary};">+92 300 8921892</strong> quoting ticket <strong style="font-family: monospace;">${ticketNumber}</strong>
               </p>
-              <p style="margin: 0; font-size: 11px; color: #A8A29E;">
+              <p style="margin: 0; font-size: 11px; color: ${BRAND.inkSubtle};">
                 Matab Tameer-e-Sehat · Authentic Classical Unani Tibb
               </p>
             </td>
@@ -858,15 +859,15 @@ export async function sendAdminAppointmentNotificationEmail(params: AppointmentE
   <meta charset="UTF-8">
   <title>New Appointment Alert: ${ticketNumber}</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAF9F6; padding: 24px; color: #1a1816;">
-  <div style="max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #E7E5E4; padding: 28px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
-    <div style="background-color: #14281D; color: #ffffff; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: ${BRAND.surface}; padding: 24px; color: ${BRAND.ink};">
+  <div style="max-width: 580px; margin: 0 auto; background: ${BRAND.surfaceRaised}; border-radius: 12px; border: 1px solid ${BRAND.line}; padding: 28px; box-shadow: 0 4px 12px ${BRAND.blackA05};">
+    <div style="background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px;">
       <h2 style="margin: 0; font-size: 18px;">🩺 New Consultation Booking Request</h2>
-      <p style="margin: 4px 0 0 0; font-size: 12px; color: #9E7D3B;">Ticket: ${ticketNumber} · ${consultationType === "ONLINE" ? "Online Telehealth" : "Physical Karachi Clinic"}</p>
+      <p style="margin: 4px 0 0 0; font-size: 12px; color: ${BRAND.secondaryOnDark};">Ticket: ${ticketNumber} · ${consultationType === "ONLINE" ? "Online Telehealth" : "Physical Karachi Clinic"}</p>
     </div>
 
-    <h3 style="font-size: 14px; color: #14281D; margin: 0 0 10px 0;">Patient &amp; Slot Details</h3>
-    <ul style="font-size: 13px; color: #44403C; line-height: 1.6; padding-left: 20px; margin: 0 0 16px 0;">
+    <h3 style="font-size: 14px; color: ${BRAND.primary}; margin: 0 0 10px 0;">Patient &amp; Slot Details</h3>
+    <ul style="font-size: 13px; color: ${BRAND.inkBody}; line-height: 1.6; padding-left: 20px; margin: 0 0 16px 0;">
       <li><strong>Patient Name:</strong> ${fullName}</li>
       <li><strong>Contact Phone:</strong> ${phone}</li>
       <li><strong>Email:</strong> ${email || "Not provided"}</li>
@@ -876,16 +877,16 @@ export async function sendAdminAppointmentNotificationEmail(params: AppointmentE
       ${duration ? `<li><strong>Condition Duration:</strong> ${duration}</li>` : ""}
     </ul>
 
-    <h3 style="font-size: 14px; color: #14281D; margin: 0 0 10px 0;">Health Concern / Symptoms</h3>
-    <div style="background-color: #FAF9F6; border: 1px solid #E7E5E4; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: #44403C; margin-bottom: 20px;">
+    <h3 style="font-size: 14px; color: ${BRAND.primary}; margin: 0 0 10px 0;">Health Concern / Symptoms</h3>
+    <div style="background-color: ${BRAND.surface}; border: 1px solid ${BRAND.line}; border-radius: 8px; padding: 12px 14px; font-size: 13px; color: ${BRAND.inkBody}; margin-bottom: 20px;">
       ${primarySymptoms}
     </div>
 
     <div style="display: flex; gap: 10px; margin-top: 20px;">
-      <a href="${whatsappUrl}" target="_blank" style="display: inline-block; padding: 10px 18px; background-color: #25D366; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px; margin-right: 8px;">
+      <a href="${whatsappUrl}" target="_blank" style="display: inline-block; padding: 10px 18px; background-color: ${BRAND.whatsapp}; color: ${BRAND.onWhatsapp}; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px; margin-right: 8px;">
         💬 Chat on WhatsApp
       </a>
-      <a href="${adminConsultationsUrl}" target="_blank" style="display: inline-block; padding: 10px 18px; background-color: #14281D; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px;">
+      <a href="${adminConsultationsUrl}" target="_blank" style="display: inline-block; padding: 10px 18px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px;">
         Open Admin Portal →
       </a>
     </div>
@@ -929,20 +930,20 @@ export async function sendAppointmentStatusEmail(params: {
     const { to, fullName, ticketNumber, status, appointmentDate, appointmentSlot, hakimNotes } = params;
 
     let statusTitle = "Appointment Update";
-    let statusColor = "#14281D";
+    let statusColor: string = BRAND.primary;
     let statusBadge = status;
 
     if (status === "CONFIRMED") {
       statusTitle = "Appointment Confirmed by Hakim Sahib";
-      statusColor = "#166534";
+      statusColor = BRAND.success;
       statusBadge = "✓ CONFIRMED";
     } else if (status === "RESCHEDULED") {
       statusTitle = "Appointment Rescheduled";
-      statusColor = "#854d0e";
+      statusColor = BRAND.warning;
       statusBadge = "↻ RESCHEDULED";
     } else if (status === "CANCELLED") {
       statusTitle = "Appointment Cancelled";
-      statusColor = "#991b1b";
+      statusColor = BRAND.danger;
       statusBadge = "✕ CANCELLED";
     }
 
@@ -953,14 +954,14 @@ export async function sendAppointmentStatusEmail(params: {
   <meta charset="UTF-8">
   <title>${statusTitle} - ${ticketNumber}</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAF9F6; padding: 24px; color: #1a1816;">
-  <div style="max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #E7E5E4; padding: 28px;">
-    <div style="background-color: ${statusColor}; color: #ffffff; padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: ${BRAND.surface}; padding: 24px; color: ${BRAND.ink};">
+  <div style="max-width: 580px; margin: 0 auto; background: ${BRAND.surfaceRaised}; border-radius: 12px; border: 1px solid ${BRAND.line}; padding: 28px;">
+    <div style="background-color: ${statusColor}; color: ${BRAND.surfaceRaised}; padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
       <h2 style="margin: 0; font-size: 20px; font-family: Georgia, serif;">${statusTitle}</h2>
-      <p style="margin: 4px 0 0 0; font-size: 12px; color: #f4eee5;">Ticket Reference: ${ticketNumber}</p>
+      <p style="margin: 4px 0 0 0; font-size: 12px; color: ${BRAND.surfaceSunken};">Ticket Reference: ${ticketNumber}</p>
     </div>
 
-    <p style="font-size: 14px; color: #44403C; line-height: 1.6;">
+    <p style="font-size: 14px; color: ${BRAND.inkBody}; line-height: 1.6;">
       Assalam-o-Alaikum <strong>${fullName}</strong>,
       <br /><br />
       This is to inform you that your consultation appointment (Ticket: <strong>${ticketNumber}</strong>) status is now updated to <strong>${statusBadge}</strong>.
@@ -968,7 +969,7 @@ export async function sendAppointmentStatusEmail(params: {
 
     ${
       appointmentDate
-        ? `<div style="background-color: #FAF9F6; border: 1px solid #E7E5E4; border-radius: 8px; padding: 14px 16px; margin: 16px 0; font-size: 13px; color: #44403C;">
+        ? `<div style="background-color: ${BRAND.surface}; border: 1px solid ${BRAND.line}; border-radius: 8px; padding: 14px 16px; margin: 16px 0; font-size: 13px; color: ${BRAND.inkBody};">
             <strong>Updated Appointment Schedule:</strong><br />
             Date: <strong>${appointmentDate}</strong><br />
             Time Slot: <strong>${appointmentSlot || "Designated slot"}</strong> (PKT)
@@ -978,7 +979,7 @@ export async function sendAppointmentStatusEmail(params: {
 
     ${
       hakimNotes
-        ? `<div style="background-color: #FEF3C7; border: 1px solid #FDE68A; border-radius: 8px; padding: 14px 16px; margin: 16px 0; font-size: 13px; color: #78350F;">
+        ? `<div style="background-color: ${BRAND.warningSoft}; border: 1px solid ${BRAND.warningLine}; border-radius: 8px; padding: 14px 16px; margin: 16px 0; font-size: 13px; color: ${BRAND.warning};">
             <strong>Hakim Sahib / Clinic Advice:</strong><br />
             ${hakimNotes}
           </div>`
@@ -986,12 +987,12 @@ export async function sendAppointmentStatusEmail(params: {
     }
 
     <p style="font-size: 13px; margin-top: 20px;">
-      <a href="${APP_URL}/track-order?ref=${encodeURIComponent(ticketNumber)}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: #14281D; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 8px;">
+      <a href="${APP_URL}/track-order?ref=${encodeURIComponent(ticketNumber)}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 8px;">
         Check Booking Status →
       </a>
     </p>
 
-    <p style="font-size: 12px; color: #78716C; margin-top: 24px;">
+    <p style="font-size: 12px; color: ${BRAND.inkSubtle}; margin-top: 24px;">
       For any inquiries, please WhatsApp our clinical dispensary at +92 300 8921892.
     </p>
   </div>
@@ -1038,37 +1039,37 @@ export async function sendHakimPrescriptionEmail(params: {
   <meta charset="UTF-8">
   <title>Hakim Prescription &amp; Guidance - ${ticketNumber}</title>
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #FAF9F6; padding: 24px; color: #1a1816;">
-  <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; border: 1px solid #E7E5E4; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
-    <div style="background-color: #14281D; padding: 28px 24px; text-align: center; color: #ffffff;">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: ${BRAND.surface}; padding: 24px; color: ${BRAND.ink};">
+  <div style="max-width: 600px; margin: 0 auto; background: ${BRAND.surfaceRaised}; border-radius: 12px; border: 1px solid ${BRAND.line}; overflow: hidden; box-shadow: 0 4px 16px ${BRAND.blackA06};">
+    <div style="background-color: ${BRAND.primary}; padding: 28px 24px; text-align: center; color: ${BRAND.surfaceRaised};">
       <h1 style="margin: 0; font-size: 22px; font-family: Georgia, serif;">Tameer-e-Sehat</h1>
-      <p style="margin: 4px 0 0 0; color: #9E7D3B; font-size: 12px; letter-spacing: 1px; text-transform: uppercase;">Hakim Prescription &amp; Dietary Protocol</p>
+      <p style="margin: 4px 0 0 0; color: ${BRAND.secondaryOnDark}; font-size: 12px; letter-spacing: 1px; text-transform: uppercase;">Hakim Prescription &amp; Dietary Protocol</p>
     </div>
 
     <div style="padding: 28px 24px;">
-      <h2 style="margin: 0 0 12px 0; font-size: 18px; color: #14281D; font-family: Georgia, serif;">
+      <h2 style="margin: 0 0 12px 0; font-size: 18px; color: ${BRAND.primary}; font-family: Georgia, serif;">
         Assalam-o-Alaikum, ${fullName}!
       </h2>
-      <p style="margin: 0 0 20px 0; font-size: 14px; color: #57534E; line-height: 1.6;">
+      <p style="margin: 0 0 20px 0; font-size: 14px; color: ${BRAND.inkBody}; line-height: 1.6;">
         Hakim Muhammad Tariq has reviewed your consultation dossier (Ticket: <strong style="font-family: monospace;">${ticketNumber}</strong>) and prepared your personalized Unani herbal protocol.
       </p>
 
-      <div style="background-color: #ECFDF5; border: 1px solid #A7F3D0; border-left: 4px solid #166534; border-radius: 8px; padding: 18px 20px; margin-bottom: 20px;">
-        <h3 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: #14532D; text-transform: uppercase; letter-spacing: 0.5px;">
+      <div style="background-color: ${BRAND.successSoft}; border: 1px solid ${BRAND.successLine}; border-left: 4px solid ${BRAND.success}; border-radius: 8px; padding: 18px 20px; margin-bottom: 20px;">
+        <h3 style="margin: 0 0 10px 0; font-size: 14px; font-weight: 700; color: ${BRAND.success}; text-transform: uppercase; letter-spacing: 0.5px;">
           🌿 Prescribed Herbal Remedies &amp; Dosage:
         </h3>
-        <div style="font-size: 14px; color: #166534; line-height: 1.7; white-space: pre-line;">
+        <div style="font-size: 14px; color: ${BRAND.success}; line-height: 1.7; white-space: pre-line;">
           ${prescribedTreatment}
         </div>
       </div>
 
       ${
         hakimNotes
-          ? `<div style="background-color: #FEF3C7; border: 1px solid #FDE68A; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px;">
-              <h3 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #92400E;">
+          ? `<div style="background-color: ${BRAND.warningSoft}; border: 1px solid ${BRAND.warningLine}; border-radius: 8px; padding: 16px 18px; margin-bottom: 20px;">
+              <h3 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: ${BRAND.warning};">
                 🥗 Dietary &amp; Lifestyle Guidance (Parhez):
               </h3>
-              <div style="font-size: 13px; color: #78350F; line-height: 1.6; white-space: pre-line;">
+              <div style="font-size: 13px; color: ${BRAND.warning}; line-height: 1.6; white-space: pre-line;">
                 ${hakimNotes}
               </div>
             </div>`
@@ -1076,18 +1077,18 @@ export async function sendHakimPrescriptionEmail(params: {
       }
 
       <div style="text-align: center; margin-top: 28px;">
-        <a href="${APP_URL}/products" target="_blank" style="display: inline-block; padding: 12px 28px; background-color: #14281D; color: #ffffff; text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 8px;">
+        <a href="${APP_URL}/products" target="_blank" style="display: inline-block; padding: 12px 28px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 13px; font-weight: 700; border-radius: 8px;">
           Order Authentic Remedies Online →
         </a>
         <p style="margin: 14px 0 0 0;">
-          <a href="${APP_URL}/track-order?ref=${encodeURIComponent(ticketNumber)}" target="_blank" style="font-size: 12px; color: #14281D; text-decoration: underline;">
+          <a href="${APP_URL}/track-order?ref=${encodeURIComponent(ticketNumber)}" target="_blank" style="font-size: 12px; color: ${BRAND.primary}; text-decoration: underline;">
             Track your booking status →
           </a>
         </p>
       </div>
     </div>
 
-    <div style="background-color: #FCFBF9; padding: 16px 24px; border-top: 1px solid #E7E5E4; text-align: center; font-size: 11px; color: #78716C;">
+    <div style="background-color: ${BRAND.surface}; padding: 16px 24px; border-top: 1px solid ${BRAND.line}; text-align: center; font-size: 11px; color: ${BRAND.inkSubtle};">
       Matab Tameer-e-Sehat · Est. 1990 · Korangi Crossing, Karachi
     </div>
   </div>

@@ -649,16 +649,10 @@ export default function HijamaSunnahCalendar({
                               className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
                                 isSlotSelected
                                   ? "bg-white/20 text-white"
-                                  : slot.seatsRemaining <= 1
-                                  ? "bg-amber-100 text-amber-800 border border-amber-300"
                                   : "bg-[#eef7f1] text-[#22623a] border border-[#cde4d6]"
                               }`}
                             >
-                              {slot.seatsRemaining} of{" "}
-                              {activeGender === "MALE"
-                                ? slot.maleCapacity
-                                : slot.femaleCapacity}{" "}
-                              left
+                              Available
                             </span>
                           ) : (
                             <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[#eef7f1] text-[#22623a]/70">

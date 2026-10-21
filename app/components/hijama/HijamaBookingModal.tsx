@@ -609,7 +609,7 @@ export default function HijamaBookingModal({
                             isPicked ? "text-emerald-300" : "text-[#59534b]"
                           }`}
                         >
-                          {sd.totalAvailableSeats} seats left
+                          {sd.totalAvailableSeats === 0 ? "Full" : `${sd.totalAvailableSeats} slots open`}
                         </div>
                       </button>
                     );
@@ -711,12 +711,10 @@ export default function HijamaBookingModal({
                             className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold shrink-0 ml-1 ${
                               isChosen
                                 ? "bg-white/20 text-white"
-                                : slot.seatsRemaining <= 1
-                                ? "bg-amber-100 text-amber-800"
                                 : "bg-[#eef7f1] text-[#22623a]"
                             }`}
                           >
-                            {slot.seatsRemaining} left
+                            Available
                           </span>
                         ) : (
                           <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-[#eef7f1] text-[#22623a]/70 shrink-0 ml-1">

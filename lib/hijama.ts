@@ -30,6 +30,30 @@ import {
 
 export * from "./hijama-types";
 
+/**
+ * Accurately determines if a booking slot string refers to a generated slot,
+ * preventing false positives where an end-time string matches the next slot's start-time.
+ */
+export function isSameSlot(
+  inputSlot: string,
+  target: { slot: string; startTime: string }
+): boolean {
+  if (!inputSlot || !target) return false;
+  const normInput = inputSlot.trim().toLowerCase();
+  const normTarget = target.slot.trim().toLowerCase();
+  if (normInput === normTarget) return true;
+
+  const inputStart = normInput.split("-")[0].trim();
+  const targetStart = normTarget.split("-")[0].trim();
+  if (inputStart === targetStart) return true;
+
+  const inputStartClean = inputStart.replace(/\s*(am|pm)/i, "").trim();
+  const targetStartClean = target.startTime.trim().toLowerCase();
+  if (inputStartClean === targetStartClean) return true;
+
+  return false;
+}
+
 
 // -------------------------------------------------------------
 // Schedule Defaults & Initialization
@@ -448,10 +472,8 @@ export async function getHijamaAvailabilityForDate(
   });
 
   const slots: HijamaSlotAvailability[] = generatedSlots.map((s) => {
-    const slotBookings = bookedAppointments.filter(
-      (b) =>
-        b.appointmentSlot === s.slot ||
-        b.appointmentSlot.includes(s.startTime)
+    const slotBookings = bookedAppointments.filter((b) =>
+      isSameSlot(b.appointmentSlot, s)
     );
 
     const maleBooked = slotBookings.filter((b) => b.gender === "MALE").length;
@@ -606,11 +628,8 @@ export async function createHijamaBooking(
     );
   }
 
-  const matchingSlot = availability.slots.find(
-    (s) =>
-      s.slot === data.appointmentSlot ||
-      s.startTime === data.appointmentSlot ||
-      s.slot.includes(data.appointmentSlot)
+  const matchingSlot = availability.slots.find((s) =>
+    isSameSlot(data.appointmentSlot, s)
   );
 
   if (!matchingSlot) {

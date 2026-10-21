@@ -88,8 +88,8 @@ export default function HijamaScheduleManager() {
   const [overrides, setOverrides] = useState<DateOverride[]>([]);
   const [settings, setSettings] = useState<Settings>({
     moonSightingOffset: 0,
-    sunnahMaleCapacity: 4,
-    sunnahFemaleCapacity: 4,
+    sunnahMaleCapacity: 1,
+    sunnahFemaleCapacity: 1,
     standardFee: 2500,
   });
 
@@ -111,8 +111,8 @@ export default function HijamaScheduleManager() {
   const [overrideOpenTime, setOverrideOpenTime] = useState("10:00");
   const [overrideCloseTime, setOverrideCloseTime] = useState("21:00");
   const [overrideDuration, setOverrideDuration] = useState<number>(45);
-  const [overrideMaleCap, setOverrideMaleCap] = useState<number>(4);
-  const [overrideFemaleCap, setOverrideFemaleCap] = useState<number>(4);
+  const [overrideMaleCap, setOverrideMaleCap] = useState<number>(1);
+  const [overrideFemaleCap, setOverrideFemaleCap] = useState<number>(1);
   const [overrideNote, setOverrideNote] = useState("");
   const [overrideCustomSlots, setOverrideCustomSlots] = useState<CustomSlot[]>([]);
 
@@ -157,8 +157,8 @@ export default function HijamaScheduleManager() {
       openTime: "10:00",
       closeTime: "21:00",
       slotDurationMins: 45,
-      maxMaleCapacity: 2,
-      maxFemaleCapacity: 2,
+      maxMaleCapacity: 1,
+      maxFemaleCapacity: 1,
       customSlots: null,
     };
   }, [schedule, selectedDayIdx]);
@@ -321,8 +321,8 @@ export default function HijamaScheduleManager() {
       setOverrideOpenTime(match.openTime || "10:00");
       setOverrideCloseTime(match.closeTime || "21:00");
       setOverrideDuration(match.slotDurationMins || 45);
-      setOverrideMaleCap(match.maxMaleCapacity != null ? match.maxMaleCapacity : 4);
-      setOverrideFemaleCap(match.maxFemaleCapacity != null ? match.maxFemaleCapacity : 4);
+      setOverrideMaleCap(match.maxMaleCapacity != null ? match.maxMaleCapacity : 1);
+      setOverrideFemaleCap(match.maxFemaleCapacity != null ? match.maxFemaleCapacity : 1);
       setOverrideNote(match.note || "");
       if (match.customSlots) {
         try {
@@ -339,8 +339,8 @@ export default function HijamaScheduleManager() {
       setOverrideOpenTime("10:00");
       setOverrideCloseTime("21:00");
       setOverrideDuration(45);
-      setOverrideMaleCap(4);
-      setOverrideFemaleCap(4);
+      setOverrideMaleCap(1);
+      setOverrideFemaleCap(1);
       setOverrideNote("");
       setOverrideCustomSlots(autoSliceSlots("10:00", "21:00", 45));
     }

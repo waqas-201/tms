@@ -802,7 +802,9 @@ export default function HijamaTab() {
                               <option key={slot.slot} value={slot.slot}>
                                 {slot.slot}
                                 {slot.seatsRemaining != null
-                                  ? ` · ${slot.seatsRemaining} seats`
+                                  ? slot.seatsRemaining > 0
+                                    ? " · Available"
+                                    : " · Booked"
                                   : ""}
                               </option>
                             ))}

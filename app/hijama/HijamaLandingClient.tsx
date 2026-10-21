@@ -421,7 +421,7 @@ export default function HijamaLandingClient() {
                                   : "bg-[#14281D]/5 text-[#14281D]"
                               }`}
                             >
-                              {sd.totalAvailableSeats} seats
+                              {sd.totalAvailableSeats === 0 ? "Full" : `${sd.totalAvailableSeats} slots`}
                             </span>
                           </div>
 
@@ -512,7 +512,7 @@ export default function HijamaLandingClient() {
                                 : "text-[#7a7268]"
                             }`}
                           >
-                            {isFull ? "Booked" : `${s.seatsRemaining} left`}
+                            {isFull ? "Booked" : "Available"}
                           </span>
                         </button>
                       );

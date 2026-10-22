@@ -35,6 +35,7 @@ import {
   type HijamaSlotAvailability,
 } from "@/lib/hijama-types";
 import Reveal from "./motion/Reveal";
+import AuthModal from "./AuthModal";
 
 export default function HijamaCalendarSection() {
   const { data: session } = useSession();
@@ -69,6 +70,7 @@ export default function HijamaCalendarSection() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccessMsg, setAuthSuccessMsg] = useState<string | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Data fetching state
   const [sunnahDates, setSunnahDates] = useState<UpcomingSunnahDate[]>([]);
@@ -836,7 +838,36 @@ export default function HijamaCalendarSection() {
                   </div>
 
                   {!session?.user ? (
-                    /* ═══ 3A. AUTHENTICATION GATE (UNAUTHENTICATED) ═══ */
+                    <div className="space-y-4">
+                      <div className="p-3.5 bg-success-soft/80 border border-success-line/90 rounded-xl flex items-start gap-2.5 text-xs text-success">
+                        <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <div className="space-y-0.5">
+                          <strong className="block font-bold text-ink">Sign-In Required to Reserve Hijama</strong>
+                          <span className="text-ink-body">
+                            Your selected date and slot will stay in place while you sign in or create an account.
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2.5 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setStep(2)}
+                          className="px-4 py-2.5 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+                        >
+                          <ArrowLeft className="w-3.5 h-3.5" />
+                          <span>Back</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIsAuthModalOpen(true)}
+                          className="flex-1 py-2.5 px-4 bg-surface-inverse hover:bg-brand-green-900 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs cursor-pointer"
+                        >
+                          Sign In or Create Account
+                        </button>
+                      </div>
+                    </div>
+                  ) : false ? (
+                    /* Legacy inline auth form retained for compatibility; the shared modal is the live flow. */
                     <div className="space-y-4">
                       {/* Gating info banner */}
                       <div className="p-3.5 bg-success-soft/80 border border-success-line/90 rounded-xl flex items-start gap-2.5 text-xs text-success">
@@ -1241,6 +1272,10 @@ export default function HijamaCalendarSection() {
           )}
         </div>
       </div>
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onOpenChange={setIsAuthModalOpen}
+      />
     </section>
   );
 }

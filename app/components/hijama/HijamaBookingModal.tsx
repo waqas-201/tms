@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { useSession, signIn, signUp } from "@/lib/auth-client";
 import { CLINIC_INFO } from "@/app/data/products";
+import AuthModal from "@/app/components/AuthModal";
 import {
   formatDateStr,
   getHijriDate,
@@ -131,6 +132,7 @@ export default function HijamaBookingModal({
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccessMsg, setAuthSuccessMsg] = useState<string | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Pre-fill user details when session arrives
   useEffect(() => {
@@ -1045,7 +1047,26 @@ export default function HijamaBookingModal({
         {step === 4 && (
           <div className="space-y-4 animate-fade-in">
             {!session?.user ? (
-              /* ── UNAUTHENTICATED: AUTH GATE ── */
+              <div className="space-y-4">
+                <div className="flex items-start gap-2.5 rounded-xl border border-success-line bg-success-soft p-4 text-xs">
+                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                  <div>
+                    <strong className="block font-bold text-ink">Sign-in required to reserve this slot</strong>
+                    <span className="text-ink-body">
+                      Your selected wing, date, screening answers, and slot will stay in place while you authenticate.
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAuthModalOpen(true)}
+                  className="w-full rounded-xl bg-primary px-4 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-brand-green-800 cursor-pointer"
+                >
+                  Sign In or Create Account
+                </button>
+              </div>
+            ) : false ? (
+              /* Legacy inline auth form retained for compatibility; the shared modal is the live flow. */
               <div className="space-y-4">
                 <div className="text-center max-w-md mx-auto space-y-1">
                   <h3 className="font-serif text-xl font-bold text-ink">
@@ -1664,13 +1685,28 @@ export default function HijamaBookingModal({
     </div>
   );
 
+  const authModal = (
+    <AuthModal
+      isOpen={isAuthModalOpen}
+      onOpenChange={setIsAuthModalOpen}
+    />
+  );
+
   if (isInline) {
-    return content;
+    return (
+      <>
+        {content}
+        {authModal}
+      </>
+    );
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-      {content}
-    </div>
+    <>
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+        {content}
+      </div>
+      {authModal}
+    </>
   );
 }

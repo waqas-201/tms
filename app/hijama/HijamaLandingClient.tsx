@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { CLINIC_INFO } from "@/app/data/products";
 import { useSession, signIn, signUp } from "@/lib/auth-client";
+import AuthModal from "@/app/components/AuthModal";
 import {
   getHijriDate,
   formatDateStr,
@@ -58,6 +59,7 @@ export default function HijamaLandingClient() {
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
   const [authSuccessMsg, setAuthSuccessMsg] = useState<string | null>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Data fetching state
   const [sunnahDates, setSunnahDates] = useState<UpcomingSunnahDate[]>([]);
@@ -635,7 +637,27 @@ export default function HijamaLandingClient() {
               </label>
 
               {!session?.user ? (
-                /* ── UNAUTHENTICATED: AUTH GATE ── */
+                <div className="space-y-4">
+                  <div className="flex items-start gap-2.5 bg-surface p-5 rounded-2xl border border-line">
+                    <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <strong className="block font-bold">Sign-In Required to Book Hijama</strong>
+                      <span className="text-ink-body">
+                        Your selected date and slot will stay in place while you sign in or create an account.
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsAuthModalOpen(true)}
+                    className="w-full py-3 px-6 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>Sign In or Create Account</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : false ? (
+                /* Legacy inline auth form retained for compatibility; the shared modal is the live flow. */
                 <div className="space-y-4 bg-surface p-5 rounded-2xl border border-line">
                   <div className="flex items-start gap-2.5 text-xs text-ink">
                     <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
@@ -991,6 +1013,10 @@ export default function HijamaLandingClient() {
             </div>
           </form>
         )}
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onOpenChange={setIsAuthModalOpen}
+        />
       </div>
     </main>
   );

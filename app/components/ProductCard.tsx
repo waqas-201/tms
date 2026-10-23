@@ -142,7 +142,7 @@ export default function ProductCard({
         <div className="group bg-white rounded-xl border border-line/70 hover:border-line-strong/80 transition-all duration-300 p-4 sm:p-5 flex flex-col md:flex-row gap-5 items-start">
           {/* Image Thumbnail */}
           <div className="relative w-full md:w-44 aspect-square bg-surface rounded-lg overflow-hidden shrink-0">
-            <Link href={`/products/${product.slug}`} className="block w-full h-full">
+            <Link href={`/products/${product.slug}`} tabIndex={-1} aria-hidden="true" className="block w-full h-full">
               <Image
                 src={imageSrc}
                 alt={product.name}
@@ -327,7 +327,7 @@ export default function ProductCard({
       <div className="group bg-white rounded-xl sm:rounded-2xl border border-line hover:border-primary/40 hover:shadow-sm transition-all duration-300 flex flex-col overflow-hidden h-full">
         {/* Image Canvas */}
         <div className="relative block aspect-square w-full bg-surface overflow-hidden">
-          <Link href={`/products/${product.slug}`} className="block w-full h-full">
+          <Link href={`/products/${product.slug}`} tabIndex={-1} aria-hidden="true" className="block w-full h-full">
             <Image
               src={imageSrc}
               alt={product.name}

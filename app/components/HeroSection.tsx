@@ -137,7 +137,8 @@ export default function HeroSection() {
       const trustH = trust && trust.offsetParent !== null ? trust.offsetHeight + 24 : 0;
       const free = minH - pad - main.offsetHeight - trustH;
       // one row needs ~80px (+ breathing room), two rows ~125px (+ breathing room)
-      setChipRows(free >= 156 ? 2 : free >= 110 ? 1 : 0);
+      const nextRows: 0 | 1 | 2 = free >= 156 ? 2 : free >= 110 ? 1 : 0;
+      setChipRows((prev) => (prev === nextRows ? prev : nextRows));
     };
     const onResize = () => {
       if (window.innerWidth !== lastWidth) {
@@ -296,7 +297,6 @@ export default function HeroSection() {
                   src={PORTRAIT_SRC}
                   alt="Hakim Muhammad Tariq Mahmood, senior Tibbi physician at Matab Tameer-e-Sehat, Karachi"
                   fill
-                  priority
                   sizes="440px"
                   className="object-cover object-top"
                 />

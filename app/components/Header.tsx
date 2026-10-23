@@ -308,12 +308,12 @@ export default function Header() {
       <div className="block sm:hidden bg-surface-inverse text-on-inverse px-3 py-2 border-b border-secondary/30 shadow-xs">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-1.5 min-w-0">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary/20 text-brand-gold-500 font-bold text-[10px] tracking-wider uppercase shrink-0 border border-secondary/40 shadow-2xs">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary/20 text-brand-gold-400 font-bold text-[10px] tracking-wider uppercase shrink-0 border border-secondary/40 shadow-2xs">
               <Moon className="w-2.5 h-2.5 fill-current" />
               <span>Sunnah Hijama</span>
             </span>
 
-            <strong className="text-brand-gold-500 font-bold text-[11px] leading-tight shrink-0">
+            <strong className="text-brand-gold-400 font-bold text-[11px] leading-tight shrink-0">
               {hijamaBannerInfo ? (
                 hijamaBannerInfo.isToday
                   ? "Today is Sunnah Day!"
@@ -374,7 +374,7 @@ export default function Header() {
       <div className="hidden sm:block bg-surface-inverse text-on-inverse text-xs py-2 px-3 sm:px-6 border-b border-secondary/30">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary/20 text-brand-gold-500 font-bold text-[10px] tracking-wider uppercase shrink-0 border border-secondary/40 shadow-2xs">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-secondary/20 text-brand-gold-400 font-bold text-[10px] tracking-wider uppercase shrink-0 border border-secondary/40 shadow-2xs">
               <Moon className="w-3 h-3 fill-current" />
               <span>Sunnah Hijama</span>
             </span>
@@ -382,7 +382,7 @@ export default function Header() {
             <span className="truncate text-on-inverse font-medium">
               {hijamaBannerInfo ? (
                 <>
-                  <strong className="text-brand-gold-500 font-bold">
+                  <strong className="text-brand-gold-400 font-bold">
                     {hijamaBannerInfo.isToday
                       ? "Today is a Blessed Sunnah Day!"
                       : `${hijamaBannerInfo.daysAway} ${hijamaBannerInfo.daysAway === 1 ? "day" : "days"} left`}
@@ -482,8 +482,8 @@ export default function Header() {
                 className="flex items-center group shrink-0"
                 aria-label="Tameer-e-Sehat Home"
               >
-                <BrandLogo variant="header" className="hidden sm:flex" />
-                <BrandLogo variant="mobile" className="flex sm:hidden" />
+                <BrandLogo variant="header" className="hidden sm:flex" priority={false} />
+                <BrandLogo variant="mobile" className="flex sm:hidden" priority={true} />
               </Link>
             </div>
 

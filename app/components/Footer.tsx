@@ -328,15 +328,15 @@ export default function Footer() {
               </Link>
               <span>·</span>
               <Link href="/specialties" className="hover:text-white transition-colors">
-                Specialties
+                Clinical Specialties
               </Link>
               <span>·</span>
               <Link href="/track-order" className="hover:text-white transition-colors">
-                Track Order
+                Track Order (COD)
               </Link>
               <span>·</span>
               <Link href="/contact" className="hover:text-white transition-colors">
-                Contact & Support
+                Contact & Visit
               </Link>
               <span>·</span>
               <Link href="/login" className="hover:text-white transition-colors">

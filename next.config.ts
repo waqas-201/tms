@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
   // Next treats as a different origin from localhost. Allow it so dev-only
   // HMR/client resources are not blocked during browser tests.
   allowedDevOrigins: ["127.0.0.1"],
+  // Pin the root so Turbopack does not walk past this app due to stray lockfiles,
+  // and so PostCSS can resolve @tailwindcss/postcss.
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   compress: true,
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],

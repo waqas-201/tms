@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "lint:colors": "eslint -c eslint.colors.config.mjs --no-config-lookup app components lib --max-warnings=0",
@@ -44,6 +44,7 @@
     "seed": "node prisma/seed.js"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.64.1",
     "@types/node": "^20",
     "@types/pg": "^8.23.1",
@@ -51,6 +52,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "lighthouse": "^13.5.0",
+    "pagespeed-insights-mcp": "^2.2.0",
     "tsx": "^4.23.15",
     "typescript": "^5"
   }

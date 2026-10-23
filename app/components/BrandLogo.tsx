@@ -41,7 +41,7 @@ export function BotanicalEmblem({
         alt="Tameer-e-Sehat Official Logo"
         fill
         sizes={`${width}px`}
-        quality={95}
+        quality={85}
         className="object-contain"
       />
     </div>
@@ -52,7 +52,7 @@ export default function BrandLogo({
   variant = "header",
   showTagline = true,
   className = "",
-  priority = true,
+  priority = variant === "header" || variant === "mobile",
 }: BrandLogoProps) {
   // Icon only - pure emblem badge presentation
   if (variant === "icon-only") {
@@ -66,7 +66,7 @@ export default function BrandLogo({
           fill
           sizes="120px"
           priority={priority}
-          quality={95}
+          quality={85}
           className="object-contain"
         />
       </div>
@@ -83,7 +83,7 @@ export default function BrandLogo({
             alt="Tameer-e-Sehat Official Logo"
             fill
             sizes="(max-width: 640px) 95px, 125px"
-            quality={95}
+            quality={85}
             priority={priority}
             className="object-contain p-0.5"
           />
@@ -116,7 +116,7 @@ export default function BrandLogo({
             alt="Tameer-e-Sehat Official Logo"
             fill
             sizes="120px"
-            quality={95}
+            quality={85}
             priority={priority}
             className="object-contain"
           />
@@ -148,7 +148,7 @@ export default function BrandLogo({
             fill
             sizes="85px"
             priority={priority}
-            quality={95}
+            quality={85}
             className="object-contain"
           />
         </div>
@@ -179,7 +179,7 @@ export default function BrandLogo({
           fill
           sizes="(max-width: 640px) 85px, 115px"
           priority={priority}
-          quality={95}
+          quality={85}
           className="object-contain drop-shadow-xs"
         />
       </div>

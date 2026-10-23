@@ -50,7 +50,7 @@ export default function Footer() {
               <h4 className="text-sm font-semibold text-white">
                 100% Pure Herbs
               </h4>
-              <p className="text-xs text-on-inverse/70 mt-0.5">
+              <p className="text-xs text-on-inverse/90 mt-0.5">
                 Authentic, clean herbs sourced fresh with zero chemical additives.
               </p>
             </div>
@@ -64,7 +64,7 @@ export default function Footer() {
               <h4 className="text-sm font-semibold text-white">
                 Experienced Hakim
               </h4>
-              <p className="text-xs text-on-inverse/70 mt-0.5">
+              <p className="text-xs text-on-inverse/90 mt-0.5">
                 Formulated by qualified herbal practitioners with 35+ years of experience.
               </p>
             </div>
@@ -78,7 +78,7 @@ export default function Footer() {
               <h4 className="text-sm font-semibold text-white">
                 Cash on Delivery
               </h4>
-              <p className="text-xs text-on-inverse/70 mt-0.5">
+              <p className="text-xs text-on-inverse/90 mt-0.5">
                 Fast courier delivery to Karachi, Lahore, Islamabad, and across Pakistan.
               </p>
             </div>
@@ -92,7 +92,7 @@ export default function Footer() {
               <h4 className="text-sm font-semibold text-white">
                 Private & Confidential
               </h4>
-              <p className="text-xs text-on-inverse/70 mt-0.5">
+              <p className="text-xs text-on-inverse/90 mt-0.5">
                 Friendly, private advice focused on your personal health and symptoms.
               </p>
             </div>
@@ -112,7 +112,7 @@ export default function Footer() {
               <BrandLogo variant="footer" />
             </Link>
 
-            <p className="text-xs text-on-inverse/80 leading-relaxed max-w-sm">
+            <p className="text-xs text-on-inverse/90 leading-relaxed max-w-sm">
               Established in 1990 in Karachi, Tameer-e-Sehat is a trusted herbal clinic and remedy center. We use pure, natural herbs and time-tested recipes to provide honest, gentle remedies for you and your family.
             </p>
 
@@ -151,7 +151,7 @@ export default function Footer() {
             <h4 className="font-serif text-sm font-semibold text-brand-gold-300 uppercase tracking-wider">
               Navigation
             </h4>
-            <ul className="space-y-2 text-xs text-on-inverse/80">
+            <ul className="space-y-2 text-xs text-on-inverse/90">
               <li>
                 <Link
                   href="/"
@@ -214,7 +214,7 @@ export default function Footer() {
             <h4 className="font-serif text-sm font-semibold text-brand-gold-300 uppercase tracking-wider">
               Categories
             </h4>
-            <ul className="space-y-2 text-xs text-on-inverse/80">
+            <ul className="space-y-2 text-xs text-on-inverse/90">
               <li>
                 <Link href="/products?category=murabbajaat" className="hover:text-white transition-colors">
                   Herbal Preserves (Murabba)
@@ -253,7 +253,7 @@ export default function Footer() {
             <h4 className="font-serif text-sm font-semibold text-brand-gold-300 uppercase tracking-wider">
               Clinic & Store
             </h4>
-            <div className="space-y-2.5 text-xs text-on-inverse/80">
+            <div className="space-y-2.5 text-xs text-on-inverse/90">
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-brand-gold-300 shrink-0 mt-0.5" />
                 <div>
@@ -307,7 +307,7 @@ export default function Footer() {
         </div>
 
         {/* Safety & Legal Disclaimer */}
-        <div className="pt-8 border-t border-brand-green-900/60 space-y-3 text-[11px] text-on-inverse/60 leading-relaxed">
+        <div className="pt-8 border-t border-brand-green-900/60 space-y-3 text-[11px] text-on-inverse/85 leading-relaxed">
           <p>
             <strong className="text-brand-gold-300">Important Health Notice:</strong> Our natural remedies and advice are based on traditional herbal medicine. They are designed to support your daily wellness, digestion, and natural body strength. If you have a severe medical emergency or are pregnant, please consult your doctor. Keep all natural remedies in a cool, dry place away from direct sunlight.
           </p>
@@ -315,7 +315,7 @@ export default function Footer() {
             <p>
               &copy; {new Date().getFullYear()} {CLINIC_INFO.brandName}. All rights reserved. Registered Herbal Health Clinic, Karachi, Pakistan.
             </p>
-            <div className="flex items-center gap-4 text-on-inverse/70">
+            <div className="flex items-center gap-4 text-on-inverse/90">
               <Link
                 href="/consultation"
                 onClick={(e) => {

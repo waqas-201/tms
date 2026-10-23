@@ -58,8 +58,9 @@ export default function CartDrawer() {
   const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
   const [quickAddedId, setQuickAddedId] = useState<string | null>(null);
 
-  // Load catalog for recommendations
+  // Load catalog for recommendations only when drawer is opened
   useEffect(() => {
+    if (!isCartOpen || catalogProducts.length > 0) return;
     async function loadProducts() {
       try {
         const res = await fetch("/api/products");
@@ -74,7 +75,7 @@ export default function CartDrawer() {
       }
     }
     loadProducts();
-  }, []);
+  }, [isCartOpen, catalogProducts.length]);
 
   const totalItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const progressPercent = Math.min(100, Math.round((subtotal / freeShippingThreshold) * 100));
@@ -400,7 +401,7 @@ export default function CartDrawer() {
                       placeholder="Coupon Code (e.g. HAKIM10)"
                       value={couponInput}
                       onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                      className="w-full pl-8 pr-3 py-2 bg-surface border border-line rounded-xl text-xs font-medium text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-all"
+                      className="w-full pl-8 pr-3 py-2 bg-surface border border-line rounded-xl text-xs font-medium text-ink placeholder:text-neutral-500 focus:outline-none focus:border-ink focus:bg-white transition-all"
                     />
                   </div>
                   <button

@@ -7,7 +7,9 @@ import { useCart } from "@/app/context/CartContext";
 import { useSession, signOut } from "@/lib/auth-client";
 import { CLINIC_INFO } from "@/app/data/products";
 import { useLenis } from "./SmoothScroll";
-import SearchModal from "./SearchModal";
+import dynamic from "next/dynamic";
+
+const SearchModal = dynamic(() => import("./SearchModal"), { ssr: false });
 import { useConsultation } from "@/app/context/ConsultationContext";
 import BrandLogo from "./BrandLogo";
 import { isStaffRole } from "@/lib/rbac-base";
@@ -349,10 +351,10 @@ export default function Header() {
             {hijamaBannerInfo ? (
               <>
                 <span className="text-on-inverse font-semibold">{hijamaBannerInfo.hijriText}</span>
-                <span className="text-brand-green-400 mx-1">·</span>
+                <span className="text-brand-green-300 mx-1">·</span>
                 <span>{hijamaBannerInfo.gregText}</span>
-                <span className="text-brand-green-400 mx-1">·</span>
-                <span className="text-brand-green-400">Male &amp; Female Wards</span>
+                <span className="text-brand-green-300 mx-1">·</span>
+                <span className="text-brand-green-300">Male &amp; Female Wards</span>
               </>
             ) : (
               "17th, 19th & 21st Lunar Dates · Separate Wards"
@@ -385,10 +387,10 @@ export default function Header() {
                       ? "Today is a Blessed Sunnah Day!"
                       : `${hijamaBannerInfo.daysAway} ${hijamaBannerInfo.daysAway === 1 ? "day" : "days"} left`}
                   </strong>{" "}
-                  <span className="text-brand-green-300 opacity-90">
+                  <span className="text-brand-green-200">
                     ({hijamaBannerInfo.hijriText} · {hijamaBannerInfo.gregText})
                   </span>
-                  <span className="hidden md:inline text-brand-green-400">
+                  <span className="hidden md:inline text-brand-green-300">
                     {" "}— Separate Male &amp; Female Wards
                   </span>
                 </>
@@ -1175,10 +1177,12 @@ export default function Header() {
         </div>
       )}
 
-      <SearchModal
-        isOpen={isSearchOpen}
-        onClose={() => setIsSearchOpen(false)}
-      />
+      {isSearchOpen && (
+        <SearchModal
+          isOpen={isSearchOpen}
+          onClose={() => setIsSearchOpen(false)}
+        />
+      )}
     </>
   );
 }

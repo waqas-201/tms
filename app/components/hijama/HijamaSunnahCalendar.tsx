@@ -415,7 +415,7 @@ export default function HijamaSunnahCalendar({
                         : isSunnah
                         ? "bg-gradient-to-b from-brand-gold-50 to-sand-100 border-secondary hover:border-brand-gold-700 hover:shadow-md"
                         : isDimmed
-                        ? "bg-surface/40 text-neutral-200 border-transparent hover:bg-white hover:border-line"
+                        ? "bg-surface/40 text-ink-subtle border-transparent hover:bg-white hover:border-line"
                         : "bg-white text-ink border-line hover:border-primary/40 hover:bg-brand-green-50"
                     } ${isPast ? "opacity-60" : ""}`}
                   >
@@ -489,8 +489,8 @@ export default function HijamaSunnahCalendar({
                         </div>
                       ) : (
                         <span
-                          className={`text-[8px] sm:text-[9px] font-medium opacity-70 ${
-                            isSelected ? "text-white/70" : "text-ink-subtle"
+                          className={`text-[8px] sm:text-[9px] font-medium ${
+                            isSelected ? "text-white/90" : "text-ink-muted"
                           }`}
                         >
                           Open
@@ -632,7 +632,7 @@ export default function HijamaSunnahCalendar({
                           <Clock
                             className={`w-3.5 h-3.5 shrink-0 ${
                               isSlotSelected
-                                ? "text-secondary-text"
+                                ? "text-brand-gold-200"
                                 : isAvailable
                                 ? "text-primary"
                                 : "text-ink-subtle"
@@ -661,7 +661,7 @@ export default function HijamaSunnahCalendar({
                           )}
 
                           {isSlotSelected && (
-                            <CheckCircle2 className="w-4 h-4 text-secondary-text" />
+                            <CheckCircle2 className="w-4 h-4 text-brand-gold-200" />
                           )}
                         </div>
                       </button>

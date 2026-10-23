@@ -49,7 +49,7 @@
   /* ---------- Neutral (warm ink) ---------- */
   --color-neutral-200: #b5ada4;
   --color-neutral-300: #8c8880;
-  --color-neutral-400: #78716c;
+  --color-neutral-400: #6b6660;
   --color-neutral-500: #6a6660;
   --color-neutral-600: #59534b;
   --color-neutral-700: #4a4640;
@@ -98,7 +98,7 @@
 
   --color-secondary: var(--color-brand-gold-500);
   --color-secondary-hover: var(--color-brand-gold-600);
-  --color-secondary-text: var(--color-brand-gold-700);
+  --color-secondary-text: var(--color-brand-gold-800);
   --color-secondary-soft: var(--color-brand-gold-50);
   --color-on-secondary: var(--color-brand-green-950);
   --color-on-whatsapp: var(--color-brand-green-950);
@@ -114,7 +114,7 @@
 
   /* Lines */
   --color-line: var(--color-sand-200);
-  --color-line-strong: var(--color-sand-300);
+  --color-line-strong: var(--color-neutral-300);
   --color-line-inverse: var(--color-brand-green-800);
 
   /* Ink */

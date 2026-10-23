@@ -11,7 +11,7 @@ export const BRAND = {
   primary: "#22623a",
   primaryHover: "#1b502e",
   secondary: "#c59b27",
-  secondaryText: "#8c6a15",
+  secondaryText: "#725721",
   secondaryOnDark: "#f5e6b8",
   primarySoft: "#f4f9f5",
 
@@ -21,12 +21,12 @@ export const BRAND = {
   surfaceInverse: "#14281d",
 
   line: "#e6dfd5",
-  lineStrong: "#d6cfc5",
+  lineStrong: "#8c8880",
 
   ink: "#1a1816",
   inkBody: "#59534b",
   inkMuted: "#6a6660",
-  inkSubtle: "#78716c",
+  inkSubtle: "#6b6660",
   onInverse: "#faf8f5",
   onInverseMuted: "#a8cbb5",
 

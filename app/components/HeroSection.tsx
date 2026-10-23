@@ -20,7 +20,7 @@ import { useConsultation } from "@/app/context/ConsultationContext";
  * PORTRAIT: the Hakim's photo (public/images/hkm.png) fills the desktop arch.
  */
 
-const PORTRAIT_SRC = "/images/hkm.png";
+const PORTRAIT_SRC = "/images/hkm.webp";
 
 const CONDITIONS = [
   { icon: "🌿", title: "Gastric & digestion", concern: "Stomach, Gas & Acid Relief" },
@@ -204,7 +204,7 @@ export default function HeroSection() {
               <span className="whitespace-nowrap">Tameer-e-Sehat</span>
             </h1>
 
-            <p className="mt-3 max-w-md text-[15px] leading-relaxed text-sand-100/80 sm:mt-4 sm:text-lg lg:text-sand-100/75">
+            <p className="mt-3 max-w-md text-[15px] leading-relaxed text-sand-100/90 sm:mt-4 sm:text-lg lg:text-sand-100/90">
               Explore pure herbs, traditional Unani care, and herbal products
               for your everyday wellness needs.
             </p>
@@ -222,7 +222,7 @@ export default function HeroSection() {
 
               <a
                 href="#remedies"
-                className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-sand-50/35 px-7 text-[15px] font-medium text-sand-50 transition hover:border-brand-gold-400 hover:text-brand-gold-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold-400 active:scale-[0.98] sm:h-14 sm:w-auto sm:text-base"
+                className="group inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-sand-50/50 px-7 text-[15px] font-medium text-sand-50 transition hover:border-brand-gold-400 hover:text-brand-gold-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-gold-400 active:scale-[0.98] sm:h-14 sm:w-auto sm:text-base"
               >
                 Browse remedies
                 <ArrowRight
@@ -240,7 +240,7 @@ export default function HeroSection() {
           <div
             className={`mt-6 sm:mt-8 lg:block ${chipRows === 0 ? "hidden" : ""}`}
           >
-            <p className="mb-2 text-xs font-medium text-sand-100/70 sm:text-sm lg:text-sand-100/65">
+            <p className="mb-2 text-xs font-medium text-sand-100/90 sm:text-sm lg:text-sand-100/90">
               What is troubling you?
             </p>
             <div className="-mx-5 max-w-[100vw] overflow-x-auto px-5 [mask-image:linear-gradient(to_right,black_90%,transparent)] [scrollbar-width:none] sm:mx-0 sm:max-w-none sm:overflow-visible sm:px-0 sm:[mask-image:none] [&::-webkit-scrollbar]:hidden">
@@ -256,7 +256,7 @@ export default function HeroSection() {
                     <button
                       type="button"
                       onClick={() => pickCondition(c)}
-                      className="inline-flex h-9 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-sand-50/20 bg-sand-50/[0.06] px-3 text-xs font-medium text-sand-50 transition hover:border-brand-gold-400 hover:bg-sand-50/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-gold-400 active:scale-[0.97] sm:h-10 sm:gap-2 sm:px-3.5 sm:text-sm"
+                      className="inline-flex h-9 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-sand-50/50 bg-sand-50/[0.06] px-3 text-xs font-medium text-sand-50 transition hover:border-brand-gold-400 hover:bg-sand-50/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-brand-gold-400 active:scale-[0.97] sm:h-10 sm:gap-2 sm:px-3.5 sm:text-sm"
                     >
                       <span aria-hidden>{c.icon}</span>
                       {c.title}
@@ -268,12 +268,12 @@ export default function HeroSection() {
           </div>
 
           {/* Phone/tablet trust line: one small line, hidden on very short screens */}
-          <p ref={trustRef} className="mt-6 text-[11px] text-sand-100/60 sm:text-xs lg:hidden [@media(max-height:560px)]:hidden">
+          <p ref={trustRef} className="mt-6 text-[11px] text-sand-100/85 sm:text-xs lg:hidden [@media(max-height:560px)]:hidden">
             Since 1990 &nbsp;·&nbsp; Matab Korangi &nbsp;·&nbsp; Cash on delivery
           </p>
 
           {/* Desktop trust line (original) */}
-          <p className="mt-10 hidden text-sm text-sand-100/60 lg:block [@media(max-height:700px)]:hidden">
+          <p className="mt-10 hidden text-sm text-sand-100/85 lg:block [@media(max-height:700px)]:hidden">
             Since 1990 &nbsp;·&nbsp; Matab Korangi, Karachi &nbsp;·&nbsp; Cash on
             delivery
           </p>

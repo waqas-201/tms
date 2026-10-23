@@ -582,7 +582,7 @@ export default function CheckoutPage() {
                     value={formData.fullName}
                     onChange={handleChange}
                     placeholder="e.g. Muhammad Bilal"
-                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
+                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line-strong rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
                   />
                 </div>
 
@@ -597,7 +597,7 @@ export default function CheckoutPage() {
                     value={formData.phone}
                     onChange={handleChange}
                     placeholder="0300-1234567"
-                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
+                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line-strong rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
                   />
                   <span className="text-[10px] text-ink-muted block">
                     Rider will call this number prior to parcel delivery.
@@ -614,7 +614,7 @@ export default function CheckoutPage() {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="bilal@example.com"
-                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
+                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line-strong rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
                   />
                 </div>
               </div>
@@ -657,7 +657,7 @@ export default function CheckoutPage() {
                     value={formData.address}
                     onChange={handleChange}
                     placeholder="House/Apartment #, Street, Block / Sector, Landmark"
-                    className="w-full text-xs p-3.5 bg-surface border border-line rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
+                    className="w-full text-xs p-3.5 bg-surface border border-line-strong rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
                   />
                 </div>
 
@@ -671,7 +671,7 @@ export default function CheckoutPage() {
                     value={formData.specialNotes}
                     onChange={handleChange}
                     placeholder="e.g. Please call before arrival, near Jamia Masjid..."
-                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
+                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line-strong rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
                   />
                 </div>
               </div>

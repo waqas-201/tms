@@ -120,7 +120,7 @@ function StatusTimeline({
                   ? active
                     ? "bg-secondary text-on-secondary ring-4 ring-secondary/20"
                     : "bg-surface-inverse text-white ring-4 ring-primary/10"
-                  : "bg-surface-sunken text-ink-subtle"
+                  : "bg-surface-sunken text-ink-muted border border-line-strong"
               }`}
             >
               {index < current ? (
@@ -131,7 +131,7 @@ function StatusTimeline({
             </div>
             <span
               className={`text-[11px] font-bold block leading-tight ${
-                reached ? "text-ink" : "text-ink-subtle"
+                reached ? "text-ink" : "text-ink-muted"
               }`}
             >
               {label}

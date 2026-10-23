@@ -699,7 +699,7 @@ export default function HijamaBookingModal({
                         </div>
                         <div
                           className={`text-[9px] mt-1 ${
-                            isPicked ? "text-success" : "text-ink-body"
+                            isPicked ? "text-brand-green-300 font-semibold" : "text-ink-body"
                           }`}
                         >
                           {sd.totalAvailableSeats === 0 ? "Full" : `${sd.totalAvailableSeats} slots open`}

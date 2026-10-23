@@ -565,7 +565,7 @@ export default function HijamaCalendarSection() {
                         <span className="text-xs font-bold">Male Ward</span>
                         <span
                           className={`text-[10px] mt-0.5 ${
-                            gender === "MALE" ? "text-brand-gold-500" : "text-ink-subtle"
+                            gender === "MALE" ? "text-brand-gold-200" : "text-ink-body"
                           }`}
                         >
                           Certified Hajjam
@@ -584,7 +584,7 @@ export default function HijamaCalendarSection() {
                         <span className="text-xs font-bold">Female Ward</span>
                         <span
                           className={`text-[10px] mt-0.5 ${
-                            gender === "FEMALE" ? "text-brand-gold-500" : "text-ink-subtle"
+                            gender === "FEMALE" ? "text-brand-gold-200" : "text-ink-body"
                           }`}
                         >
                           Certified Hajjama
@@ -639,7 +639,7 @@ export default function HijamaCalendarSection() {
                                 <div className="flex items-center justify-between">
                                   <span
                                     className={`text-[10px] font-bold uppercase tracking-wider ${
-                                      isPicked ? "text-secondary-text" : "text-secondary-text"
+                                      isPicked ? "text-brand-gold-200" : "text-secondary-text"
                                     }`}
                                   >
                                     ★ Sunnah {sd.hijriDay}th
@@ -660,7 +660,7 @@ export default function HijamaCalendarSection() {
                                   </div>
                                   <div
                                     className={`text-[10px] ${
-                                      isPicked ? "text-brand-green-300" : "text-ink-subtle"
+                                      isPicked ? "text-brand-green-300" : "text-ink-body"
                                     }`}
                                   >
                                     {sd.hijriMonthName}

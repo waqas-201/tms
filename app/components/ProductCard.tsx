@@ -391,7 +391,7 @@ export default function ProductCard({
                 <span className="text-[9px] sm:text-[10px] font-bold text-ink">
                   {product.rating}
                 </span>
-                <span className="text-[8px] sm:text-[9px] text-ink-subtle">
+                <span className="text-[10px] text-ink-body">
                   ({product.reviewCount})
                 </span>
               </div>

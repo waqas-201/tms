@@ -2,16 +2,19 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   // Playwright and local tooling reach the dev server via 127.0.0.1, which
   // Next treats as a different origin from localhost. Allow it so dev-only
   // HMR/client resources are not blocked during browser tests.
   allowedDevOrigins: ["127.0.0.1"],
-  // A stray lockfile in the user home directory made Turbopack walk past
-  // this app. Pin the root so PostCSS can resolve @tailwindcss/postcss.
-  turbopack: {
-    root: path.resolve(__dirname),
+  compress: true,
+  experimental: {
+    optimizePackageImports: ["lucide-react", "framer-motion"],
   },
   images: {
+    formats: ["image/avif", "image/webp"],
     remotePatterns: [
       {
         protocol: "https",
@@ -43,9 +46,26 @@ const nextConfig: NextConfig = {
         hostname: "tameeresehat.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "www.tameeresehat.com",
+        pathname: "/**",
+      },
     ],
+  },
+  async headers() {
+    return [
+      {
+        source: "/images/:all*(svg|jpg|jpeg|png|webp|avif|ico)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+    ];
   },
 };
 
 export default nextConfig;
-

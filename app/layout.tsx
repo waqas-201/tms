@@ -6,10 +6,9 @@ import { ConsultationProvider } from "@/app/context/ConsultationContext";
 import SmoothScroll from "@/app/components/SmoothScroll";
 import Header from "@/app/components/Header";
 import Footer from "@/app/components/Footer";
-import CartDrawer from "@/app/components/CartDrawer";
 import WhatsAppFloat from "@/app/components/WhatsAppFloat";
 import Toast from "@/app/components/Toast";
-import ConsultationModal from "@/app/components/ConsultationModal";
+import ClientModals from "@/app/components/ClientModals";
 import { CLINIC_INFO } from "@/app/data/products";
 import { BRAND } from "@/lib/brand-colors";
 
@@ -195,10 +194,9 @@ export default function RootLayout({
               <Header />
               <main className="flex-1">{children}</main>
               <Footer />
-              <CartDrawer />
               <WhatsAppFloat />
               <Toast />
-              <ConsultationModal />
+              <ClientModals />
             </SmoothScroll>
           </ConsultationProvider>
         </CartProvider>

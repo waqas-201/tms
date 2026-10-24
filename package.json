@@ -10,7 +10,9 @@
     "lint:colors": "eslint -c eslint.colors.config.mjs --no-config-lookup app components lib --max-warnings=0",
     "postinstall": "prisma generate",
     "test:e2e": "npx tsx scripts/e2e-test.ts",
-    "test:auth": "npx tsx scripts/test-auth-flows.ts"
+    "test:auth": "npx tsx scripts/test-auth-flows.ts",
+    "mcp:resend": "resend-mcp",
+    "mcp:resend:http": "resend-mcp --http --port 3000"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",
@@ -51,6 +53,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
+    "resend-mcp": "^2.27.1",
     "tsx": "^4.23.15",
     "typescript": "^5"
   }

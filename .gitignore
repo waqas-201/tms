@@ -10,6 +10,20 @@
 !.yarn/releases
 !.yarn/versions
 
+# local AI/editor config -- these files hold API keys, never commit them
+.cursor/
+.vscode/
+.mcp.json
+**/.mcp.json
+.claude/settings.local.json
+
+# local secrets / credentials
+*.key
+*.p12
+*.pfx
+secrets/
+.secrets/
+
 # testing
 /coverage
 

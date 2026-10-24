@@ -938,6 +938,115 @@ export async function sendAdminAppointmentNotificationEmail(params: AppointmentE
   }
 }
 
+export interface HijamaAdminNotificationParams {
+  fullName: string;
+  ticketNumber: string;
+  phone: string;
+  email?: string | null;
+  age: number;
+  gender: string;
+  appointmentDate: string;
+  appointmentSlot: string;
+  isSunnahDay?: boolean;
+  cuppingReason?: string | null;
+}
+
+/**
+ * Sends an urgent alert email to the clinic admin when a new Hijama booking is
+ * made through the public site.
+ */
+export async function sendAdminHijamaNotificationEmail(
+  params: HijamaAdminNotificationParams
+) {
+  try {
+    const adminEmail =
+      process.env.ADMIN_NOTIFICATION_EMAIL ||
+      process.env.ADMIN_EMAIL ||
+      "admin@tameeresehat.com";
+    const cleanAdminTo = adminEmail.includes("<")
+      ? adminEmail.match(/<([^>]+)>/)?.[1] || adminEmail
+      : adminEmail;
+
+    const {
+      fullName,
+      ticketNumber,
+      phone,
+      email,
+      age,
+      gender,
+      appointmentDate,
+      appointmentSlot,
+      isSunnahDay,
+      cuppingReason,
+    } = params;
+
+    const adminHijamaUrl = `${APP_URL}/admin?tab=hijama`;
+    const cleanPhone = phone.replace(/[^0-9]/g, "");
+    const whatsappUrl = `https://wa.me/${
+      cleanPhone.startsWith("0") ? "92" + cleanPhone.slice(1) : cleanPhone
+    }?text=${encodeURIComponent(
+      `Assalam-o-Alaikum ${fullName}, regarding your Hijama booking ${ticketNumber} at Tameer-e-Sehat:`
+    )}`;
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>New Hijama Booking Alert: ${ticketNumber}</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: ${BRAND.surface}; padding: 24px; color: ${BRAND.ink};">
+  <div style="max-width: 580px; margin: 0 auto; background: ${BRAND.surfaceRaised}; border-radius: 12px; border: 1px solid ${BRAND.line}; padding: 28px; box-shadow: 0 4px 12px ${BRAND.blackA05};">
+    <div style="background-color: ${BRAND.danger}; color: ${BRAND.surfaceRaised}; padding: 14px 20px; border-radius: 8px; margin-bottom: 20px;">
+      <h2 style="margin: 0; font-size: 18px;">New Hijama Booking Received</h2>
+      <p style="margin: 4px 0 0 0; font-size: 12px; color: ${BRAND.surfaceSunken};">Ticket: ${ticketNumber}${isSunnahDay ? " · Sunnah Day" : ""}</p>
+    </div>
+
+    <h3 style="font-size: 14px; color: ${BRAND.primary}; margin: 0 0 10px 0;">Patient &amp; Slot Details</h3>
+    <ul style="font-size: 13px; color: ${BRAND.inkBody}; line-height: 1.6; padding-left: 20px; margin: 0 0 16px 0;">
+      <li><strong>Patient Name:</strong> ${fullName}</li>
+      <li><strong>Contact Phone:</strong> ${phone}</li>
+      <li><strong>Email:</strong> ${email || "Not provided"}</li>
+      <li><strong>Age / Gender:</strong> ${age} years · ${gender}</li>
+      <li><strong>Appointment Date:</strong> ${appointmentDate}</li>
+      <li><strong>Time Slot:</strong> ${appointmentSlot}</li>
+      ${cuppingReason ? `<li><strong>Reason:</strong> ${cuppingReason}</li>` : ""}
+    </ul>
+
+    <div style="display: flex; gap: 10px; margin-top: 20px;">
+      <a href="${whatsappUrl}" target="_blank" style="display: inline-block; padding: 10px 18px; background-color: ${BRAND.whatsapp}; color: ${BRAND.onWhatsapp}; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px; margin-right: 8px;">
+        Chat on WhatsApp
+      </a>
+      <a href="${adminHijamaUrl}" target="_blank" style="display: inline-block; padding: 10px 18px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px;">
+        Open Admin Portal
+      </a>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    const { data, error } = await resend.emails.send(
+      withReplyTo({
+        from: DEFAULT_FROM,
+        to: [cleanAdminTo],
+        subject: `[URGENT] New Hijama Booking: ${ticketNumber} - ${fullName} (${appointmentDate})`,
+        html: htmlContent,
+      })
+    );
+
+    if (error) {
+      console.error("[Admin Hijama Notification Email Error]:", error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (err: any) {
+    console.error("[sendAdminHijamaNotificationEmail Exception]:", err);
+    return { success: false, error: err.message };
+  }
+}
+
 /**
  * Sends status update email to patient (e.g., CONFIRMED, RESCHEDULED, or CANCELLED).
  */

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { ROLES } from "@/lib/rbac";
+import { ROLES, isStaffRole } from "@/lib/rbac";
 import { getAvailableStock, reserveStockForOrder } from "@/lib/inventory";
+import { createAdminNotification } from "@/lib/notifications";
 import {
   sendOrderConfirmationEmail,
   sendAdminOrderNotificationEmail,
@@ -109,6 +110,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Staff accounts are for managing the platform only. They must never act
+    // as patients or place orders for themselves.
+    if (isStaffRole(dbUser.role)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Staff accounts cannot place patient orders. Please use the admin dashboard to manage orders.",
+          staffForbidden: true,
+        },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
     const {
       customerName,
@@ -126,6 +141,17 @@ export async function POST(request: NextRequest) {
     if (!customerName || !phone || !city || !address || !items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
         { success: false, error: "Please provide complete delivery details and cart items." },
+        { status: 400 }
+      );
+    }
+
+    const cleanPhone = String(phone).trim();
+    if (cleanPhone.replace(/\D/g, "").length < 7) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "A valid phone / WhatsApp number is required so the clinic can contact you.",
+        },
         { status: 400 }
       );
     }
@@ -241,11 +267,11 @@ export async function POST(request: NextRequest) {
         const createdOrder = await tx.order.create({
           data: {
             orderNumber,
-            customerName,
-            phone,
+            customerName: String(customerName).trim(),
+            phone: cleanPhone,
             email: email || null,
-            city,
-            address,
+            city: String(city).trim(),
+            address: String(address).trim(),
             deliveryNotes: finalDeliveryNotes,
             paymentMethod,
             paymentStatus: "PENDING",
@@ -292,6 +318,17 @@ export async function POST(request: NextRequest) {
       { maxWait: 20000, timeout: 30000 }
     );
 
+    // In-app staff alert (best-effort, never blocks the order response)
+    await createAdminNotification({
+      type: "ORDER",
+      title: `New order ${order.orderNumber}`,
+      message: `${String(customerName).trim()} · ₨ ${total.toLocaleString()} · ${String(
+        city
+      ).trim()} · ${cleanPhone}`,
+      link: "/admin?tab=orders",
+      entityId: order.id,
+    });
+
     // Trigger transactional emails in background (non-blocking)
     const targetEmail = email || session?.user?.email;
     const emailItems = resolvedItems.map((i) => ({
@@ -305,11 +342,11 @@ export async function POST(request: NextRequest) {
     if (targetEmail) {
       sendOrderConfirmationEmail({
         to: targetEmail,
-        customerName,
+        customerName: String(customerName).trim(),
         orderNumber: order.orderNumber,
-        phone,
-        city,
-        address,
+        phone: cleanPhone,
+        city: String(city).trim(),
+        address: String(address).trim(),
         deliveryNotes: finalDeliveryNotes,
         paymentMethod: paymentMethod === "COD" ? "Cash on Delivery (COD)" : paymentMethod,
         items: emailItems,
@@ -325,11 +362,11 @@ export async function POST(request: NextRequest) {
 
     sendAdminOrderNotificationEmail({
       to: "admin",
-      customerName,
+      customerName: String(customerName).trim(),
       orderNumber: order.orderNumber,
-      phone,
-      city,
-      address,
+      phone: cleanPhone,
+      city: String(city).trim(),
+      address: String(address).trim(),
       deliveryNotes: finalDeliveryNotes,
       paymentMethod: paymentMethod === "COD" ? "Cash on Delivery (COD)" : paymentMethod,
       items: emailItems,

@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useSession, signOut, sendVerificationEmail } from "@/lib/auth-client";
 import { useCart } from "@/app/context/CartContext";
 import { CLINIC_INFO, Product } from "@/app/data/products";
+import SurfaceFade from "@/app/components/motion/SurfaceFade";
 import { getSafeProductImage } from "@/lib/utils";
 import { isStaffRole } from "@/lib/rbac-base";
 import {
@@ -762,6 +763,7 @@ export default function AccountPage() {
         </div>
 
         {/* ─── TAB 1: ORDERS ─── */}
+        <SurfaceFade surfaceKey={activeTab}>
         {activeTab === "orders" && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -1446,6 +1448,7 @@ export default function AccountPage() {
             </div>
           </div>
         )}
+        </SurfaceFade>
 
       </div>
     </div>

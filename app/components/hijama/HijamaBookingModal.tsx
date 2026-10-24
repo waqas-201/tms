@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import {
   X,
   Calendar,
@@ -35,6 +35,8 @@ import { useSession, signIn, signUp } from "@/lib/auth-client";
 import { CLINIC_INFO } from "@/app/data/products";
 import { isStaffRole } from "@/lib/rbac-base";
 import AuthModal from "@/app/components/AuthModal";
+import StepTransition from "@/app/components/motion/StepTransition";
+import StepConnector from "@/app/components/motion/StepConnector";
 import {
   formatDateStr,
   getHijriDate,
@@ -76,6 +78,14 @@ export default function HijamaBookingModal({
 
   // Multi-step progress (1 to 5)
   const [step, setStep] = useState<number>(1);
+  const [stepDirection, setStepDirection] = useState<1 | -1>(1);
+  const stepBodyRef = useRef<HTMLDivElement>(null);
+
+  const goToStep = (next: number) => {
+    if (next === step) return;
+    setStepDirection(next > step ? 1 : -1);
+    setStep(next);
+  };
 
   // Step 1: Gender / Room Selection
   const [gender, setGender] = useState<"MALE" | "FEMALE">(initialGender);
@@ -290,6 +300,7 @@ export default function HijamaBookingModal({
       }
 
       setConfirmedBooking(json.data);
+      setStepDirection(1);
       setStep(5);
       onBookingSuccess?.(json.data);
     } catch (err: any) {
@@ -481,97 +492,63 @@ export default function HijamaBookingModal({
 
       {/* ─── Step Indicator (Steps 1 to 5) ─── */}
       <div className="bg-surface px-6 py-3 border-b border-line shrink-0">
-        <div className="flex items-center justify-between text-xs font-semibold text-ink-body">
-          <span className="flex items-center gap-1.5">
-            <span
-              className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
-                step >= 1
-                  ? "bg-primary text-white"
-                  : "bg-line text-ink-body"
-              }`}
-            >
-              1
-            </span>
-            <span className={step === 1 ? "text-primary font-bold" : ""}>
-              Wing
-            </span>
-          </span>
-
-          <span className="text-ink-subtle">──</span>
-
-          <span className="flex items-center gap-1.5">
-            <span
-              className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
-                step >= 2
-                  ? "bg-primary text-white"
-                  : "bg-line text-ink-body"
-              }`}
-            >
-              2
-            </span>
-            <span className={step === 2 ? "text-primary font-bold" : ""}>
-              Date &amp; Slot
-            </span>
-          </span>
-
-          <span className="text-ink-subtle">──</span>
-
-          <span className="flex items-center gap-1.5">
-            <span
-              className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
-                step >= 3
-                  ? "bg-primary text-white"
-                  : "bg-line text-ink-body"
-              }`}
-            >
-              3
-            </span>
-            <span className={step === 3 ? "text-primary font-bold" : ""}>
-              Screening
-            </span>
-          </span>
-
-          <span className="text-ink-subtle">──</span>
-
-          <span className="flex items-center gap-1.5">
-            <span
-              className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
-                step >= 4
-                  ? "bg-primary text-white"
-                  : "bg-line text-ink-body"
-              }`}
-            >
-              4
-            </span>
-            <span className={step === 4 ? "text-primary font-bold" : ""}>
-              Details
-            </span>
-          </span>
-
-          <span className="text-ink-subtle">──</span>
-
-          <span className="flex items-center gap-1.5">
-            <span
-              className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold ${
-                step === 5
-                  ? "bg-secondary text-ink"
-                  : "bg-line text-ink-body"
-              }`}
-            >
-              5
-            </span>
-            <span className={step === 5 ? "text-secondary-text font-bold" : ""}>
-              Ticket
-            </span>
-          </span>
+        <div className="flex items-center justify-between gap-1 text-xs font-semibold text-ink-body">
+          {[
+            { n: 1, label: "Wing" },
+            { n: 2, label: "Date & Slot" },
+            { n: 3, label: "Screening" },
+            { n: 4, label: "Details" },
+            { n: 5, label: "Ticket" },
+          ].map(({ n, label }, index) => (
+            <React.Fragment key={n}>
+              {index > 0 && (
+                <StepConnector done={step >= n} className="mx-1 min-w-2 shrink" />
+              )}
+              <span className="flex shrink-0 items-center gap-1.5">
+                <span
+                  className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold transition-all duration-200 ${
+                    n === 5
+                      ? step === 5
+                        ? "bg-secondary text-ink"
+                        : "bg-line text-ink-body"
+                      : step >= n
+                      ? "bg-primary text-white"
+                      : "bg-line text-ink-body"
+                  } ${step === n ? "scale-110" : ""}`}
+                >
+                  {n}
+                </span>
+                <span
+                  className={`transition-colors duration-200 ${
+                    step === n
+                      ? n === 5
+                        ? "text-secondary-text font-bold"
+                        : "text-primary font-bold"
+                      : ""
+                  }`}
+                >
+                  {label}
+                </span>
+              </span>
+            </React.Fragment>
+          ))}
         </div>
       </div>
 
       {/* ─── Scrollable Modal Body ─── */}
-      <div className="p-6 overflow-y-auto flex-1 space-y-6">
+      <div
+        ref={stepBodyRef}
+        data-lenis-prevent
+        className="p-6 overflow-y-auto flex-1"
+      >
+        <StepTransition
+          stepKey={step}
+          direction={stepDirection}
+          scrollRef={stepBodyRef}
+        >
         {/* ================= STEP 1: PRACTITIONER GENDER & ROOM ================= */}
         {step === 1 && (
-          <div className="space-y-5 animate-fade-in">
+          <div className="space-y-5">
             <div className="text-center max-w-md mx-auto space-y-1.5">
               <h3 className="font-serif text-xl font-bold text-ink">
                 Select Practitioner Gender &amp; Room
@@ -658,7 +635,7 @@ export default function HijamaBookingModal({
 
         {/* ================= STEP 2: DATE & SLOT SELECTION ================= */}
         {step === 2 && (
-          <div className="space-y-5 animate-fade-in">
+          <div className="space-y-5">
             {/* Quick-Pick Sunnah Dates Ribbon */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -837,7 +814,7 @@ export default function HijamaBookingModal({
 
         {/* ================= STEP 3: CLINICAL PRE-SCREENING ================= */}
         {step === 3 && (
-          <div className="space-y-5 animate-fade-in">
+          <div className="space-y-5">
             <div className="text-center max-w-md mx-auto space-y-1">
               <h3 className="font-serif text-xl font-bold text-ink flex items-center justify-center gap-1.5">
                 <HeartPulse className="w-5 h-5 text-danger" />
@@ -1057,7 +1034,7 @@ export default function HijamaBookingModal({
 
         {/* ================= STEP 4: PATIENT DETAILS & AUTH GATING ================= */}
         {step === 4 && (
-          <div className="space-y-4 animate-fade-in">
+          <div className="space-y-4">
             {!session?.user ? (
               <div className="space-y-4">
                 <div className="flex items-start gap-2.5 rounded-xl border border-success-line bg-success-soft p-4 text-xs">
@@ -1475,7 +1452,7 @@ export default function HijamaBookingModal({
 
         {/* ================= STEP 5: CONFIRMATION TICKET & DISPATCH ================= */}
         {step === 5 && confirmedBooking && (
-          <div className="space-y-6 animate-fade-in text-center py-2">
+          <div className="space-y-6 text-center py-2">
             <div className="w-16 h-16 rounded-full bg-brand-green-50 text-primary mx-auto flex items-center justify-center border-2 border-primary/30 shadow-md">
               <CheckCircle2 className="w-9 h-9 text-primary" />
             </div>
@@ -1609,6 +1586,7 @@ export default function HijamaBookingModal({
             </div>
           </div>
         )}
+        </StepTransition>
       </div>
 
       {/* ─── Footer Controls ─── */}
@@ -1618,8 +1596,9 @@ export default function HijamaBookingModal({
             {step > 1 ? (
               <button
                 type="button"
-                onClick={() => setStep((s) => s - 1)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-ink-body hover:text-ink hover:bg-white border border-transparent hover:border-line-strong flex items-center gap-1 transition-colors"
+                disabled={submitting}
+                onClick={() => goToStep(step - 1)}
+                className="px-4 py-2 rounded-xl text-xs font-semibold text-ink-body hover:text-ink hover:bg-white border border-transparent hover:border-line-strong flex items-center gap-1 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Back</span>
@@ -1636,7 +1615,7 @@ export default function HijamaBookingModal({
               <button
                 type="button"
                 disabled={!canProceedStep1}
-                onClick={() => setStep(2)}
+                onClick={() => goToStep(2)}
                 className="px-6 py-2.5 rounded-xl bg-primary hover:bg-brand-green-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition-all"
               >
                 <span>Continue to Date &amp; Slot</span>
@@ -1648,7 +1627,7 @@ export default function HijamaBookingModal({
               <button
                 type="button"
                 disabled={!canProceedStep2}
-                onClick={() => setStep(3)}
+                onClick={() => goToStep(3)}
                 className="px-6 py-2.5 rounded-xl bg-primary hover:bg-brand-green-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition-all"
               >
                 <span>Proceed to Safety Check</span>
@@ -1660,7 +1639,7 @@ export default function HijamaBookingModal({
               <button
                 type="button"
                 disabled={!canProceedStep3}
-                onClick={() => setStep(4)}
+                onClick={() => goToStep(4)}
                 className="px-6 py-2.5 rounded-xl bg-primary hover:bg-brand-green-800 text-white font-bold text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition-all"
               >
                 <span>Continue to Patient Details</span>

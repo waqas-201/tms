@@ -9,6 +9,7 @@ import Footer from "@/app/components/Footer";
 import WhatsAppFloat from "@/app/components/WhatsAppFloat";
 import Toast from "@/app/components/Toast";
 import ClientModals from "@/app/components/ClientModals";
+import RouteFade from "@/app/components/motion/RouteFade";
 import { CLINIC_INFO } from "@/app/data/products";
 import { BRAND } from "@/lib/brand-colors";
 
@@ -192,7 +193,9 @@ export default function RootLayout({
           <ConsultationProvider>
             <SmoothScroll>
               <Header />
-              <main className="flex-1">{children}</main>
+              <main className="flex-1">
+                <RouteFade>{children}</RouteFade>
+              </main>
               <Footer />
               <WhatsAppFloat />
               <Toast />

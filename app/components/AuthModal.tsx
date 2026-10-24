@@ -22,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import SurfaceFade from "@/app/components/motion/SurfaceFade";
 
 type AuthTab = "signin" | "signup";
 
@@ -175,6 +176,7 @@ export default function AuthModal({
           </div>
 
           <div className="mt-5">
+            <SurfaceFade surfaceKey={activeTab}>
             {activeTab === "signin" ? (
               <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-1.5">
@@ -322,6 +324,7 @@ export default function AuthModal({
                 </button>
               </form>
             )}
+            </SurfaceFade>
           </div>
         </div>
       </DialogContent>

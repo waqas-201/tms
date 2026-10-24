@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import StepTransition from "@/app/components/motion/StepTransition";
 import {
   X,
   UploadCloud,
@@ -541,6 +542,12 @@ export default function ProductFormModal({
 
   // Stepper State (1: Basics, 2: Price & Stock, 3: Photos & Review)
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(1);
+  const [stepDirection, setStepDirection] = useState<1 | -1>(1);
+
+  const jumpToStep = (next: 1 | 2 | 3) => {
+    setStepDirection(next > currentStep ? 1 : -1);
+    setCurrentStep(next);
+  };
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const [categories, setCategories] = useState<CategoryItem[]>([]);
@@ -811,9 +818,11 @@ export default function ProductFormModal({
       }
     }
     setError(null);
+    setStepDirection(step > currentStep ? 1 : -1);
     setCurrentStep(step);
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      // Instant, not smooth: the step body is already animating in.
+      scrollContainerRef.current.scrollTo({ top: 0, behavior: "auto" });
     }
   };
 
@@ -1112,19 +1121,19 @@ export default function ProductFormModal({
     // Validation
     if (!formData.name.trim()) {
       setError("Please enter the Product Title.");
-      setCurrentStep(1);
+      jumpToStep(1);
       return;
     }
 
     if (gallery.length === 0) {
       setError("Please upload or add at least one product photo in Step 3.");
-      setCurrentStep(3);
+      jumpToStep(3);
       return;
     }
 
     if (variantsList.length === 0) {
       setError("Please add at least one packaging variant in Step 2.");
-      setCurrentStep(2);
+      jumpToStep(2);
       return;
     }
 
@@ -1370,9 +1379,14 @@ export default function ProductFormModal({
             </div>
           )}
 
+          <StepTransition
+            stepKey={currentStep}
+            direction={stepDirection}
+            scrollRef={scrollContainerRef}
+          >
           {/* ================= STEP 1: BASICS & HERBAL INTELLIGENCE ================= */}
           {currentStep === 1 && (
-            <div className="space-y-5 animate-fade-in">
+            <div className="space-y-5">
               {/* Herbal Intelligence Hero Box */}
               <div className="p-4 rounded-2xl bg-gradient-to-br from-sand-50 to-success-soft/50 border border-line flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div className="space-y-0.5">
@@ -1662,7 +1676,7 @@ export default function ProductFormModal({
 
           {/* ================= STEP 2: PACK SIZES, PRICING & STOCK ================= */}
           {currentStep === 2 && (
-            <div className="space-y-5 animate-fade-in">
+            <div className="space-y-5">
               {/* Inline Unit Creator Popover */}
               {isInlineUnitOpen && (
                 <div className="p-4 rounded-2xl bg-warning-soft/80 border border-warning-line space-y-3 animate-fade-in">
@@ -1979,7 +1993,7 @@ export default function ProductFormModal({
 
           {/* ================= STEP 3: PHOTOS & LIVE CATALOG REVIEW ================= */}
           {currentStep === 3 && (
-            <div className="space-y-5 animate-fade-in">
+            <div className="space-y-5">
               {/* Photo Upload & Gallery */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -2263,6 +2277,7 @@ export default function ProductFormModal({
               </div>
             </div>
           )}
+          </StepTransition>
         </div>
 
         {/* Sticky Bottom Navigation Dock */}

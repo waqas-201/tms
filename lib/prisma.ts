@@ -4,6 +4,43 @@ import { Pool } from "pg";
 import path from "path";
 import fs from "fs";
 
+// Normalize postgres connection strings to prevent pg-connection-string SSL deprecation warnings
+export function normalizeConnectionString(raw: string): string {
+  if (!raw) return raw;
+  try {
+    const url = new URL(raw);
+    const sslmode = url.searchParams.get("sslmode");
+    if (
+      sslmode &&
+      ["require", "prefer", "verify-ca"].includes(sslmode) &&
+      !url.searchParams.has("uselibpqcompat")
+    ) {
+      url.searchParams.set("uselibpqcompat", "true");
+      return url.toString();
+    }
+  } catch {
+    // If raw string is not a valid URL (e.g. mock or socket), leave unchanged
+  }
+  return raw;
+}
+
+// Suppress pg-connection-string SSL security deprecation warning from polluting stderr / Vercel error logs
+if (typeof process !== "undefined" && typeof process.emitWarning === "function") {
+  const originalEmitWarning = process.emitWarning.bind(process);
+  (process as unknown as { emitWarning: typeof originalEmitWarning }).emitWarning = function (
+    warning: string | Error,
+    ...args: unknown[]
+  ) {
+    const message = typeof warning === "string" ? warning : warning?.message || "";
+    if (
+      message.includes("The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'")
+    ) {
+      return;
+    }
+    return (originalEmitWarning as (...a: unknown[]) => void)(warning, ...args);
+  };
+}
+
 // Load .env if DATABASE_URL is not set (e.g. standalone scripts, tsx)
 if (!process.env.DATABASE_URL) {
   const envPath = path.resolve(process.cwd(), ".env");
@@ -27,6 +64,10 @@ if (!process.env.DATABASE_URL) {
   }
 }
 
+if (process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = normalizeConnectionString(process.env.DATABASE_URL);
+}
+
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
   pgPool: Pool | undefined;
@@ -37,9 +78,10 @@ function getPrismaClient(): PrismaClient {
     return globalForPrisma.prisma;
   }
 
-  const connectionString =
+  const rawConnectionString =
     process.env.DATABASE_URL ||
     "postgresql://postgres:postgres@localhost:5432/placeholder_db?sslmode=disable";
+  const connectionString = normalizeConnectionString(rawConnectionString);
 
   if (!process.env.DATABASE_URL && process.env.NODE_ENV === "production") {
     console.warn(

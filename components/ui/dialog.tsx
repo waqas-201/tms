@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MOTION } from "@/lib/motion";
 
 const Dialog = DialogPrimitive.Root;
 const DialogTrigger = DialogPrimitive.Trigger;
@@ -27,7 +28,7 @@ const DialogOverlay = React.forwardRef<
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
+      transition={{ duration: MOTION.base, ease: MOTION.ease }}
       className={cn(
         "fixed inset-0 z-50 bg-surface-inverse/60 backdrop-blur-xs",
         className
@@ -54,10 +55,10 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 8 }}
+        initial={{ opacity: 0, scale: 0.97, y: 8 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: 8 }}
-        transition={{ type: "spring", damping: 26, stiffness: 340 }}
+        exit={{ opacity: 0, scale: 0.97, y: 8 }}
+        transition={{ duration: MOTION.base, ease: MOTION.ease }}
         className={cn(
           "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-line/80 bg-surface p-6 shadow-2xl duration-200 rounded-2xl sm:max-w-xl",
           className

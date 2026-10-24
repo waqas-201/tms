@@ -36,6 +36,8 @@ import {
 } from "@/lib/hijama-types";
 import Reveal from "./motion/Reveal";
 import AuthModal from "./AuthModal";
+import StepTransition from "./motion/StepTransition";
+import StepConnector from "./motion/StepConnector";
 
 export default function HijamaCalendarSection() {
   const { data: session } = useSession();
@@ -45,6 +47,13 @@ export default function HijamaCalendarSection() {
 
   /* ── 3-Step In-Screen State ── */
   const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [stepDirection, setStepDirection] = useState<1 | -1>(1);
+
+  const goToStep = (next: 1 | 2 | 3) => {
+    if (next === step) return;
+    setStepDirection(next > step ? 1 : -1);
+    setStep(next);
+  };
 
   // Step 1 State: Ward & Date
   const [gender, setGender] = useState<"MALE" | "FEMALE">("MALE");
@@ -341,6 +350,7 @@ export default function HijamaCalendarSection() {
   const resetBookingForm = () => {
     setConfirmedBooking(null);
     setSelectedSlot("");
+    setStepDirection(-1);
     setStep(1);
     setSubmitError(null);
   };
@@ -458,67 +468,50 @@ export default function HijamaCalendarSection() {
             /* ═══ 3-STEP IN-SCREEN FORM ═══ */
             <div className="space-y-6">
               {/* Minimal Step Indicator */}
-              <div className="flex items-center justify-between pb-3 border-b border-sand-100 text-xs font-semibold">
-                <button
-                  type="button"
-                  onClick={() => setStep(1)}
-                  className={`flex items-center gap-1.5 cursor-pointer ${
-                    step >= 1 ? "text-ink font-bold" : "text-ink-subtle"
-                  }`}
-                >
-                  <span
-                    className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                      step >= 1 ? "bg-surface-inverse text-white" : "bg-line text-ink-body"
-                    }`}
-                  >
-                    1
-                  </span>
-                  <span>Date &amp; Ward</span>
-                </button>
-
-                <span className="text-ink-subtle">──</span>
-
-                <button
-                  type="button"
-                  disabled={!selectedDate}
-                  onClick={() => selectedDate && setStep(2)}
-                  className={`flex items-center gap-1.5 ${
-                    step >= 2
-                      ? "text-ink font-bold cursor-pointer"
-                      : "text-ink-subtle cursor-not-allowed"
-                  }`}
-                >
-                  <span
-                    className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                      step >= 2 ? "bg-surface-inverse text-white" : "bg-line text-ink-body"
-                    }`}
-                  >
-                    2
-                  </span>
-                  <span>Time Slot</span>
-                </button>
-
-                <span className="text-ink-subtle">──</span>
-
-                <span
-                  className={`flex items-center gap-1.5 ${
-                    step === 3 ? "text-ink font-bold" : "text-ink-subtle"
-                  }`}
-                >
-                  <span
-                    className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
-                      step === 3 ? "bg-surface-inverse text-white" : "bg-line text-ink-body"
-                    }`}
-                  >
-                    3
-                  </span>
-                  <span>Details</span>
-                </span>
+              <div className="flex items-center justify-between gap-1 pb-3 border-b border-sand-100 text-xs font-semibold">
+                {[
+                  { n: 1 as const, label: "Date & Ward", enabled: true },
+                  { n: 2 as const, label: "Time Slot", enabled: Boolean(selectedDate) },
+                  { n: 3 as const, label: "Details", enabled: false },
+                ].map(({ n, label, enabled }, index) => {
+                  const isCurrent = step === n;
+                  const isReached = step >= n;
+                  return (
+                    <React.Fragment key={n}>
+                      {index > 0 && (
+                        <StepConnector
+                          done={step >= n}
+                          className="mx-1 min-w-2 shrink"
+                        />
+                      )}
+                      <button
+                        type="button"
+                        disabled={!enabled}
+                        onClick={() => enabled && goToStep(n)}
+                        className={`flex shrink-0 items-center gap-1.5 ${
+                          enabled ? "cursor-pointer" : "cursor-default"
+                        } ${isReached ? "text-ink font-bold" : "text-ink-subtle"}`}
+                      >
+                        <span
+                          className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] transition-all duration-200 ${
+                            isReached
+                              ? "bg-surface-inverse text-white"
+                              : "bg-line text-ink-body"
+                          } ${isCurrent ? "scale-110" : ""}`}
+                        >
+                          {n}
+                        </span>
+                        <span className="transition-colors duration-200">{label}</span>
+                      </button>
+                    </React.Fragment>
+                  );
+                })}
               </div>
 
-              {/* ──────────────── STEP 1: DATE & WARD ──────────────── */}
-              {step === 1 && (
-                <div className="space-y-5 animate-fade-in">
+              <StepTransition stepKey={step} direction={stepDirection}>
+                {/* ──────────────── STEP 1: DATE & WARD ──────────────── */}
+                {step === 1 && (
+                  <div className="space-y-5">
                   {/* Countdown notice strip */}
                   {nextSunnahCountdown && (
                     <div className="p-3 bg-surface border border-line rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-xs">
@@ -694,7 +687,7 @@ export default function HijamaCalendarSection() {
                   <button
                     type="button"
                     disabled={!selectedDate}
-                    onClick={() => setStep(2)}
+                    onClick={() => goToStep(2)}
                     className="w-full py-3 px-4 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                   >
                     <span>Continue to Time Slots</span>
@@ -705,7 +698,7 @@ export default function HijamaCalendarSection() {
 
               {/* ──────────────── STEP 2: TIME SLOTS ──────────────── */}
               {step === 2 && (
-                <div className="space-y-5 animate-fade-in">
+                <div className="space-y-5">
                   {/* Selected Date Summary Header */}
                   <div className="flex items-center justify-between p-3 bg-surface border border-line rounded-xl text-xs">
                     <div>
@@ -717,7 +710,7 @@ export default function HijamaCalendarSection() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setStep(1)}
+                      onClick={() => goToStep(1)}
                       className="text-xs text-primary font-semibold hover:underline cursor-pointer"
                     >
                       Change
@@ -796,7 +789,7 @@ export default function HijamaCalendarSection() {
                   <div className="flex items-center gap-2.5 pt-1">
                     <button
                       type="button"
-                      onClick={() => setStep(1)}
+                      onClick={() => goToStep(1)}
                       className="px-4 py-3 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
                     >
                       <ArrowLeft className="w-3.5 h-3.5" />
@@ -806,7 +799,7 @@ export default function HijamaCalendarSection() {
                     <button
                       type="button"
                       disabled={!selectedSlot}
-                      onClick={() => setStep(3)}
+                      onClick={() => goToStep(3)}
                       className="flex-1 py-3 px-4 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                     >
                       <span>Continue to Patient Details</span>
@@ -818,7 +811,7 @@ export default function HijamaCalendarSection() {
 
               {/* ──────────────── STEP 3: DETAILS & AUTHENTICATION GATE ──────────────── */}
               {step === 3 && (
-                <div className="space-y-4 animate-fade-in">
+                <div className="space-y-4">
                   {/* Summary strip */}
                   <div className="flex items-center justify-between p-3 bg-surface border border-line rounded-xl text-xs">
                     <div>
@@ -830,7 +823,7 @@ export default function HijamaCalendarSection() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setStep(2)}
+                      onClick={() => goToStep(2)}
                       className="text-xs text-primary font-semibold hover:underline cursor-pointer"
                     >
                       Change Slot
@@ -851,7 +844,7 @@ export default function HijamaCalendarSection() {
                       <div className="flex items-center gap-2.5 pt-1">
                         <button
                           type="button"
-                          onClick={() => setStep(2)}
+                          onClick={() => goToStep(2)}
                           className="px-4 py-2.5 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
                         >
                           <ArrowLeft className="w-3.5 h-3.5" />
@@ -981,7 +974,7 @@ export default function HijamaCalendarSection() {
                           <div className="flex items-center gap-2.5 pt-1">
                             <button
                               type="button"
-                              onClick={() => setStep(2)}
+                              onClick={() => goToStep(2)}
                               className="px-4 py-2.5 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
                             >
                               <ArrowLeft className="w-3.5 h-3.5" />
@@ -1112,7 +1105,7 @@ export default function HijamaCalendarSection() {
                           <div className="flex items-center gap-2.5 pt-1">
                             <button
                               type="button"
-                              onClick={() => setStep(2)}
+                              onClick={() => goToStep(2)}
                               className="px-4 py-2.5 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
                             >
                               <ArrowLeft className="w-3.5 h-3.5" />
@@ -1239,7 +1232,7 @@ export default function HijamaCalendarSection() {
                       <div className="flex items-center gap-2.5 pt-2">
                         <button
                           type="button"
-                          onClick={() => setStep(2)}
+                          onClick={() => goToStep(2)}
                           className="px-4 py-3 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
                         >
                           <ArrowLeft className="w-3.5 h-3.5" />
@@ -1268,6 +1261,7 @@ export default function HijamaCalendarSection() {
                   )}
                 </div>
               )}
+              </StepTransition>
             </div>
           )}
         </div>

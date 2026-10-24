@@ -1,6 +1,22 @@
 import type { NextConfig } from "next";
 import path from "path";
 
+// Normalize postgres connection string early so static prerendering and build steps don't trigger pg warnings
+if (process.env.DATABASE_URL) {
+  try {
+    const url = new URL(process.env.DATABASE_URL);
+    const sslmode = url.searchParams.get("sslmode");
+    if (
+      sslmode &&
+      ["require", "prefer", "verify-ca"].includes(sslmode) &&
+      !url.searchParams.has("uselibpqcompat")
+    ) {
+      url.searchParams.set("uselibpqcompat", "true");
+      process.env.DATABASE_URL = url.toString();
+    }
+  } catch {}
+}
+
 const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
@@ -57,6 +73,25 @@ const nextConfig: NextConfig = {
         pathname: "/**",
       },
     ],
+  },
+  async redirects() {
+    return [
+      {
+        source: "/product/:slug*",
+        destination: "/products/:slug*",
+        permanent: true,
+      },
+      {
+        source: "/shop",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/shop/:slug*",
+        destination: "/products/:slug*",
+        permanent: true,
+      },
+    ];
   },
   async headers() {
     return [

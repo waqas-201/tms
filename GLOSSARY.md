@@ -44,3 +44,21 @@ _Avoid_: Order ID, receipt number, serial number
 A patient-provided diagnostic document (lab test, prescription, or clinical photo) securely hosted and linked to their consultation dossier.
 _Avoid_: Generic upload, file link, asset
 
+### Motion
+
+**Step Transition**:
+The animated change from one step to the next inside a multi-step flow, such as the Hijama booking wizard or the product form.
+_Avoid_: Page transition, screen change, slide change
+
+**Route Transition**:
+The animated change caused by navigating from one URL to another.
+_Avoid_: Page load, screen transition, navigation animation
+
+**Surface Transition**:
+The animated appearance, dismissal, or content swap of an overlay surface, such as a modal, drawer, or tab panel.
+_Avoid_: Popup animation, tab effect
+
+**Motion Token**:
+A named duration or easing value shared by every transition in the app, so that motion stays consistent across surfaces.
+_Avoid_: Animation constant, timing config, bezier variable
+

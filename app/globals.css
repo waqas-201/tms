@@ -124,6 +124,18 @@
   --color-ink-subtle: var(--color-neutral-400);
 }
 
+/* ---------- Motion tokens ----------
+ * Mirror of `lib/motion.ts`. Every transition in the app draws from these; do
+ * not introduce a one-off duration here.
+ */
+:root {
+  --motion-fast: 120ms;
+  --motion-base: 240ms;
+  --motion-slow: 360ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-distance: 20px;
+}
+
 html {
   scroll-padding-top: 100px;
 }
@@ -189,7 +201,7 @@ h3,
   }
 }
 .animate-fade-in {
-  animation: tms-fade-in 0.25s ease-out both;
+  animation: tms-fade-in var(--motion-base) var(--motion-ease) both;
 }
 
 /* Cart badge / icon bump when the count changes */
@@ -270,7 +282,7 @@ h3,
   }
 }
 .animate-slide-up {
-  animation: tms-slide-up 0.5s ease-out both;
+  animation: tms-slide-up var(--motion-base) var(--motion-ease) both;
 }
 
 /* Right-sheet entrance (mobile nav, matches cart drawer side) */
@@ -283,8 +295,25 @@ h3,
   }
 }
 .animate-slide-in-right {
-  animation: tms-slide-in-right 0.25s ease-out both;
+  animation: tms-slide-in-right var(--motion-slow) var(--motion-ease) both;
 }
+
+/* ---------- Route transition ----------
+ * Page content fades in on pathname change (see RouteFade). CSS-only by
+ * design: no client JavaScript is required for the transition to complete.
+ */
+@keyframes tms-route-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.route-fade {
+  animation: tms-route-in var(--motion-base) var(--motion-ease) both;
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in,
@@ -293,7 +322,14 @@ h3,
   .animate-shimmer,
   .animate-pulse-ring,
   .animate-slide-up,
-  .animate-slide-in-right {
+  .animate-slide-in-right,
+  .route-fade {
     animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
   }
 }

@@ -36,6 +36,7 @@ import ClinicScheduleTab from "@/app/components/admin/ClinicScheduleTab";
 import HijamaTab from "@/app/components/admin/HijamaTab";
 import OrdersTab from "@/app/components/admin/OrdersTab";
 import NotificationBell from "@/app/components/admin/NotificationBell";
+import SurfaceFade from "@/app/components/motion/SurfaceFade";
 import { ROLES, isStaffRole } from "@/lib/rbac-base";
 
 type AdminTab =
@@ -288,6 +289,7 @@ export default function AdminDashboardPage() {
           </div>
         )}
 
+        <SurfaceFade surfaceKey={activeTab}>
         {activeTab === "orders" && <OrdersTab />}
 
         {activeTab === "products" && (
@@ -340,6 +342,7 @@ export default function AdminDashboardPage() {
         {activeTab === "hijama" && <HijamaTab />}
 
         {activeTab === "schedule" && <ClinicScheduleTab />}
+        </SurfaceFade>
       </main>
 
       {/* Modals */}

@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MOTION } from "@/lib/motion";
 
 const Sheet = DialogPrimitive.Root;
 const SheetTrigger = DialogPrimitive.Trigger;
@@ -24,7 +25,7 @@ const SheetOverlay = React.forwardRef<
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
+      transition={{ duration: MOTION.base, ease: MOTION.ease }}
       className={cn(
         "fixed inset-0 z-50 bg-surface-inverse/60 backdrop-blur-xs",
         className
@@ -85,7 +86,7 @@ const SheetContent = React.forwardRef<
           initial={selected.initial}
           animate={selected.animate}
           exit={selected.exit}
-          transition={{ type: "spring", damping: 28, stiffness: 300 }}
+          transition={{ duration: MOTION.slow, ease: MOTION.ease }}
           className={cn(
             "z-50 bg-surface p-6 text-ink focus:outline-none flex flex-col",
             selected.classes,

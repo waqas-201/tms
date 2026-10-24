@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import { ReactLenis, useLenis, type LenisRef } from "lenis/react";
 import { usePathname } from "next/navigation";
 import "lenis/dist/lenis.css";
@@ -10,14 +10,17 @@ interface SmoothScrollProps {
 }
 
 /**
- * Syncs Next.js route transitions with Lenis
- * Instantly resets scroll position to top (0, 0) on pathname change
+ * Syncs Next.js route transitions with Lenis.
+ *
+ * Resets scroll before the new page paints, so the incoming route never shows
+ * one frame of the outgoing route's scroll position — the visible scroll snap
+ * that made route changes feel broken.
  */
 function LenisRouteSync() {
   const pathname = usePathname();
   const lenis = useLenis();
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (lenis) {
       lenis.scrollTo(0, { immediate: true, lock: false });
     } else {

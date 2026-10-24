@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut, sendVerificationEmail } from "@/lib/auth-client";
 import { useCart } from "@/app/context/CartContext";
-import { Product } from "@/app/data/products";
+import { CLINIC_INFO, Product } from "@/app/data/products";
 import { getSafeProductImage } from "@/lib/utils";
 import { isStaffRole } from "@/lib/rbac-base";
 import {
@@ -1020,7 +1020,7 @@ export default function AccountPage() {
                         <span>Book Another</span>
                       </Link>
                       <a
-                        href="https://wa.me/923212176219"
+                        href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-whatsapp text-on-whatsapp text-xs font-bold rounded-lg shadow-xs hover:bg-whatsapp-hover transition-colors"
@@ -1145,7 +1145,7 @@ export default function AccountPage() {
                   and status.
                 </p>
                 <a
-                  href="https://wa.me/923212176219"
+                  href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-2.5 bg-whatsapp text-on-whatsapp text-xs font-bold uppercase rounded-xl hover:bg-whatsapp-hover transition-colors"
@@ -1276,7 +1276,7 @@ export default function AccountPage() {
                         Show this ticket at the clinic reception.
                       </span>
                       <a
-                        href="https://wa.me/923212176219"
+                        href={`https://wa.me/${CLINIC_INFO.whatsappNumber}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-whatsapp text-on-whatsapp text-xs font-bold rounded-lg shadow-xs hover:bg-whatsapp-hover transition-colors"

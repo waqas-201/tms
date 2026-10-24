@@ -256,21 +256,22 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Contact resolution (defaults to user account info)
+    // Contact resolution (defaults to user account info). A staff-created
+    // booking must never inherit the staff member's own contact details.
     const effectiveName =
       patientName?.trim() ||
       fullName?.trim() ||
-      session.user.name ||
+      (isStaffBooking ? "" : session.user.name) ||
       "Patient";
     const effectiveEmail = (
       patientEmail?.trim() ||
-      session.user.email ||
+      (isStaffBooking ? "" : session.user.email) ||
       ""
     ).toLowerCase();
     const effectivePhone =
       patientPhone?.trim() ||
       phone?.trim() ||
-      (session.user as any)?.phone ||
+      (isStaffBooking ? null : (session.user as any)?.phone) ||
       null;
 
     // Phone is mandatory: clinic staff must be able to call every patient.

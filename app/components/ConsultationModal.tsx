@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { CLINIC_INFO } from "@/app/data/products";
 import { useSession, signIn, signUp } from "@/lib/auth-client";
+import { isStaffRole } from "@/lib/rbac-base";
 import ConsultationContext, {
   ConsultationMode,
 } from "@/app/context/ConsultationContext";
@@ -112,7 +113,18 @@ export default function ConsultationModal({
     return toDateInputValue(tomorrow);
   });
   const [appointmentSlot, setAppointmentSlot] = useState("");
+  const [patientPhone, setPatientPhone] = useState("");
   const [symptomText, setSymptomText] = useState(resolvedInitialMessage);
+
+  const isStaff = isStaffRole((sessionData?.user as any)?.role);
+
+  // Prefill the mandatory contact number from the signed-in account.
+  useEffect(() => {
+    const accountPhone = (sessionData?.user as any)?.phone;
+    if (accountPhone) {
+      setPatientPhone((prev) => prev || accountPhone);
+    }
+  }, [sessionData?.user]);
 
   // Live availability state
   const [availability, setAvailability] = useState<any | null>(null);
@@ -254,12 +266,15 @@ export default function ConsultationModal({
       if (authPassword.length < 6) {
         throw new Error("Password must be at least 6 characters.");
       }
+      if (authPhone.replace(/\D/g, "").length < 7) {
+        throw new Error("Please enter a valid phone / WhatsApp number.");
+      }
 
       const res = await signUp.email({
         name: authName.trim(),
         email: lowerEmail,
         password: authPassword,
-        phone: authPhone.trim() || undefined,
+        phone: authPhone.trim(),
       } as any);
 
       if (res.error) {
@@ -386,6 +401,20 @@ export default function ConsultationModal({
     e.preventDefault();
     setBookingError(null);
 
+    if (isStaff) {
+      setBookingError(
+        "Staff accounts cannot book consultations. Please use the admin dashboard to manage bookings."
+      );
+      return;
+    }
+
+    if (patientPhone.replace(/\D/g, "").length < 7) {
+      setBookingError(
+        "Please enter a valid phone / WhatsApp number so the clinic can contact you."
+      );
+      return;
+    }
+
     if (!appointmentSlot) {
       setBookingError("Please select an available consultation time slot.");
       return;
@@ -406,6 +435,7 @@ export default function ConsultationModal({
           appointmentDate,
           appointmentSlot,
           consultationType,
+          patientPhone: patientPhone.trim(),
           primarySymptoms: symptomText.trim() || undefined,
           reportUrl: attachedFile?.url || undefined,
           reportName: attachedFile?.name || undefined,
@@ -705,12 +735,13 @@ Please confirm my appointment.`;
 
                       <div className="space-y-1">
                         <label className="text-xs font-semibold text-ink">
-                          Phone / WhatsApp <span className="text-xs font-normal text-ink-subtle">(Optional)</span>
+                          Phone / WhatsApp <span className="text-danger">*</span>
                         </label>
                         <div className="relative">
                           <Phone className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
                           <input
                             type="tel"
+                            required
                             value={authPhone}
                             onChange={(e) => setAuthPhone(e.target.value)}
                             placeholder="0300-1234567"
@@ -803,6 +834,17 @@ Please confirm my appointment.`;
                     </div>
                   )}
 
+                  {isStaff && (
+                    <div className="p-3 bg-warning-soft border border-warning-line rounded-xl text-xs text-warning flex items-start gap-2">
+                      <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span>
+                        You are signed in with a staff account. Staff accounts
+                        manage the clinic and cannot book consultations for
+                        themselves.
+                      </span>
+                    </div>
+                  )}
+
                   {/* Consultation Mode Picker */}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-ink uppercase tracking-wider">
@@ -851,10 +893,33 @@ Please confirm my appointment.`;
                     </div>
                   </div>
 
+                  {/* Mandatory Contact Number */}
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-ink uppercase tracking-wider">
+                      2. Phone / WhatsApp Number{" "}
+                      <span className="text-danger">*</span>
+                    </label>
+                    <div className="relative">
+                      <Phone className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="tel"
+                        required
+                        value={patientPhone}
+                        onChange={(e) => setPatientPhone(e.target.value)}
+                        placeholder="0300-1234567"
+                        className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white font-medium"
+                      />
+                    </div>
+                    <p className="text-[11px] text-ink-subtle">
+                      The clinic will call or WhatsApp you on this number about
+                      your appointment.
+                    </p>
+                  </div>
+
                   {/* Date & Slot Picker */}
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-ink uppercase tracking-wider flex items-center justify-between">
-                      <span>2. Select Appointment Date &amp; Slot</span>
+                      <span>3. Select Appointment Date &amp; Slot</span>
                       {availability && (
                         <span className="text-[11px] font-normal text-ink-subtle">
                           {availability.dayName} Clinical Hours
@@ -946,7 +1011,7 @@ Please confirm my appointment.`;
                   <div className="space-y-2 pt-1 border-t border-sand-100">
                     <div className="flex items-center justify-between">
                       <label className="text-xs font-bold text-ink uppercase tracking-wider">
-                        3. Health Concern / Notes{" "}
+                        4. Health Concern / Notes{" "}
                         <span className="text-[11px] font-normal text-ink-subtle">
                           (Optional)
                         </span>

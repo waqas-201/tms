@@ -40,6 +40,12 @@ function RegisterForm() {
         throw new Error("Password must be at least 8 characters long.");
       }
 
+      // Phone is mandatory so clinic staff can always reach a customer about
+      // an order or consultation.
+      if (formData.phone.replace(/\D/g, "").length < 10) {
+        throw new Error("Please enter a valid phone / WhatsApp number.");
+      }
+
       const safeRedirect =
         redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")
           ? redirectParam
@@ -136,10 +142,11 @@ function RegisterForm() {
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-ink">
-              Phone / WhatsApp
+              Phone / WhatsApp <span className="text-danger">*</span>
             </label>
             <input
               type="tel"
+              required
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               placeholder="0300-1234567"

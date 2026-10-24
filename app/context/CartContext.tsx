@@ -2,6 +2,8 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product, ProductSize, CLINIC_INFO } from "@/app/data/products";
+import { useSession } from "@/lib/auth-client";
+import { isStaffRole } from "@/lib/rbac-base";
 
 export interface CartItem {
   product: Product;
@@ -113,6 +115,9 @@ function matchesItemSize(
 }
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const { data: sessionData } = useSession();
+  const isStaff = isStaffRole((sessionData?.user as { role?: string })?.role);
+
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
@@ -196,6 +201,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     selectedSize?: ProductSize,
     quantity: number = 1
   ) => {
+    // Staff accounts manage the clinic; they are not customers.
+    if (isStaff) {
+      showToast(
+        "Staff accounts cannot place customer orders. Use the admin dashboard to manage the store."
+      );
+      return;
+    }
+
     const size =
       selectedSize ||
       (product.sizes && product.sizes.length > 0
@@ -295,6 +308,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Wishlist actions
   const toggleWishlist = (productId: string) => {
+    if (isStaff) {
+      showToast("Staff accounts do not have a customer wishlist.");
+      return;
+    }
+
     setWishlist((prev) => {
       const exists = prev.includes(productId);
       if (exists) {

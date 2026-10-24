@@ -110,6 +110,7 @@ export default function Header() {
   const { totalItems, setIsCartOpen, wishlist } = useCart();
   const { data: session } = useSession();
   const { openConsultation, isOpen: isConsultOpen } = useConsultation();
+  const isStaff = isStaffRole((session?.user as { role?: string })?.role);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -733,46 +734,46 @@ export default function Header() {
                           </p>
                         </div>
                         <Link
-                          href="/account"
+                          href={isStaff ? "/admin" : "/account"}
                           onClick={() => setIsUserMenuOpen(false)}
                           className="w-full px-3.5 py-2 text-left text-primary hover:bg-surface flex items-center gap-2 font-semibold"
                         >
-                          <User className="w-3.5 h-3.5 text-brand-green-600" />
-                          <span>My Account &amp; Orders</span>
-                        </Link>
-                        <Link
-                          href="/wishlist"
-                          onClick={() => setIsUserMenuOpen(false)}
-                          className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center justify-between"
-                        >
-                          <div className="flex items-center gap-2">
-                            <Heart className="w-3.5 h-3.5 text-danger" />
-                            <span>Saved Remedies</span>
-                          </div>
-                          {wishlist.length > 0 && (
-                            <span className="px-1.5 py-0.2 bg-danger-soft text-danger text-[10px] font-bold rounded-full">
-                              {wishlist.length}
-                            </span>
+                          {isStaff ? (
+                            <Shield className="w-3.5 h-3.5 text-brand-green-600" />
+                          ) : (
+                            <User className="w-3.5 h-3.5 text-brand-green-600" />
                           )}
+                          <span>
+                            {isStaff ? "Admin Dashboard" : "My Account & Orders"}
+                          </span>
                         </Link>
-                        {isStaffRole((session.user as { role?: string }).role) && (
-                          <Link
-                            href="/admin"
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="w-full px-3.5 py-2 text-left text-primary hover:bg-surface flex items-center gap-2 font-medium"
-                          >
-                            <Shield className="w-3.5 h-3.5 text-secondary-text" />
-                            <span>Staff / Admin Portal</span>
-                          </Link>
+                        {!isStaff && (
+                          <>
+                            <Link
+                              href="/wishlist"
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center justify-between"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Heart className="w-3.5 h-3.5 text-danger" />
+                                <span>Saved Remedies</span>
+                              </div>
+                              {wishlist.length > 0 && (
+                                <span className="px-1.5 py-0.2 bg-danger-soft text-danger text-[10px] font-bold rounded-full">
+                                  {wishlist.length}
+                                </span>
+                              )}
+                            </Link>
+                            <Link
+                              href="/track-order"
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center gap-2"
+                            >
+                              <Truck className="w-3.5 h-3.5" />
+                              <span>Track My Orders</span>
+                            </Link>
+                          </>
                         )}
-                        <Link
-                          href="/track-order"
-                          onClick={() => setIsUserMenuOpen(false)}
-                          className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center gap-2"
-                        >
-                          <Truck className="w-3.5 h-3.5" />
-                          <span>Track My Orders</span>
-                        </Link>
                         <button
                           type="button"
                           onClick={() => {
@@ -838,44 +839,58 @@ export default function Header() {
                 )}
               </div>
 
-              <Link
-                href="/wishlist"
-                className="relative hidden xl:inline-flex p-2 text-ink-body hover:text-primary hover:bg-black/5 rounded-full transition-colors"
-                title="Saved Remedies & Wishlist"
-                aria-label="Wishlist"
-              >
-                <Heart
-                  className={`w-4 h-4 transition-colors ${
-                    wishlist.length > 0
-                      ? "text-danger fill-danger"
-                      : "text-ink-body"
-                  }`}
-                />
-                {wishlist.length > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-danger text-white font-bold text-[9px] rounded-full flex items-center justify-center shadow-xs">
-                    {wishlist.length}
-                  </span>
-                )}
-              </Link>
+              {isStaff ? (
+                <Link
+                  href="/admin"
+                  className="relative inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary text-white text-xs font-bold hover:bg-brand-green-800 transition-colors shadow-2xs"
+                  title="Open the staff dashboard"
+                  aria-label="Staff dashboard"
+                >
+                  <Shield className="w-3.5 h-3.5 text-brand-gold-300" />
+                  <span className="hidden sm:inline">Admin</span>
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/wishlist"
+                    className="relative hidden xl:inline-flex p-2 text-ink-body hover:text-primary hover:bg-black/5 rounded-full transition-colors"
+                    title="Saved Remedies & Wishlist"
+                    aria-label="Wishlist"
+                  >
+                    <Heart
+                      className={`w-4 h-4 transition-colors ${
+                        wishlist.length > 0
+                          ? "text-danger fill-danger"
+                          : "text-ink-body"
+                      }`}
+                    />
+                    {wishlist.length > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-danger text-white font-bold text-[9px] rounded-full flex items-center justify-center shadow-xs">
+                        {wishlist.length}
+                      </span>
+                    )}
+                  </Link>
 
-              <button
-                type="button"
-                onClick={openCart}
-                className="relative p-2 text-primary hover:bg-white rounded-full transition-colors border border-line bg-white shadow-2xs hover:shadow-xs"
-                aria-label="Shopping Cart"
-              >
-                <ShoppingBag
-                  key={totalItems}
-                  className={`w-4 h-4 text-primary ${
-                    totalItems > 0 ? "animate-pop" : ""
-                  }`}
-                />
-                {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-secondary text-on-secondary font-bold text-[9px] rounded-full flex items-center justify-center shadow-xs">
-                    {totalItems}
-                  </span>
-                )}
-              </button>
+                  <button
+                    type="button"
+                    onClick={openCart}
+                    className="relative p-2 text-primary hover:bg-white rounded-full transition-colors border border-line bg-white shadow-2xs hover:shadow-xs"
+                    aria-label="Shopping Cart"
+                  >
+                    <ShoppingBag
+                      key={totalItems}
+                      className={`w-4 h-4 text-primary ${
+                        totalItems > 0 ? "animate-pop" : ""
+                      }`}
+                    />
+                    {totalItems > 0 && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 bg-secondary text-on-secondary font-bold text-[9px] rounded-full flex items-center justify-center shadow-xs">
+                        {totalItems}
+                      </span>
+                    )}
+                  </button>
+                </>
+              )}
 
               {/* CTA button hidden for now per instructions */}
               {/* <div className="hidden xl:block h-6 w-[1px] bg-line mx-0.5" />
@@ -1090,21 +1105,23 @@ export default function Header() {
                     );
                   })}
 
-                  <Link
-                    href="/wishlist"
-                    onClick={closeMobileMenu}
-                    className="flex items-center justify-between py-2.5 px-3 text-sm font-semibold text-ink-body hover:bg-white rounded-xl transition-colors"
-                  >
-                    <div className="flex items-center gap-3">
-                      <Heart className="w-4 h-4 text-danger" />
-                      <span>Saved Remedies</span>
-                    </div>
-                    {wishlist.length > 0 && (
-                      <span className="px-2 py-0.5 bg-danger-soft text-danger text-[10px] font-bold rounded-full">
-                        {wishlist.length}
-                      </span>
-                    )}
-                  </Link>
+                  {!isStaff && (
+                    <Link
+                      href="/wishlist"
+                      onClick={closeMobileMenu}
+                      className="flex items-center justify-between py-2.5 px-3 text-sm font-semibold text-ink-body hover:bg-white rounded-xl transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Heart className="w-4 h-4 text-danger" />
+                        <span>Saved Remedies</span>
+                      </div>
+                      {wishlist.length > 0 && (
+                        <span className="px-2 py-0.5 bg-danger-soft text-danger text-[10px] font-bold rounded-full">
+                          {wishlist.length}
+                        </span>
+                      )}
+                    </Link>
+                  )}
 
                   <Link
                     href="/track-order"
@@ -1133,7 +1150,7 @@ export default function Header() {
                 {session ? (
                   <div className="flex items-center justify-between gap-3">
                     <Link
-                      href="/account"
+                      href={isStaff ? "/admin" : "/account"}
                       onClick={closeMobileMenu}
                       className="text-xs min-w-0"
                     >

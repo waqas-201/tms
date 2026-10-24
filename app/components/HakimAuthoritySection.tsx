@@ -128,7 +128,7 @@ export default function HakimAuthoritySection() {
                 <div className="flex items-center justify-between pt-1 text-[11px] text-ink-subtle border-t border-sand-100">
                   <span className="flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5 text-secondary-text" />
-                    <span>Rahat Commercial, DHA Phase 6, Karachi</span>
+                    <span>Korangi Crossing Rd, Korangi, Karachi</span>
                   </span>
                   <span className="font-semibold text-primary">Walk-ins &amp; Online</span>
                 </div>
@@ -264,7 +264,7 @@ export default function HakimAuthoritySection() {
               <div className="space-y-3">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-green-50 border border-brand-green-200 text-primary text-xs font-semibold">
                   <Building2 className="w-3.5 h-3.5 text-secondary-text" />
-                  <span>Karachi Clinic · DHA Phase 6</span>
+                  <span>Karachi Clinic · Korangi</span>
                 </div>
 
                 <div className="space-y-1.5">
@@ -290,7 +290,7 @@ export default function HakimAuthoritySection() {
                       {CLINIC_INFO.address}
                     </p>
                     <p className="text-[11px] text-ink-subtle">
-                      Easily accessible from DHA, Clifton, and across Karachi.
+                      Easily accessible from Korangi, Landhi, and across Karachi.
                     </p>
                   </div>
                   <div className="pt-2 border-t border-line/60">
@@ -335,7 +335,7 @@ export default function HakimAuthoritySection() {
               <div className="p-3 bg-brand-green-50 rounded-xl border border-brand-green-200 text-xs text-primary flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
                 <span>
-                  Located at Rahat Commercial in DHA Phase 6, with convenient parking outside the clinic.
+                  Located on Korangi Crossing Road in Korangi, Karachi, with convenient parking outside the clinic.
                 </span>
               </div>
             </div>
@@ -367,7 +367,7 @@ export default function HakimAuthoritySection() {
                     openConsultation({
                       mode: "PHYSICAL",
                       message:
-                        "Assalam-o-Alaikum Hakim Sahib, I would like to book an in-person consultation appointment at your DHA Phase 6 Karachi clinic.",
+                        "Assalam-o-Alaikum Hakim Sahib, I would like to book an in-person consultation appointment at your Korangi, Karachi clinic.",
                     })
                   }
                   className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer"
@@ -378,7 +378,7 @@ export default function HakimAuthoritySection() {
 
                 <a
                   href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(
-                    "Assalam-o-Alaikum Hakim Sahib, I would like to schedule an in-person clinic visit at your DHA Phase 6 Matab in Karachi."
+                    "Assalam-o-Alaikum Hakim Sahib, I would like to schedule an in-person clinic visit at your Korangi Matab in Karachi."
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"

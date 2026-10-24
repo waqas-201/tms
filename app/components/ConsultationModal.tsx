@@ -887,7 +887,7 @@ Please confirm my appointment.`;
                           </span>
                         </div>
                         <p className="text-[11px] text-ink-subtle mt-1">
-                          Visit Hakim Tahir Hameed at DHA Phase 6, Karachi.
+                          Visit Hakim Tahir Hameed at Korangi, Karachi.
                         </p>
                       </button>
                     </div>

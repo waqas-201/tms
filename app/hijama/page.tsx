@@ -5,7 +5,7 @@ import { CLINIC_INFO } from "@/app/data/products";
 export const metadata: Metadata = {
   title: "Sunnah Hijama (Wet Cupping) — Classical Healing by Prophetic Tradition",
   description:
-    "Sterile, physician-grade wet cupping administered by certified Hakims & Hajjama practitioners in Karachi. 100% single-use sterile cups, segregated male & female wings, authentic 17th, 19th, 21st Sunnah timings.",
+    "Sterile, physician-grade wet cupping administered by certified Hakeems & Hajjama practitioners in Karachi. 100% single-use sterile cups, segregated male & female wings, authentic 17th, 19th, 21st Sunnah timings.",
   keywords: [
     "Hijama Karachi",
     "Sunnah Cupping Pakistan",
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     title:
       "Sunnah Hijama (Wet Cupping) — Classical Healing by Prophetic Tradition | Tameer-e-Sehat",
     description:
-      "Sterile, physician-grade wet cupping administered by certified Hakims & Hajjama practitioners in Karachi. 100% single-use sterile cups, segregated wings, authentic lunar Sunnah timings.",
+      "Sterile, physician-grade wet cupping administered by certified Hakeems & Hajjama practitioners in Karachi. 100% single-use sterile cups, segregated wings, authentic lunar Sunnah timings.",
     url: "https://tameeresehat.com/hijama",
     siteName: "Tameer-e-Sehat",
     locale: "en_PK",

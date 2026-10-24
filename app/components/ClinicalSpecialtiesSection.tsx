@@ -66,7 +66,7 @@ export default function ClinicalSpecialtiesSection() {
           </h2>
 
           <p className="text-xs sm:text-sm text-ink-body leading-relaxed">
-            We treat the root constitutional imbalance (Mizaj) rather than masking symptoms. Type your symptoms or tap any condition below to initiate direct consultation with Hakim Sahib.
+            We treat the root constitutional imbalance (Mizaj) rather than masking symptoms. Type your symptoms or tap any condition below to initiate direct consultation with Hakeem Sahib.
           </p>
         </Reveal>
 
@@ -101,7 +101,7 @@ export default function ClinicalSpecialtiesSection() {
                   className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-primary hover:bg-brand-green-800 text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl sm:rounded-2xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 shrink-0 cursor-pointer group"
                 >
                   <Sparkles className="w-4 h-4 text-brand-gold-300 shrink-0" />
-                  <span>Consult Hakim Sahib</span>
+                  <span>Consult Hakeem Sahib</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0" />
                 </button>
               </div>

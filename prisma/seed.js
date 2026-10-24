@@ -62,15 +62,15 @@ async function run() {
     where: { email: "admin@tameeresehat.com" },
     update: {
       role: "admin",
-      name: "Hakim Tariq Mehmood",
-      phone: "0318-2311310",
+      name: "Hakeem Tahir Hameed",
+      phone: "0335-3547888",
       city: "Karachi",
     },
     create: {
       email: "admin@tameeresehat.com",
-      name: "Hakim Tariq Mehmood",
+      name: "Hakeem Tahir Hameed",
       role: "admin",
-      phone: "0318-2311310",
+      phone: "0335-3547888",
       city: "Karachi",
     },
   });

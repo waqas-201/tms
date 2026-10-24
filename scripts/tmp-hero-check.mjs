@@ -13,7 +13,7 @@ await page.waitForTimeout(4000);
 
 const info = await page.evaluate(() => {
   const hero = document.querySelector("#hero");
-  const img = document.querySelector('#hero img[alt*="Hakim Muhammad"]');
+  const img = document.querySelector('#hero img[alt*="Hakeem Tahir Hameed"]');
   const wrapper = hero?.parentElement;
   return {
     heroFound: !!hero,

@@ -3,9 +3,9 @@ import React from "react";
 import { CLINIC_INFO } from "@/app/data/products";
 
 export const metadata: Metadata = {
-  title: "Contact Us, Clinic Location & Hakim Timings",
+  title: "Contact Us, Clinic Location & Hakeem Timings",
   description:
-    "Visit Matab Tameer-e-Sehat in Korangi Karachi or contact our Hakim directly via WhatsApp & phone. Monday to Saturday clinic hours, directions, and FAQs.",
+    "Visit Matab Tameer-e-Sehat in Korangi Karachi or contact our Hakeem directly via WhatsApp & phone. Monday to Saturday clinic hours, directions, and FAQs.",
   alternates: {
     canonical: "https://tameeresehat.com/contact",
   },
@@ -66,7 +66,7 @@ export default function ContactLayout({
             name: "How does the online consultation work for other cities?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "If you live in Lahore, Islamabad, Rawalpindi, Peshawar, Quetta, or any other city across Pakistan, simply fill out our short consultation form or message us on WhatsApp. Our Hakim will review your symptoms and advise you directly.",
+              text: "If you live in Lahore, Islamabad, Rawalpindi, Peshawar, Quetta, or any other city across Pakistan, simply fill out our short consultation form or message us on WhatsApp. Our Hakeem will review your symptoms and advise you directly.",
             },
           },
           {

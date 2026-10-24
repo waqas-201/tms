@@ -56,7 +56,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     recoveryTime: "Relief in 3 Weeks",
     rating: 5,
     relativeTime: "2 months ago",
-    text: "Suffered from chronic acid reflux and burning stomach for over two years, relying on daily antacid pills. Hakim Muhammad Tariq diagnosed acute gastric heat and prescribed cold steam-distilled Arq Makoh and Arq Kasni. Within three weeks, the constant burning ceased completely. Genuine Tibbi healing with zero side effects.",
+    text: "Suffered from chronic acid reflux and burning stomach for over two years, relying on daily antacid pills. Hakeem Tahir Hameed diagnosed acute gastric heat and prescribed cold steam-distilled Arq Makoh and Arq Kasni. Within three weeks, the constant burning ceased completely. Genuine Tibbi healing with zero side effects.",
     source: "Google Business Profile",
     verified: true,
     avatarText: "MU",
@@ -72,7 +72,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     recoveryTime: "Marked Relief in 4 Weeks",
     rating: 5,
     relativeTime: "1 month ago",
-    text: "Ordered the steam distillates after an online consultation with Hakim Sahib. The freshness and aromatic potency of the Arqiyat is incomparable to commercial bottled products. My digestion feels remarkably light, morning heaviness is gone, and repeat ultrasound showed visible liver decongestion.",
+    text: "Ordered the steam distillates after an online consultation with Hakeem Sahib. The freshness and aromatic potency of the Arqiyat is incomparable to commercial bottled products. My digestion feels remarkably light, morning heaviness is gone, and repeat ultrasound showed visible liver decongestion.",
     source: "Google Business Profile",
     verified: true,
     avatarText: "SF",
@@ -88,7 +88,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     recoveryTime: "Mobility Restored in 14 Days",
     rating: 5,
     relativeTime: "3 weeks ago",
-    text: "At 58 years of age, climbing stairs was agonizing due to severe knee stiffness. Hakim Sahib recommended Tahiri Marham followed by warm herbal oil massage before bed. Within two weeks, the morning stiffness vanished. I can now pray normally without chairs.",
+    text: "At 58 years of age, climbing stairs was agonizing due to severe knee stiffness. Hakeem Sahib recommended Tahiri Marham followed by warm herbal oil massage before bed. Within two weeks, the morning stiffness vanished. I can now pray normally without chairs.",
     source: "Verified Patient",
     verified: true,
     avatarText: "TM",
@@ -104,7 +104,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     recoveryTime: "Relief in 48 Hours",
     rating: 5,
     relativeTime: "3 months ago",
-    text: "Visited the Korangi Crossing matab in person. Hakim Sahib took 20 minutes for a thorough pulse (Nabz) and eye examination. His pure Amaltas formulation gently restored natural gut motility without cramps. Our entire family now relies on Tameer-e-Sehat.",
+    text: "Visited the Korangi Crossing matab in person. Hakeem Sahib took 20 minutes for a thorough pulse (Nabz) and eye examination. His pure Amaltas formulation gently restored natural gut motility without cramps. Our entire family now relies on Tameer-e-Sehat.",
     source: "Google Business Profile",
     verified: true,
     avatarText: "ZB",
@@ -136,7 +136,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     recoveryTime: "Vigorous Energy in 3 Weeks",
     rating: 5,
     relativeTime: "4 weeks ago",
-    text: "Demanding corporate hours left me feeling chronically fatigued with mental brain fog. Hakim Tariq formulated a personalized dry-fruit Majoon and daily routine. My energy levels, mental focus, and restorative sleep have completely bounced back.",
+    text: "Demanding corporate hours left me feeling chronically fatigued with mental brain fog. Hakeem Tahir Hameed formulated a personalized dry-fruit Majoon and daily routine. My energy levels, mental focus, and restorative sleep have completely bounced back.",
     source: "Verified Patient",
     verified: true,
     avatarText: "AK",
@@ -168,7 +168,7 @@ const CURATED_PATIENT_STORIES: PatientStory[] = [
     recoveryTime: "Flexibility Restored in 10 Days",
     rating: 5,
     relativeTime: "5 months ago",
-    text: "I have been coming to Matab Tameer-e-Sehat since the early 1990s. Hakim Muhammad Tariq is one of the few true traditional tabibs remaining in Karachi who compounds medicines with classical purity, patience, and sincere devotion.",
+    text: "I have been coming to Matab Tameer-e-Sehat since the early 1990s. Hakeem Tahir Hameed is one of the few true traditional tabibs remaining in Karachi who compounds medicines with classical purity, patience, and sincere devotion.",
     source: "Google Business Profile",
     verified: true,
     avatarText: "AG",
@@ -586,12 +586,12 @@ export default function CommunityReviewsSection() {
                   <button
                     onClick={() =>
                       openConsultation({
-                        message: `Assalam-o-Alaikum Hakim Sahib, I was reading ${story.author}'s recovery story regarding ${story.concern} and would like to seek your clinical advice for my own symptoms.`,
+                        message: `Assalam-o-Alaikum Hakeem Sahib, I was reading ${story.author}'s recovery story regarding ${story.concern} and would like to seek your clinical advice for my own symptoms.`,
                         mode: "WHATSAPP",
                       })
                     }
                     className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-brand-green-50 hover:bg-primary text-primary hover:text-white text-xs font-semibold border border-brand-green-200 hover:border-primary transition-all cursor-pointer group/btn"
-                    title="Click to consult Hakim Muhammad Tariq regarding similar health symptoms"
+                    title="Click to consult Hakeem Tahir Hameed regarding similar health symptoms"
                   >
                     <MessageCircle className="w-3.5 h-3.5 text-primary group-hover/btn:text-white transition-colors" />
                     <span>Consult for Similar Symptoms</span>
@@ -632,7 +632,7 @@ export default function CommunityReviewsSection() {
             </div>
 
             <h3 className="font-serif text-xl sm:text-2xl lg:text-3xl font-bold text-white leading-tight">
-              Have You Consulted with Hakim Muhammad Tariq?
+              Have You Consulted with Hakeem Tahir Hameed?
             </h3>
 
             <p className="text-xs sm:text-sm text-on-inverse/85 leading-relaxed">
@@ -646,7 +646,7 @@ export default function CommunityReviewsSection() {
             <button
               onClick={() =>
                 openConsultation({
-                  message: "Assalam-o-Alaikum Hakim Sahib, I would like to book a confidential health consultation.",
+                  message: "Assalam-o-Alaikum Hakeem Sahib, I would like to book a confidential health consultation.",
                   mode: "WHATSAPP",
                 })
               }
@@ -660,7 +660,7 @@ export default function CommunityReviewsSection() {
             <button
               onClick={() =>
                 openConsultation({
-                  message: "I would like to book an in-person consultation appointment at the Karachi clinic with Hakim Muhammad Tariq.",
+                  message: "I would like to book an in-person consultation appointment at the Karachi clinic with Hakeem Tahir Hameed.",
                   mode: "PHYSICAL",
                 })
               }

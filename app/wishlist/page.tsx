@@ -120,7 +120,7 @@ export default function WishlistPage() {
     }, 0);
 
     const message = encodeURIComponent(
-      `Assalam-o-Alaikum Hakim Sahib, I have curated my saved herbal remedies list from Tameer-e-Sehat:\n\n${combinedList}\n\n*Estimated Total:* Rs. ${totalEstimate.toLocaleString()}\n\nPlease guide me regarding the right course dosage and how to proceed with the order.`
+      `Assalam-o-Alaikum Hakeem Sahib, I have curated my saved herbal remedies list from Tameer-e-Sehat:\n\n${combinedList}\n\n*Estimated Total:* Rs. ${totalEstimate.toLocaleString()}\n\nPlease guide me regarding the right course dosage and how to proceed with the order.`
     );
 
     const url = `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${message}`;
@@ -172,7 +172,7 @@ export default function WishlistPage() {
                 My Saved Remedies &amp; Formulations
               </h1>
               <p className="text-xs sm:text-sm text-ink-body max-w-2xl leading-relaxed">
-                Review your saved Unani herbs, natural syrups, and therapeutic oils. You can move items directly to your shopping bag, order via Cash on Delivery, or share your selection with Hakim Muhammad Waqas on WhatsApp.
+                Review your saved Unani herbs, natural syrups, and therapeutic oils. You can move items directly to your shopping bag, order via Cash on Delivery, or share your selection with Hakeem Tahir Hameed on WhatsApp.
               </p>
             </div>
 
@@ -192,7 +192,7 @@ export default function WishlistPage() {
                   className="px-4 py-2.5 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs font-bold rounded-xl transition-all shadow-xs hover:shadow-md flex items-center gap-2 cursor-pointer"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Share with Hakim</span>
+                  <span>Share with Hakeem</span>
                 </button>
               </div>
             )}
@@ -489,7 +489,7 @@ export default function WishlistPage() {
                 <Stethoscope className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-primary">Qualified Hakim Guidance</h3>
+                <h3 className="text-xs font-bold text-primary">Qualified Hakeem Guidance</h3>
                 <p className="text-[11px] text-ink-body mt-0.5">
                   Free consultation on herbal Mizaj compatibility, dosages, and dietary precautions.
                 </p>

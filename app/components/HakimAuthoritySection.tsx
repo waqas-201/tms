@@ -69,17 +69,17 @@ export default function HakimAuthoritySection() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 sm:space-y-16 relative z-10">
 
-        {/* ─── 1. Hakim Clinical Pedigree & Philosophy ─── */}
+        {/* ─── 1. Hakeem Clinical Pedigree & Philosophy ─── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
-          {/* Hakim Portrait & Clinical Practice Card (5 cols) */}
+          {/* Hakeem Portrait & Clinical Practice Card (5 cols) */}
           <Reveal className="lg:col-span-5 relative">
             <div className="relative rounded-3xl overflow-hidden shadow-xl border-2 border-line bg-white group">
               {/* Image Frame */}
               <div className="relative aspect-[4/4.2] sm:aspect-[4/4.4] w-full overflow-hidden bg-gradient-to-b from-sand-100 to-sand-200">
                 <Image
                   src="/images/hkm.png"
-                  alt="Hakim Muhammad Tariq Mahmood - Senior Tibbi Consultant at Tameer-e-Sehat Karachi"
+                  alt="Hakeem Tahir Hameed - Senior Tibbi Consultant at Tameer-e-Sehat Karachi"
                   fill
                   className="object-cover object-top transition-transform duration-700 group-hover:scale-102"
                   sizes="(max-width: 1024px) 100vw, 480px"
@@ -104,7 +104,7 @@ export default function HakimAuthoritySection() {
                 {/* Bottom Overlay on Image */}
                 <div className="absolute bottom-4 left-5 right-5 text-white space-y-0.5">
                   <h3 className="font-serif text-xl sm:text-2xl font-bold tracking-tight text-white drop-shadow-xs">
-                    Hakim Muhammad Tariq
+                    Hakeem Tahir Hameed
                   </h3>
                   <p className="text-xs text-white/90 font-medium leading-snug drop-shadow-xs">
                     Senior Tibbi Consultant &amp; Master Herbalist · Karachi Clinic
@@ -199,13 +199,13 @@ export default function HakimAuthoritySection() {
                 onClick={() =>
                   openConsultation({
                     message:
-                      "Assalam-o-Alaikum Hakim Sahib, I would like to consult with you regarding authentic herbal guidance for my health condition.",
+                      "Assalam-o-Alaikum Hakeem Sahib, I would like to consult with you regarding authentic herbal guidance for my health condition.",
                   })
                 }
                 className="px-6 py-3.5 bg-primary hover:bg-brand-green-800 text-white text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer group"
               >
                 <Sparkles className="w-4 h-4 text-brand-gold-300 shrink-0" />
-                <span>Consult Hakim Sahib</span>
+                <span>Consult Hakeem Sahib</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0" />
               </button>
 
@@ -272,7 +272,7 @@ export default function HakimAuthoritySection() {
                     Visit Our Clinic for Pulse Diagnosis (Nabz)
                   </h3>
                   <p className="text-xs sm:text-sm text-ink-body leading-relaxed">
-                    Prefer to visit in person? Come see Hakim Sahib at our Karachi clinic for a personal pulse check (<em>Nabz</em>) and custom herbal remedies prepared for your health.
+                    Prefer to visit in person? Come see Hakeem Sahib at our Karachi clinic for a personal pulse check (<em>Nabz</em>) and custom herbal remedies prepared for your health.
                   </p>
                 </div>
               </div>
@@ -356,7 +356,7 @@ export default function HakimAuthoritySection() {
                 </h4>
 
                 <p className="text-xs sm:text-sm text-on-inverse/85 leading-relaxed">
-                  Reserve your preferred time slot with Hakim Sahib to get a personal pulse check without waiting in line.
+                  Reserve your preferred time slot with Hakeem Sahib to get a personal pulse check without waiting in line.
                 </p>
               </div>
 
@@ -367,7 +367,7 @@ export default function HakimAuthoritySection() {
                     openConsultation({
                       mode: "PHYSICAL",
                       message:
-                        "Assalam-o-Alaikum Hakim Sahib, I would like to book an in-person consultation appointment at your Korangi, Karachi clinic.",
+                        "Assalam-o-Alaikum Hakeem Sahib, I would like to book an in-person consultation appointment at your Korangi, Karachi clinic.",
                     })
                   }
                   className="w-full flex items-center justify-center gap-2 py-3.5 px-4 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs sm:text-sm font-bold uppercase tracking-wider rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer"
@@ -378,7 +378,7 @@ export default function HakimAuthoritySection() {
 
                 <a
                   href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(
-                    "Assalam-o-Alaikum Hakim Sahib, I would like to schedule an in-person clinic visit at your Korangi Matab in Karachi."
+                    "Assalam-o-Alaikum Hakeem Sahib, I would like to schedule an in-person clinic visit at your Korangi Matab in Karachi."
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"

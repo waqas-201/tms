@@ -39,7 +39,7 @@ export default function WhatsAppConsultationBanner() {
               </div>
 
               <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-white leading-tight">
-                Direct Consultation with Hakim Muhammad Tariq
+                Direct Consultation with Hakeem Tahir Hameed
               </h2>
 
               <p className="text-xs sm:text-sm text-on-inverse/80 leading-relaxed">
@@ -73,7 +73,7 @@ export default function WhatsAppConsultationBanner() {
                 onClick={() =>
                   whatsappConsult.openConsultation({
                     mode: "WHATSAPP",
-                    message: "Assalam-o-Alaikum Hakim Sahib, I would like to seek herbal guidance regarding my health symptoms.",
+                    message: "Assalam-o-Alaikum Hakeem Sahib, I would like to seek herbal guidance regarding my health symptoms.",
                   })
                 }
                 className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-6 py-3.5 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs font-bold uppercase tracking-wider rounded-xl shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
@@ -88,7 +88,7 @@ export default function WhatsAppConsultationBanner() {
                 onClick={() =>
                   physicalConsult.openConsultation({
                     mode: "PHYSICAL",
-                    message: "I would like to book an in-person consultation appointment at the Karachi clinic with Hakim Muhammad Tariq.",
+                    message: "I would like to book an in-person consultation appointment at the Karachi clinic with Hakeem Tahir Hameed.",
                   })
                 }
                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-brand-green-900 hover:bg-brand-green-600 text-white text-xs font-bold uppercase tracking-wider rounded-xl border border-brand-green-600 transition-all text-center hover:scale-[1.02] active:scale-[0.98] cursor-pointer"

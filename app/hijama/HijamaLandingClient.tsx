@@ -1005,7 +1005,7 @@ export default function HijamaLandingClient() {
                       )}
                     </button>
                     <p className="text-center text-[11px] text-ink-subtle mt-2">
-                      No online payment required. Fee includes sterile single-use cups &amp; certified Hakim procedure.
+                      No online payment required. Fee includes sterile single-use cups &amp; certified Hakeem procedure.
                     </p>
                   </div>
                 </>

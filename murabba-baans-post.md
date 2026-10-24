@@ -33,7 +33,7 @@ Prepared with traditional care, 100% herbal, and free from synthetic additives o
 **Delivery:** Nationwide Cash on Delivery (COD) across Pakistan.
 
 **CTA:**
-Send a WhatsApp message to **+92 318 2311310** to place your order or consult with Hakim Muhammad Tariq regarding your family's herbal wellness plan.
+Send a WhatsApp message to **+92 335 3547888** to place your order or consult with Hakeem Tahir Hameed regarding your family's herbal wellness plan.
 
 **Hashtags:**
 #TameereSehat #MurabbaBaans #BambooPreserve #TibbeUnani #HerbalMedicine #HeightGrowth #BoneHealth #DesiNuskhe #KarachiHerbal #NaturalSupplements #PakistanCOD
@@ -86,7 +86,7 @@ Clean, modern sans-serif typography for headings and subheadings paired with dig
 All visible text must be reproduced exactly as supplied, including price and any ingredient/benefit callouts. Do not invent, alter, misspell, or replace any text.
 
 ## CTA
-"Order on WhatsApp: +92 318 2311310 | Cash on Delivery Nationwide"
+"Order on WhatsApp: +92 335 3547888 | Cash on Delivery Nationwide"
 
 ## BRANDING
 Include the official Tameer-e-Sehat rectangular green logo badge (#22623a background with white lettering and leaf emblem) neatly in the top corner.

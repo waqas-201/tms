@@ -621,7 +621,7 @@ export default function Header() {
                                 }}
                                 className="text-primary font-bold hover:underline"
                               >
-                                Ask a Hakim →
+                                Ask a Hakeem →
                               </button>
                             </div>
                           </div>
@@ -640,7 +640,7 @@ export default function Header() {
                         openConsult({
                           mode: "WHATSAPP",
                           message:
-                            "Assalam-o-Alaikum Hekeem Tahir Hameed Sahab, I would like to consult with you regarding authentic herbal guidance for my health.",
+                            "Assalam-o-Alaikum Hakeem Tahir Hameed Sahab, I would like to consult with you regarding authentic herbal guidance for my health.",
                         })
                       }
                       className={`text-sm font-medium transition-colors duration-150 relative py-1 flex items-center gap-1.5 cursor-pointer ${
@@ -1051,7 +1051,7 @@ export default function Header() {
                             openConsult({
                               mode: "WHATSAPP",
                               message:
-                                "Assalam-o-Alaikum Hekeem Tahir Hameed Sahab, I would like to consult with you regarding authentic herbal guidance for my health.",
+                                "Assalam-o-Alaikum Hakeem Tahir Hameed Sahab, I would like to consult with you regarding authentic herbal guidance for my health.",
                             })
                           }
                           className={`flex items-center gap-3 py-2.5 px-3 text-sm font-semibold rounded-xl transition-colors w-full text-left cursor-pointer ${

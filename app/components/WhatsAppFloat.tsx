@@ -16,7 +16,7 @@ export default function WhatsAppFloat() {
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Chat with Hakim / Tameer-e-Sehat on WhatsApp"
+      aria-label="Chat with Hakeem / Tameer-e-Sehat on WhatsApp"
       initial={reducedMotion ? { opacity: 1 } : { opacity: 0, scale: 0.8, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.5 }}
@@ -33,7 +33,7 @@ export default function WhatsAppFloat() {
       </div>
       <div className="flex flex-col text-left">
         <span className="text-[10px] tracking-wider uppercase text-brand-gold-200 font-semibold leading-none">
-          Online Hakim
+          Online Hakeem
         </span>
         <span className="text-xs font-medium text-on-primary leading-tight">
           Chat on WhatsApp

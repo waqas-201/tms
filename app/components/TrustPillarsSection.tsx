@@ -15,7 +15,7 @@ export default function TrustPillarsSection() {
     },
     {
       icon: UserCheck,
-      title: "35+ Yrs Hakim Pedigree",
+      title: "35+ Yrs Hakeem Pedigree",
       description: "Formulated and prescribed by qualified Unani practitioners.",
     },
     {

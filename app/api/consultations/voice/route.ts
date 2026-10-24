@@ -235,7 +235,7 @@ function renderAudioHtmlPlayer(id: string) {
   <div class="card">
     <div class="badge">🎙️ Patient Voice Note</div>
     <h1>Matab Tameer-e-Sehat</h1>
-    <p>Voice consultation message for <strong>Hakim Tahir Hameed</strong></p>
+    <p>Voice consultation message for <strong>Hakeem Tahir Hameed</strong></p>
     <audio controls autoplay src="/api/consultations/voice?id=${id}&raw=1"></audio>
     <div class="clinic-tag">Classical Unani Clinic & Dispensary · Est. 1990 Karachi</div>
   </div>

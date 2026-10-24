@@ -22,7 +22,7 @@ const FAQS = [
   },
   {
     q: "How does the online consultation work for other cities?",
-    a: "If you live in Lahore, Islamabad, Rawalpindi, Peshawar, Quetta, or any other city across Pakistan, simply fill out our short consultation form or message us on WhatsApp. Our Hakim will review your symptoms and advise you directly.",
+    a: "If you live in Lahore, Islamabad, Rawalpindi, Peshawar, Quetta, or any other city across Pakistan, simply fill out our short consultation form or message us on WhatsApp. Our Hakeem will review your symptoms and advise you directly.",
   },
   {
     q: "What are your delivery times and Cash on Delivery policy?",

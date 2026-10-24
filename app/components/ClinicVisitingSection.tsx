@@ -102,7 +102,7 @@ export default function ClinicVisitingSection() {
               </a>
 
               <a
-                href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent("Assalam-o-Alaikum Hakim Sahib, I would like to visit your Karachi clinic for a consultation.")}`}
+                href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent("Assalam-o-Alaikum Hakeem Sahib, I would like to visit your Karachi clinic for a consultation.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs"
@@ -130,7 +130,7 @@ export default function ClinicVisitingSection() {
                 </h3>
 
                 <p className="text-xs sm:text-sm text-on-inverse/90 leading-relaxed">
-                  Reserve a dedicated time slot with Hakim Tahir Hameed to avoid wait times.
+                  Reserve a dedicated time slot with Hakeem Tahir Hameed to avoid wait times.
                 </p>
 
                 <div className="p-3.5 rounded-xl bg-brand-green-900/80 border border-brand-green-600 text-xs space-y-1.5">

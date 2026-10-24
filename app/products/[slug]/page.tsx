@@ -984,7 +984,7 @@ export default function ProductDetailPage({
                 <div className="flex items-center gap-3">
                   <HeartHandshake className="w-4 h-4 text-ink" />
                   <span className="font-serif text-base sm:text-lg font-semibold text-ink">
-                    Hakim&apos;s Dosage &amp; Dietary Guidelines (Parhez)
+                    Hakeem&apos;s Dosage &amp; Dietary Guidelines (Parhez)
                   </span>
                 </div>
               </AccordionTrigger>
@@ -1004,7 +1004,7 @@ export default function ProductDetailPage({
                       </p>
                       {product.hakimAdvice && (
                         <p className="pt-2 border-t border-line text-neutral-700">
-                          <strong>Hakim&apos;s Clinical Advice:</strong> {product.hakimAdvice}
+                          <strong>Hakeem&apos;s Clinical Advice:</strong> {product.hakimAdvice}
                         </p>
                       )}
                     </div>
@@ -1019,7 +1019,7 @@ export default function ProductDetailPage({
                       <li>Avoid refrigerated cold water; drink room temperature water.</li>
                       <li>Avoid deep-fried and excessively spicy foods during treatment.</li>
                       <li>Keep a minimum 30-minute interval between heavy meals and dosage.</li>
-                      <li>For customized guidance during pregnancy, consult Hakim sahib on WhatsApp.</li>
+                      <li>For customized guidance during pregnancy, consult Hakeem Sahib on WhatsApp.</li>
                     </ul>
                   </div>
                 </div>

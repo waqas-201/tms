@@ -45,7 +45,7 @@ export default function QuickAppointmentBooking() {
 
   const generateWhatsAppUrl = (ticketNumber?: string) => {
     const mode = bookingType === "ONLINE" ? "Online Telehealth Consultation" : "In-Person Clinic Visit (Karachi)";
-    const text = `*Assalam-o-Alaikum Hakim Sahib (Appointment Request)*\n` +
+    const text = `*Assalam-o-Alaikum Hakeem Sahib (Appointment Request)*\n` +
       (ticketNumber ? `*Booking Ticket #:* ${ticketNumber}\n` : "") +
       `*Consultation Mode:* ${mode}\n` +
       `*Patient Name:* ${formData.fullName}\n` +
@@ -102,7 +102,7 @@ export default function QuickAppointmentBooking() {
           <Reveal className="lg:col-span-5 space-y-5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-green-50 border border-brand-green-200 text-primary text-xs font-semibold">
               <Calendar className="w-3.5 h-3.5 text-secondary-text" />
-              <span>Direct Hakim Consultation</span>
+              <span>Direct Hakeem Consultation</span>
             </div>
 
             <div className="space-y-2">
@@ -184,7 +184,7 @@ export default function QuickAppointmentBooking() {
                   </div>
 
                   <p className="text-xs text-ink-muted max-w-md mx-auto">
-                    Click below to open WhatsApp with your ticket for instant response from Hakim Sahib.
+                    Click below to open WhatsApp with your ticket for instant response from Hakeem Sahib.
                   </p>
 
                   <div className="pt-2 flex flex-col sm:flex-row gap-2.5 justify-center">

@@ -8,11 +8,11 @@ import { ChevronDown, ShieldCheck } from "lucide-react";
 const objections = [
   {
     q: "Do herbal remedies actually work for chronic conditions?",
-    a: "Unani medicine has over 2,000 years of clinical history across South Asia and the Middle East. Our Hakim prescribes formulations based on your individual body constitution (Mizaj), not generic advice. Over 150,000 patients have been treated at our clinic since 1990 — many after conventional treatments failed.",
+    a: "Unani medicine has over 2,000 years of clinical history across South Asia and the Middle East. Our Hakeem prescribes formulations based on your individual body constitution (Mizaj), not generic advice. Over 150,000 patients have been treated at our clinic since 1990 — many after conventional treatments failed.",
   },
   {
     q: "Is this safe? Are there any side effects?",
-    a: "Our remedies are made from pure botanical ingredients — hydro-distilled herbal waters (Arqiyat), natural fruit preserves (Murabba), and cold-pressed oils. Zero synthetic steroids, zero heavy metals, zero preservatives. Every formulation is prepared in small batches under direct Hakim supervision.",
+    a: "Our remedies are made from pure botanical ingredients — hydro-distilled herbal waters (Arqiyat), natural fruit preserves (Murabba), and cold-pressed oils. Zero synthetic steroids, zero heavy metals, zero preservatives. Every formulation is prepared in small batches under direct Hakeem supervision.",
   },
   {
     q: "I am not in Karachi. Can I still get treated?",
@@ -24,11 +24,11 @@ const objections = [
   },
   {
     q: "How long does it take to see results?",
-    a: "It depends on your condition, but many patients feel initial relief within 3–7 days. Acute issues like acidity and cough often improve within the first week. Chronic conditions like joint pain or liver detox typically follow a 21–30 day guided course. Your Hakim will set realistic expectations during your consultation.",
+    a: "It depends on your condition, but many patients feel initial relief within 3–7 days. Acute issues like acidity and cough often improve within the first week. Chronic conditions like joint pain or liver detox typically follow a 21–30 day guided course. Your Hakeem will set realistic expectations during your consultation.",
   },
   {
     q: "Is the consultation really free?",
-    a: "Yes. Your initial symptom review and Hakim assessment are completely free with zero obligation. You only pay for the herbal remedies if you decide to proceed with the prescribed treatment plan. No hidden charges, no subscriptions.",
+    a: "Yes. Your initial symptom review and Hakeem assessment are completely free with zero obligation. You only pay for the herbal remedies if you decide to proceed with the prescribed treatment plan. No hidden charges, no subscriptions.",
   },
 ];
 

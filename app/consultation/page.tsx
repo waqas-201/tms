@@ -16,8 +16,8 @@ function ConsultationRedirect() {
       mode: "WHATSAPP",
       concern: concern || undefined,
       message: concern
-        ? `Assalam-o-Alaikum Hakim Sahib, I would like consultation and remedy guidance for: ${concern}.`
-        : "Assalam-o-Alaikum Hekeem Tahir Hameed Sahab, I would like to consult with you regarding authentic herbal guidance for my health.",
+        ? `Assalam-o-Alaikum Hakeem Sahib, I would like consultation and remedy guidance for: ${concern}.`
+        : "Assalam-o-Alaikum Hakeem Tahir Hameed Sahab, I would like to consult with you regarding authentic herbal guidance for my health.",
     });
   }, [router, searchParams, openConsultation]);
 

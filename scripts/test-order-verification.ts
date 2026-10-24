@@ -11,7 +11,7 @@ async function runOrderVerificationSecurityTest() {
   const timestamp = Date.now();
   const testEmail = `order.verify.${timestamp}@tameeresehat.test`.toLowerCase();
   const testPassword = "SecurePassword123!";
-  const testName = "Hakim Verification Patient";
+  const testName = "Hakeem Verification Patient";
 
   let createdUserId: string | null = null;
   let activeSessionCookie: string | null = null;

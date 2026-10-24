@@ -17,8 +17,8 @@ export default function ConsultationProcessSection() {
     {
       number: "02",
       icon: Stethoscope,
-      title: "Hakim's Review",
-      description: "Our experienced Hakim reviews your health details carefully to find the root cause.",
+      title: "Hakeem's Review",
+      description: "Our experienced Hakeem reviews your health details carefully to find the root cause.",
     },
     {
       number: "03",
@@ -91,7 +91,7 @@ export default function ConsultationProcessSection() {
         <Reveal className="mt-12 bg-white rounded-xl p-6 sm:p-8 border border-line shadow-xs flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="space-y-1 text-center sm:text-left">
             <h4 className="font-serif text-base sm:text-lg font-bold text-primary">
-              Want to speak with an experienced Hakim?
+              Want to speak with an experienced Hakeem?
             </h4>
             <p className="text-xs text-ink-muted">
               Free initial symptom review · Fast reply within 2 to 4 hours on working days.
@@ -107,7 +107,7 @@ export default function ConsultationProcessSection() {
             </Link>
             <a
               href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(
-                "Assalam-o-Alaikum, I want to book an online consultation with the Hakim."
+                "Assalam-o-Alaikum, I want to book an online consultation with the Hakeem."
               )}`}
               target="_blank"
               rel="noopener noreferrer"

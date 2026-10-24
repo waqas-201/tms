@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     const userRole = (session.user as any)?.role;
     const where: Record<string, unknown> = {};
 
-    // Admin/Hakim sees all; regular user sees only their own
+    // Admin/Hakeem sees all; regular user sees only their own
     if (!isStaffRole(userRole)) {
       where.userId = session.user.id;
     }

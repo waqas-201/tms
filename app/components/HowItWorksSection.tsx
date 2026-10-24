@@ -28,9 +28,9 @@ const steps = [
   {
     num: "02",
     icon: Stethoscope,
-    title: "Hakim Reviews & Prescribes",
+    title: "Hakeem Reviews & Prescribes",
     description:
-      "Our qualified Hakim reviews your symptoms, identifies the root imbalance, and prepares a personalized herbal treatment plan — usually within 24 hours.",
+      "Our qualified Hakeem reviews your symptoms, identifies the root imbalance, and prepares a personalized herbal treatment plan — usually within 24 hours.",
     color: "bg-primary",
     textColor: "text-primary",
     borderColor: "border-primary/30",
@@ -132,7 +132,7 @@ export default function HowItWorksSection() {
           <div className="inline-flex flex-col sm:flex-row items-center gap-3">
             <a
               href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(
-                "Assalam-o-Alaikum Hakim Sahib, I would like to share my symptoms for a health review."
+                "Assalam-o-Alaikum Hakeem Sahib, I would like to share my symptoms for a health review."
               )}`}
               target="_blank"
               rel="noopener noreferrer"

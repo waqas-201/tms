@@ -30,7 +30,7 @@ async function runAuthTestSuite() {
   const testEmail = `test.patient.${timestamp}@tameeresehat.test`.toLowerCase();
   const testPassword = "InitialPassword123!";
   const newPassword = "UpdatedSecurePassword456!";
-  const testName = "Hakim Test Patient";
+  const testName = "Hakeem Test Patient";
   const testPhone = "03001234567";
   const testCity = "Karachi";
 

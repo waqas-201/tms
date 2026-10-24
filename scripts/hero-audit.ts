@@ -107,7 +107,7 @@ async function collect(page: Page) {
 
     // d. key elements
     const portrait = hero.querySelector<HTMLImageElement>(
-      'img[alt*="Hakim Muhammad Tariq Mahmood"]'
+      'img[alt*="Hakeem Tahir Hameed"]'
     );
     const trustRow = findByText("Zero Steroids or Synthetics");
     const metricStrip = findByText("35+ Years");

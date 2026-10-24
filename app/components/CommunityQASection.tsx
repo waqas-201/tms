@@ -78,7 +78,7 @@ const COMMUNITY_QA_DATA: QAItem[] = [
     askedBy: "Hamza M.",
     city: "Islamabad",
     answer:
-      "According to Hakim tradition, start your day with room-temperature water infused with a teaspoon of pure wild honey and 1 piece of Amla or Apple Murabba. This strengthens cardiac muscles, purifies the bloodstream, and sharpens mental focus.",
+      "According to Hakeem tradition, start your day with room-temperature water infused with a teaspoon of pure wild honey and 1 piece of Amla or Apple Murabba. This strengthens cardiac muscles, purifies the bloodstream, and sharpens mental focus.",
     hakimAdvice: [
       "Consume Amla Murabba on an empty stomach for vitamin C & liver rejuvenation.",
       "Allow at least 20 minutes before consuming heavy breakfast or tea.",
@@ -95,7 +95,7 @@ const COMMUNITY_QA_DATA: QAItem[] = [
       "All Arqiyat (pure hydro-distillates like Arq Gulab, Arq Kasni, Arq Makoh) are 100% sugar-free, steroid-free, and chemical-free, making them completely safe for diabetic and hypertensive patients. For Murabba preserves, diabetic patients are advised to rinse the sugar glaze in lukewarm water before eating.",
     hakimAdvice: [
       "Pure Arqiyat contain 0% sugar and can be taken freely.",
-      "Consult Hakim Sahib via WhatsApp for customized sugar-free formulations.",
+      "Consult Hakeem Sahib via WhatsApp for customized sugar-free formulations.",
     ],
   },
 ];
@@ -125,7 +125,7 @@ export default function CommunityQASection() {
     if (!askQuestion.trim()) return;
 
     // Launch direct WhatsApp with pre-filled question
-    const message = `*Assalam-o-Alaikum Hakim Sahib (Community Health Question)*\n` +
+    const message = `*Assalam-o-Alaikum Hakeem Sahib (Community Health Question)*\n` +
       `*Name:* ${askName || "Patient"}\n` +
       `*City:* ${askCity || "Pakistan"}\n` +
       `*My Health Question:* ${askQuestion}\n\n` +
@@ -153,7 +153,7 @@ export default function CommunityQASection() {
           </div>
 
           <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
-            Community Health Forum &amp; Hakim Q&amp;A
+            Community Health Forum &amp; Hakeem Q&amp;A
           </h2>
 
           <p className="text-xs sm:text-sm text-ink-body">
@@ -173,7 +173,7 @@ export default function CommunityQASection() {
           </div>
         </Reveal>
 
-        {/* Main Grid: QA Accordion (7 cols) + Ask Hakim Box (5 cols) */}
+        {/* Main Grid: QA Accordion (7 cols) + Ask Hakeem Box (5 cols) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
           {/* Left Column: Community Questions & Answers Accordion */}
@@ -245,11 +245,11 @@ export default function CommunityQASection() {
                                 <p>{item.answer}</p>
                               </div>
 
-                              {/* Hakim's Step-by-Step Guidance */}
+                              {/* Hakeem's Step-by-Step Guidance */}
                               <div className="p-3.5 bg-brand-gold-50 rounded-xl border border-line space-y-2">
                                 <div className="flex items-center gap-2 font-bold text-primary text-xs">
                                   <Stethoscope className="w-3.5 h-3.5 text-secondary-text" />
-                                  <span>Hakim Tahir Hameed&apos;s Advice:</span>
+                                  <span>Hakeem Tahir Hameed&apos;s Advice:</span>
                                 </div>
                                 <ul className="space-y-1 pl-1">
                                   {item.hakimAdvice.map((adv, aIdx) => (
@@ -274,7 +274,7 @@ export default function CommunityQASection() {
             )}
           </div>
 
-          {/* Right Column: Interactive "Ask Hakim a Health Question" Form */}
+          {/* Right Column: Interactive "Ask Hakeem a Health Question" Form */}
           <div className="lg:col-span-5">
             <Reveal delay={0.08}>
               <div className="bg-white rounded-2xl border border-line p-5 sm:p-6 shadow-xs space-y-4">
@@ -284,17 +284,17 @@ export default function CommunityQASection() {
                     <span>Free Community Health Help</span>
                   </div>
                   <h3 className="font-serif text-lg sm:text-xl font-bold text-primary">
-                    Ask Hakim Sahib a Question
+                    Ask Hakeem Sahib a Question
                   </h3>
                   <p className="text-xs text-ink-body">
-                    Have a chronic symptom? Send it directly to Hakim Sahib on WhatsApp.
+                    Have a chronic symptom? Send it directly to Hakeem Sahib on WhatsApp.
                   </p>
                 </div>
 
                 {submitted && (
                   <div className="p-3 bg-brand-green-50 border border-brand-green-200 rounded-xl text-xs text-primary flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                    <span>WhatsApp conversation opened with Hakim Sahib!</span>
+                    <span>WhatsApp conversation opened with Hakeem Sahib!</span>
                   </div>
                 )}
 
@@ -344,12 +344,12 @@ export default function CommunityQASection() {
                     className="w-full py-2.5 px-4 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2 active:scale-98"
                   >
                     <MessageCircle className="w-4 h-4 fill-current" />
-                    <span>Send to Hakim on WhatsApp</span>
+                    <span>Send to Hakeem on WhatsApp</span>
                   </button>
 
                   <div className="flex items-center justify-center gap-2 text-[10px] text-ink-subtle pt-0.5">
                     <UserCheck className="w-3 h-3 text-primary" />
-                    <span>Confidential · Direct Review by Certified Hakim</span>
+                    <span>Confidential · Direct Review by Certified Hakeem</span>
                   </div>
                 </form>
               </div>

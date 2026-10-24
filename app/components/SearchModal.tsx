@@ -181,14 +181,14 @@ export default function SearchModal({ isOpen, onClose }: SearchModalProps) {
               <div className="py-12 text-center text-xs text-ink-muted">
                 No remedies found matching &ldquo;<span className="font-semibold text-ink">{query}</span>&rdquo;.
                 <p className="mt-2 text-[11px]">
-                  Need guidance? You can talk to our Hakim directly for personalized advice.
+                  Need guidance? You can talk to our Hakeem directly for personalized advice.
                 </p>
                 <Link
                   href="/consultation"
                   onClick={onClose}
                   className="mt-3 inline-block text-xs text-primary font-semibold underline decoration-secondary"
                 >
-                  Talk to Hakim Online &rarr;
+                  Talk to Hakeem Online &rarr;
                 </Link>
               </div>
             ) : (

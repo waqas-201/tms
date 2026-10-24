@@ -664,7 +664,7 @@ function TrackOrderContent() {
                   {record.prescribedTreatment && (
                     <div className="sm:col-span-2 p-4 bg-plum-soft border border-plum-line rounded-xl text-plum space-y-1">
                       <strong className="block text-[11px] uppercase tracking-wider text-plum font-bold">
-                        Hakim&apos;s Prescribed Botanical Protocol
+                        Hakeem&apos;s Prescribed Botanical Protocol
                       </strong>
                       <p className="whitespace-pre-line text-xs font-mono bg-white/80 p-3 rounded-lg border border-plum-line/80">
                         {record.prescribedTreatment}

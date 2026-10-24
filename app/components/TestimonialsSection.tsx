@@ -49,7 +49,7 @@ export default function TestimonialsSection() {
             Real Stories from Real People
           </h2>
           <p className="text-xs sm:text-sm text-ink-body">
-            See how our natural remedies and Hakim guidance have helped families across Pakistan.
+            See how our natural remedies and Hakeem guidance have helped families across Pakistan.
           </p>
         </Reveal>
 

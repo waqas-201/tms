@@ -463,7 +463,7 @@ export default function ConsultationModal({
         ? "Online Telehealth Consultation"
         : "In-Person Karachi Clinic Visit";
 
-    const msg = `Assalam-o-Alaikum Hakim Tahir Hameed Sahib,
+    const msg = `Assalam-o-Alaikum Hakeem Tahir Hameed Sahib,
 I have booked a consultation slot on Tameer-e-Sehat:
 
 🎫 *Booking Ticket:* ${ticket}
@@ -520,7 +520,7 @@ Please confirm my appointment.`;
 
               <div className="flex items-center gap-2 mb-1.5 text-brand-gold-200 text-xs uppercase tracking-widest font-semibold">
                 <Sparkles className="w-4 h-4" />
-                <span>Hakim Tahir Hameed Matab</span>
+                <span>Hakeem Tahir Hameed Matab</span>
               </div>
               <h2 className="font-serif text-xl sm:text-2xl font-bold leading-tight">
                 {bookingSuccess
@@ -608,7 +608,7 @@ Please confirm my appointment.`;
                       className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp rounded-xl text-xs font-bold uppercase tracking-wider shadow-md transition-colors"
                     >
                       <MessageCircle className="w-4 h-4" />
-                      <span>Message Hakim on WhatsApp with Ticket</span>
+                      <span>Message Hakeem on WhatsApp with Ticket</span>
                     </a>
 
                     <div className="flex gap-2">
@@ -887,7 +887,7 @@ Please confirm my appointment.`;
                           </span>
                         </div>
                         <p className="text-[11px] text-ink-subtle mt-1">
-                          Visit Hakim Tahir Hameed at Korangi, Karachi.
+                          Visit Hakeem Tahir Hameed at Korangi, Karachi.
                         </p>
                       </button>
                     </div>

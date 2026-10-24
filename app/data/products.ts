@@ -132,10 +132,10 @@ export const CLINIC_INFO = {
   address: "Plot no L, 41 Korangi Crossing Rd, K.D.A Allah Wala Town Sector 31 B Korangi, Karachi, Pakistan",
   city: "Karachi",
   country: "Pakistan",
-  phone: "0318-2311310",
-  phoneFormatted: "+92 318 2311310",
+  phone: "0335-3547888",
+  phoneFormatted: "+92 335 3547888",
   whatsappNumber: "923353547888",
-  whatsappDisplay: "+92 318 2311310",
+  whatsappDisplay: "+92 335 3547888",
   email: "hello@tameeresehat.com",
   timings: "Monday – Saturday: 10:00 AM – 9:00 PM (PKT)",
   fridayTimings: "Friday: 3:00 PM – 9:00 PM",
@@ -202,7 +202,7 @@ export const CONSULTATION_AREAS = [
   {
     title: "Private Men's & Women's Health",
     urduTitle: "مردانہ و نسوانی پوشیدہ مسائل",
-    description: "Completely private, confidential consultations with our experienced Hakim regarding your personal wellness.",
+    description: "Completely private, confidential consultations with our experienced Hakeem regarding your personal wellness.",
     icon: "Heart"
   }
 ];

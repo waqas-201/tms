@@ -378,7 +378,7 @@ export default function AccountPage() {
               Customer Account Portal
             </h1>
             <p className="text-xs text-ink-body">
-              Sign in to track your active orders, view your saved wishlist remedies, and check your Hakim consultation records.
+              Sign in to track your active orders, view your saved wishlist remedies, and check your Hakeem consultation records.
             </p>
           </div>
           <div className="flex flex-col gap-2.5 pt-2">
@@ -1064,7 +1064,7 @@ export default function AccountPage() {
                   No consultations booked yet
                 </h3>
                 <p className="text-xs text-ink-body max-w-sm mx-auto">
-                  Book a direct clinical consultation with Hakim Tahir Hameed for chronic root-cause diagnosis.
+                  Book a direct clinical consultation with Hakeem Tahir Hameed for chronic root-cause diagnosis.
                 </p>
                 <Link
                   href="/consultation"
@@ -1126,7 +1126,7 @@ export default function AccountPage() {
                         className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-whatsapp text-on-whatsapp text-xs font-bold rounded-lg shadow-xs hover:bg-whatsapp-hover transition-colors"
                       >
                         <Phone className="w-3.5 h-3.5" />
-                        <span>Hakim WhatsApp</span>
+                        <span>Hakeem WhatsApp</span>
                       </a>
                     </div>
                   </div>
@@ -1178,7 +1178,7 @@ export default function AccountPage() {
                       <div className="mt-3 p-4 bg-plum-soft/70 border border-plum-line rounded-xl text-plum space-y-1">
                         <strong className="block text-xs uppercase tracking-wider text-plum font-bold flex items-center gap-1.5">
                           <Sparkles className="w-4 h-4 text-plum" />
-                          <span>Hakim's Prescribed Botanical Protocol:</span>
+                          <span>Hakeem's Prescribed Botanical Protocol:</span>
                         </strong>
                         <p className="mt-1 text-xs whitespace-pre-line font-mono bg-white/80 p-3 rounded-lg border border-plum-line/80">
                           {consult.prescribedTreatment}
@@ -1189,7 +1189,7 @@ export default function AccountPage() {
                     {consult.hakimNotes && (
                       <div className="mt-2 p-3 bg-brand-green-50 border border-brand-green-100 rounded-xl text-primary">
                         <strong className="block text-[11px] uppercase tracking-wider text-brand-green-600">
-                          Hakim Sahib's Clinical Advice &amp; Dietary Guidelines (Parhez):
+                          Hakeem Sahib's Clinical Advice &amp; Dietary Guidelines (Parhez):
                         </strong>
                         <p className="mt-0.5 text-xs">{consult.hakimNotes}</p>
                       </div>

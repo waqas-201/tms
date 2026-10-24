@@ -12,7 +12,7 @@ export default function HakimIntroSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
-          {/* Left: Hakim & Laboratory Imagery (5 cols) */}
+          {/* Left: Hakeem & Laboratory Imagery (5 cols) */}
           <Reveal className="lg:col-span-5 relative">
             <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-xl bg-surface-sunken border border-line">
               <Image
@@ -62,7 +62,7 @@ export default function HakimIntroSection() {
             </p>
 
             <p className="text-sm text-ink-body leading-relaxed">
-              At Tameer-e-Sehat, our certified Hakims bring over 35 years of clinical experience. We handcraft pure herbal waters (Arq), sweet fruit preserves (Murabba), and soothing joint oils that work gently with your body.
+              At Tameer-e-Sehat, our certified Hakeems bring over 35 years of clinical experience. We handcraft pure herbal waters (Arq), sweet fruit preserves (Murabba), and soothing joint oils that work gently with your body.
             </p>
 
             {/* 3 Core Philosophical Pillars */}

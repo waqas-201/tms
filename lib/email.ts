@@ -522,7 +522,7 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
                 </tr>
               </table>
               <p style="margin: 14px 0 0 0; font-size: 12px; color: ${BRAND.inkSubtle};">
-                Questions? Reply directly to this email or chat with our Hakim on WhatsApp (+92 312 2589073).
+                Questions? Reply directly to this email or chat with our Hakeem on WhatsApp (+92 335 3547888).
               </p>
             </td>
           </tr>
@@ -736,7 +736,7 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
                 Assalam-o-Alaikum, ${fullName}!
               </h2>
               <p style="margin: 0; font-size: 14px; line-height: 1.6; color: ${BRAND.inkBody};">
-                Your clinical consultation request with <strong>Hakim Muhammad Tariq</strong> has been received. Our clinic team will review it and confirm your appointment on WhatsApp or phone. You can check its status anytime using the tracking link below.
+                Your clinical consultation request with <strong>Hakeem Tahir Hameed</strong> has been received. Our clinic team will review it and confirm your appointment on WhatsApp or phone. You can check its status anytime using the tracking link below.
               </p>
             </td>
           </tr>
@@ -794,7 +794,7 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
                 <ul style="margin: 0; padding-left: 18px; font-size: 12px; color: ${BRAND.warning}; line-height: 1.6;">
                   ${
                     isOnline
-                      ? `<li>Hakim Sahib or clinic assistants will contact you via Phone/Email or WhatsApp at <strong>${phone}</strong> during your designated slot.</li>
+                      ? `<li>Hakeem Sahib or clinic assistants will contact you via Phone/Email or WhatsApp at <strong>${phone}</strong> during your designated slot.</li>
                          <li>You may reply to this email or send recent blood tests/ultrasounds in advance.</li>
                          <li>Initial pulse assessment, lifestyle evaluation, and dietary guidance are 100% complimentary (Bila-Muawza).</li>`
                       : `<li>Please arrive at our dispensary: <strong>${clinicAddress}</strong> on <strong>${dateDisplay}</strong> around <strong>${slotDisplay}</strong>.</li>
@@ -814,7 +814,7 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
                 </a>
               </p>
               <p style="margin: 0 0 6px 0; font-size: 12px; color: ${BRAND.inkSubtle};">
-                Need to reschedule? WhatsApp us at <strong style="color: ${BRAND.primary};">+92 300 8921892</strong> quoting ticket <strong style="font-family: monospace;">${ticketNumber}</strong>
+                Need to reschedule? WhatsApp us at <strong style="color: ${BRAND.primary};">+92 335 3547888</strong> quoting ticket <strong style="font-family: monospace;">${ticketNumber}</strong>
               </p>
               <p style="margin: 0; font-size: 11px; color: ${BRAND.inkSubtle};">
                 Matab Tameer-e-Sehat · Authentic Classical Unani Tibb
@@ -850,7 +850,7 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
 }
 
 /**
- * Sends an urgent alert email to the clinic admin / Hakim when a new appointment is booked.
+ * Sends an urgent alert email to the clinic admin / Hakeem when a new appointment is booked.
  */
 export async function sendAdminAppointmentNotificationEmail(params: AppointmentEmailParams) {
   try {
@@ -1067,7 +1067,7 @@ export async function sendAppointmentStatusEmail(params: {
     let statusBadge = status;
 
     if (status === "CONFIRMED") {
-      statusTitle = "Appointment Confirmed by Hakim Sahib";
+      statusTitle = "Appointment Confirmed by Hakeem Sahib";
       statusColor = BRAND.success;
       statusBadge = "✓ CONFIRMED";
     } else if (status === "RESCHEDULED") {
@@ -1113,7 +1113,7 @@ export async function sendAppointmentStatusEmail(params: {
     ${
       hakimNotes
         ? `<div style="background-color: ${BRAND.warningSoft}; border: 1px solid ${BRAND.warningLine}; border-radius: 8px; padding: 14px 16px; margin: 16px 0; font-size: 13px; color: ${BRAND.warning};">
-            <strong>Hakim Sahib / Clinic Advice:</strong><br />
+            <strong>Hakeem Sahib / Clinic Advice:</strong><br />
             ${hakimNotes}
           </div>`
         : ""
@@ -1126,7 +1126,7 @@ export async function sendAppointmentStatusEmail(params: {
     </p>
 
     <p style="font-size: 12px; color: ${BRAND.inkSubtle}; margin-top: 24px;">
-      For any inquiries, please WhatsApp our clinical dispensary at +92 300 8921892.
+      For any inquiries, please WhatsApp our clinical dispensary at +92 335 3547888.
     </p>
   </div>
 </body>
@@ -1153,7 +1153,7 @@ export async function sendAppointmentStatusEmail(params: {
 }
 
 /**
- * Sends Hakim Prescription and Recommended Herbal Treatment Protocol to Patient.
+ * Sends Hakeem Prescription and Recommended Herbal Treatment Protocol to Patient.
  */
 export async function sendHakimPrescriptionEmail(params: {
   to: string;
@@ -1170,13 +1170,13 @@ export async function sendHakimPrescriptionEmail(params: {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Hakim Prescription &amp; Guidance - ${ticketNumber}</title>
+  <title>Hakeem Prescription &amp; Guidance - ${ticketNumber}</title>
 </head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: ${BRAND.surface}; padding: 24px; color: ${BRAND.ink};">
   <div style="max-width: 600px; margin: 0 auto; background: ${BRAND.surfaceRaised}; border-radius: 12px; border: 1px solid ${BRAND.line}; overflow: hidden; box-shadow: 0 4px 16px ${BRAND.blackA06};">
     <div style="background-color: ${BRAND.primary}; padding: 28px 24px; text-align: center; color: ${BRAND.surfaceRaised};">
       <h1 style="margin: 0; font-size: 22px; font-family: Georgia, serif;">Tameer-e-Sehat</h1>
-      <p style="margin: 4px 0 0 0; color: ${BRAND.secondaryOnDark}; font-size: 12px; letter-spacing: 1px; text-transform: uppercase;">Hakim Prescription &amp; Dietary Protocol</p>
+      <p style="margin: 4px 0 0 0; color: ${BRAND.secondaryOnDark}; font-size: 12px; letter-spacing: 1px; text-transform: uppercase;">Hakeem Prescription &amp; Dietary Protocol</p>
     </div>
 
     <div style="padding: 28px 24px;">
@@ -1184,7 +1184,7 @@ export async function sendHakimPrescriptionEmail(params: {
         Assalam-o-Alaikum, ${fullName}!
       </h2>
       <p style="margin: 0 0 20px 0; font-size: 14px; color: ${BRAND.inkBody}; line-height: 1.6;">
-        Hakim Muhammad Tariq has reviewed your consultation dossier (Ticket: <strong style="font-family: monospace;">${ticketNumber}</strong>) and prepared your personalized Unani herbal protocol.
+        Hakeem Tahir Hameed has reviewed your consultation dossier (Ticket: <strong style="font-family: monospace;">${ticketNumber}</strong>) and prepared your personalized Unani herbal protocol.
       </p>
 
       <div style="background-color: ${BRAND.successSoft}; border: 1px solid ${BRAND.successLine}; border-left: 4px solid ${BRAND.success}; border-radius: 8px; padding: 18px 20px; margin-bottom: 20px;">
@@ -1232,12 +1232,12 @@ export async function sendHakimPrescriptionEmail(params: {
     const { data, error } = await resend.emails.send(withReplyTo({
       from: DEFAULT_FROM,
       to: [to],
-      subject: `Hakim Prescription & Protocol: ${ticketNumber} - Tameer-e-Sehat`,
+      subject: `Hakeem Prescription & Protocol: ${ticketNumber} - Tameer-e-Sehat`,
       html: htmlContent,
     }));
 
     if (error) {
-      console.error("[Hakim Prescription Email Error]:", error);
+      console.error("[Hakeem Prescription Email Error]:", error);
       return { success: false, error };
     }
 

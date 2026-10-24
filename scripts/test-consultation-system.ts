@@ -134,9 +134,9 @@ async function runConsultationTests() {
     await prisma.clinicHoliday.delete({ where: { date: testHolidayDate } });
 
     // -------------------------------------------------------------------------
-    // TEST 5: Hakim Prescription & Status Update Workflow
+    // TEST 5: Hakeem Prescription & Status Update Workflow
     // -------------------------------------------------------------------------
-    console.log("\n--- TEST 5: Hakim Clinical Action & Prescription ---");
+    console.log("\n--- TEST 5: Hakeem Clinical Action & Prescription ---");
     const updatedConsultation = await prisma.consultationRequest.update({
       where: { id: createdConsultation.id },
       data: {
@@ -152,7 +152,7 @@ async function runConsultationTests() {
     );
     assert(
       updatedConsultation.prescribedTreatment?.includes("Majoon Dabeed-ul-Ward") === true,
-      "Hakim prescription saved to patient dossier"
+      "Hakeem prescription saved to patient dossier"
     );
 
     // -------------------------------------------------------------------------

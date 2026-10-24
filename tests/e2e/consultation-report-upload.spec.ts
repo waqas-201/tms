@@ -22,11 +22,11 @@ test.describe("Consultation Report Upload & WhatsApp / Clinic Flow", () => {
     } else {
       const section = page.locator("section#specialties");
       await section.scrollIntoViewIfNeeded();
-      await section.getByRole("button", { name: /Consult Hakim Sahib/i }).click();
+      await section.getByRole("button", { name: /Consult Hakeem Sahib/i }).click();
     }
 
     const modal = page.getByRole("dialog", {
-      name: /Consult Hakim Tahir Hameed/i,
+      name: /Consult Hakeem Tahir Hameed/i,
     });
 
     // If modal is not visible yet, click once more to account for hydration
@@ -36,7 +36,7 @@ test.describe("Consultation Report Upload & WhatsApp / Clinic Flow", () => {
       if (await bannerBtn.isVisible()) {
         await bannerBtn.click();
       } else {
-        await page.locator("section#specialties").getByRole("button", { name: /Consult Hakim Sahib/i }).click();
+        await page.locator("section#specialties").getByRole("button", { name: /Consult Hakeem Sahib/i }).click();
       }
     }
 

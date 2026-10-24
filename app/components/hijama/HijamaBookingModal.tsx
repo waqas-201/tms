@@ -463,7 +463,7 @@ export default function HijamaBookingModal({
             <span>Book Your Hijama Session</span>
           </h2>
           <p className="text-xs text-brand-green-300 mt-0.5">
-            Strict gender-segregated wings · Certified Hakims &amp; Hajjama practitioners
+            Strict gender-segregated wings · Certified Hakeems &amp; Hajjama practitioners
           </p>
         </div>
 
@@ -605,7 +605,7 @@ export default function HijamaBookingModal({
                     Male Room — Hajjam
                   </h4>
                   <p className="text-xs text-ink-body mt-1 leading-relaxed">
-                    Administered exclusively by certified male Hakims &amp; cupping specialists. Private male ward.
+                    Administered exclusively by certified male Hakeems &amp; cupping specialists. Private male ward.
                   </p>
                 </div>
                 <div className="pt-3 mt-3 border-t border-brand-green-100 text-[11px] font-semibold text-primary flex items-center gap-1">
@@ -895,7 +895,7 @@ export default function HijamaBookingModal({
                   <div className="p-2.5 rounded-lg bg-danger-soft border border-danger/20 text-danger text-[11px] flex items-start gap-2">
                     <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-danger" />
                     <span>
-                      <strong>Clinical Precaution:</strong> Patients on anticoagulants require physician clearance and a mild dry cupping evaluation prior to wet incisions. Our Hakim will consult you prior to procedure.
+                      <strong>Clinical Precaution:</strong> Patients on anticoagulants require physician clearance and a mild dry cupping evaluation prior to wet incisions. Our Hakeem will consult you prior to procedure.
                     </span>
                   </div>
                 )}
@@ -947,7 +947,7 @@ export default function HijamaBookingModal({
                     <div className="p-2.5 rounded-lg bg-warning-soft border border-warning-line text-warning text-[11px] flex items-start gap-2">
                       <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-warning" />
                       <span>
-                        <strong>Note:</strong> Wet cupping on the abdomen and lower back is strictly avoided during pregnancy. Only gentle upper back dry therapy is offered upon Hakim clearance.
+                        <strong>Note:</strong> Wet cupping on the abdomen and lower back is strictly avoided during pregnancy. Only gentle upper back dry therapy is offered upon Hakeem clearance.
                       </span>
                     </div>
                   )}
@@ -1489,7 +1489,7 @@ export default function HijamaBookingModal({
                 Alhamdulillah, Your Seat is Reserved!
               </h3>
               <p className="text-xs text-ink-body">
-                Present this digital clinical slip at reception or confirm directly with our clinic Hakim on WhatsApp.
+                Present this digital clinical slip at reception or confirm directly with our clinic Hakeem on WhatsApp.
               </p>
             </div>
 

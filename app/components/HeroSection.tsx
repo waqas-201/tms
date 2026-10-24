@@ -17,7 +17,7 @@ import { useConsultation } from "@/app/context/ConsultationContext";
  * tablets. No gap below it, whatever your banner/navbar height is.
  * Desktop keeps the original fixed calc (--hh, lg:--hh).
  *
- * PORTRAIT: the Hakim's photo (public/images/hkm.png) fills the desktop arch.
+ * PORTRAIT: the Hakeem's photo (public/images/hkm.png) fills the desktop arch.
  */
 
 const PORTRAIT_SRC = "/images/hkm.webp";
@@ -164,14 +164,14 @@ export default function HeroSection() {
     openConsultation({
       mode: "WHATSAPP",
       message:
-        "Assalam-o-Alaikum Hekeem Tahir Hameed Sahab, I would like to consult with you regarding authentic herbal guidance for my health.",
+        "Assalam-o-Alaikum Hakeem Tahir Hameed Sahab, I would like to consult with you regarding authentic herbal guidance for my health.",
     });
 
   const pickCondition = (c: { title: string; concern: string }) =>
     openConsultation({
       mode: "WHATSAPP",
       concern: c.concern,
-      message: `Assalam-o-Alaikum Hakim Sahib, I would like consultation and remedy guidance for: ${c.title} (${c.concern}).`,
+      message: `Assalam-o-Alaikum Hakeem Sahib, I would like consultation and remedy guidance for: ${c.title} (${c.concern}).`,
     });
 
   return (
@@ -295,7 +295,7 @@ export default function HeroSection() {
               {PORTRAIT_SRC ? (
                 <Image
                   src={PORTRAIT_SRC}
-                  alt="Hakeem Tahir Hameed , senior Tibbi physician at Matab Tameer-e-Sehat, Karachi"
+                  alt="Hakeem Tahir Hameed, senior Tibbi physician at Matab Tameer-e-Sehat, Karachi"
                   fill
                   sizes="440px"
                   className="object-cover object-top"

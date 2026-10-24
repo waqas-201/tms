@@ -29,16 +29,16 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   metadataBase: new URL("https://tameeresehat.com"),
   title: {
-    default: "Tameer-e-Sehat | Traditional Unani Medicine & Online Hakim Consultation",
+    default: "Tameer-e-Sehat | Traditional Unani Medicine & Online Hakeem Consultation",
     template: "%s | Tameer-e-Sehat",
   },
   description:
-    "Established in 1990 in Karachi, Pakistan. 35+ years of classical Tibbi wisdom, personalized Hakim consultations, pure steam distillates (Arqiyat), and small-batch herbal preserves (Murabbajaat).",
+    "Established in 1990 in Karachi, Pakistan. 35+ years of classical Tibbi wisdom, personalized Hakeem consultations, pure steam distillates (Arqiyat), and small-batch herbal preserves (Murabbajaat).",
   keywords: [
     "Tameer-e-Sehat",
-    "Hakim Karachi",
+    "Hakeem Karachi",
     "Unani Medicine Pakistan",
-    "Online Hakim Consultation",
+    "Online Hakeem Consultation",
     "Matab Tameer e Sehat",
     "Arq Makoh",
     "Arq Kasni",
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     canonical: "./",
   },
   openGraph: {
-    title: "Tameer-e-Sehat | Traditional Unani Medicine & Hakim Consultation",
+    title: "Tameer-e-Sehat | Traditional Unani Medicine & Hakeem Consultation",
     description:
       "Bridging 35+ years of classical Eastern wisdom with modern purity. Pure steam distillates, artisanal herbal preserves, and confidential online consultations.",
     url: "https://tameeresehat.com",
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tameer-e-Sehat | Traditional Unani Medicine & Hakim Consultation",
+    title: "Tameer-e-Sehat | Traditional Unani Medicine & Hakeem Consultation",
     description:
       "Bridging 35+ years of classical Eastern wisdom with modern purity. Pure steam distillates, artisanal herbal preserves, and confidential online consultations in Karachi.",
     images: ["/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg"],
@@ -116,7 +116,7 @@ export default function RootLayout({
         logo: "https://tameeresehat.com/images/cropped-logo.png",
         image: "https://tameeresehat.com/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg",
         description:
-          "Established in 1990 in Karachi, Pakistan. 35+ years of classical Tibbi wisdom, personalized Hakim consultations, pure steam distillates (Arqiyat), and small-batch herbal preserves (Murabbajaat).",
+          "Established in 1990 in Karachi, Pakistan. 35+ years of classical Tibbi wisdom, personalized Hakeem consultations, pure steam distillates (Arqiyat), and small-batch herbal preserves (Murabbajaat).",
         telephone: CLINIC_INFO.phoneFormatted,
         email: CLINIC_INFO.email,
         address: {

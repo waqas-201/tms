@@ -16,7 +16,7 @@ import {
 export const metadata: Metadata = {
   title: "About Us · 35+ Years of Honest Herbal Care in Karachi",
   description:
-    "Learn about our clinic history, our Hakim's philosophy, and our pure herbal preparation standards at Tameer-e-Sehat in Karachi, Pakistan since 1990.",
+    "Learn about our clinic history, our Hakeem's philosophy, and our pure herbal preparation standards at Tameer-e-Sehat in Karachi, Pakistan since 1990.",
   alternates: {
     canonical: "https://tameeresehat.com/about",
   },
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "About Tameer-e-Sehat · 35+ Years of Herbal Care",
     description:
-      "Learn about our clinic history, our Hakim's philosophy, and our pure herbal preparation standards in Karachi.",
+      "Learn about our clinic history, our Hakeem's philosophy, and our pure herbal preparation standards in Karachi.",
     images: ["/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg"],
   },
 };
@@ -54,7 +54,7 @@ export default function AboutPage() {
         "@type": "AboutPage",
         name: "About Tameer-e-Sehat",
         description:
-          "History, ethos, Hakim lineage, and apothecary compounding standards of Matab Tameer-e-Sehat in Karachi.",
+          "History, ethos, Hakeem lineage, and apothecary compounding standards of Matab Tameer-e-Sehat in Karachi.",
         url: "https://tameeresehat.com/about",
       },
       {
@@ -95,7 +95,7 @@ export default function AboutPage() {
           </div>
 
           <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight">
-            Our Story, Our Hakim, <br />
+            Our Story, Our Hakeem, <br />
             <span className="italic font-normal text-brand-gold-300">and the Care in Natural Healing</span>
           </h1>
 
@@ -114,7 +114,7 @@ export default function AboutPage() {
               <div className="relative aspect-[4/5] rounded-2xl overflow-hidden shadow-xl bg-surface-sunken border border-line">
                 <Image
                   src="/images/1-scaled.png"
-                  alt="Tameer-e-Sehat Clinic & Hakim Consultation"
+                  alt="Tameer-e-Sehat Clinic & Hakeem Consultation"
                   fill
                   className="object-cover"
                   priority
@@ -156,7 +156,7 @@ export default function AboutPage() {
                 </p>
 
                 <p>
-                  Our clinic began over 35 years ago in Karachi. Through thousands of personal checkups, pulse examinations, and patient conversations, our Hakims noticed that many everyday health problems — like stomach gas, acidity, liver heat, knee stiffness, and low energy — can be healed with the right daily habits and clean, natural herbs.
+                  Our clinic began over 35 years ago in Karachi. Through thousands of personal checkups, pulse examinations, and patient conversations, our Hakeems noticed that many everyday health problems — like stomach gas, acidity, liver heat, knee stiffness, and low energy — can be healed with the right daily habits and clean, natural herbs.
                 </p>
 
                 <p>
@@ -167,10 +167,10 @@ export default function AboutPage() {
               {/* Quote callout */}
               <div className="p-5 rounded-xl bg-surface border-l-4 border-secondary space-y-2 my-4">
                 <p className="font-serif italic text-base text-primary">
-                  &ldquo;A good Hakim doesn&apos;t just cover up symptoms — he helps your body recover its own natural strength and vitality.&rdquo;
+                  &ldquo;A good Hakeem doesn&apos;t just cover up symptoms — he helps your body recover its own natural strength and vitality.&rdquo;
                 </p>
                 <span className="text-xs text-ink-muted font-medium block">
-                  — Hakim Sahib, Founder of Tameer-e-Sehat
+                  — Hakeem Sahib, Founder of Tameer-e-Sehat
                 </span>
               </div>
 

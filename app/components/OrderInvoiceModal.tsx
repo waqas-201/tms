@@ -79,7 +79,7 @@ export default function OrderInvoiceModal({
   }
 
   const waInvoiceUrl = `https://wa.me/${order.phone?.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(
-    `*Assalam-o-Alaikum ${order.customerName},*\n\nHere is your official invoice details for *Order #${order.orderNumber}* from *Tameer-e-Sehat Herbal Dispensary*:\n\n📅 *Date:* ${formattedDate}\n📦 *Items:* ${order.items?.length || 0} Pack(s)\n💵 *Order Total:* ₨ ${total.toLocaleString()}\n✅ *Paid Amount:* ₨ ${paidAmount.toLocaleString()}\n⚠️ *Net Payable / Due:* ₨ ${dueAmount.toLocaleString()}\n📍 *Delivery Address:* ${order.address}, ${order.city}\n\nThank you for choosing authentic natural Unani wellness.\n*Helpline / WhatsApp:* +92 312 2841990`
+    `*Assalam-o-Alaikum ${order.customerName},*\n\nHere is your official invoice details for *Order #${order.orderNumber}* from *Tameer-e-Sehat Herbal Dispensary*:\n\n📅 *Date:* ${formattedDate}\n📦 *Items:* ${order.items?.length || 0} Pack(s)\n💵 *Order Total:* ₨ ${total.toLocaleString()}\n✅ *Paid Amount:* ₨ ${paidAmount.toLocaleString()}\n⚠️ *Net Payable / Due:* ₨ ${dueAmount.toLocaleString()}\n📍 *Delivery Address:* ${order.address}, ${order.city}\n\nThank you for choosing authentic natural Unani wellness.\n*Helpline / WhatsApp:* +92 335 3547888`
   )}`;
 
   return (
@@ -191,7 +191,7 @@ export default function OrderInvoiceModal({
                 </p>
                 <p className="text-[11px] text-ink-body">{CLINIC_INFO.address}</p>
                 <p className="text-[11px] text-ink-body">
-                  Helpline / WhatsApp: +92 312 2841990
+                  Helpline / WhatsApp: +92 335 3547888
                 </p>
               </div>
             </div>
@@ -351,13 +351,13 @@ export default function OrderInvoiceModal({
                 <span>100% Pure Natural Herbal Remedies</span>
               </p>
               <p className="text-[11px]">
-                Manufactured and dispensed under qualified Hakim supervision in Karachi.
+                Manufactured and dispensed under qualified Hakeem supervision in Karachi.
               </p>
             </div>
 
             <div className="text-center sm:text-right">
               <div className="w-36 border-b border-primary pb-1 mx-auto sm:ml-auto">
-                <span className="font-serif italic text-primary text-xs">Hakim Sahib</span>
+                <span className="font-serif italic text-primary text-xs">Hakeem Sahib</span>
               </div>
               <p className="text-[10px] text-ink-muted pt-0.5">Authorized Signature</p>
             </div>

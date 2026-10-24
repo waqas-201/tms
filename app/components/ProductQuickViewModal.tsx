@@ -179,7 +179,7 @@ export default function ProductQuickViewModal({
               </div>
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-3.5 h-3.5 text-secondary-text shrink-0" />
-                <span>Formulated by Registered Tabib / Hakim</span>
+                <span>Formulated by Registered Tabib / Hakeem</span>
               </div>
             </div>
           </div>
@@ -345,7 +345,7 @@ export default function ProductQuickViewModal({
                   onClick={onClose}
                   className="inline-flex items-center gap-1 text-ink hover:text-secondary-text font-semibold transition-colors"
                 >
-                  <span>Full Remedy &amp; Hakim Guide</span>
+                  <span>Full Remedy &amp; Hakeem Guide</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
 

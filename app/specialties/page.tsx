@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Clinical Specialties & Chronic Health Care | Tameer-e-Sehat",
     description:
-      "Targeting the root cause of chronic ailments with individualized herbal regimens and 35+ years of clinical Hakim expertise.",
+      "Targeting the root cause of chronic ailments with individualized herbal regimens and 35+ years of clinical Hakeem expertise.",
     images: ["/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg"],
   },
 };
@@ -106,7 +106,7 @@ export default function SpecialtiesPage() {
           </h1>
 
           <p className="text-sm sm:text-base text-on-inverse/85 max-w-2xl mx-auto leading-relaxed">
-            Targeting the root cause of chronic ailments with individualized herbal regimens, pure hydro-distillates (Arqiyat), and 35+ years of clinical Hakim expertise.
+            Targeting the root cause of chronic ailments with individualized herbal regimens, pure hydro-distillates (Arqiyat), and 35+ years of clinical Hakeem expertise.
           </p>
 
           <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
@@ -117,13 +117,13 @@ export default function SpecialtiesPage() {
               Book Health Consultation
             </Link>
             <a
-              href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent("Assalam-o-Alaikum Hakim Sahib, I would like to inquire regarding clinical treatment for my symptoms.")}`}
+              href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent("Assalam-o-Alaikum Hakeem Sahib, I would like to inquire regarding clinical treatment for my symptoms.")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="px-6 py-3 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center gap-2"
             >
               <MessageCircle className="w-4 h-4" />
-              <span>WhatsApp Hakim Now</span>
+              <span>WhatsApp Hakeem Now</span>
             </a>
           </div>
         </div>
@@ -254,7 +254,7 @@ export default function SpecialtiesPage() {
                       </Link>
 
                       <a
-                        href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(`*Assalam-o-Alaikum Hakim Sahib*\nI would like to inquire about herbal treatment for: *${spec.title}*`)}`}
+                        href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(`*Assalam-o-Alaikum Hakeem Sahib*\nI would like to inquire about herbal treatment for: *${spec.title}*`)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 bg-brand-green-50 hover:bg-brand-green-100 text-primary text-xs font-semibold rounded-xl border border-brand-green-200 transition-colors text-center"
@@ -333,7 +333,7 @@ export default function SpecialtiesPage() {
             Unsure Which Clinical Category Fits Your Condition?
           </h2>
           <p className="text-xs sm:text-sm text-on-inverse/85 max-w-xl mx-auto leading-relaxed">
-            Send a brief description of your symptoms directly to Hakim Muhammad Tariq on WhatsApp for a confidential, no-obligation medical review.
+            Send a brief description of your symptoms directly to Hakeem Tahir Hameed on WhatsApp for a confidential, no-obligation medical review.
           </p>
 
           <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
@@ -344,7 +344,7 @@ export default function SpecialtiesPage() {
               Fill Online Symptom Form
             </Link>
             <a
-              href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent("Assalam-o-Alaikum Hakim Sahib, I need guidance regarding my health symptoms.")}`}
+              href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent("Assalam-o-Alaikum Hakeem Sahib, I need guidance regarding my health symptoms.")}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto px-7 py-3.5 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp font-bold text-xs uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2"

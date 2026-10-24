@@ -39,7 +39,7 @@ export const CLINICAL_CASES: CaseStudy[] = [
     prescribedRegimen: "Pure Distillates (Arq Makoh & Arq Kasni) + Classical Digestive Murabba course",
     clinicalOutcome: "Acid burning stopped completely by Day 10. Normal spicy food tolerated without PPIs.",
     recoveryTimeline: "14 Days for full symptom cessation",
-    quote: "I was taking Omeprazole daily for months. Hakim Sahib's Arq course gave me permanent digestive relief without side effects.",
+    quote: "I was taking Omeprazole daily for months. Hakeem Sahib's Arq course gave me permanent digestive relief without side effects.",
   },
   {
     id: "case-joints",

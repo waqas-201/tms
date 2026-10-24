@@ -490,7 +490,7 @@ export default function ConsultationsTab() {
   const getWhatsAppContactLink = (c: Consultation) => {
     const text =
       `*Assalam-o-Alaikum ${c.fullName} Sahib/Sahiba*\n` +
-      `This is Matab Tameer-e-Sehat (Hakim Tahir Hameed) regarding your Consultation Ticket *${c.ticketNumber}* for: *${c.primarySymptoms}*.\n\n` +
+      `This is Matab Tameer-e-Sehat (Hakeem Tahir Hameed) regarding your Consultation Ticket *${c.ticketNumber}* for: *${c.primarySymptoms}*.\n\n` +
       `We are ready to discuss your health assessment.`;
     return `https://wa.me/${c.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(text)}`;
   };
@@ -505,7 +505,7 @@ export default function ConsultationsTab() {
             <span>Consultation &amp; Appointment Dossiers</span>
           </h2>
           <p className="text-xs text-ink-muted">
-            Review patient health concerns, manage appointment slots, and dispatch Hakim prescriptions with email alerts.
+            Review patient health concerns, manage appointment slots, and dispatch Hakeem prescriptions with email alerts.
           </p>
         </div>
 
@@ -1389,7 +1389,7 @@ export default function ConsultationsTab() {
                 <div className="flex items-center justify-between">
                   <h4 className="font-serif font-bold text-sm text-ink flex items-center gap-1.5">
                     <Edit className="w-4 h-4 text-secondary-text" />
-                    <span>Hakim Clinical Actions &amp; Prescription</span>
+                    <span>Hakeem Clinical Actions &amp; Prescription</span>
                   </h4>
                 </div>
 
@@ -1464,10 +1464,10 @@ export default function ConsultationsTab() {
                   />
                 </div>
 
-                {/* Hakim Notes / Dietary Restrictions */}
+                {/* Hakeem Notes / Dietary Restrictions */}
                 <div className="space-y-1">
                   <label className="text-xs font-semibold text-ink">
-                    Dietary Restrictions (Parhez) &amp; Clinical Hakim Notes
+                    Dietary Restrictions (Parhez) &amp; Clinical Hakeem Notes
                   </label>
                   <textarea
                     rows={2}

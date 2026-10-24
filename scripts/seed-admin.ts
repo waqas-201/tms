@@ -4,7 +4,7 @@ import prisma from "../lib/prisma";
 async function seedAdmin() {
   const adminEmail = (process.env.ADMIN_EMAIL || "admin@tameeresehat.com").toLowerCase();
   const adminPassword = process.env.ADMIN_INITIAL_PASSWORD || "Admin@TemporaryDev123!";
-  const adminName = "Hakim Tariq Mehmood (Admin)";
+  const adminName = "Hakeem Tahir Hameed (Admin)";
 
   console.log(`Checking admin account for: ${adminEmail}...`);
 
@@ -28,7 +28,7 @@ async function seedAdmin() {
       // Ensure role is admin
       await prisma.user.update({
         where: { email: adminEmail },
-        data: { role: "admin", city: "Karachi", phone: "0318-2311310" },
+        data: { role: "admin", city: "Karachi", phone: "0335-3547888" },
       });
       console.log("✅ Admin role set to 'admin'");
     } catch (e: any) {
@@ -59,7 +59,7 @@ async function seedAdmin() {
       });
       await prisma.user.update({
         where: { email: adminEmail },
-        data: { role: "admin", city: "Karachi", phone: "0318-2311310" },
+        data: { role: "admin", city: "Karachi", phone: "0335-3547888" },
       });
       console.log("✅ Admin user and credentials re-created successfully!");
     } else {

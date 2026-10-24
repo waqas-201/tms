@@ -61,8 +61,8 @@ test.describe("Section 1: Hero & Header Viewport Verification", () => {
     test("WhatsApp floating button (WhatsAppFloat) is hidden/not visible on mobile", async ({ page }) => {
       await page.goto("/");
 
-      // WhatsApp floating button has aria-label for Chat with Hakim / Tameer-e-Sehat on WhatsApp
-      const whatsappFloat = page.locator('a[aria-label="Chat with Hakim / Tameer-e-Sehat on WhatsApp"]');
+      // WhatsApp floating button has aria-label for Chat with Hakeem / Tameer-e-Sehat on WhatsApp
+      const whatsappFloat = page.locator('a[aria-label="Chat with Hakeem / Tameer-e-Sehat on WhatsApp"]');
 
       // Assert WhatsApp floating button is hidden (via hidden md:flex)
       await expect(whatsappFloat).toBeHidden();
@@ -90,9 +90,9 @@ test.describe("Section 1: Hero & Header Viewport Verification", () => {
 
       const mainHeadline = leftCol.locator("h1");
       await expect(mainHeadline).toBeVisible();
-      await expect(mainHeadline).toContainText("Heal Naturally with a Trusted Hakim");
+      await expect(mainHeadline).toContainText("Heal Naturally with a Trusted Hakeem");
 
-      const consultButton = leftCol.locator("button", { hasText: "Consult Hakim Sahib" });
+      const consultButton = leftCol.locator("button", { hasText: "Consult Hakeem Sahib" });
       await expect(consultButton).toBeVisible();
 
       const browseLink = leftCol.locator('a[href="#remedies"]', { hasText: "Browse Remedies" });
@@ -112,7 +112,7 @@ test.describe("Section 1: Hero & Header Viewport Verification", () => {
     test("WhatsApp floating button IS visible on desktop", async ({ page }) => {
       await page.goto("/");
 
-      const whatsappFloat = page.locator('a[aria-label="Chat with Hakim / Tameer-e-Sehat on WhatsApp"]');
+      const whatsappFloat = page.locator('a[aria-label="Chat with Hakeem / Tameer-e-Sehat on WhatsApp"]');
 
       // Assert WhatsApp floating button is visible on desktop
       await expect(whatsappFloat).toBeVisible();
@@ -122,7 +122,7 @@ test.describe("Section 1: Hero & Header Viewport Verification", () => {
       expect(href).toContain("https://wa.me/");
 
       // Assert button text content
-      await expect(whatsappFloat).toContainText("Online Hakim");
+      await expect(whatsappFloat).toContainText("Online Hakeem");
       await expect(whatsappFloat).toContainText("Chat on WhatsApp");
     });
   });

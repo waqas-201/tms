@@ -89,13 +89,13 @@ export default function PrescribedRemediesSection() {
                 openConsultation({
                   mode: "WHATSAPP",
                   message:
-                    "Assalam-o-Alaikum Hakim Sahib, I need guidance on choosing the right remedy for my condition.",
+                    "Assalam-o-Alaikum Hakeem Sahib, I need guidance on choosing the right remedy for my condition.",
                 })
               }
               className="inline-flex items-center gap-1.5 px-3.5 py-2 sm:px-4 sm:py-2.5 bg-brand-green-50 hover:bg-brand-green-100 border border-brand-green-200 text-primary text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-2xs hover:shadow-xs active:scale-95 cursor-pointer"
             >
               <MessageCircle className="w-3.5 h-3.5 text-whatsapp" />
-              <span>Ask a Hakim</span>
+              <span>Ask a Hakeem</span>
             </button>
             <Link
               href="/products"
@@ -176,7 +176,7 @@ export default function PrescribedRemediesSection() {
             onClick={() =>
               openConsultation({
                 message:
-                  "Assalam-o-Alaikum Hakim Sahib, I would like to inquire about a custom herbal formulation and dosage for my health condition.",
+                  "Assalam-o-Alaikum Hakeem Sahib, I would like to inquire about a custom herbal formulation and dosage for my health condition.",
                 mode: "WHATSAPP",
               })
             }

@@ -62,7 +62,7 @@ export default function Footer() {
             </div>
             <div>
               <h4 className="text-sm font-semibold text-white">
-                Experienced Hakim
+                Experienced Hakeem
               </h4>
               <p className="text-xs text-on-inverse/90 mt-0.5">
                 Formulated by qualified herbal practitioners with 35+ years of experience.
@@ -122,7 +122,7 @@ export default function Footer() {
                 onClick={() =>
                   openConsultation({
                     mode: "WHATSAPP",
-                    message: "Assalam-o-Alaikum Hakim Sahib, I would like to seek herbal guidance regarding my health symptoms.",
+                    message: "Assalam-o-Alaikum Hakeem Sahib, I would like to seek herbal guidance regarding my health symptoms.",
                   })
                 }
                 className="inline-flex items-center gap-2 px-3.5 py-2 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs font-semibold rounded-md transition-colors shadow-xs cursor-pointer"
@@ -135,7 +135,7 @@ export default function Footer() {
                 onClick={() =>
                   openConsultation({
                     mode: "WHATSAPP",
-                    message: "Assalam-o-Alaikum Hakim Sahib, I would like to book a free herbal consultation.",
+                    message: "Assalam-o-Alaikum Hakeem Sahib, I would like to book a free herbal consultation.",
                   })
                 }
                 className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-brand-green-900 hover:bg-brand-green-600 text-white text-xs font-semibold rounded-md transition-colors border border-brand-green-600 cursor-pointer"
@@ -293,7 +293,7 @@ export default function Footer() {
                   onClick={() =>
                     openConsultation({
                       mode: "PHYSICAL",
-                      message: "I would like to book an in-person consultation appointment at the Karachi clinic with Hakim Tahir Hameed.",
+                      message: "I would like to book an in-person consultation appointment at the Karachi clinic with Hakeem Tahir Hameed.",
                     })
                   }
                   className="inline-flex items-center gap-1.5 text-xs text-brand-gold-300 hover:text-brand-gold-200 font-semibold hover:underline cursor-pointer"

@@ -33,7 +33,7 @@ An administrative adjustment knob (-2 to +2 days) to synchronize the astronomica
 _Avoid_: Timezone shift, delay, date fix
 
 **Consultation Request**:
-An inquiry submitted by a patient seeking holistic Unani medical guidance, dietary assessment, or herbal treatment from Hakim Tahir Hameed, conducted either via Instant WhatsApp or an In-Person Clinic Visit.
+An inquiry submitted by a patient seeking holistic Unani medical guidance, dietary assessment, or herbal treatment from Hakeem Tahir Hameed, conducted either via Instant WhatsApp or an In-Person Clinic Visit.
 _Avoid_: Order, appointment booking (unless In-Person), customer ticket
 
 **Consultation Ticket**:

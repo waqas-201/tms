@@ -69,11 +69,11 @@ test.describe("E2E Full-Page Flow - Sections 3 to 6 & Responsive Verification", 
 
       // Assert modal opens uniquely
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Muhammad Tariq/i,
+        name: /Consult Hakeem Tahir Hameed/i,
       });
       await expect(modal).toBeVisible({ timeout: 10000 });
       await expect(
-        modal.getByRole("heading", { name: /Consult Hakim Muhammad Tariq/i })
+        modal.getByRole("heading", { name: /Consult Hakeem Tahir Hameed/i })
       ).toBeVisible();
 
       // Close modal
@@ -82,7 +82,7 @@ test.describe("E2E Full-Page Flow - Sections 3 to 6 & Responsive Verification", 
       await expect(modal).not.toBeVisible();
     });
 
-    test("Section 4: Hakim Authority & physical Karachi clinic visit displays credentials and clinic appointment CTA", async ({
+    test("Section 4: Hakeem Authority & physical Karachi clinic visit displays credentials and clinic appointment CTA", async ({
       page,
     }) => {
       await page.goto("/", { waitUntil: "domcontentloaded" });
@@ -98,8 +98,8 @@ test.describe("E2E Full-Page Flow - Sections 3 to 6 & Responsive Verification", 
         })
       ).toBeVisible();
 
-      // Hakim portrait / title and clinical metrics
-      await expect(authoritySection.getByText(/Hakim Muhammad Tariq/i).first()).toBeVisible();
+      // Hakeem portrait / title and clinical metrics
+      await expect(authoritySection.getByText(/Hakeem Tahir Hameed/i).first()).toBeVisible();
       await expect(authoritySection.getByText("35+").first()).toBeVisible();
       await expect(authoritySection.getByText(/Years Clinical Experience/i)).toBeVisible();
       await expect(authoritySection.getByText("150K+")).toBeVisible();
@@ -122,7 +122,7 @@ test.describe("E2E Full-Page Flow - Sections 3 to 6 & Responsive Verification", 
       await bookClinicButton.click();
 
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Muhammad Tariq/i,
+        name: /Consult Hakeem Tahir Hameed/i,
       });
       await expect(modal).toBeVisible({ timeout: 10000 });
 
@@ -181,7 +181,7 @@ test.describe("E2E Full-Page Flow - Sections 3 to 6 & Responsive Verification", 
       // Banner Heading
       await expect(
         consultBanner.getByRole("heading", {
-          name: /Direct Consultation with Hakim Muhammad Tariq/i,
+          name: /Direct Consultation with Hakeem Tahir Hameed/i,
         })
       ).toBeVisible();
 
@@ -193,7 +193,7 @@ test.describe("E2E Full-Page Flow - Sections 3 to 6 & Responsive Verification", 
       await whatsappButton.click();
 
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Muhammad Tariq/i,
+        name: /Consult Hakeem Tahir Hameed/i,
       });
       await expect(modal).toBeVisible({ timeout: 10000 });
 
@@ -312,7 +312,7 @@ test.describe("E2E Full-Page Flow - Sections 3 to 6 & Responsive Verification", 
       await mobileWhatsappBtn.click();
 
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Muhammad Tariq/i,
+        name: /Consult Hakeem Tahir Hameed/i,
       });
       await expect(modal).toBeVisible({ timeout: 10000 });
 

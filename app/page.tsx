@@ -20,7 +20,7 @@ export default function Home() {
       {/* 4. Curated Physician-Formulated Remedies (Live apothecary dispensary grid) */}
       <PrescribedRemediesSection />
 
-      {/* 5. Hakim Authority & Physical Karachi Clinic Visit (Lineage, standards & Matab details) */}
+      {/* 5. Hakeem Authority & Physical Karachi Clinic Visit (Lineage, standards & Matab details) */}
       <HakimAuthoritySection />
     </>
   );

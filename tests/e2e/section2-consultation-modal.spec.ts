@@ -44,7 +44,7 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
       await expect(input).toBeEmpty();
 
       const consultButton = card.getByRole("button", {
-        name: /Consult Hakim Sahib/i,
+        name: /Consult Hakeem Sahib/i,
       });
       await expect(consultButton).toBeVisible();
 
@@ -105,21 +105,21 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
       await input.fill(customSymptom);
       await expect(input).toHaveValue(customSymptom);
 
-      // Click "Consult Hakim Sahib"
+      // Click "Consult Hakeem Sahib"
       const consultButton = card.getByRole("button", {
-        name: /Consult Hakim Sahib/i,
+        name: /Consult Hakeem Sahib/i,
       });
       await consultButton.click();
 
       // Assert universal ConsultationModal opens
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Tahir Hameed/i,
+        name: /Consult Hakeem Tahir Hameed/i,
       });
       await expect(modal).toBeVisible();
 
       // Assert Modal Header credentials
       await expect(
-        modal.getByRole("heading", { name: /Consult Hakim Tahir Hameed/i })
+        modal.getByRole("heading", { name: /Consult Hakeem Tahir Hameed/i })
       ).toBeVisible();
       await expect(
         modal.getByText(/35\+ Years Classical Unani Wisdom/i)
@@ -171,15 +171,15 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
 
       await expect(input).toHaveValue("Stomach Acidity / Gas, Vitality & Energy");
 
-      // Click "Consult Hakim Sahib"
+      // Click "Consult Hakeem Sahib"
       const consultButton = card.getByRole("button", {
-        name: /Consult Hakim Sahib/i,
+        name: /Consult Hakeem Sahib/i,
       });
       await consultButton.click();
 
       // Verify universal ConsultationModal opens
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Tahir Hameed/i,
+        name: /Consult Hakeem Tahir Hameed/i,
       });
       await expect(modal).toBeVisible();
 
@@ -218,12 +218,12 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
       await expect(input).toHaveValue("Stomach Acidity / Gas");
 
       const consultButton = card.getByRole("button", {
-        name: /Consult Hakim Sahib/i,
+        name: /Consult Hakeem Sahib/i,
       });
       await consultButton.click();
 
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Tahir Hameed/i,
+        name: /Consult Hakeem Tahir Hameed/i,
       });
       await expect(modal).toBeVisible();
 
@@ -336,12 +336,12 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
       await expect(input).toHaveValue("Joint & Knee Pain");
 
       const consultButton = card.getByRole("button", {
-        name: /Consult Hakim Sahib/i,
+        name: /Consult Hakeem Sahib/i,
       });
       await consultButton.click();
 
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Tahir Hameed/i,
+        name: /Consult Hakeem Tahir Hameed/i,
       });
       await expect(modal).toBeVisible();
 
@@ -470,15 +470,15 @@ test.describe("Section 2: Minimal Consultation Card & Universal ConsultationModa
 
       await expect(input).toHaveValue("Hair Fall & Scalp");
 
-      // Tap "Consult Hakim Sahib"
+      // Tap "Consult Hakeem Sahib"
       const consultButton = card.getByRole("button", {
-        name: /Consult Hakim Sahib/i,
+        name: /Consult Hakeem Sahib/i,
       });
       await consultButton.click();
 
       // Modal appears
       const modal = page.getByRole("dialog", {
-        name: /Consult Hakim Tahir Hameed/i,
+        name: /Consult Hakeem Tahir Hameed/i,
       });
       await expect(modal).toBeVisible();
 

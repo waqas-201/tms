@@ -571,7 +571,7 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
  */
 export async function sendAdminOrderNotificationEmail(params: OrderConfirmationEmailParams) {
   try {
-    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.EMAIL_FROM || "admin@tameeresehat.com";
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.ADMIN_EMAIL || "admin@tameeresehat.com";
     const cleanAdminTo = adminEmail.includes("<")
       ? adminEmail.match(/<([^>]+)>/)?.[1] || adminEmail
       : adminEmail;
@@ -854,7 +854,7 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
  */
 export async function sendAdminAppointmentNotificationEmail(params: AppointmentEmailParams) {
   try {
-    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.EMAIL_FROM || "admin@tameeresehat.com";
+    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.ADMIN_EMAIL || "admin@tameeresehat.com";
     const cleanAdminTo = adminEmail.includes("<")
       ? adminEmail.match(/<([^>]+)>/)?.[1] || adminEmail
       : adminEmail;

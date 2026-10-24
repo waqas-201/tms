@@ -17,12 +17,21 @@ export const auth = betterAuth({
     requireEmailVerification: true,
     resetPasswordTokenExpiresIn: 60 * 60, // 1 hour
     sendResetPassword: async ({ user, url, token }) => {
-      await sendPasswordResetEmail({
+      const result = await sendPasswordResetEmail({
         to: user.email,
         name: user.name,
         url,
         token,
       });
+
+      if (!result.success) {
+        console.error(
+          "[auth] Password reset email could not be delivered to",
+          user.email,
+          "—",
+          result.error
+        );
+      }
     },
   },
   emailVerification: {
@@ -30,12 +39,21 @@ export const auth = betterAuth({
     autoSignInAfterVerification: true,
     expiresIn: 60 * 60 * 24, // 24 hours
     sendVerificationEmail: async ({ user, url, token }) => {
-      await sendVerificationEmail({
+      const result = await sendVerificationEmail({
         to: user.email,
         name: user.name,
         url,
         token,
       });
+
+      if (!result.success) {
+        console.error(
+          "[auth] Verification email could not be delivered to",
+          user.email,
+          "—",
+          result.error
+        );
+      }
     },
   },
   user: {

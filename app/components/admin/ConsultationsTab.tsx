@@ -377,6 +377,10 @@ export default function ConsultationsTab() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          staffBooking: true,
+          patientName: newBooking.fullName,
+          patientPhone: newBooking.phone,
+          patientEmail: newBooking.email || undefined,
           fullName: newBooking.fullName,
           phone: newBooking.phone,
           email: newBooking.email || undefined,

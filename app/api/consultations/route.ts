@@ -7,6 +7,7 @@ import {
   sendAdminAppointmentNotificationEmail,
   sendAppointmentStatusEmail,
 } from "@/lib/email";
+import { createAdminNotification } from "@/lib/notifications";
 import { getAvailableSlotsForDate } from "@/lib/clinic-schedule";
 
 export async function GET(request: NextRequest) {
@@ -147,7 +148,29 @@ export async function POST(request: NextRequest) {
       reportSize,
       status: requestedStatus,
       userId: requestedUserId,
+      // Older forms posted these names; accept them so the phone number is
+      // never silently dropped from a booking.
+      fullName,
+      phone,
+      staffBooking: requestedStaffBooking,
     } = body;
+
+    // Staff accounts are for managing the platform, not for booking as
+    // patients. A staff member may still create a booking on behalf of a
+    // phone/WhatsApp patient, but only with an explicit staffBooking flag and
+    // the patient's own contact details.
+    const isStaffBooking = staffSession && requestedStaffBooking === true;
+    if (staffSession && !isStaffBooking) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Staff accounts cannot book consultations as patients. Use the admin dashboard to create a booking on behalf of a patient.",
+          staffForbidden: true,
+        },
+        { status: 403 }
+      );
+    }
 
     // Validate required appointment slot
     if (!appointmentDate || !/^\d{4}-\d{2}-\d{2}$/.test(appointmentDate)) {
@@ -201,7 +224,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Determine target user and permissions
-    let targetUserId = session.user.id;
+    let targetUserId: string | null = isStaffBooking ? null : session.user.id;
     let initialStatus = "NEW";
 
     const ALLOWED_STATUSES = [
@@ -213,7 +236,7 @@ export async function POST(request: NextRequest) {
       "CANCELLED",
     ];
 
-    if (staffSession) {
+    if (isStaffBooking) {
       initialStatus = ALLOWED_STATUSES.includes(requestedStatus)
         ? requestedStatus
         : "NEW";
@@ -234,9 +257,42 @@ export async function POST(request: NextRequest) {
     }
 
     // Contact resolution (defaults to user account info)
-    const effectiveName = patientName?.trim() || session.user.name || "Patient";
-    const effectiveEmail = (patientEmail?.trim() || session.user.email || "").toLowerCase();
-    const effectivePhone = patientPhone?.trim() || (session.user as any)?.phone || null;
+    const effectiveName =
+      patientName?.trim() ||
+      fullName?.trim() ||
+      session.user.name ||
+      "Patient";
+    const effectiveEmail = (
+      patientEmail?.trim() ||
+      session.user.email ||
+      ""
+    ).toLowerCase();
+    const effectivePhone =
+      patientPhone?.trim() ||
+      phone?.trim() ||
+      (session.user as any)?.phone ||
+      null;
+
+    // Phone is mandatory: clinic staff must be able to call every patient.
+    if (!effectivePhone || String(effectivePhone).replace(/\D/g, "").length < 7) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "A valid phone / WhatsApp number is required so the clinic can contact you about this booking.",
+          phoneRequired: true,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Staff-created phone bookings must carry the patient's name too.
+    if (isStaffBooking && !patientName?.trim() && !fullName?.trim()) {
+      return NextResponse.json(
+        { success: false, error: "Patient name is required for a staff booking." },
+        { status: 400 }
+      );
+    }
 
     // Generate ticket number: CON-YYYY-XXXX
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
@@ -264,6 +320,22 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    // In-app staff alert for patient self-bookings. Staff-created phone
+    // bookings do not need to notify the staff member who just made them.
+    if (!isStaffBooking) {
+      await createAdminNotification({
+        type: "CONSULTATION",
+        title: `New consultation ${consultation.ticketNumber}`,
+        message: `${effectiveName} · ${effectivePhone} · ${
+          consultation.consultationType === "IN_PERSON"
+            ? "In-person"
+            : "Online"
+        } · ${consultation.appointmentDate} ${consultation.appointmentSlot}`,
+        link: "/admin?tab=consultations",
+        entityId: consultation.id,
+      });
+    }
 
     // Background Email Triggers (non-blocking)
     const emailPhone = effectivePhone || "Via Account";
@@ -300,20 +372,22 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    sendAdminAppointmentNotificationEmail({
-      to: "admin",
-      fullName: effectiveName,
-      ticketNumber: consultation.ticketNumber,
-      consultationType: consultation.consultationType,
-      appointmentDate: consultation.appointmentDate,
-      appointmentSlot: consultation.appointmentSlot,
-      phone: emailPhone,
-      email: effectiveEmail || undefined,
-      city: emailCity,
-      primarySymptoms: emailSymptoms,
-    }).catch((err) =>
-      console.error("[Admin Appointment Notification Email Async Error]:", err)
-    );
+    if (!isStaffBooking) {
+      sendAdminAppointmentNotificationEmail({
+        to: "admin",
+        fullName: effectiveName,
+        ticketNumber: consultation.ticketNumber,
+        consultationType: consultation.consultationType,
+        appointmentDate: consultation.appointmentDate,
+        appointmentSlot: consultation.appointmentSlot,
+        phone: emailPhone,
+        email: effectiveEmail || undefined,
+        city: emailCity,
+        primarySymptoms: emailSymptoms,
+      }).catch((err) =>
+        console.error("[Admin Appointment Notification Email Async Error]:", err)
+      );
+    }
 
     const mappedConsultation = {
       ...consultation,

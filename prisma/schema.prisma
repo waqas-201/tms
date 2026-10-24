@@ -230,8 +230,8 @@ model OrderItem {
 model ConsultationRequest {
   id                  String   @id @default(cuid())
   ticketNumber        String   @unique // e.g. CON-2026-8921
-  userId              String
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId              String?
+  user                User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   consultationType    String   @default("ONLINE") // "ONLINE" | "IN_PERSON"
   appointmentDate     String?  // "YYYY-MM-DD" e.g. "2026-10-05"
   appointmentSlot     String?  // "10:00 AM - 11:00 AM"
@@ -381,6 +381,24 @@ model HijamaSetting {
   updatedAt            DateTime @updatedAt
 
   @@map("hijama_setting")
+}
+
+// -------------------------------------------------------------
+// Admin In-App Notifications
+// -------------------------------------------------------------
+
+model AdminNotification {
+  id        String    @id @default(cuid())
+  type      String // "ORDER" | "CONSULTATION" | "HIJAMA" | "INQUIRY"
+  title     String
+  message   String
+  link      String? // Deep link into the admin dashboard
+  entityId  String? // Related order / consultation / booking id
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([readAt, createdAt])
+  @@map("admin_notification")
 }
 
 model HijamaDateOverride {

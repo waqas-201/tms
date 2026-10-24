@@ -295,7 +295,7 @@ export default function HeroSection() {
               {PORTRAIT_SRC ? (
                 <Image
                   src={PORTRAIT_SRC}
-                  alt="Hakim Muhammad Tariq Mahmood, senior Tibbi physician at Matab Tameer-e-Sehat, Karachi"
+                  alt="Hakeem Tahir Hameed , senior Tibbi physician at Matab Tameer-e-Sehat, Karachi"
                   fill
                   sizes="440px"
                   className="object-cover object-top"
@@ -306,7 +306,7 @@ export default function HeroSection() {
 
               <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-brand-green-900 via-brand-green-900/70 to-transparent px-6 pb-6 pt-20 text-center">
                 <p className="font-serif text-xl font-bold leading-tight">
-                  Hakim Muhammad Tariq Mahmood
+                    Hakeem Tahir Hameed
                 </p>
                 <p className="mt-1 text-sm text-sand-100/80">
                   Senior Tibbi physician, Karachi

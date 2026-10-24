@@ -3,6 +3,8 @@ import { createHijamaBooking } from "@/lib/hijama";
 import { auth } from "@/lib/auth";
 import { isStaffRole } from "@/lib/rbac-base";
 import prisma from "@/lib/prisma";
+import { createAdminNotification } from "@/lib/notifications";
+import { sendAdminHijamaNotificationEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -22,6 +24,20 @@ export async function POST(request: NextRequest) {
     }
 
     const isStaff = isStaffRole((session?.user as any)?.role);
+
+    // Staff accounts manage the clinic; they must not book as patients.
+    // Walk-in/phone bookings go through /api/hijama/bookings instead.
+    if (isStaff) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            "Staff accounts cannot book Hijama sessions as patients. Use the admin dashboard to create a booking on behalf of a patient.",
+          staffForbidden: true,
+        },
+        { status: 403 }
+      );
+    }
 
     if (!isStaff) {
       const dbUser = await prisma.user.findUnique({
@@ -56,13 +72,32 @@ export async function POST(request: NextRequest) {
       contraindications: body.contraindications,
       // Patients can never set their own fee, payment state, notes, or
       // attach a booking to someone else's account.
-      feeAmount: isStaff ? body.feeAmount : undefined,
-      paymentStatus: isStaff ? body.paymentStatus || "UNPAID" : "UNPAID",
-      adminNotes: isStaff ? body.adminNotes : undefined,
-      userId: isStaff
-        ? body.userId || null
-        : session.user.id,
+      paymentStatus: "UNPAID",
+      userId: session.user.id,
     });
+
+    await createAdminNotification({
+      type: "HIJAMA",
+      title: `New Hijama booking ${booking.ticketNumber}`,
+      message: `${booking.fullName} · ${booking.phone} · ${booking.gender} · ${booking.appointmentDate} ${booking.appointmentSlot}`,
+      link: "/admin?tab=hijama",
+      entityId: booking.id,
+    });
+
+    sendAdminHijamaNotificationEmail({
+      fullName: booking.fullName,
+      ticketNumber: booking.ticketNumber,
+      phone: booking.phone,
+      email: booking.email,
+      age: booking.age,
+      gender: booking.gender,
+      appointmentDate: booking.appointmentDate,
+      appointmentSlot: booking.appointmentSlot,
+      isSunnahDay: booking.isSunnahDay,
+      cuppingReason: booking.cuppingReason,
+    }).catch((err) =>
+      console.error("[Admin Hijama Notification Email Async Error]:", err)
+    );
 
     return NextResponse.json(
       {

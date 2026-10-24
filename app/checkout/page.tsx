@@ -7,6 +7,7 @@ import { useCart } from "@/app/context/CartContext";
 import { useSession, sendVerificationEmail, getSession } from "@/lib/auth-client";
 import { CLINIC_INFO } from "@/app/data/products";
 import { getSafeProductImage } from "@/lib/utils";
+import { isStaffRole } from "@/lib/rbac-base";
 import {
   Truck,
   ShieldCheck,
@@ -71,6 +72,7 @@ export default function CheckoutPage() {
   } = useCart();
 
   const { data: sessionData } = useSession();
+  const isStaff = isStaffRole((sessionData?.user as { role?: string })?.role);
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -252,6 +254,45 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
+  // ─── STAFF GUARD: staff accounts manage the platform, they do not shop ───
+  if (isStaff) {
+    return (
+      <div className="bg-surface py-16 sm:py-20 min-h-[80vh] flex items-center">
+        <div className="max-w-lg mx-auto px-4 sm:px-6 w-full">
+          <div className="bg-white p-8 rounded-2xl border border-line shadow-xs text-center space-y-4">
+            <div className="w-14 h-14 rounded-full bg-brand-green-50 text-primary mx-auto flex items-center justify-center">
+              <ShieldCheck className="w-7 h-7" />
+            </div>
+            <div className="space-y-2">
+              <h1 className="font-serif text-xl sm:text-2xl font-bold text-primary">
+                Staff accounts cannot check out
+              </h1>
+              <p className="text-xs sm:text-sm text-ink-body">
+                You are signed in with a staff account. Orders are placed by
+                patients and managed from the admin dashboard.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2 pt-2">
+              <Link
+                href="/admin?tab=orders"
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-primary hover:bg-brand-green-800 text-white rounded-xl text-xs font-semibold transition-colors"
+              >
+                <ArrowRight className="w-3.5 h-3.5" />
+                <span>Go to Orders Dashboard</span>
+              </Link>
+              <Link
+                href="/products"
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-surface hover:bg-surface-sunken text-primary border border-line rounded-xl text-xs font-semibold transition-colors"
+              >
+                <span>Back to Shop</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // ─── ORDER CONFIRMATION SUCCESS SCREEN ───
   if (orderConfirmed && createdOrder) {

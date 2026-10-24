@@ -20,6 +20,7 @@ import {
   Activity,
   CalendarCheck,
   Droplets,
+  ShoppingBag,
 } from "lucide-react";
 import ProductFormModal from "@/app/components/ProductFormModal";
 import ReceiveStockModal from "@/app/components/inventory/ReceiveStockModal";
@@ -33,9 +34,12 @@ import CategoriesTab from "@/app/components/admin/CategoriesTab";
 import ConsultationsTab from "@/app/components/admin/ConsultationsTab";
 import ClinicScheduleTab from "@/app/components/admin/ClinicScheduleTab";
 import HijamaTab from "@/app/components/admin/HijamaTab";
+import OrdersTab from "@/app/components/admin/OrdersTab";
+import NotificationBell from "@/app/components/admin/NotificationBell";
 import { ROLES, isStaffRole } from "@/lib/rbac-base";
 
 type AdminTab =
+  | "orders"
   | "products"
   | "inventory"
   | "categories"
@@ -45,6 +49,7 @@ type AdminTab =
   | "hijama";
 
 const TABS: { id: AdminTab; label: string; icon: typeof Package }[] = [
+  { id: "orders", label: "Orders", icon: ShoppingBag },
   { id: "products", label: "Products", icon: Package },
   { id: "inventory", label: "Stock", icon: Warehouse },
   { id: "consultations", label: "Consultations & Rx", icon: Activity },
@@ -190,6 +195,7 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <NotificationBell />
             <button
               onClick={() => fetchData(true)}
               disabled={refreshing}
@@ -281,6 +287,8 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         )}
+
+        {activeTab === "orders" && <OrdersTab />}
 
         {activeTab === "products" && (
           <ProductsTab

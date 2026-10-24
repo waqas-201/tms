@@ -33,6 +33,7 @@ import {
 } from "lucide-react";
 import { useSession, signIn, signUp } from "@/lib/auth-client";
 import { CLINIC_INFO } from "@/app/data/products";
+import { isStaffRole } from "@/lib/rbac-base";
 import AuthModal from "@/app/components/AuthModal";
 import {
   formatDateStr,
@@ -71,6 +72,7 @@ export default function HijamaBookingModal({
   onBookingSuccess,
 }: HijamaBookingModalProps) {
   const { data: session } = useSession();
+  const isStaff = isStaffRole((session?.user as { role?: string })?.role);
 
   // Multi-step progress (1 to 5)
   const [step, setStep] = useState<number>(1);
@@ -226,16 +228,26 @@ export default function HijamaBookingModal({
   // Step 4 Validation: User must be signed in, and have valid Name, Phone, Age
   const canProceedStep4 = useMemo(() => {
     if (!session?.user) return false;
+    // Staff accounts manage the clinic and cannot book as patients.
+    if (isStaff) return false;
     const validName = details.fullName.trim().length >= 3;
     const digits = details.phone.replace(/\D/g, "");
     const validPhone = digits.length >= 10;
     const validAge = Number(details.age) > 0 && Number(details.age) <= 110;
     return validName && validPhone && validAge;
-  }, [details, session]);
+  }, [details, session, isStaff]);
 
   // Handle final booking submission
   const handleSubmitBooking = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+
+    if (isStaff) {
+      setSubmitError(
+        "Staff accounts cannot book Hijama sessions as patients. Use the admin dashboard to create a booking on behalf of a patient."
+      );
+      return;
+    }
+
     if (!canProceedStep4) return;
 
     setSubmitting(true);
@@ -1304,6 +1316,25 @@ export default function HijamaBookingModal({
                     </button>
                   </form>
                 )}
+              </div>
+            ) : isStaff ? (
+              <div className="p-5 rounded-2xl bg-warning-soft border border-warning-line text-center space-y-3">
+                <Shield className="w-8 h-8 text-warning mx-auto" />
+                <h3 className="font-serif text-lg font-bold text-ink">
+                  Staff accounts cannot book sessions
+                </h3>
+                <p className="text-xs text-ink-body max-w-sm mx-auto">
+                  You are signed in with a staff account. Hijama bookings are
+                  created by patients, or by staff from the admin dashboard on
+                  behalf of a patient.
+                </p>
+                <a
+                  href="/admin?tab=hijama"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-primary hover:bg-brand-green-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors"
+                >
+                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Go to Hijama Dashboard</span>
+                </a>
               </div>
             ) : (
               /* ── AUTHENTICATED: PATIENT FORM ── */

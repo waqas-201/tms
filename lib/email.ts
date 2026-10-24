@@ -4,8 +4,32 @@ import { BRAND } from "./brand-colors";
 const resendApiKey = process.env.RESEND_API_KEY;
 export const resend = new Resend(resendApiKey || "re_placeholder_key_for_build");
 
-const DEFAULT_FROM = process.env.EMAIL_FROM || "Tameer-e-Sehat <onboarding@resend.dev>";
+// The Resend sandbox sender (onboarding@resend.dev) can ONLY deliver to the
+// Resend account owner's own address. Any other recipient is rejected with a
+// 403 validation_error, which silently breaks signup verification and
+// password resets. Always send from a verified domain in production.
+const DEFAULT_FROM = process.env.EMAIL_FROM?.trim() || "Tameer-e-Sehat <noreply@tameeresehat.com>";
+
+// Optional reply-to. Leave unset when the domain has no inbound mailbox yet,
+// otherwise patient replies bounce.
+const REPLY_TO = process.env.EMAIL_REPLY_TO?.trim();
+
+if (process.env.NODE_ENV === "production" && DEFAULT_FROM.includes("resend.dev")) {
+  console.warn(
+    "[email] EMAIL_FROM is still using the Resend sandbox sender (resend.dev). " +
+      "Emails will only reach the Resend account owner. Set EMAIL_FROM to an address " +
+      "on a verified domain, e.g. 'Tameer-e-Sehat <noreply@tameeresehat.com>'."
+  );
+}
+
 const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL || "http://localhost:3000").replace(/\/+$/, "");
+
+/**
+ * Adds the optional reply-to address to a Resend payload.
+ */
+function withReplyTo<T extends object>(payload: T) {
+  return REPLY_TO ? { ...payload, replyTo: REPLY_TO } : payload;
+}
 
 interface SendEmailParams {
   to: string;
@@ -110,12 +134,12 @@ export async function sendVerificationEmail({ to, name, url }: SendEmailParams) 
 </html>
     `;
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send(withReplyTo({
       from: DEFAULT_FROM,
       to: [to],
       subject: "Verify Your Email - Tameer-e-Sehat Herbal Clinic",
       html: htmlContent,
-    });
+    }));
 
     if (error) {
       console.error("[Email Verification Dispatch Error]:", error);
@@ -226,12 +250,12 @@ export async function sendPasswordResetEmail({ to, name, url }: SendEmailParams)
 </html>
     `;
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send(withReplyTo({
       from: DEFAULT_FROM,
       to: [to],
       subject: "Reset Your Password - Tameer-e-Sehat Herbal Clinic",
       html: htmlContent,
-    });
+    }));
 
     if (error) {
       console.error("[Password Reset Email Dispatch Error]:", error);
@@ -523,12 +547,12 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
 </html>
     `;
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send(withReplyTo({
       from: DEFAULT_FROM,
       to: [to],
       subject: `Order Confirmed: ${orderNumber} - Tameer-e-Sehat Herbal Apothecary`,
       html: htmlContent,
-    });
+    }));
 
     if (error) {
       console.error("[Order Confirmation Email Dispatch Error]:", error);
@@ -608,12 +632,12 @@ export async function sendAdminOrderNotificationEmail(params: OrderConfirmationE
 </html>
     `;
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send(withReplyTo({
       from: DEFAULT_FROM,
       to: [cleanAdminTo],
       subject: `[New Order Alert] ${orderNumber} - ₨ ${total.toLocaleString()} (${customerName})`,
       html: htmlContent,
-    });
+    }));
 
     if (error) {
       console.error("[Admin Order Notification Email Error]:", error);
@@ -806,12 +830,12 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
 </html>
     `;
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send(withReplyTo({
       from: DEFAULT_FROM,
       to: [to],
       subject: `Booking Received: ${ticketNumber} - Tameer-e-Sehat`,
       html: htmlContent,
-    });
+    }));
 
     if (error) {
       console.error("[Appointment Confirmation Email Error]:", error);
@@ -895,12 +919,12 @@ export async function sendAdminAppointmentNotificationEmail(params: AppointmentE
 </html>
     `;
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send(withReplyTo({
       from: DEFAULT_FROM,
       to: [cleanAdminTo],
       subject: `[Booking Alert] ${ticketNumber} - ${fullName} (${appointmentDate || "Today"} ${appointmentSlot || ""})`,
       html: htmlContent,
-    });
+    }));
 
     if (error) {
       console.error("[Admin Appointment Notification Email Error]:", error);
@@ -1000,12 +1024,12 @@ export async function sendAppointmentStatusEmail(params: {
 </html>
     `;
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send(withReplyTo({
       from: DEFAULT_FROM,
       to: [to],
       subject: `${statusTitle}: ${ticketNumber} - Tameer-e-Sehat`,
       html: htmlContent,
-    });
+    }));
 
     if (error) {
       console.error("[Appointment Status Email Error]:", error);
@@ -1096,12 +1120,12 @@ export async function sendHakimPrescriptionEmail(params: {
 </html>
     `;
 
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await resend.emails.send(withReplyTo({
       from: DEFAULT_FROM,
       to: [to],
       subject: `Hakim Prescription & Protocol: ${ticketNumber} - Tameer-e-Sehat`,
       html: htmlContent,
-    });
+    }));
 
     if (error) {
       console.error("[Hakim Prescription Email Error]:", error);

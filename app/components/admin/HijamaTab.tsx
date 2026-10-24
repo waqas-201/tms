@@ -229,6 +229,9 @@ export default function HijamaTab() {
           appointmentSlot: form.appointmentSlot,
           cuppingReason: form.cuppingReason || null,
           userId: linkedAccount?.id || undefined,
+          // Staff accounts create bookings on behalf of patients. The API
+          // rejects staff sessions that do not explicitly opt in.
+          staffBooking: true,
         }),
       });
 

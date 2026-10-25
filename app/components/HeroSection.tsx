@@ -17,10 +17,11 @@ import { useConsultation } from "@/app/context/ConsultationContext";
  * tablets. No gap below it, whatever your banner/navbar height is.
  * Desktop keeps the original fixed calc (--hh, lg:--hh).
  *
- * PORTRAIT: the Hakeem's photo (public/images/hkm.png) fills the desktop arch.
+ * PORTRAIT: the Hakeem's real photo (public/images/hakeem-portrait.webp,
+ * cropped 4:5 from public/images/hakeem-tahir-hameed.jpg) fills the desktop arch.
  */
 
-const PORTRAIT_SRC = "/images/hkm.webp";
+const PORTRAIT_SRC = "/images/hakeem-portrait.webp";
 
 const CONDITIONS = [
   { icon: "🌿", title: "Gastric & digestion", concern: "Stomach, Gas & Acid Relief" },
@@ -295,7 +296,7 @@ export default function HeroSection() {
               {PORTRAIT_SRC ? (
                 <Image
                   src={PORTRAIT_SRC}
-                  alt="Hakeem Tahir Hameed, senior Tibbi physician at Matab Tameer-e-Sehat, Karachi"
+                  alt="Hakeem Tahir Hameed at his matab in Korangi, Karachi"
                   fill
                   sizes="440px"
                   className="object-cover object-top"

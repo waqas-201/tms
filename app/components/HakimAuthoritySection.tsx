@@ -78,8 +78,8 @@ export default function HakimAuthoritySection() {
               {/* Image Frame */}
               <div className="relative aspect-[4/4.2] sm:aspect-[4/4.4] w-full overflow-hidden bg-gradient-to-b from-sand-100 to-sand-200">
                 <Image
-                  src="/images/hkm.png"
-                  alt="Hakeem Tahir Hameed - Senior Tibbi Consultant at Tameer-e-Sehat Karachi"
+                  src="/images/hakeem-portrait.webp"
+                  alt="Hakeem Tahir Hameed at his matab in Korangi, Karachi"
                   fill
                   className="object-cover object-top transition-transform duration-700 group-hover:scale-102"
                   sizes="(max-width: 1024px) 100vw, 480px"

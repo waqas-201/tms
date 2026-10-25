@@ -6,6 +6,7 @@ export * from "./rbac-base";
 
 /**
  * Server-side API Route Guard: checks session and validates that the user possesses one of the allowed roles.
+ * Also verifies account active status.
  */
 export async function requireRole(
   request: NextRequest,
@@ -29,7 +30,28 @@ export async function requireRole(
       };
     }
 
-    const userRole = (session.user as any).role || ROLES.USER;
+    const userObj = session.user as any;
+    if (userObj.deletedAt) {
+      return {
+        session: null,
+        errorResponse: NextResponse.json(
+          { success: false, error: "Account has been deactivated or removed." },
+          { status: 403 }
+        ),
+      };
+    }
+
+    if (userObj.isActive === false) {
+      return {
+        session: null,
+        errorResponse: NextResponse.json(
+          { success: false, error: "Account is currently suspended. Please contact clinic administration." },
+          { status: 403 }
+        ),
+      };
+    }
+
+    const userRole = userObj.role || ROLES.USER;
 
     if (!allowedRoles.includes(userRole)) {
       return {
@@ -59,6 +81,7 @@ export async function requireRole(
 
 /**
  * Server-side API Route Guard: checks session and validates that the user possesses a specific permission.
+ * Also verifies account active status.
  */
 export async function requirePermission(
   request: NextRequest,
@@ -82,7 +105,28 @@ export async function requirePermission(
       };
     }
 
-    const userRole = (session.user as any).role || ROLES.USER;
+    const userObj = session.user as any;
+    if (userObj.deletedAt) {
+      return {
+        session: null,
+        errorResponse: NextResponse.json(
+          { success: false, error: "Account has been deactivated or removed." },
+          { status: 403 }
+        ),
+      };
+    }
+
+    if (userObj.isActive === false) {
+      return {
+        session: null,
+        errorResponse: NextResponse.json(
+          { success: false, error: "Account is currently suspended. Please contact clinic administration." },
+          { status: 403 }
+        ),
+      };
+    }
+
+    const userRole = userObj.role || ROLES.USER;
 
     if (!hasPermission(userRole, permission)) {
       return {

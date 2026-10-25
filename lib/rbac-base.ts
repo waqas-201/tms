@@ -1,5 +1,6 @@
 export const ROLES = {
   ADMIN: "admin",
+  HAKIM: "hakim",
   EDITOR: "editor",
   CONTRIBUTOR: "contributor",
   USER: "user",
@@ -42,6 +43,13 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     "users:manage",
     "stats:view",
   ],
+  hakim: [
+    "dashboard:view",
+    "orders:view_own",
+    "consultations:manage",
+    "consultations:view_own",
+    "inquiries:view",
+  ],
   editor: [
     "dashboard:view",
     "orders:view_own",
@@ -77,5 +85,10 @@ export function hasPermission(role: Role | undefined | null, permission: Permiss
  */
 export function isStaffRole(role: Role | undefined | null): boolean {
   if (!role) return false;
-  return role === ROLES.ADMIN || role === ROLES.EDITOR || role === ROLES.CONTRIBUTOR;
+  return (
+    role === ROLES.ADMIN ||
+    role === ROLES.HAKIM ||
+    role === ROLES.EDITOR ||
+    role === ROLES.CONTRIBUTOR
+  );
 }

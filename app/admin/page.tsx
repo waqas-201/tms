@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
@@ -21,6 +21,7 @@ import {
   CalendarCheck,
   Droplets,
   ShoppingBag,
+  Users,
 } from "lucide-react";
 import ProductFormModal from "@/app/components/ProductFormModal";
 import ReceiveStockModal from "@/app/components/inventory/ReceiveStockModal";
@@ -35,6 +36,7 @@ import ConsultationsTab from "@/app/components/admin/ConsultationsTab";
 import ClinicScheduleTab from "@/app/components/admin/ClinicScheduleTab";
 import HijamaTab from "@/app/components/admin/HijamaTab";
 import OrdersTab from "@/app/components/admin/OrdersTab";
+import UsersTab from "@/app/components/admin/UsersTab";
 import NotificationBell from "@/app/components/admin/NotificationBell";
 import SurfaceFade from "@/app/components/motion/SurfaceFade";
 import { ROLES, isStaffRole } from "@/lib/rbac-base";
@@ -47,9 +49,10 @@ type AdminTab =
   | "units"
   | "consultations"
   | "schedule"
-  | "hijama";
+  | "hijama"
+  | "users";
 
-const TABS: { id: AdminTab; label: string; icon: typeof Package }[] = [
+const TABS: { id: AdminTab; label: string; icon: typeof Package; adminOnly?: boolean }[] = [
   { id: "orders", label: "Orders", icon: ShoppingBag },
   { id: "products", label: "Products", icon: Package },
   { id: "inventory", label: "Stock", icon: Warehouse },
@@ -58,6 +61,7 @@ const TABS: { id: AdminTab; label: string; icon: typeof Package }[] = [
   { id: "schedule", label: "Clinic Schedule", icon: CalendarCheck },
   { id: "categories", label: "Categories", icon: FolderTree },
   { id: "units", label: "Units", icon: Scale },
+  { id: "users", label: "Users & Access", icon: Users, adminOnly: true },
 ];
 
 export default function AdminDashboardPage() {
@@ -67,10 +71,15 @@ export default function AdminDashboardPage() {
 
   const userRole = (sessionData?.user as any)?.role || "user";
   const isStaff = isStaffRole(userRole);
+  const isAdmin = userRole === ROLES.ADMIN;
+
+  const visibleTabs = useMemo(() => {
+    return isAdmin ? TABS : TABS.filter((t) => !t.adminOnly);
+  }, [isAdmin]);
 
   const tabFromUrl = searchParams.get("tab") as AdminTab | null;
   const initialTab: AdminTab =
-    tabFromUrl && TABS.some((t) => t.id === tabFromUrl) ? tabFromUrl : "products";
+    tabFromUrl && visibleTabs.some((t) => t.id === tabFromUrl) ? tabFromUrl : "products";
 
   const [activeTab, setActiveTab] = useState<AdminTab>(initialTab);
   const [products, setProducts] = useState<any[]>([]);
@@ -135,10 +144,10 @@ export default function AdminDashboardPage() {
   }, [sessionLoading, sessionData, isStaff, fetchData]);
 
   useEffect(() => {
-    if (tabFromUrl && TABS.some((t) => t.id === tabFromUrl) && tabFromUrl !== activeTab) {
+    if (tabFromUrl && visibleTabs.some((t) => t.id === tabFromUrl) && tabFromUrl !== activeTab) {
       setActiveTab(tabFromUrl);
     }
-  }, [tabFromUrl, activeTab]);
+  }, [tabFromUrl, visibleTabs, activeTab]);
 
   // Auth gates
   if (sessionLoading) {
@@ -218,7 +227,7 @@ export default function AdminDashboardPage() {
         {/* Tabs */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <nav className="flex items-center gap-1 overflow-x-auto">
-            {TABS.map((tab) => {
+            {visibleTabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               return (
@@ -290,58 +299,71 @@ export default function AdminDashboardPage() {
         )}
 
         <SurfaceFade surfaceKey={activeTab}>
-        {activeTab === "orders" && <OrdersTab />}
+          {activeTab === "orders" && <OrdersTab />}
 
-        {activeTab === "products" && (
-          <ProductsTab
-            products={products}
-            loading={loading}
-            onRefresh={() => fetchData(true)}
-            onOpenCreateModal={() => {
-              setEditingProduct(null);
-              setIsProductModalOpen(true);
-            }}
-            onOpenEditModal={(product) => {
-              setEditingProduct(product);
-              setIsProductModalOpen(true);
-            }}
-          />
-        )}
+          {activeTab === "products" && (
+            <ProductsTab
+              products={products}
+              loading={loading}
+              onRefresh={() => fetchData(true)}
+              onOpenCreateModal={() => {
+                setEditingProduct(null);
+                setIsProductModalOpen(true);
+              }}
+              onOpenEditModal={(product) => {
+                setEditingProduct(product);
+                setIsProductModalOpen(true);
+              }}
+            />
+          )}
 
-        {activeTab === "inventory" && (
-          <StockTab
-            inventorySizes={inventorySizes}
-            inventorySummary={inventorySummary}
-            loading={loading}
-            onRefresh={() => fetchData(true)}
-            onOpenQuickStock={(item) => {
-              setSelectedQuickStockItem(item);
-              setIsQuickStockOpen(true);
-            }}
-            onOpenReceiveStock={(preselectedId) => {
-              setPreselectedProductSizeId(preselectedId || null);
-              setIsReceiveStockOpen(true);
-            }}
-            onOpenAdjustStock={(item) => {
-              setSelectedAdjustItem(item);
-              setIsAdjustStockOpen(true);
-            }}
-            onOpenMovements={(item) => {
-              setSelectedMovementsItem(item || null);
-              setIsMovementsDrawerOpen(true);
-            }}
-          />
-        )}
+          {activeTab === "inventory" && (
+            <StockTab
+              inventorySizes={inventorySizes}
+              inventorySummary={inventorySummary}
+              loading={loading}
+              onRefresh={() => fetchData(true)}
+              onOpenQuickStock={(item) => {
+                setSelectedQuickStockItem(item);
+                setIsQuickStockOpen(true);
+              }}
+              onOpenReceiveStock={(preselectedId) => {
+                setPreselectedProductSizeId(preselectedId || null);
+                setIsReceiveStockOpen(true);
+              }}
+              onOpenAdjustStock={(item) => {
+                setSelectedAdjustItem(item);
+                setIsAdjustStockOpen(true);
+              }}
+              onOpenMovements={(item) => {
+                setSelectedMovementsItem(item || null);
+                setIsMovementsDrawerOpen(true);
+              }}
+            />
+          )}
 
-        {activeTab === "categories" && <CategoriesTab />}
+          {activeTab === "categories" && <CategoriesTab />}
 
-        {activeTab === "units" && <UnitsTab />}
+          {activeTab === "units" && <UnitsTab />}
 
-        {activeTab === "consultations" && <ConsultationsTab />}
+          {activeTab === "consultations" && <ConsultationsTab />}
 
-        {activeTab === "hijama" && <HijamaTab />}
+          {activeTab === "hijama" && <HijamaTab />}
 
-        {activeTab === "schedule" && <ClinicScheduleTab />}
+          {activeTab === "schedule" && <ClinicScheduleTab />}
+
+          {activeTab === "users" && (
+            isAdmin ? (
+              <UsersTab currentUserId={sessionData?.user?.id} />
+            ) : (
+              <div className="bg-white rounded-2xl border border-line p-8 text-center space-y-2">
+                <p className="text-sm font-semibold text-danger">Access Restricted</p>
+                <p className="text-xs text-ink-muted">
+                  Only the primary Admin can manage user accounts and security settings.
+                </p>
+              </div>
+            )
+          )}
         </SurfaceFade>
       </main>
 

@@ -35,3 +35,20 @@ These defaults are optimized for AI coding agents (and humans) working on apps t
   needed. Always curl https://ai-gateway.vercel.sh/v1/models first; never trust model IDs from memory
 - For durable agent loops or untrusted code: use Workflow (pause/resume/state) + Sandbox; use Vercel MCP for secure infra access
 <!-- VERCEL BEST PRACTICES END -->
+
+<!-- HOUSE RULES START -->
+
+## House rules
+
+Read `docs/conventions.md` before changing code. The short version:
+
+- **Forms use `react-hook-form`.** One `useForm` per form. A multi-step wizard is one form whose fields are grouped per step — never one form per step. Validate the current step with `form.trigger([...fields])` on Next.
+- **Never lose a draft.** Persist to localStorage keyed by form name, restore on mount, clear after a successful submit. Exclude passwords, tokens, card data, and health screening answers.
+- **Server state uses TanStack Query.** No `useEffect` + `fetch` + `useState`. `useEffect` remains correct for non-data side effects (listeners, measurements, third-party widgets).
+- **No garbage code.** Delete dead code instead of commenting it out; no `any` to dodge a type problem; name things with the vocabulary in `GLOSSARY.md`.
+- **Comment the why, not the what.** Every non-obvious decision earns a comment; a comment that restates the line below it gets deleted.
+- **Write for the next human.** A file should read top-to-bottom without a map.
+
+Neither library is installed yet — `pnpm add react-hook-form @tanstack/react-query` at first use. Existing code migrates as it is touched; no big-bang rewrite.
+
+<!-- HOUSE RULES END -->

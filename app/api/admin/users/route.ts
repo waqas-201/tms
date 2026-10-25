@@ -10,14 +10,35 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search")?.trim();
-    const roleFilter = searchParams.get("role")?.trim();
+    const roleFilter = searchParams.get("role")?.trim()?.toUpperCase();
+    const statusFilter = searchParams.get("status")?.trim()?.toUpperCase() || "ALL";
 
     const where: Record<string, unknown> = {};
 
-    if (roleFilter && roleFilter !== "ALL") {
-      where.role = roleFilter;
+    // Status filtering
+    if (statusFilter === "DELETED") {
+      where.deletedAt = { not: null };
+    } else if (statusFilter === "SUSPENDED") {
+      where.deletedAt = null;
+      where.isActive = false;
+    } else if (statusFilter === "ACTIVE") {
+      where.deletedAt = null;
+      where.isActive = true;
+    } else {
+      // "ALL" active/suspended directory, hides soft-deleted by default
+      where.deletedAt = null;
     }
 
+    // Role filtering
+    if (roleFilter === "STAFF") {
+      where.role = { in: [ROLES.ADMIN, ROLES.HAKIM, ROLES.EDITOR, ROLES.CONTRIBUTOR] };
+    } else if (roleFilter === "CUSTOMER") {
+      where.role = ROLES.USER;
+    } else if (roleFilter && roleFilter !== "ALL") {
+      where.role = roleFilter.toLowerCase();
+    }
+
+    // Search query
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
@@ -27,28 +48,57 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    const users = await prisma.user.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        phone: true,
-        city: true,
-        createdAt: true,
-        updatedAt: true,
-        _count: {
+    // Parallel fetch for users and aggregate counts
+    const [users, totalCount, activeCount, staffCount, customerCount, suspendedCount, deletedCount] =
+      await Promise.all([
+        prisma.user.findMany({
+          where,
+          orderBy: { createdAt: "desc" },
           select: {
-            orders: true,
-            consultations: true,
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            phone: true,
+            city: true,
+            isActive: true,
+            deletedAt: true,
+            createdAt: true,
+            updatedAt: true,
+            _count: {
+              select: {
+                orders: true,
+                consultations: true,
+                hijamaBookings: true,
+              },
+            },
           },
-        },
+        }),
+        prisma.user.count({ where: { deletedAt: null } }),
+        prisma.user.count({ where: { deletedAt: null, isActive: true } }),
+        prisma.user.count({
+          where: {
+            deletedAt: null,
+            role: { in: [ROLES.ADMIN, ROLES.HAKIM, ROLES.EDITOR, ROLES.CONTRIBUTOR] },
+          },
+        }),
+        prisma.user.count({ where: { deletedAt: null, role: ROLES.USER } }),
+        prisma.user.count({ where: { deletedAt: null, isActive: false } }),
+        prisma.user.count({ where: { deletedAt: { not: null } } }),
+      ]);
+
+    return NextResponse.json({
+      success: true,
+      data: users,
+      counts: {
+        total: totalCount,
+        active: activeCount,
+        staff: staffCount,
+        customers: customerCount,
+        suspended: suspendedCount,
+        deleted: deletedCount,
       },
     });
-
-    return NextResponse.json({ success: true, data: users });
   } catch (error: any) {
     console.error("Error fetching users in admin route:", error);
     return NextResponse.json(
@@ -74,12 +124,12 @@ export async function POST(request: NextRequest) {
     }
 
     const targetRole = role.toLowerCase().trim();
-    // Only allow assigning staff roles (editor, contributor) or regular user
-    if (![ROLES.EDITOR, ROLES.CONTRIBUTOR, ROLES.USER].includes(targetRole as any)) {
+    // Allow assigning staff roles (hakim, editor, contributor) or regular user
+    if (![ROLES.HAKIM, ROLES.EDITOR, ROLES.CONTRIBUTOR, ROLES.USER].includes(targetRole as any)) {
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid role. Allowed roles for staff assignment are: 'editor', 'contributor', 'user'. Only one admin can exist.",
+          error: "Invalid role. Allowed roles for assignment are: 'hakim', 'editor', 'contributor', 'user'. Only one primary admin can exist.",
         },
         { status: 400 }
       );
@@ -93,6 +143,15 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
+      if (existing.deletedAt) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "An archived/deleted account with this email exists. You can restore it from the 'Deleted Accounts' tab.",
+          },
+          { status: 400 }
+        );
+      }
       return NextResponse.json(
         { success: false, error: "A user with this email address already exists." },
         { status: 400 }
@@ -115,13 +174,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Update role, phone, city in Prisma
+    // Update role, phone, city, active status in Prisma
     const updatedUser = await prisma.user.update({
       where: { email: lowerEmail },
       data: {
         role: targetRole,
         phone: phone || null,
         city: city || "Karachi",
+        isActive: true,
+        deletedAt: null,
       },
       select: {
         id: true,
@@ -130,6 +191,8 @@ export async function POST(request: NextRequest) {
         role: true,
         phone: true,
         city: true,
+        isActive: true,
+        deletedAt: true,
         createdAt: true,
       },
     });
@@ -138,14 +201,14 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         data: updatedUser,
-        message: `Staff member '${name}' registered successfully with role '${targetRole}'.`,
+        message: `Account for '${name}' registered successfully with role '${targetRole}'.`,
       },
       { status: 201 }
     );
   } catch (error: any) {
     console.error("Error creating staff user:", error);
     return NextResponse.json(
-      { success: false, error: error?.message || "Failed to create staff member." },
+      { success: false, error: error?.message || "Failed to create user account." },
       { status: 500 }
     );
   }

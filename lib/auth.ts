@@ -72,6 +72,17 @@ export const auth = betterAuth({
         type: "string",
         required: false,
       },
+      isActive: {
+        type: "boolean",
+        required: false,
+        defaultValue: true,
+        input: false,
+      },
+      deletedAt: {
+        type: "date",
+        required: false,
+        input: false,
+      },
     },
   },
   databaseHooks: {
@@ -93,6 +104,7 @@ export const auth = betterAuth({
                 data: {
                   ...user,
                   role: "user",
+                  isActive: true,
                 },
               };
             }
@@ -102,6 +114,7 @@ export const auth = betterAuth({
                 ...user,
                 role: "admin",
                 emailVerified: true,
+                isActive: true,
               },
             };
           }
@@ -111,6 +124,7 @@ export const auth = betterAuth({
             data: {
               ...user,
               role: "user",
+              isActive: true,
             },
           };
         },
@@ -149,6 +163,20 @@ export const auth = betterAuth({
     },
     session: {
       create: {
+        before: async (session) => {
+          if (!session?.userId) return;
+          const dbUser = await prisma.user.findUnique({
+            where: { id: session.userId },
+            select: { isActive: true, deletedAt: true },
+          });
+
+          if (dbUser?.deletedAt) {
+            throw new Error("This account has been deleted or deactivated.");
+          }
+          if (dbUser && dbUser.isActive === false) {
+            throw new Error("This account has been suspended by clinic administration.");
+          }
+        },
         // On every fresh login session, attach any guest bookings that were
         // made with this account's verified email address.
         after: async (session) => {

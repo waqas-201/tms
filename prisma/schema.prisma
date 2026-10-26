@@ -179,29 +179,33 @@ model ProductSize {
 }
 
 model Order {
-  id            String          @id @default(cuid())
-  orderNumber   String          @unique // e.g. TMS-2026-1001
-  customerName  String
-  phone         String
-  email         String?
-  city          String
-  address       String
-  deliveryNotes String?
-  paymentMethod String          @default("COD") // "COD" | "WHATSAPP" | "ONLINE" | "CASH" | "BANK"
-  paymentStatus String          @default("PENDING") // "PENDING" | "PARTIAL" | "PAID" | "REFUNDED"
-  orderStatus   String          @default("PENDING") // "PENDING" | "CONFIRMED" | "DISPATCHED" | "DELIVERED" | "CANCELLED"
-  subtotal      Float
-  shippingFee   Float           @default(0)
-  total         Float
-  paidAmount    Float           @default(0)
-  dueAmount     Float           @default(0)
-  trackingNote  String?
-  userId        String?
-  user          User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
-  items         OrderItem[]
-  payments      PaymentRecord[]
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id                 String          @id @default(cuid())
+  orderNumber        String          @unique // e.g. TMS-2026-1001
+  customerName       String
+  phone              String
+  email              String?
+  city               String
+  address            String
+  customerLatitude   Float?
+  customerLongitude  Float?
+  deliveryDistanceKm Float?
+  deliveryFeeType    String          @default("FLAT") // "DYNAMIC" | "FLAT" | "FREE"
+  deliveryNotes      String?
+  paymentMethod      String          @default("COD") // "COD" | "WHATSAPP" | "ONLINE" | "CASH" | "BANK"
+  paymentStatus      String          @default("PENDING") // "PENDING" | "PARTIAL" | "PAID" | "REFUNDED"
+  orderStatus        String          @default("PENDING") // "PENDING" | "CONFIRMED" | "DISPATCHED" | "DELIVERED" | "CANCELLED"
+  subtotal           Float
+  shippingFee        Float           @default(0)
+  total              Float
+  paidAmount         Float           @default(0)
+  dueAmount          Float           @default(0)
+  trackingNote       String?
+  userId             String?
+  user               User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items              OrderItem[]
+  payments           PaymentRecord[]
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
 }
 
 model OrderItem {
@@ -341,7 +345,7 @@ model HijamaBooking {
   isSunnahDay       Boolean  @default(false)
   cuppingReason     String?  // Pain relief, migraine, general detox, sunnah revival, etc.
   contraindications String?  // Stored JSON string of safety screening answers (blood thinners, pregnancy, etc.)
-  status            String   @default("CONFIRMED") // "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"
+  status            String   @default("PENDING") // "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"
   feeAmount         Float    @default(2500) // PKR
   paymentStatus     String   @default("UNPAID") // "UNPAID" | "PAID_AT_CLINIC"
   adminNotes        String?
@@ -382,6 +386,30 @@ model HijamaSetting {
   updatedAt            DateTime @updatedAt
 
   @@map("hijama_setting")
+}
+
+// -------------------------------------------------------------
+// Delivery & Store Location Settings
+// -------------------------------------------------------------
+
+model DeliverySetting {
+  id                        String   @id @default("default")
+  storeName                 String   @default("Matab Tameer-e-sehat")
+  storeAddress              String   @default("Plot no L, 41 Korangi Crossing Rd, K.D.A Allah Wala Town Sector 31 B Korangi, Karachi, Pakistan")
+  storeLatitude             Float    @default(24.8291)
+  storeLongitude            Float    @default(67.1147)
+  pricePerKm                Float    @default(25.0)
+  baseDeliveryFee           Float    @default(100.0)
+  minDeliveryFee            Float    @default(150.0)
+  maxLocalRadiusKm          Float    @default(50.0)
+  flatCourierFee            Float    @default(200.0)
+  freeShippingThreshold     Float    @default(2000.0)
+  isDynamicDeliveryEnabled  Boolean  @default(true)
+  googleMapsApiKey          String?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  @@map("delivery_setting")
 }
 
 // -------------------------------------------------------------

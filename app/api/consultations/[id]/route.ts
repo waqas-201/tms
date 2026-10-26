@@ -48,7 +48,7 @@ export async function GET(
     const mapped = {
       ...consultation,
       fullName: consultation.patientName || consultation.user?.name || "Patient",
-      phone: consultation.patientPhone || (consultation.user as any)?.phone || "Via Account",
+      phone: consultation.patientPhone || (consultation.user as any)?.phone || null,
       email: consultation.patientEmail || consultation.user?.email || null,
       city: (consultation.user as any)?.city || "Pakistan",
     };
@@ -91,7 +91,34 @@ export async function PATCH(
       hakimNotes,
       prescribedTreatment,
       userId,
+      patientPhone,
+      patientEmail,
+      patientName,
     } = body;
+
+    // Contact details are editable from the dossier so staff can record a
+    // number the moment they reach the patient on WhatsApp/phone.
+    const nextPhone =
+      patientPhone === undefined
+        ? undefined
+        : typeof patientPhone === "string"
+          ? patientPhone.trim()
+          : null;
+
+    if (
+      nextPhone !== undefined &&
+      nextPhone !== null &&
+      nextPhone !== "" &&
+      nextPhone.replace(/\D/g, "").length < 7
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Enter a valid phone / WhatsApp number (at least 7 digits).",
+        },
+        { status: 400 }
+      );
+    }
 
     const existing = await prisma.consultationRequest.findFirst({
       where: { OR: [{ id }, { ticketNumber: id }] },
@@ -134,25 +161,37 @@ export async function PATCH(
         ...(hakimNotes !== undefined && { hakimNotes }),
         ...(prescribedTreatment !== undefined && { prescribedTreatment }),
         ...(userId && { userId: targetUserId }),
+        ...(patientName !== undefined &&
+          typeof patientName === "string" &&
+          patientName.trim() && { patientName: patientName.trim() }),
+        ...(nextPhone !== undefined && {
+          patientPhone: nextPhone ? nextPhone : null,
+        }),
+        ...(patientEmail !== undefined && {
+          patientEmail:
+            typeof patientEmail === "string" && patientEmail.trim()
+              ? patientEmail.trim().toLowerCase()
+              : null,
+        }),
       },
       include: {
         user: { select: { id: true, name: true, email: true, phone: true } },
       },
     });
 
-    const patientEmail = updated.patientEmail || updated.user?.email;
-    const patientName = updated.patientName || updated.user?.name || "Valued Patient";
+    const contactEmail = updated.patientEmail || updated.user?.email;
+    const contactName = updated.patientName || updated.user?.name || "Valued Patient";
 
     // Email Triggers for Patient:
-    if (patientEmail) {
+    if (contactEmail) {
       // 1. If status changed or rescheduled
       if (
         (status && status !== previousStatus) ||
         (appointmentDate && appointmentDate !== existing.appointmentDate)
       ) {
         sendAppointmentStatusEmail({
-          to: patientEmail,
-          fullName: patientName,
+          to: contactEmail,
+          fullName: contactName,
           ticketNumber: updated.ticketNumber,
           status: updated.status,
           appointmentDate: updated.appointmentDate,
@@ -168,8 +207,8 @@ export async function PATCH(
         prescribedTreatment !== previousPrescription
       ) {
         sendHakimPrescriptionEmail({
-          to: patientEmail,
-          fullName: patientName,
+          to: contactEmail,
+          fullName: contactName,
           ticketNumber: updated.ticketNumber,
           prescribedTreatment: updated.prescribedTreatment || prescribedTreatment,
           hakimNotes: updated.hakimNotes,
@@ -179,9 +218,9 @@ export async function PATCH(
 
     const mapped = {
       ...updated,
-      fullName: updated.patientName || updated.user?.name || patientName,
-      phone: updated.patientPhone || (updated.user as any)?.phone || "Via Account",
-      email: updated.patientEmail || updated.user?.email || patientEmail,
+      fullName: updated.patientName || updated.user?.name || contactName,
+      phone: updated.patientPhone || (updated.user as any)?.phone || null,
+      email: updated.patientEmail || updated.user?.email || contactEmail,
       city: (updated.user as any)?.city || "Pakistan",
     };
 

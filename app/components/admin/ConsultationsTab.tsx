@@ -39,7 +39,7 @@ interface Consultation {
   fullName: string;
   age: number;
   gender: string;
-  phone: string;
+  phone: string | null;
   email: string | null;
   city: string;
   primarySymptoms: string;
@@ -127,9 +127,27 @@ export default function ConsultationsTab() {
   const [editHakimNotes, setEditHakimNotes] = useState("");
   const [editDate, setEditDate] = useState("");
   const [editSlot, setEditSlot] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editEmail, setEditEmail] = useState("");
   const [savingChanges, setSavingChanges] = useState(false);
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
   const [saveErrorMsg, setSaveErrorMsg] = useState<string | null>(null);
+
+  // ── One-click "Apply" (accept) workflow ──
+  // When an in-person request has no confirmed slot yet we cannot accept it
+  // blindly, so a compact slot picker opens instead of the full drawer.
+  const [applyTarget, setApplyTarget] = useState<Consultation | null>(null);
+  const [applyDate, setApplyDate] = useState("");
+  const [applySlot, setApplySlot] = useState("");
+  const [applySlots, setApplySlots] = useState<
+    { slot: string; available: boolean }[]
+  >([]);
+  const [applyLoading, setApplyLoading] = useState(false);
+  const [applyingId, setApplyingId] = useState<string | null>(null);
+  const [actionNotice, setActionNotice] = useState<{
+    tone: "success" | "error";
+    message: string;
+  } | null>(null);
 
   // ── Manual booking (staff creates on behalf of WhatsApp/phone patients) ──
   const [isNewBookingOpen, setIsNewBookingOpen] = useState(false);
@@ -202,6 +220,8 @@ export default function ConsultationsTab() {
     setEditHakimNotes(item.hakimNotes || "");
     setEditDate(item.appointmentDate || "");
     setEditSlot(item.appointmentSlot || "");
+    setEditPhone(item.phone || "");
+    setEditEmail(item.email || "");
     setSaveSuccessMsg(null);
     setSaveErrorMsg(null);
     setIsDrawerOpen(true);
@@ -225,6 +245,8 @@ export default function ConsultationsTab() {
           hakimNotes: editHakimNotes,
           appointmentDate: editDate || null,
           appointmentSlot: editSlot || null,
+          patientPhone: editPhone,
+          patientEmail: editEmail,
         }),
       });
 
@@ -488,12 +510,126 @@ export default function ConsultationsTab() {
   };
 
   const getWhatsAppContactLink = (c: Consultation) => {
+    const digits = (c.phone || "").replace(/[^0-9]/g, "");
+    if (digits.length < 7) return null;
     const text =
       `*Assalam-o-Alaikum ${c.fullName} Sahib/Sahiba*\n` +
       `This is Matab Tameer-e-Sehat (Hakeem Tahir Hameed) regarding your Consultation Ticket *${c.ticketNumber}* for: *${c.primarySymptoms}*.\n\n` +
       `We are ready to discuss your health assessment.`;
-    return `https://wa.me/${c.phone.replace(/[^0-9]/g, "")}?text=${encodeURIComponent(text)}`;
+    return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
   };
+
+  const applyConsultation = async (
+    item: Consultation,
+    date?: string,
+    slot?: string
+  ) => {
+    setApplyingId(item.id);
+    setActionNotice(null);
+    try {
+      const res = await fetch(`/api/consultations/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "CONFIRMED",
+          ...(date ? { appointmentDate: date } : {}),
+          ...(slot ? { appointmentSlot: slot } : {}),
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to accept the request.");
+      }
+
+      setApplyTarget(null);
+      setSelectedConsultation((prev) =>
+        prev?.id === item.id ? json.data : prev
+      );
+      if (selectedConsultation?.id === item.id) {
+        setEditStatus(json.data.status || "CONFIRMED");
+        setEditDate(json.data.appointmentDate || "");
+        setEditSlot(json.data.appointmentSlot || "");
+      }
+      setActionNotice({
+        tone: "success",
+        message: `${item.ticketNumber} accepted for ${item.fullName}. Confirmation email dispatched if an email is on file.`,
+      });
+      fetchConsultations(true);
+    } catch (err: any) {
+      setActionNotice({
+        tone: "error",
+        message: err.message || "Failed to accept the request.",
+      });
+    } finally {
+      setApplyingId(null);
+    }
+  };
+
+  const startApply = (item: Consultation, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+
+    // Online requests, and in-person requests that already carry a slot,
+    // can be accepted immediately.
+    if (
+      item.consultationType !== "IN_PERSON" ||
+      (item.appointmentDate && item.appointmentSlot)
+    ) {
+      applyConsultation(item);
+      return;
+    }
+
+    const fallback = new Date();
+    fallback.setDate(fallback.getDate() + 1);
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const fallbackDate = `${fallback.getFullYear()}-${pad(
+      fallback.getMonth() + 1
+    )}-${pad(fallback.getDate())}`;
+
+    setApplyTarget(item);
+    setApplyDate(item.appointmentDate || fallbackDate);
+    setApplySlot(item.appointmentSlot || "");
+  };
+
+  // Slot list for the quick-accept picker.
+  useEffect(() => {
+    if (!applyTarget || !applyDate) {
+      setApplySlots([]);
+      return;
+    }
+
+    let cancelled = false;
+    setApplyLoading(true);
+
+    fetch(`/api/consultations/availability?date=${encodeURIComponent(applyDate)}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (cancelled || !json.success) return;
+        const slots = (json.data?.slots || []) as {
+          slot: string;
+          available: boolean;
+        }[];
+        setApplySlots(slots);
+        setApplySlot((prev) =>
+          slots.some((s) => s.slot === prev && s.available)
+            ? prev
+            : slots.find((s) => s.available)?.slot || ""
+        );
+      })
+      .catch(() => {
+        if (!cancelled) setApplySlots([]);
+      })
+      .finally(() => {
+        if (!cancelled) setApplyLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [applyTarget, applyDate]);
+
+  const selectedWhatsAppLink = selectedConsultation
+    ? getWhatsAppContactLink(selectedConsultation)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -570,6 +706,34 @@ export default function ConsultationsTab() {
         </div>
       </div>
 
+      {/* Action feedback */}
+      {actionNotice && (
+        <div
+          className={`p-3 rounded-xl border text-xs flex items-start justify-between gap-3 ${
+            actionNotice.tone === "success"
+              ? "bg-success-soft border-success-line text-success"
+              : "bg-danger-soft border-danger/20 text-danger"
+          }`}
+        >
+          <span className="flex items-center gap-2">
+            {actionNotice.tone === "success" ? (
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 shrink-0" />
+            )}
+            <span>{actionNotice.message}</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setActionNotice(null)}
+            className="cursor-pointer opacity-70 hover:opacity-100"
+            aria-label="Dismiss"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
       {/* Consultations Table */}
       <div className="bg-white rounded-2xl border border-line overflow-hidden shadow-xs">
         {loading ? (
@@ -622,12 +786,70 @@ export default function ConsultationsTab() {
                       <td className="py-3.5 px-4">
                         <div className="font-bold text-ink">{item.fullName}</div>
                         <div className="text-[11px] text-ink-muted">
-                          {item.gender}, {item.age} yrs · {item.city}
+                          {[item.gender, item.age ? `${item.age} yrs` : null, item.city]
+                            .filter(Boolean)
+                            .join(" · ")}
                         </div>
-                        <div className="text-[11px] text-ink font-mono">
-                          {item.phone}
-                        </div>
+                        {item.phone ? (
+                          <div className="mt-1 flex items-center gap-1.5">
+                            <a
+                              href={`tel:${item.phone.replace(/[^0-9+]/g, "")}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-[11px] text-ink font-mono hover:text-primary hover:underline"
+                              title={`Call ${item.phone}`}
+                            >
+                              {item.phone}
+                            </a>
+                            <a
+                              href={`https://wa.me/${item.phone.replace(/[^0-9]/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="p-1 rounded-md text-success hover:bg-success-soft"
+                              title="Open WhatsApp chat"
+                            >
+                              <MessageCircle className="w-3 h-3" />
+                            </a>
+                            <a
+                              href={`tel:${item.phone.replace(/[^0-9+]/g, "")}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="p-1 rounded-md text-info hover:bg-info-soft"
+                              title="Call patient"
+                            >
+                              <Phone className="w-3 h-3" />
+                            </a>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenDrawer(item);
+                            }}
+                            className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-warning-soft text-warning border border-warning-line cursor-pointer"
+                          >
+                            <Phone className="w-2.5 h-2.5" />
+                            <span>No phone — add</span>
+                          </button>
+                        )}
+                        {item.email ? (
+                          <a
+                            href={`mailto:${item.email}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="mt-0.5 flex items-center gap-1 text-[10px] text-ink-muted hover:text-primary truncate max-w-[190px]"
+                            title={item.email}
+                          >
+                            <Mail className="w-2.5 h-2.5 shrink-0" />
+                            <span className="truncate">{item.email}</span>
+                          </a>
+                        ) : (
+                          <div className="mt-0.5 flex items-center gap-1 text-[10px] text-ink-subtle">
+                            <Mail className="w-2.5 h-2.5" />
+                            <span>No email on file</span>
+                          </div>
+                        )}
                       </td>
+
 
                       <td className="py-3.5 px-4">
                         <div className="inline-flex items-center gap-1 font-semibold text-ink">
@@ -673,18 +895,39 @@ export default function ConsultationsTab() {
                       </td>
 
                       <td className="py-3.5 px-4 text-right">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleOpenDrawer(item);
-                          }}
-                          className="px-3 py-1.5 bg-surface-inverse hover:bg-brand-green-900 text-white rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1 cursor-pointer"
-                        >
-                          <span>Manage</span>
-                          <ChevronDown className="w-3 h-3" />
-                        </button>
+                        <div className="inline-flex items-center gap-1.5">
+                          {item.status === "NEW" && (
+                            <button
+                              type="button"
+                              onClick={(e) => startApply(item, e)}
+                              disabled={applyingId === item.id}
+                              className="px-3 py-1.5 bg-success hover:bg-success/90 text-white rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer disabled:opacity-60"
+                              title="Accept this request and confirm the appointment"
+                            >
+                              {applyingId === item.id ? (
+                                <Loader2 className="w-3 h-3 animate-spin" />
+                              ) : (
+                                <Check className="w-3.5 h-3.5" />
+                              )}
+                              <span>Apply</span>
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenDrawer(item);
+                            }}
+                            className="px-3 py-1.5 bg-surface-inverse hover:bg-brand-green-900 text-white rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1 cursor-pointer"
+                          >
+                            <span>
+                              {item.status === "NEW" ? "Open" : "Manage"}
+                            </span>
+                            <ChevronDown className="w-3 h-3" />
+                          </button>
+                        </div>
                       </td>
+
                     </tr>
                   );
                 })}
@@ -693,6 +936,99 @@ export default function ConsultationsTab() {
           </div>
         )}
       </div>
+
+      {/* Quick Accept — only for in-person requests that still need a slot */}
+      {applyTarget && (
+        <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-white rounded-2xl border border-line shadow-2xl p-6 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="font-serif text-lg font-bold text-ink">
+                  Confirm this appointment
+                </h3>
+                <p className="text-xs text-ink-muted mt-0.5">
+                  {applyTarget.fullName} · {applyTarget.ticketNumber} — this
+                  in-person request has no confirmed slot yet.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setApplyTarget(null)}
+                className="w-8 h-8 rounded-full bg-surface hover:bg-line flex items-center justify-center text-ink cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-ink">
+                  Appointment Date
+                </label>
+                <input
+                  type="date"
+                  value={applyDate}
+                  onChange={(e) => setApplyDate(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-ink">
+                  Available Slot
+                </label>
+                <select
+                  value={applySlot}
+                  onChange={(e) => setApplySlot(e.target.value)}
+                  disabled={applyLoading}
+                  className="w-full px-3 py-2 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink disabled:opacity-50"
+                >
+                  <option value="">
+                    {applyLoading ? "Loading slots…" : "Select a slot"}
+                  </option>
+                  {applySlots
+                    .filter((slot) => slot.available)
+                    .map((slot) => (
+                      <option key={slot.slot} value={slot.slot}>
+                        {slot.slot}
+                      </option>
+                    ))}
+                </select>
+                {!applyLoading && applySlots.length === 0 && (
+                  <p className="text-[10px] text-warning">
+                    No open slots on this date. Pick another working day.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-line">
+              <button
+                type="button"
+                onClick={() => setApplyTarget(null)}
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-ink border border-line hover:bg-surface cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={!applyDate || !applySlot || applyingId === applyTarget.id}
+                onClick={() =>
+                  applyConsultation(applyTarget, applyDate, applySlot)
+                }
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-success hover:bg-success/90 disabled:opacity-50 inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                {applyingId === applyTarget.id ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Check className="w-3.5 h-3.5" />
+                )}
+                <span>Accept &amp; Confirm</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* New Booking Modal — staff manual entry for phone/WhatsApp bookings */}
       {isNewBookingOpen && (
@@ -1182,34 +1518,72 @@ export default function ConsultationsTab() {
               </div>
 
               {/* Patient Quick Contact Bar */}
-              <div className="flex flex-wrap gap-2 pt-1">
-                <a
-                  href={getWhatsAppContactLink(selectedConsultation)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-2 bg-success hover:bg-success text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  <span>WhatsApp Patient ({selectedConsultation.phone})</span>
-                </a>
+              <div className="space-y-2 pt-1">
+                <div className="flex flex-wrap gap-2">
+                  {selectedWhatsAppLink ? (
+                    <a
+                      href={selectedWhatsAppLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-2 bg-success hover:bg-success/90 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>WhatsApp ({selectedConsultation.phone})</span>
+                    </a>
+                  ) : (
+                    <span className="px-3 py-2 bg-warning-soft border border-warning-line text-warning rounded-xl text-xs font-semibold flex items-center gap-1.5">
+                      <Phone className="w-4 h-4" />
+                      <span>No phone on file — add one below</span>
+                    </span>
+                  )}
 
-                <a
-                  href={`tel:${selectedConsultation.phone}`}
-                  className="px-3 py-2 bg-surface border border-line hover:bg-surface-sunken text-ink rounded-xl text-xs font-semibold flex items-center gap-1.5"
-                >
-                  <Phone className="w-4 h-4 text-ink" />
-                  <span>Call Phone</span>
-                </a>
+                  {selectedConsultation.phone && (
+                    <a
+                      href={`tel:${selectedConsultation.phone.replace(/[^0-9+]/g, "")}`}
+                      className="px-3 py-2 bg-surface border border-line hover:bg-surface-sunken text-ink rounded-xl text-xs font-semibold flex items-center gap-1.5"
+                    >
+                      <Phone className="w-4 h-4 text-ink" />
+                      <span>Call {selectedConsultation.phone}</span>
+                    </a>
+                  )}
 
-                {selectedConsultation.email && (
-                  <a
-                    href={`mailto:${selectedConsultation.email}`}
-                    className="px-3 py-2 bg-surface border border-line hover:bg-surface-sunken text-ink rounded-xl text-xs font-semibold flex items-center gap-1.5"
-                  >
-                    <Mail className="w-4 h-4 text-ink" />
-                    <span>Send Email ({selectedConsultation.email})</span>
-                  </a>
-                )}
+                  {selectedConsultation.email && (
+                    <a
+                      href={`mailto:${selectedConsultation.email}`}
+                      className="px-3 py-2 bg-surface border border-line hover:bg-surface-sunken text-ink rounded-xl text-xs font-semibold flex items-center gap-1.5"
+                    >
+                      <Mail className="w-4 h-4 text-ink" />
+                      <span>Email ({selectedConsultation.email})</span>
+                    </a>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-surface border border-line rounded-2xl p-3">
+                  <label className="text-[10px] font-bold uppercase tracking-wide text-ink-subtle space-y-1">
+                    <span>Patient Phone / WhatsApp</span>
+                    <input
+                      type="tel"
+                      value={editPhone}
+                      onChange={(e) => setEditPhone(e.target.value)}
+                      placeholder="e.g. 0300 1234567"
+                      className="w-full px-2.5 py-1.5 bg-white border border-line rounded-lg text-[11px] font-normal text-ink focus:outline-none focus:border-ink"
+                    />
+                  </label>
+                  <label className="text-[10px] font-bold uppercase tracking-wide text-ink-subtle space-y-1">
+                    <span>Patient Email</span>
+                    <input
+                      type="email"
+                      value={editEmail}
+                      onChange={(e) => setEditEmail(e.target.value)}
+                      placeholder="patient@example.com"
+                      className="w-full px-2.5 py-1.5 bg-white border border-line rounded-lg text-[11px] font-normal text-ink focus:outline-none focus:border-ink"
+                    />
+                  </label>
+                  <p className="sm:col-span-2 text-[10px] text-ink-subtle">
+                    Saved with the dossier below. The clinic uses this number for
+                    call-backs and WhatsApp confirmation.
+                  </p>
+                </div>
               </div>
 
               {/* Linked Patient Account */}
@@ -1383,6 +1757,31 @@ export default function ConsultationsTab() {
                   </div>
                 )}
               </div>
+
+              {/* Accept request (drawer copy of the row action) */}
+              {selectedConsultation.status === "NEW" && (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-success-soft border border-success-line rounded-2xl">
+                  <div className="text-xs text-success">
+                    <strong className="block">This request is pending.</strong>
+                    <span>
+                      Apply to confirm the slot and dispatch the patient email.
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => startApply(selectedConsultation)}
+                    disabled={applyingId === selectedConsultation.id}
+                    className="px-4 py-2 bg-success hover:bg-success/90 text-white rounded-xl text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-60 shrink-0"
+                  >
+                    {applyingId === selectedConsultation.id ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Check className="w-3.5 h-3.5" />
+                    )}
+                    <span>Apply &amp; Confirm</span>
+                  </button>
+                </div>
+              )}
 
               {/* Status Update & Reschedule Form */}
               <form onSubmit={handleSaveChanges} className="space-y-4">

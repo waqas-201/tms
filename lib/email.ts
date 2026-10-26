@@ -805,6 +805,28 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
             </td>
           </tr>
 
+          <!-- Call the clinic -->
+          <tr>
+            <td style="padding: 0 28px 20px 28px;">
+              <div style="border: 1px solid ${BRAND.successLine}; background-color: ${BRAND.successSoft}; border-radius: 12px; padding: 16px;">
+                <p style="margin: 0 0 6px 0; font-size: 13px; font-weight: 700; color: ${BRAND.primary};">
+                  Need to speak to the clinic before your visit?
+                </p>
+                <p style="margin: 0 0 12px 0; font-size: 12px; color: ${BRAND.inkBody}; line-height: 1.6;">
+                  Call or WhatsApp <strong>+92 335 3547888</strong> and quote ticket
+                  <strong style="font-family: monospace;">${ticketNumber}</strong>.
+                  Open Monday–Saturday 10:00 AM – 9:00 PM · Friday 3:00 PM – 9:00 PM (PKT).
+                </p>
+                <a href="tel:+923353547888" style="display: inline-block; padding: 9px 16px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px; margin-right: 8px;">
+                  Call the Matab
+                </a>
+                <a href="https://wa.me/923353547888" style="display: inline-block; padding: 9px 16px; background-color: #25D366; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px;">
+                  WhatsApp us
+                </a>
+              </div>
+            </td>
+          </tr>
+
           <!-- Contact Support Footer -->
           <tr>
             <td style="background-color: ${BRAND.surface}; padding: 20px 28px; border-top: 1px solid ${BRAND.line}; text-align: center;">
@@ -1118,6 +1140,27 @@ export async function sendAppointmentStatusEmail(params: {
           </div>`
         : ""
     }
+
+    <div style="border: 1px solid ${BRAND.successLine}; background-color: ${BRAND.successSoft}; border-radius: 8px; padding: 16px; margin: 20px 0;">
+      <p style="margin: 0 0 6px 0; font-size: 13px; font-weight: 700; color: ${BRAND.primary};">
+        Matab Tameer-e-Sehat · Call the clinic directly
+      </p>
+      <p style="margin: 0 0 12px 0; font-size: 12px; color: ${BRAND.inkBody}; line-height: 1.6;">
+        Quote ticket <strong style="font-family: monospace;">${ticketNumber}</strong> when you call.
+        Monday–Saturday 10:00 AM – 9:00 PM · Friday 3:00 PM – 9:00 PM (PKT).
+      </p>
+      <p style="margin: 0;">
+        <a href="tel:+923353547888" style="display: inline-block; padding: 9px 16px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px; margin-right: 8px;">
+          Call +92 335 3547888
+        </a>
+        <a href="https://wa.me/923353547888" style="display: inline-block; padding: 9px 16px; background-color: #25D366; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px;">
+          WhatsApp the Hakeem
+        </a>
+      </p>
+      <p style="margin: 12px 0 0 0; font-size: 11px; color: ${BRAND.inkSubtle}; line-height: 1.5;">
+        Plot no L, 41 Korangi Crossing Rd, K.D.A Allah Wala Town Sector 31 B Korangi, Karachi.
+      </p>
+    </div>
 
     <p style="font-size: 13px; margin-top: 20px;">
       <a href="${APP_URL}/track-order?ref=${encodeURIComponent(ticketNumber)}" target="_blank" style="display: inline-block; padding: 10px 20px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 8px;">

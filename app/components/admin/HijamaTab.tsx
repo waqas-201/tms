@@ -11,6 +11,7 @@ import {
   Link2,
   Loader2,
   Mail,
+  MessageCircle,
   Phone,
   Plus,
   RefreshCw,
@@ -465,8 +466,38 @@ export default function HijamaTab() {
                           </div>
                           <div className="text-[11px] text-ink-muted flex items-center gap-1">
                             <Phone className="w-3 h-3" />
-                            {booking.phone}
+                            <a
+                              href={`tel:${(booking.phone || "").replace(/[^0-9+]/g, "")}`}
+                              className="font-mono text-ink hover:text-primary hover:underline"
+                              title={`Call ${booking.phone}`}
+                            >
+                              {booking.phone}
+                            </a>
+                            <a
+                              href={`https://wa.me/${(booking.phone || "").replace(/[^0-9]/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="p-0.5 rounded text-success hover:bg-success-soft"
+                              title="Open WhatsApp chat"
+                            >
+                              <MessageCircle className="w-3 h-3" />
+                            </a>
                           </div>
+                          {booking.email ? (
+                            <a
+                              href={`mailto:${booking.email}`}
+                              className="text-[10px] text-ink-muted flex items-center gap-1 hover:text-primary truncate max-w-[190px]"
+                              title={booking.email}
+                            >
+                              <Mail className="w-3 h-3 shrink-0" />
+                              <span className="truncate">{booking.email}</span>
+                            </a>
+                          ) : (
+                            <div className="text-[10px] text-ink-subtle flex items-center gap-1">
+                              <Mail className="w-3 h-3" />
+                              <span>No email on file</span>
+                            </div>
+                          )}
                           {booking.user ? (
                             <div className="text-[10px] text-success flex items-center gap-1">
                               <Link2 className="w-3 h-3" />

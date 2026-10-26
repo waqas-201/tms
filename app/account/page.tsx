@@ -7,6 +7,7 @@ import { useSession, signOut, sendVerificationEmail } from "@/lib/auth-client";
 import { useCart } from "@/app/context/CartContext";
 import { CLINIC_INFO, Product } from "@/app/data/products";
 import SurfaceFade from "@/app/components/motion/SurfaceFade";
+import ClinicCallCard from "@/app/components/ClinicCallCard";
 import { getSafeProductImage } from "@/lib/utils";
 import { isStaffRole } from "@/lib/rbac-base";
 import {
@@ -1042,6 +1043,7 @@ export default function AccountPage() {
         {/* ─── TAB 3: CONSULTATIONS ─── */}
         {activeTab === "consultations" && (
           <div className="space-y-4">
+            <ClinicCallCard />
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
               <SummaryTile
                 label="Total Booked"
@@ -1222,6 +1224,7 @@ export default function AccountPage() {
         {/* ─── TAB 4: HIJAMA SESSIONS ─── */}
         {activeTab === "hijama" && (
           <div className="space-y-4">
+            <ClinicCallCard />
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
               <SummaryTile
                 label="Hijama Sessions"

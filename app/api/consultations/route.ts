@@ -81,7 +81,9 @@ export async function GET(request: NextRequest) {
     const mapped = consultations.map((c) => ({
       ...c,
       fullName: c.patientName || c.user?.name || "Patient",
-      phone: c.patientPhone || c.user?.phone || "Via Account",
+      // Never mask a missing number behind "Via Account": staff need to see that
+      // the contact detail is missing so they can add it from the dossier.
+      phone: c.patientPhone || c.user?.phone || null,
       email: c.patientEmail || c.user?.email || null,
       city: c.user?.city || "Pakistan",
     }));
@@ -339,7 +341,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Background Email Triggers (non-blocking)
-    const emailPhone = effectivePhone || "Via Account";
+    const emailPhone = effectivePhone || "Not provided";
     const emailCity = (consultation.user as any)?.city || "Pakistan";
     const emailSymptoms = consultation.primarySymptoms || "General Clinical Health Assessment";
 
@@ -393,7 +395,7 @@ export async function POST(request: NextRequest) {
     const mappedConsultation = {
       ...consultation,
       fullName: consultation.patientName || consultation.user?.name || effectiveName,
-      phone: consultation.patientPhone || consultation.user?.phone || effectivePhone || "Via Account",
+      phone: consultation.patientPhone || consultation.user?.phone || effectivePhone || null,
       email: consultation.patientEmail || consultation.user?.email || effectiveEmail || null,
       city: consultation.user?.city || "Pakistan",
     };

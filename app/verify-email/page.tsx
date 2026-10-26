@@ -277,7 +277,7 @@ function VerifyEmailContent() {
 
           <div className="pt-2 flex items-center justify-between text-xs text-ink-muted">
             <Link
-              href="/login"
+              href={safeRedirect && safeRedirect !== "/account" ? `/login?redirect=${encodeURIComponent(safeRedirect)}` : "/login"}
               className="inline-flex items-center gap-1.5 text-primary font-semibold hover:underline"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
@@ -285,7 +285,7 @@ function VerifyEmailContent() {
             </Link>
 
             <Link
-              href="/register"
+              href={safeRedirect && safeRedirect !== "/account" ? `/register?redirect=${encodeURIComponent(safeRedirect)}` : "/register"}
               className="text-secondary-text hover:text-primary hover:underline"
             >
               Wrong email?

@@ -31,10 +31,17 @@ import {
   EyeOff,
   Shield,
 } from "lucide-react";
-import { useSession, signIn, signUp } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 import { CLINIC_INFO } from "@/app/data/products";
 import { isStaffRole } from "@/lib/rbac-base";
-import AuthModal from "@/app/components/AuthModal";
+import {
+  HIJAMA_BOOKING_DRAFT_KEY,
+  saveBookingDraft,
+  getBookingDraft,
+  clearBookingDraft,
+  buildAuthUrl,
+} from "@/lib/auth-redirect";
 import StepTransition from "@/app/components/motion/StepTransition";
 import StepConnector from "@/app/components/motion/StepConnector";
 import {
@@ -142,11 +149,10 @@ export default function HijamaBookingModal({
     const params = new URLSearchParams(window.location.search);
     const shouldResume = params.get("resumeBooking");
     if (shouldResume === "hijama" || shouldResume === "true") {
-      const draft = getBookingDraft(HIJAMA_BOOKING_DRAFT_KEY);
+      const draft = getBookingDraft<any>(HIJAMA_BOOKING_DRAFT_KEY);
       if (draft) {
         if (draft.gender) setGender(draft.gender);
         if (draft.selectedDate) setSelectedDate(draft.selectedDate);
-        if (draft.selectedPlan) setSelectedPlan(draft.selectedPlan);
         if (draft.screening) setScreening(draft.screening);
         if (draft.selectedSlot) setSelectedSlot(draft.selectedSlot);
         if (draft.details) {
@@ -167,7 +173,6 @@ export default function HijamaBookingModal({
     saveBookingDraft(HIJAMA_BOOKING_DRAFT_KEY, {
       gender,
       selectedDate,
-      selectedPlan,
       screening,
       selectedSlot,
       details,
@@ -1432,28 +1437,13 @@ export default function HijamaBookingModal({
     </div>
   );
 
-  const authModal = (
-    <AuthModal
-      isOpen={isAuthModalOpen}
-      onOpenChange={setIsAuthModalOpen}
-    />
-  );
-
   if (isInline) {
-    return (
-      <>
-        {content}
-        {authModal}
-      </>
-    );
+    return content;
   }
 
   return (
-    <>
-      <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fade-in">
-        {content}
-      </div>
-      {authModal}
-    </>
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+      {content}
+    </div>
   );
 }

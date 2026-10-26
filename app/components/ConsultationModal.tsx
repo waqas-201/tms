@@ -4,7 +4,15 @@ import React, { useState, useEffect, useRef, useContext } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { CLINIC_INFO } from "@/app/data/products";
-import { useSession, signIn, signUp } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
+import {
+  CONSULTATION_DRAFT_KEY,
+  saveBookingDraft,
+  getBookingDraft,
+  clearBookingDraft,
+  buildAuthUrl,
+} from "@/lib/auth-redirect";
 import { isStaffRole } from "@/lib/rbac-base";
 import ConsultationContext, {
   ConsultationMode,
@@ -94,14 +102,46 @@ export default function ConsultationModal({
     // Graceful fallback
   }
 
-  // Auth gating state (for unauthenticated users)
-  const [authTab, setAuthTab] = useState<"signup" | "signin">("signup");
-  const [authName, setAuthName] = useState("");
-  const [authEmail, setAuthEmail] = useState("");
-  const [authPassword, setAuthPassword] = useState("");
-  const [authPhone, setAuthPhone] = useState("");
-  const [authLoading, setAuthLoading] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
+  const router = useRouter();
+
+  // Restore saved consultation draft if returning from auth redirect
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const shouldResume = params.get("resumeBooking");
+    if (shouldResume === "consultation" || shouldResume === "true") {
+      const draft = getBookingDraft<any>(CONSULTATION_DRAFT_KEY);
+      if (draft) {
+        if (draft.consultationType) setConsultationType(draft.consultationType);
+        if (draft.appointmentDate) setAppointmentDate(draft.appointmentDate);
+        if (draft.appointmentSlot) setAppointmentSlot(draft.appointmentSlot);
+        if (draft.patientPhone) setPatientPhone(draft.patientPhone);
+        if (draft.symptomText) setSymptomText(draft.symptomText);
+        if (sessionData?.user) {
+          if (!isOpen && context?.openConsultation) {
+            context.openConsultation();
+          }
+        }
+      }
+    }
+  }, [sessionData?.user, isOpen, context]);
+
+  const handleRedirectToAuth = (type: "login" | "register") => {
+    if (typeof window === "undefined") return;
+    saveBookingDraft(CONSULTATION_DRAFT_KEY, {
+      consultationType,
+      appointmentDate,
+      appointmentSlot,
+      patientPhone,
+      symptomText,
+    });
+    const currentPath = window.location.pathname + window.location.hash;
+    const targetUrl = buildAuthUrl(type, {
+      redirect: currentPath,
+      resumeBooking: "consultation",
+    });
+    router.push(targetUrl);
+  };
 
   // Booking details state
   const [consultationType, setConsultationType] = useState<"ONLINE" | "IN_PERSON">(
@@ -182,7 +222,6 @@ export default function ConsultationModal({
       }
       setBookingSuccess(null);
       setBookingError(null);
-      setAuthError(null);
     }
   }, [isOpen, resolvedInitialMessage]);
 
@@ -248,73 +287,6 @@ export default function ConsultationModal({
       cancelled = true;
     };
   }, [isOpen, sessionData?.user, appointmentDate]);
-
-  // Handle Signup
-  const handleAuthRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthLoading(true);
-    setAuthError(null);
-
-    try {
-      const lowerEmail = authEmail.trim().toLowerCase();
-      if (!authName.trim()) {
-        throw new Error("Please enter your full name.");
-      }
-      if (!lowerEmail) {
-        throw new Error("Please enter your email address.");
-      }
-      if (authPassword.length < 6) {
-        throw new Error("Password must be at least 6 characters.");
-      }
-      if (authPhone.replace(/\D/g, "").length < 7) {
-        throw new Error("Please enter a valid phone / WhatsApp number.");
-      }
-
-      const res = await signUp.email({
-        name: authName.trim(),
-        email: lowerEmail,
-        password: authPassword,
-        phone: authPhone.trim(),
-      } as any);
-
-      if (res.error) {
-        throw new Error(res.error.message || "Failed to create account.");
-      }
-
-      // Successful registration sets active session in Better-Auth
-    } catch (err: any) {
-      setAuthError(err.message || "Registration failed. Please try again.");
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  // Handle Sign In
-  const handleAuthSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthLoading(true);
-    setAuthError(null);
-
-    try {
-      const lowerEmail = authEmail.trim().toLowerCase();
-      if (!lowerEmail || !authPassword) {
-        throw new Error("Please enter both email and password.");
-      }
-
-      const res = await signIn.email({
-        email: lowerEmail,
-        password: authPassword,
-      });
-
-      if (res.error) {
-        throw new Error(res.error.message || "Invalid email or password.");
-      }
-    } catch (err: any) {
-      setAuthError(err.message || "Sign in failed. Check your credentials.");
-    } finally {
-      setAuthLoading(false);
-    }
-  };
 
   // Handle file attachment
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -631,198 +603,40 @@ Please confirm my appointment.`;
                 </div>
               ) : !sessionData?.user ? (
                 /* ── SCREEN 2: AUTH GATING (UNAUTHENTICATED) ── */
-                <div className="space-y-4">
-                  {/* Tabs */}
-                  <div className="grid grid-cols-2 p-1 bg-surface border border-line rounded-xl text-xs font-bold">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAuthTab("signup");
-                        setAuthError(null);
-                      }}
-                      className={`py-2 rounded-lg transition-colors ${
-                        authTab === "signup"
-                          ? "bg-primary text-white shadow-xs"
-                          : "text-ink-subtle hover:text-ink"
-                      }`}
-                    >
-                      Create Account
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAuthTab("signin");
-                        setAuthError(null);
-                      }}
-                      className={`py-2 rounded-lg transition-colors ${
-                        authTab === "signin"
-                          ? "bg-primary text-white shadow-xs"
-                          : "text-ink-subtle hover:text-ink"
-                      }`}
-                    >
-                      Sign In
-                    </button>
-                  </div>
-
-                  <div className="p-3 bg-success-soft/70 border border-success-line/80 rounded-xl text-[11px] text-success flex items-start gap-2">
-                    <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                    <span>
-                      An account keeps your health records, consultation tickets, and
-                      remedy prescriptions organized in one private portal.
-                    </span>
-                  </div>
-
-                  {authError && (
-                    <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0" />
-                      <span>{authError}</span>
+                <div className="space-y-4 py-2">
+                  <div className="p-4 bg-success-soft/80 border border-success-line/90 rounded-2xl text-xs flex items-start gap-3">
+                    <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                    <div className="space-y-1">
+                      <strong className="block text-sm font-bold text-ink">
+                        Account Required for Clinical Consultation
+                      </strong>
+                      <span className="text-ink-body leading-relaxed block">
+                        An account keeps your health records, consultation tickets, and remedy prescriptions organized in one private portal.
+                      </span>
+                      <span className="text-secondary-text font-medium block pt-1">
+                        Your consultation details and symptoms will stay saved while you authenticate.
+                      </span>
                     </div>
-                  )}
+                  </div>
 
-                  {authTab === "signup" ? (
-                    <form onSubmit={handleAuthRegister} className="space-y-3">
-                      <div className="space-y-1">
-                        <label className="text-xs font-semibold text-ink">
-                          Full Name <span className="text-danger">*</span>
-                        </label>
-                        <div className="relative">
-                          <User className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
-                          <input
-                            type="text"
-                            required
-                            value={authName}
-                            onChange={(e) => setAuthName(e.target.value)}
-                            placeholder="e.g. Muhammad Bilal"
-                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-xs font-semibold text-ink">
-                          Email Address <span className="text-danger">*</span>
-                        </label>
-                        <div className="relative">
-                          <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
-                          <input
-                            type="email"
-                            required
-                            value={authEmail}
-                            onChange={(e) => setAuthEmail(e.target.value)}
-                            placeholder="name@example.com"
-                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-xs font-semibold text-ink">
-                          Password <span className="text-danger">*</span>
-                        </label>
-                        <div className="relative">
-                          <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
-                          <input
-                            type="password"
-                            required
-                            minLength={6}
-                            value={authPassword}
-                            onChange={(e) => setAuthPassword(e.target.value)}
-                            placeholder="At least 6 characters"
-                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-xs font-semibold text-ink">
-                          Phone / WhatsApp <span className="text-danger">*</span>
-                        </label>
-                        <div className="relative">
-                          <Phone className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
-                          <input
-                            type="tel"
-                            required
-                            value={authPhone}
-                            onChange={(e) => setAuthPhone(e.target.value)}
-                            placeholder="0300-1234567"
-                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white"
-                          />
-                        </div>
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={authLoading}
-                        className="w-full mt-2 py-3 px-4 bg-primary hover:bg-brand-green-800 disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-sm"
-                      >
-                        {authLoading ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Creating Account...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Create Account &amp; Book Slot</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </>
-                        )}
-                      </button>
-                    </form>
-                  ) : (
-                    <form onSubmit={handleAuthSignIn} className="space-y-3">
-                      <div className="space-y-1">
-                        <label className="text-xs font-semibold text-ink">
-                          Email Address <span className="text-danger">*</span>
-                        </label>
-                        <div className="relative">
-                          <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
-                          <input
-                            type="email"
-                            required
-                            value={authEmail}
-                            onChange={(e) => setAuthEmail(e.target.value)}
-                            placeholder="name@example.com"
-                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-xs font-semibold text-ink">
-                          Password <span className="text-danger">*</span>
-                        </label>
-                        <div className="relative">
-                          <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
-                          <input
-                            type="password"
-                            required
-                            value={authPassword}
-                            onChange={(e) => setAuthPassword(e.target.value)}
-                            placeholder="Your account password"
-                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white"
-                          />
-                        </div>
-                      </div>
-
-                      <button
-                        type="submit"
-                        disabled={authLoading}
-                        className="w-full mt-2 py-3 px-4 bg-primary hover:bg-brand-green-800 disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-sm"
-                      >
-                        {authLoading ? (
-                          <>
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                            <span>Signing In...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Sign In &amp; Continue</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </>
-                        )}
-                      </button>
-                    </form>
-                  )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => handleRedirectToAuth("register")}
+                      className="w-full py-3 px-4 bg-primary hover:bg-brand-green-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
+                    >
+                      <span>Create Account</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRedirectToAuth("login")}
+                      className="w-full py-3 px-4 bg-white hover:bg-surface border border-line-strong text-ink rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
+                    >
+                      <span>Sign In</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               ) : (
                 /* ── SCREEN 3: AUTHENTICATED SLOT BOOKING ── */

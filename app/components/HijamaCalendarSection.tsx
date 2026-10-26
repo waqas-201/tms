@@ -26,7 +26,7 @@ import {
   KeyRound,
 } from "lucide-react";
 import { CLINIC_INFO } from "@/app/data/products";
-import { useSession, signIn, signUp } from "@/lib/auth-client";
+import { useSession } from "@/lib/auth-client";
 import {
   getHijriDate,
   formatDateStr,
@@ -35,7 +35,6 @@ import {
   type HijamaSlotAvailability,
 } from "@/lib/hijama-types";
 import Reveal from "./motion/Reveal";
-import AuthModal from "./AuthModal";
 import StepTransition from "./motion/StepTransition";
 import StepConnector from "./motion/StepConnector";
 
@@ -69,17 +68,6 @@ export default function HijamaCalendarSection() {
   const [age, setAge] = useState("");
   const [healthConfirmed, setHealthConfirmed] = useState(false);
 
-  // Step 3 Auth Gating State (when unauthenticated)
-  const [authTab, setAuthTab] = useState<"signin" | "signup">("signin");
-  const [authEmail, setAuthEmail] = useState("");
-  const [authPassword, setAuthPassword] = useState("");
-  const [authName, setAuthName] = useState("");
-  const [authPhone, setAuthPhone] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [authLoading, setAuthLoading] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [authSuccessMsg, setAuthSuccessMsg] = useState<string | null>(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   // Data fetching state
   const [sunnahDates, setSunnahDates] = useState<UpcomingSunnahDate[]>([]);
@@ -216,82 +204,6 @@ export default function HijamaCalendarSection() {
       return selectedDate;
     }
   }, [selectedDate]);
-
-  // Handle Step 3 Authentication Gate: Inline Sign In
-  const handleAuthSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthLoading(true);
-    setAuthError(null);
-    setAuthSuccessMsg(null);
-
-    try {
-      const cleanEmail = authEmail.trim().toLowerCase();
-      if (!cleanEmail || !authPassword) {
-        throw new Error("Please enter both email and password.");
-      }
-
-      const res = await signIn.email({
-        email: cleanEmail,
-        password: authPassword,
-      });
-
-      if (res.error) {
-        const errorMsg = (res.error.message || "").toLowerCase();
-        const errorCode = (res.error as { code?: string })?.code;
-
-        if (errorCode === "EMAIL_NOT_VERIFIED" || errorMsg.includes("email not verified")) {
-          throw new Error("Your email address is not verified yet. Please verify your email via the link sent to your inbox before booking.");
-        }
-        throw new Error(res.error.message || "Invalid email or password.");
-      }
-    } catch (err: any) {
-      setAuthError(err.message || "Sign in failed. Check your credentials.");
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  // Handle Step 3 Authentication Gate: Inline Registration
-  const handleAuthRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthLoading(true);
-    setAuthError(null);
-    setAuthSuccessMsg(null);
-
-    try {
-      const cleanEmail = authEmail.trim().toLowerCase();
-      if (!authName.trim()) throw new Error("Full name is required.");
-      if (!cleanEmail) throw new Error("Email address is required.");
-      if (cleanEmail === "admin@tameeresehat.com") {
-        throw new Error("This email is reserved for administrative access. Please use a personal email.");
-      }
-      if (authPassword.length < 8) {
-        throw new Error("Password must be at least 8 characters long.");
-      }
-
-      const callbackUrl = typeof window !== "undefined" ? window.location.href : "/#hijama-calendar";
-
-      const res = await signUp.email({
-        name: authName.trim(),
-        email: cleanEmail,
-        password: authPassword,
-        phone: authPhone.trim() || undefined,
-        callbackURL: callbackUrl,
-      } as any);
-
-      if (res.error) {
-        throw new Error(res.error.message || "Failed to create account.");
-      }
-
-      setAuthSuccessMsg(
-        `Account created successfully! A verification link has been sent to ${cleanEmail}. Please click the verification link in your email to activate your account and complete booking.`
-      );
-    } catch (err: any) {
-      setAuthError(err.message || "Registration failed. Please try again.");
-    } finally {
-      setAuthLoading(false);
-    }
-  };
 
   // Handle final booking submission
   const handleBookingSubmit = async (e: React.FormEvent) => {
@@ -832,315 +744,35 @@ export default function HijamaCalendarSection() {
 
                   {!session?.user ? (
                     <div className="space-y-4">
-                      <div className="p-3.5 bg-success-soft/80 border border-success-line/90 rounded-xl flex items-start gap-2.5 text-xs text-success">
-                        <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                        <div className="space-y-0.5">
-                          <strong className="block font-bold text-ink">Sign-In Required to Reserve Hijama</strong>
-                          <span className="text-ink-body">
-                            Your selected date and slot will stay in place while you sign in or create an account.
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2.5 pt-1">
-                        <button
-                          type="button"
-                          onClick={() => goToStep(2)}
-                          className="px-4 py-2.5 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
-                        >
-                          <ArrowLeft className="w-3.5 h-3.5" />
-                          <span>Back</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setIsAuthModalOpen(true)}
-                          className="flex-1 py-2.5 px-4 bg-surface-inverse hover:bg-brand-green-900 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all shadow-xs cursor-pointer"
-                        >
-                          Sign In or Create Account
-                        </button>
-                      </div>
-                    </div>
-                  ) : false ? (
-                    /* Legacy inline auth form retained for compatibility; the shared modal is the live flow. */
-                    <div className="space-y-4">
-                      {/* Gating info banner */}
-                      <div className="p-3.5 bg-success-soft/80 border border-success-line/90 rounded-xl flex items-start gap-2.5 text-xs text-success">
-                        <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                        <div className="space-y-0.5">
-                          <strong className="block font-bold text-ink">Sign-In Required to Reserve Hijama</strong>
-                          <span className="text-ink-body">
+                      <div className="p-4 bg-success-soft/80 border border-success-line/90 rounded-2xl flex items-start gap-3 text-xs text-success">
+                        <ShieldCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+                        <div className="space-y-1">
+                          <strong className="block text-sm font-bold text-ink">Sign-In Required to Reserve Hijama</strong>
+                          <span className="text-ink-body leading-relaxed block">
                             An account is required to generate your official clinical appointment ticket, issue SMS/WhatsApp reminders, and keep your Sunnah cupping history secure.
                           </span>
                         </div>
                       </div>
-
-                      {/* Tabs: Sign In vs Create Account */}
-                      <div className="grid grid-cols-2 p-1 bg-surface border border-line rounded-xl text-xs font-bold">
+                      <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-1">
                         <button
                           type="button"
-                          onClick={() => {
-                            setAuthTab("signin");
-                            setAuthError(null);
-                            setAuthSuccessMsg(null);
-                          }}
-                          className={`py-2 rounded-lg transition-colors cursor-pointer ${
-                            authTab === "signin"
-                              ? "bg-surface-inverse text-white shadow-xs"
-                              : "text-ink-subtle hover:text-ink"
-                          }`}
+                          onClick={() => goToStep(2)}
+                          className="w-full sm:w-auto px-4 py-2.5 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                         >
-                          Sign In
+                          <ArrowLeft className="w-3.5 h-3.5" />
+                          <span>Back</span>
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAuthTab("signup");
-                            setAuthError(null);
-                            setAuthSuccessMsg(null);
-                          }}
-                          className={`py-2 rounded-lg transition-colors cursor-pointer ${
-                            authTab === "signup"
-                              ? "bg-surface-inverse text-white shadow-xs"
-                              : "text-ink-subtle hover:text-ink"
-                          }`}
+                        <Link
+                          href={`/register?redirect=${encodeURIComponent("/#hijama-calendar")}`}
+                          className="w-full sm:flex-1 py-2.5 px-4 bg-primary hover:bg-brand-green-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider text-center transition-all shadow-xs"
                         >
                           Create Account
-                        </button>
-                      </div>
-
-                      {/* SIGN IN FORM */}
-                      {authTab === "signin" ? (
-                        <form onSubmit={handleAuthSignIn} className="space-y-3">
-                          <div className="space-y-1">
-                            <label className="text-[11px] font-semibold text-ink-body block">
-                              Email Address <span className="text-danger">*</span>
-                            </label>
-                            <div className="relative">
-                              <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                              <input
-                                type="email"
-                                required
-                                value={authEmail}
-                                onChange={(e) => setAuthEmail(e.target.value)}
-                                placeholder="name@example.com"
-                                className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            <div className="flex items-center justify-between">
-                              <label className="text-[11px] font-semibold text-ink-body">
-                                Password <span className="text-danger">*</span>
-                              </label>
-                              <Link
-                                href="/forgot-password"
-                                className="text-[10px] text-primary hover:underline"
-                              >
-                                Forgot password?
-                              </Link>
-                            </div>
-                            <div className="relative">
-                              <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                              <input
-                                type={showPassword ? "text" : "password"}
-                                required
-                                value={authPassword}
-                                onChange={(e) => setAuthPassword(e.target.value)}
-                                placeholder="Enter your password"
-                                className="w-full pl-9 pr-9 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
-                              />
-                              <button
-                                type="button"
-                                onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle hover:text-ink cursor-pointer"
-                                aria-label={showPassword ? "Hide password" : "Show password"}
-                              >
-                                {showPassword ? (
-                                  <EyeOff className="w-3.5 h-3.5" />
-                                ) : (
-                                  <Eye className="w-3.5 h-3.5" />
-                                )}
-                              </button>
-                            </div>
-                          </div>
-
-                          {authError && (
-                            <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-start gap-2">
-                              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                              <span>{authError}</span>
-                            </div>
-                          )}
-
-                          <div className="flex items-center gap-2.5 pt-1">
-                            <button
-                              type="button"
-                              onClick={() => goToStep(2)}
-                              className="px-4 py-2.5 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
-                            >
-                              <ArrowLeft className="w-3.5 h-3.5" />
-                              <span>Back</span>
-                            </button>
-
-                            <button
-                              type="submit"
-                              disabled={authLoading}
-                              className="flex-1 py-2.5 px-4 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
-                            >
-                              {authLoading ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                  <span>Signing In...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>Sign In &amp; Continue Booking</span>
-                                  <ArrowRight className="w-3.5 h-3.5" />
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </form>
-                      ) : (
-                        /* CREATE ACCOUNT FORM */
-                        <form onSubmit={handleAuthRegister} className="space-y-3">
-                          <div className="space-y-1">
-                            <label className="text-[11px] font-semibold text-ink-body block">
-                              Full Name <span className="text-danger">*</span>
-                            </label>
-                            <div className="relative">
-                              <User className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                              <input
-                                type="text"
-                                required
-                                value={authName}
-                                onChange={(e) => setAuthName(e.target.value)}
-                                placeholder="e.g. Usman Ahmed"
-                                className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="space-y-1">
-                            <label className="text-[11px] font-semibold text-ink-body block">
-                              Email Address <span className="text-danger">*</span>
-                            </label>
-                            <div className="relative">
-                              <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                              <input
-                                type="email"
-                                required
-                                value={authEmail}
-                                onChange={(e) => setAuthEmail(e.target.value)}
-                                placeholder="name@example.com"
-                                className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                            <div className="space-y-1">
-                              <label className="text-[11px] font-semibold text-ink-body block">
-                                Password (min 8 chars) <span className="text-danger">*</span>
-                              </label>
-                              <div className="relative">
-                                <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                                <input
-                                  type={showPassword ? "text" : "password"}
-                                  required
-                                  minLength={8}
-                                  value={authPassword}
-                                  onChange={(e) => setAuthPassword(e.target.value)}
-                                  placeholder="At least 8 characters"
-                                  className="w-full pl-9 pr-9 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => setShowPassword(!showPassword)}
-                                  className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle hover:text-ink cursor-pointer"
-                                  aria-label={showPassword ? "Hide password" : "Show password"}
-                                >
-                                  {showPassword ? (
-                                    <EyeOff className="w-3.5 h-3.5" />
-                                  ) : (
-                                    <Eye className="w-3.5 h-3.5" />
-                                  )}
-                                </button>
-                              </div>
-                            </div>
-
-                            <div className="space-y-1">
-                              <label className="text-[11px] font-semibold text-ink-body block">
-                                WhatsApp Phone (Optional)
-                              </label>
-                              <div className="relative">
-                                <Phone className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                                <input
-                                  type="tel"
-                                  value={authPhone}
-                                  onChange={(e) => setAuthPhone(e.target.value)}
-                                  placeholder="0300 1234567"
-                                  className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
-                                />
-                              </div>
-                            </div>
-                          </div>
-
-                          {authError && (
-                            <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-start gap-2">
-                              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                              <span>{authError}</span>
-                            </div>
-                          )}
-
-                          {authSuccessMsg && (
-                            <div className="p-3 bg-success-soft border border-success-line rounded-xl text-xs text-success flex items-start gap-2">
-                              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-success" />
-                              <div className="space-y-1">
-                                <strong className="block text-success font-bold">Verification Email Sent</strong>
-                                <p className="text-[11px] leading-relaxed">{authSuccessMsg}</p>
-                              </div>
-                            </div>
-                          )}
-
-                          <div className="flex items-center gap-2.5 pt-1">
-                            <button
-                              type="button"
-                              onClick={() => goToStep(2)}
-                              className="px-4 py-2.5 bg-surface border border-line hover:bg-surface-sunken text-ink font-bold text-xs rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
-                            >
-                              <ArrowLeft className="w-3.5 h-3.5" />
-                              <span>Back</span>
-                            </button>
-
-                            <button
-                              type="submit"
-                              disabled={authLoading}
-                              className="flex-1 py-2.5 px-4 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
-                            >
-                              {authLoading ? (
-                                <>
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                  <span>Creating Account...</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>Create Account &amp; Continue</span>
-                                  <ArrowRight className="w-3.5 h-3.5" />
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </form>
-                      )}
-
-                      {/* Direct Link to full login page */}
-                      <div className="text-center pt-1 border-t border-sand-100 text-[11px] text-ink-subtle">
-                        <span>Prefer using the full login page? </span>
+                        </Link>
                         <Link
                           href={`/login?redirect=${encodeURIComponent("/#hijama-calendar")}`}
-                          className="font-semibold text-primary hover:underline"
+                          className="w-full sm:flex-1 py-2.5 px-4 bg-surface-inverse hover:bg-brand-green-900 text-white rounded-xl text-xs font-bold uppercase tracking-wider text-center transition-all shadow-xs"
                         >
-                          Open Login Page →
+                          Sign In
                         </Link>
                       </div>
                     </div>
@@ -1266,10 +898,6 @@ export default function HijamaCalendarSection() {
           )}
         </div>
       </div>
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onOpenChange={setIsAuthModalOpen}
-      />
     </section>
   );
 }

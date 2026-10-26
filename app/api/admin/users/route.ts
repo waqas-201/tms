@@ -12,6 +12,8 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search")?.trim();
     const roleFilter = searchParams.get("role")?.trim()?.toUpperCase();
     const statusFilter = searchParams.get("status")?.trim()?.toUpperCase() || "ALL";
+    // The dashboard banner only needs the aggregate counters, not the full directory.
+    const summaryOnly = searchParams.get("summary") === "1";
 
     const where: Record<string, unknown> = {};
 
@@ -51,29 +53,31 @@ export async function GET(request: NextRequest) {
     // Parallel fetch for users and aggregate counts
     const [users, totalCount, activeCount, staffCount, customerCount, suspendedCount, deletedCount] =
       await Promise.all([
-        prisma.user.findMany({
-          where,
-          orderBy: { createdAt: "desc" },
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            phone: true,
-            city: true,
-            isActive: true,
-            deletedAt: true,
-            createdAt: true,
-            updatedAt: true,
-            _count: {
+        summaryOnly
+          ? Promise.resolve([])
+          : prisma.user.findMany({
+              where,
+              orderBy: { createdAt: "desc" },
               select: {
-                orders: true,
-                consultations: true,
-                hijamaBookings: true,
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                phone: true,
+                city: true,
+                isActive: true,
+                deletedAt: true,
+                createdAt: true,
+                updatedAt: true,
+                _count: {
+                  select: {
+                    orders: true,
+                    consultations: true,
+                    hijamaBookings: true,
+                  },
+                },
               },
-            },
-          },
-        }),
+            }),
         prisma.user.count({ where: { deletedAt: null } }),
         prisma.user.count({ where: { deletedAt: null, isActive: true } }),
         prisma.user.count({
@@ -183,6 +187,10 @@ export async function POST(request: NextRequest) {
         city: city || "Karachi",
         isActive: true,
         deletedAt: null,
+        // The admin is creating this account on the person's behalf, so treat
+        // the address as vouched-for; otherwise email verification would block
+        // their very first login.
+        emailVerified: true,
       },
       select: {
         id: true,

@@ -22,6 +22,7 @@ import {
   Droplets,
   ShoppingBag,
   Users,
+  ArrowRight,
 } from "lucide-react";
 import ProductFormModal from "@/app/components/ProductFormModal";
 import ReceiveStockModal from "@/app/components/inventory/ReceiveStockModal";
@@ -69,7 +70,12 @@ export default function AdminDashboardPage() {
   const searchParams = useSearchParams();
   const { data: sessionData, isPending: sessionLoading } = useSession();
 
-  const userRole = (sessionData?.user as any)?.role || "user";
+  const userRole = (() => {
+    const rawRole = (sessionData?.user as any)?.role;
+    // Roles are stored lowercase, but guard against stray casing so the admin
+    // keeps the Users & Access tab instead of silently losing it.
+    return typeof rawRole === "string" && rawRole.trim() ? rawRole.trim().toLowerCase() : "user";
+  })();
   const isStaff = isStaffRole(userRole);
   const isAdmin = userRole === ROLES.ADMIN;
 
@@ -85,6 +91,9 @@ export default function AdminDashboardPage() {
   const [products, setProducts] = useState<any[]>([]);
   const [inventorySizes, setInventorySizes] = useState<any[]>([]);
   const [inventorySummary, setInventorySummary] = useState<any>(null);
+  const [userSummary, setUserSummary] = useState<
+    { total: number; staff: number; customers: number; suspended: number; deleted: number } | null
+  >(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -142,6 +151,31 @@ export default function AdminDashboardPage() {
       fetchData();
     }
   }, [sessionLoading, sessionData, isStaff, fetchData]);
+
+  // Keep the registered-user counter fresh for the admin banner. Failure is
+  // non-fatal: the Users tab still works even if this summary call fails.
+  useEffect(() => {
+    if (!isAdmin) return;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await fetch("/api/admin/users?status=ALL&summary=1", {
+          cache: "no-store",
+        });
+        const json = await res.json();
+        if (!cancelled && res.ok && json.success && json.counts) {
+          setUserSummary(json.counts);
+        }
+      } catch {
+        // Ignore - the banner simply stays hidden until the next load.
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAdmin]);
 
   useEffect(() => {
     if (tabFromUrl && visibleTabs.some((t) => t.id === tabFromUrl) && tabFromUrl !== activeTab) {
@@ -250,6 +284,47 @@ export default function AdminDashboardPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+        {/* Admin-only shortcut: user counts + one-click access to user management */}
+        {isAdmin && (
+          <div className="bg-white rounded-2xl border border-brand-green-100 shadow-xs overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="font-serif text-sm sm:text-base font-bold text-ink">
+                    User Management
+                  </h2>
+                  <p className="text-xs text-ink-muted mt-0.5">
+                    {userSummary ? (
+                      <>
+                        <span className="font-semibold text-ink">{userSummary.total}</span>{" "}
+                        registered {userSummary.total === 1 ? "account" : "accounts"} ·{" "}
+                        {userSummary.staff} staff · {userSummary.customers} customers
+                        {userSummary.suspended > 0 && (
+                          <> · {userSummary.suspended} suspended</>
+                        )}
+                        {userSummary.deleted > 0 && <> · {userSummary.deleted} archived</>}
+                      </>
+                    ) : (
+                      "View, add and remove customer or staff accounts."
+                    )}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setTab("users")}
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-primary hover:bg-brand-green-800 text-white rounded-xl text-xs font-semibold transition-colors shrink-0"
+              >
+                <Users className="w-3.5 h-3.5" />
+                <span>Manage Users</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Compact summary strip */}
         {inventorySummary && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

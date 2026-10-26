@@ -51,7 +51,7 @@ export async function requireRole(
       };
     }
 
-    const userRole = userObj.role || ROLES.USER;
+    const userRole = String(userObj.role || ROLES.USER).toLowerCase();
 
     if (!allowedRoles.includes(userRole)) {
       return {
@@ -126,7 +126,7 @@ export async function requirePermission(
       };
     }
 
-    const userRole = userObj.role || ROLES.USER;
+    const userRole = String(userObj.role || ROLES.USER).toLowerCase();
 
     if (!hasPermission(userRole, permission)) {
       return {

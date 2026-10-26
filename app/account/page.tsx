@@ -497,6 +497,22 @@ export default function AccountPage() {
                 Open <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
             </Link>
+
+            {userRole === "admin" && (
+              <Link
+                href="/admin?tab=users"
+                className="group bg-white rounded-2xl border border-line p-5 hover:border-primary/40 hover:shadow-xs transition-all"
+              >
+                <ShieldCheck className="w-5 h-5 text-primary mb-3" />
+                <p className="text-sm font-bold text-ink">Users &amp; Access</p>
+                <p className="text-[11px] text-ink-muted mt-0.5">
+                  See every registered account, add staff, suspend or remove users.
+                </p>
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary mt-3">
+                  Open <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                </span>
+              </Link>
+            )}
           </div>
 
           <Link

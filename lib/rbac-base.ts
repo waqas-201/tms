@@ -76,7 +76,7 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
  */
 export function hasPermission(role: Role | undefined | null, permission: Permission): boolean {
   if (!role) return false;
-  const permissions = ROLE_PERMISSIONS[role] || [];
+  const permissions = ROLE_PERMISSIONS[String(role).toLowerCase()] || [];
   return permissions.includes(permission);
 }
 
@@ -85,10 +85,11 @@ export function hasPermission(role: Role | undefined | null, permission: Permiss
  */
 export function isStaffRole(role: Role | undefined | null): boolean {
   if (!role) return false;
+  const normalized = String(role).toLowerCase();
   return (
-    role === ROLES.ADMIN ||
-    role === ROLES.HAKIM ||
-    role === ROLES.EDITOR ||
-    role === ROLES.CONTRIBUTOR
+    normalized === ROLES.ADMIN ||
+    normalized === ROLES.HAKIM ||
+    normalized === ROLES.EDITOR ||
+    normalized === ROLES.CONTRIBUTOR
   );
 }

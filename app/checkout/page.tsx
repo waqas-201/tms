@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { calculateDeliveryFee } from "@/lib/delivery-calc";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/app/context/CartContext";
@@ -31,6 +32,7 @@ import {
   RefreshCw,
   Lock,
   ExternalLink,
+  Navigation,
 } from "lucide-react";
 
 const PAKISTAN_CITIES = [
@@ -84,7 +86,112 @@ export default function CheckoutPage() {
     specialNotes: "",
     deliveryOption: "standard", // standard | express_karachi
     paymentMethod: "COD",
+    latitude: null as number | null,
+    longitude: null as number | null,
+    saveAddressToProfile: true,
   });
+
+  const [locating, setLocating] = useState(false);
+  const [locationSuccess, setLocationSuccess] = useState<string | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
+  const deliveryCalc = useMemo(() => {
+    return calculateDeliveryFee({
+      customerLat: formData.latitude,
+      customerLng: formData.longitude,
+      subtotal,
+      isFreeShippingCoupon: appliedCoupon?.discountType === "free_shipping",
+    });
+  }, [formData.latitude, formData.longitude, subtotal, appliedCoupon]);
+
+  const effectiveShippingFee = deliveryCalc.deliveryFee;
+  const effectiveTotal = Math.max(0, subtotal - discountAmount + effectiveShippingFee);
+
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setLocating(true);
+    setLocationError(null);
+    setLocationSuccess(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+
+        setFormData((prev) => ({
+          ...prev,
+          latitude: lat,
+          longitude: lng,
+        }));
+
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`,
+            { headers: { "Accept-Language": "en" } }
+          );
+          if (res.ok) {
+            const data = await res.json();
+            const addr = data.address || {};
+            const cityDetected =
+              addr.city || addr.town || addr.municipality || addr.state || "";
+            const area =
+              addr.suburb ||
+              addr.neighbourhood ||
+              addr.residential ||
+              addr.road ||
+              "";
+
+            setFormData((prev) => {
+              let matchedCity = prev.city;
+              if (cityDetected.toLowerCase().includes("karachi")) {
+                matchedCity = "Karachi";
+              } else if (cityDetected) {
+                const found = PAKISTAN_CITIES.find(
+                  (c) => c.toLowerCase() === cityDetected.toLowerCase()
+                );
+                if (found) matchedCity = found;
+              }
+
+              let newAddress = prev.address;
+              if (!newAddress.trim() && area) {
+                newAddress = `${area}${addr.road && addr.road !== area ? `, ${addr.road}` : ""}`;
+              }
+
+              return {
+                ...prev,
+                city: matchedCity,
+                address: newAddress,
+              };
+            });
+          }
+        } catch (revErr) {
+          console.warn("Reverse geocoding error:", revErr);
+        }
+
+        setLocating(false);
+        setLocationSuccess(`GPS pin detected (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+        setTimeout(() => setLocationSuccess(null), 5000);
+      },
+      (err) => {
+        setLocating(false);
+        let msg = "Could not detect location. Please enter your address manually.";
+        if (err.code === err.PERMISSION_DENIED) {
+          msg = "Location permission was denied. Please enter your delivery address manually.";
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          msg = "Location information unavailable. Please enter your address manually.";
+        } else if (err.code === err.TIMEOUT) {
+          msg = "Location request timed out. Please enter your address manually.";
+        }
+        setLocationError(msg);
+        setTimeout(() => setLocationError(null), 6000);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+    );
+  };
 
   const [couponInput, setCouponInput] = useState("");
   const [couponFeedback, setCouponFeedback] = useState<{
@@ -105,16 +212,42 @@ export default function CheckoutPage() {
   const isUserAuthenticated = Boolean(sessionData?.user);
   const isEmailVerified = Boolean(sessionData?.user?.emailVerified);
 
-  // Populate form with session user details if logged in
+  // Populate form with session user & saved address details if logged in
   useEffect(() => {
     if (sessionData?.user) {
-      setFormData((prev) => ({
-        ...prev,
-        fullName: prev.fullName || sessionData.user.name || "",
-        email: prev.email || sessionData.user.email || "",
-        phone: prev.phone || (sessionData.user as any).phone || "",
-        city: prev.city || (sessionData.user as any).city || "Karachi",
-      }));
+      fetch("/api/account/profile")
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.success && json.data) {
+            setFormData((prev) => ({
+              ...prev,
+              fullName: prev.fullName || json.data.name || sessionData.user.name || "",
+              email: prev.email || json.data.email || sessionData.user.email || "",
+              phone: prev.phone || json.data.phone || (sessionData.user as any).phone || "",
+              city: prev.city || json.data.city || (sessionData.user as any).city || "Karachi",
+              address: prev.address || json.data.address || "",
+              latitude: prev.latitude ?? json.data.latitude ?? null,
+              longitude: prev.longitude ?? json.data.longitude ?? null,
+            }));
+          } else {
+            setFormData((prev) => ({
+              ...prev,
+              fullName: prev.fullName || sessionData.user.name || "",
+              email: prev.email || sessionData.user.email || "",
+              phone: prev.phone || (sessionData.user as any).phone || "",
+              city: prev.city || (sessionData.user as any).city || "Karachi",
+            }));
+          }
+        })
+        .catch(() => {
+          setFormData((prev) => ({
+            ...prev,
+            fullName: prev.fullName || sessionData.user.name || "",
+            email: prev.email || sessionData.user.email || "",
+            phone: prev.phone || (sessionData.user as any).phone || "",
+            city: prev.city || (sessionData.user as any).city || "Karachi",
+          }));
+        });
     }
   }, [sessionData]);
 
@@ -214,6 +347,9 @@ export default function CheckoutPage() {
         email: formData.email,
         city: formData.city,
         address: formData.address,
+        customerLatitude: formData.latitude,
+        customerLongitude: formData.longitude,
+        saveAddressToProfile: formData.saveAddressToProfile,
         deliveryNotes: `${
           formData.deliveryOption === "express_karachi" ? "[EXPRESS KARACHI 24H DISPATCH] " : ""
         }${formData.specialNotes || ""}`,
@@ -663,10 +799,77 @@ export default function CheckoutPage() {
 
             {/* 2. Delivery Address in Pakistan */}
             <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line/80 shadow-xs space-y-5">
-              <h2 className="font-serif text-base sm:text-lg font-bold text-ink border-b border-line pb-3 flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-secondary-text" />
-                <span>2. Delivery Address (Pakistan)</span>
-              </h2>
+              <div className="flex items-center justify-between border-b border-line pb-3">
+                <h2 className="font-serif text-base sm:text-lg font-bold text-ink flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-secondary-text" />
+                  <span>2. Delivery Address (Pakistan)</span>
+                </h2>
+                <button
+                  type="button"
+                  onClick={handleDetectLocation}
+                  disabled={locating}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {locating ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Detecting GPS...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Navigation className="w-3.5 h-3.5" />
+                      <span>Detect My Location</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {locationSuccess && (
+                <div className="p-3 bg-success-soft border border-success-line rounded-xl text-xs text-success flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 text-success" />
+                  <span>{locationSuccess}</span>
+                </div>
+              )}
+
+              {locationError && (
+                <div className="p-3 bg-warning-soft border border-warning-line rounded-xl text-xs text-warning flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-warning" />
+                  <span>{locationError}</span>
+                </div>
+              )}
+
+              {/* Active Coordinates & Distance Badge */}
+              {formData.latitude !== null && formData.longitude !== null && (
+                <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2 text-xs text-emerald-900">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 font-bold text-emerald-800">
+                      <Navigation className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>GPS Pin Active ({formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)})</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          latitude: null,
+                          longitude: null,
+                        }))
+                      }
+                      className="text-[11px] text-danger hover:underline font-semibold cursor-pointer"
+                    >
+                      Remove GPS Pin
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-emerald-700">
+                    {deliveryCalc.distanceKm !== null && (
+                      <span className="font-semibold bg-emerald-100 px-2 py-0.5 rounded-md">
+                        {deliveryCalc.distanceKm} km from Korangi Matab
+                      </span>
+                    )}
+                    <span>{deliveryCalc.breakdown}</span>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5 sm:col-span-2">
@@ -701,6 +904,27 @@ export default function CheckoutPage() {
                     className="w-full text-xs p-3.5 bg-surface border border-line-strong rounded-xl text-ink placeholder:text-ink-subtle focus:outline-none focus:border-ink focus:bg-white transition-colors"
                   />
                 </div>
+
+                {isUserAuthenticated && (
+                  <div className="sm:col-span-2 pt-1">
+                    <label className="flex items-center gap-2 text-xs text-ink cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={formData.saveAddressToProfile}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            saveAddressToProfile: e.target.checked,
+                          }))
+                        }
+                        className="rounded border-line-strong text-primary focus:ring-primary"
+                      />
+                      <span className="font-medium">
+                        Save this address &amp; GPS location as default in my account profile
+                      </span>
+                    </label>
+                  </div>
+                )}
 
                 <div className="space-y-1.5 sm:col-span-2">
                   <label className="text-xs font-bold text-ink">
@@ -739,7 +963,7 @@ export default function CheckoutPage() {
                     <div className="font-bold text-ink flex items-center justify-between">
                       <span>Standard Tracked Courier (Nationwide)</span>
                       <span className="text-success font-bold">
-                        {shippingFee === 0 ? "FREE" : `₨ ${shippingFee}`}
+                        {effectiveShippingFee === 0 ? "FREE" : `₨ ${effectiveShippingFee}`}
                       </span>
                     </div>
                     <p className="text-ink-muted text-[11px] mt-0.5">
@@ -907,19 +1131,21 @@ export default function CheckoutPage() {
                 )}
 
                 <div className="flex justify-between text-ink-body">
-                  <span>Courier Delivery (Pakistan)</span>
+                  <span>
+                    Delivery ({deliveryCalc.feeType === "DYNAMIC" ? "Local Rider" : "Courier"})
+                  </span>
                   <span className="font-semibold text-ink">
-                    {shippingFee === 0 ? (
+                    {effectiveShippingFee === 0 ? (
                       <span className="text-success font-bold uppercase">Free</span>
                     ) : (
-                      `₨ ${shippingFee}`
+                      `₨ ${effectiveShippingFee}`
                     )}
                   </span>
                 </div>
 
                 <div className="flex justify-between text-base font-bold text-ink pt-2 border-t border-line">
                   <span>Total (Cash on Delivery)</span>
-                  <span>₨ {total.toLocaleString()}</span>
+                  <span>₨ {effectiveTotal.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -931,7 +1157,7 @@ export default function CheckoutPage() {
                     className="w-full flex items-center justify-center gap-2 py-4 bg-surface-inverse hover:bg-surface-inverse-hover text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg text-center cursor-pointer"
                   >
                     <Lock className="w-4 h-4 text-brand-gold-500" />
-                    <span>Sign In &amp; Verify Email to Order (₨ {total.toLocaleString()})</span>
+                    <span>Sign In &amp; Verify Email to Order (₨ {effectiveTotal.toLocaleString()})</span>
                   </Link>
                   <p className="text-[11px] text-ink-muted text-center">
                     New patient? <Link href="/register?redirect=/checkout" className="text-ink font-bold underline">Create an account</Link> to place your order.
@@ -953,7 +1179,7 @@ export default function CheckoutPage() {
                     ) : (
                       <>
                         <AlertCircle className="w-4 h-4 text-warning" />
-                        <span>Verify Email to Place Order (₨ {total.toLocaleString()})</span>
+                        <span>Verify Email to Place Order (₨ {effectiveTotal.toLocaleString()})</span>
                       </>
                     )}
                   </button>

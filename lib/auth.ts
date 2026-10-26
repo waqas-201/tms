@@ -72,6 +72,18 @@ export const auth = betterAuth({
         type: "string",
         required: false,
       },
+      address: {
+        type: "string",
+        required: false,
+      },
+      latitude: {
+        type: "number",
+        required: false,
+      },
+      longitude: {
+        type: "number",
+        required: false,
+      },
       isActive: {
         type: "boolean",
         required: false,

@@ -32,6 +32,8 @@ import {
   Mail,
   ShieldCheck,
   Droplets,
+  MapPin,
+  Navigation,
 } from "lucide-react";
 
 type AccountTab =
@@ -224,6 +226,30 @@ function SummaryTile({
   );
 }
 
+const PAKISTAN_CITIES = [
+  "Karachi",
+  "Lahore",
+  "Islamabad",
+  "Rawalpindi",
+  "Faisalabad",
+  "Multan",
+  "Peshawar",
+  "Quetta",
+  "Gujranwala",
+  "Sialkot",
+  "Hyderabad",
+  "Abbottabad",
+  "Bahawalpur",
+  "Sargodha",
+  "Sukkur",
+  "Mardan",
+  "Gujrat",
+  "Sheikhupura",
+  "Wah Cantt",
+  "Rahim Yar Khan",
+  "Other City / Town",
+];
+
 export default function AccountPage() {
   const { data: sessionData, isPending } = useSession();
   const { wishlist, removeFromWishlist, addToCart } = useCart();
@@ -239,6 +265,136 @@ export default function AccountPage() {
   const [resendingVerification, setResendingVerification] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
   const [resendError, setResendError] = useState<string | null>(null);
+
+  const [profileForm, setProfileForm] = useState({
+    name: "",
+    phone: "",
+    city: "Karachi",
+    address: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
+  });
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileSuccess, setProfileSuccess] = useState<string | null>(null);
+  const [profileError, setProfileError] = useState<string | null>(null);
+  const [detectingAccountLocation, setDetectingAccountLocation] = useState(false);
+
+  useEffect(() => {
+    if (sessionData?.user) {
+      fetch("/api/account/profile")
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.success && json.data) {
+            setProfileForm({
+              name: json.data.name || sessionData.user.name || "",
+              phone: json.data.phone || (sessionData.user as any).phone || "",
+              city: json.data.city || (sessionData.user as any).city || "Karachi",
+              address: json.data.address || "",
+              latitude: json.data.latitude ?? null,
+              longitude: json.data.longitude ?? null,
+            });
+          }
+        })
+        .catch((e) => console.error("Failed to load user profile:", e));
+    }
+  }, [sessionData]);
+
+  const handleDetectProfileLocation = () => {
+    if (!navigator.geolocation) {
+      setProfileError("Geolocation is not supported by your browser.");
+      return;
+    }
+    setDetectingAccountLocation(true);
+    setProfileError(null);
+    setProfileSuccess(null);
+
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        setProfileForm((prev) => ({
+          ...prev,
+          latitude: lat,
+          longitude: lng,
+        }));
+
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`,
+            { headers: { "Accept-Language": "en" } }
+          );
+          if (res.ok) {
+            const data = await res.json();
+            const addr = data.address || {};
+            const cityDetected = addr.city || addr.town || addr.municipality || "";
+            const area = addr.suburb || addr.neighbourhood || addr.residential || addr.road || "";
+
+            setProfileForm((prev) => {
+              let newCity = prev.city;
+              if (cityDetected.toLowerCase().includes("karachi")) {
+                newCity = "Karachi";
+              } else if (cityDetected) {
+                const found = PAKISTAN_CITIES.find(
+                  (c) => c.toLowerCase() === cityDetected.toLowerCase()
+                );
+                if (found) newCity = found;
+              }
+              let newAddr = prev.address;
+              if (!newAddr.trim() && area) {
+                newAddr = `${area}${addr.road && addr.road !== area ? `, ${addr.road}` : ""}`;
+              }
+              return {
+                ...prev,
+                city: newCity,
+                address: newAddr,
+              };
+            });
+          }
+        } catch {
+          // ignore reverse geocoding errors
+        }
+
+        setDetectingAccountLocation(false);
+        setProfileSuccess(`Location detected (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+        setTimeout(() => setProfileSuccess(null), 5000);
+      },
+      (err) => {
+        setDetectingAccountLocation(false);
+        setProfileError(
+          err.code === err.PERMISSION_DENIED
+            ? "Location permission was denied. Please type your address manually."
+            : "Could not retrieve GPS location. Please type your address manually."
+        );
+        setTimeout(() => setProfileError(null), 6000);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingProfile(true);
+    setProfileError(null);
+    setProfileSuccess(null);
+
+    try {
+      const res = await fetch("/api/account/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(profileForm),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to update profile.");
+      }
+      setProfileSuccess(json.message || "Profile updated successfully!");
+      setTimeout(() => setProfileSuccess(null), 5000);
+    } catch (err: any) {
+      setProfileError(err.message || "Failed to update profile.");
+    } finally {
+      setSavingProfile(false);
+    }
+  };
 
   const handleResendVerification = async () => {
     if (!sessionData?.user?.email) return;
@@ -1416,55 +1572,194 @@ export default function AccountPage() {
         {/* ─── TAB 5: PROFILE & ADDRESS ─── */}
         {activeTab === "profile" && (
           <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line shadow-xs space-y-6 max-w-2xl">
-            <h2 className="font-serif text-lg font-bold text-primary border-b border-sand-100 pb-3">
-              Profile &amp; Default Shipping Details
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div className="flex items-center justify-between border-b border-sand-100 pb-3">
               <div>
-                <label className="text-[11px] font-bold text-ink-subtle uppercase block">
-                  Full Name
-                </label>
-                <p className="font-semibold text-ink mt-1 text-sm">{user.name}</p>
-              </div>
-
-              <div>
-                <label className="text-[11px] font-bold text-ink-subtle uppercase block">
-                  Email Address
-                </label>
-                <p className="font-semibold text-ink mt-1 text-sm">{user.email}</p>
-              </div>
-
-              <div>
-                <label className="text-[11px] font-bold text-ink-subtle uppercase block">
-                  Account Role
-                </label>
-                <p className="font-semibold text-brand-green-600 mt-1 uppercase text-sm">
-                  {(user as any).role || "Customer"}
+                <h2 className="font-serif text-lg font-bold text-primary">
+                  Profile &amp; Default Shipping Details
+                </h2>
+                <p className="text-xs text-ink-muted">
+                  Your default contact details and delivery location used for apothecary orders.
                 </p>
               </div>
-
-              <div>
-                <label className="text-[11px] font-bold text-ink-subtle uppercase block">
-                  Registered City
-                </label>
-                <p className="font-semibold text-ink mt-1 text-sm">
-                  {(user as any).city || "Karachi, Pakistan"}
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-sand-100 flex justify-between items-center">
-              <span className="text-xs text-ink-subtle">
-                Need to update your clinical profile?
+              <span className="text-[11px] font-bold uppercase tracking-wider text-brand-green-700 bg-brand-green-50 px-2.5 py-1 rounded-full border border-brand-green-200">
+                {(user as any).role || "Customer"}
               </span>
-              <button
-                onClick={() => signOut()}
-                className="px-4 py-2 bg-surface hover:bg-danger-soft text-danger border border-line rounded-xl text-xs font-bold transition-colors cursor-pointer"
-              >
-                Sign Out
-              </button>
             </div>
+
+            {profileSuccess && (
+              <div className="p-3 bg-success-soft border border-success-line rounded-xl text-xs text-success flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0 text-success" />
+                <span>{profileSuccess}</span>
+              </div>
+            )}
+
+            {profileError && (
+              <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-danger" />
+                <span>{profileError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[11px] font-bold text-ink-subtle uppercase block mb-1">
+                    Email Address (Immutable)
+                  </label>
+                  <input
+                    type="email"
+                    disabled
+                    value={user.email}
+                    className="w-full text-xs px-3.5 py-2.5 bg-surface-sunken border border-line rounded-xl text-ink-muted cursor-not-allowed"
+                  />
+                  <span className="text-[10px] text-ink-subtle mt-0.5 block">
+                    Account email address cannot be changed.
+                  </span>
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-ink uppercase block mb-1">
+                    Full Name <span className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={profileForm.name}
+                    onChange={(e) =>
+                      setProfileForm((prev) => ({ ...prev, name: e.target.value }))
+                    }
+                    placeholder="Your Full Name"
+                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line rounded-xl text-ink focus:outline-none focus:border-primary focus:bg-white transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-ink uppercase block mb-1">
+                    Active Phone / WhatsApp
+                  </label>
+                  <input
+                    type="tel"
+                    value={profileForm.phone}
+                    onChange={(e) =>
+                      setProfileForm((prev) => ({ ...prev, phone: e.target.value }))
+                    }
+                    placeholder="0300-1234567"
+                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line rounded-xl text-ink focus:outline-none focus:border-primary focus:bg-white transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-bold text-ink uppercase block mb-1">
+                    City <span className="text-danger">*</span>
+                  </label>
+                  <select
+                    value={profileForm.city}
+                    onChange={(e) =>
+                      setProfileForm((prev) => ({ ...prev, city: e.target.value }))
+                    }
+                    className="w-full text-xs px-3.5 py-2.5 bg-surface border border-line rounded-xl text-ink font-semibold focus:outline-none focus:border-primary focus:bg-white transition-colors cursor-pointer"
+                  >
+                    {PAKISTAN_CITIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Delivery Address & GPS */}
+              <div className="space-y-1.5 pt-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-bold text-ink uppercase block">
+                    Default Street Address &amp; Area
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleDetectProfileLocation}
+                    disabled={detectingAccountLocation}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 hover:bg-primary/20 text-primary rounded-lg text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    {detectingAccountLocation ? (
+                      <>
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                        <span>Detecting GPS...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Navigation className="w-3 h-3" />
+                        <span>Detect GPS Pin</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <textarea
+                  rows={2}
+                  value={profileForm.address}
+                  onChange={(e) =>
+                    setProfileForm((prev) => ({ ...prev, address: e.target.value }))
+                  }
+                  placeholder="House / Flat #, Street, Block, Landmark..."
+                  className="w-full text-xs p-3 bg-surface border border-line rounded-xl text-ink focus:outline-none focus:border-primary focus:bg-white transition-colors"
+                />
+              </div>
+
+              {/* Coordinates Pill */}
+              {profileForm.latitude !== null && profileForm.longitude !== null && (
+                <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-800">
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <div>
+                      <span className="font-bold">Saved Coordinates:</span>{" "}
+                      <span className="font-mono">
+                        {profileForm.latitude.toFixed(5)}, {profileForm.longitude.toFixed(5)}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setProfileForm((prev) => ({
+                        ...prev,
+                        latitude: null,
+                        longitude: null,
+                      }))
+                    }
+                    className="text-[11px] text-danger hover:underline font-semibold cursor-pointer"
+                  >
+                    Clear Pin
+                  </button>
+                </div>
+              )}
+
+              <div className="pt-4 border-t border-sand-100 flex items-center justify-between gap-4">
+                <button
+                  type="button"
+                  onClick={() => signOut()}
+                  className="px-4 py-2 bg-surface hover:bg-danger-soft text-danger border border-line rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Sign Out
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={savingProfile}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-brand-green-800 text-white rounded-xl text-xs font-semibold shadow-xs transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  {savingProfile ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving Profile...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Save Profile &amp; Location</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         )}
         </SurfaceFade>

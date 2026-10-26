@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { ROLES, isStaffRole } from "@/lib/rbac";
 import { getAvailableStock, reserveStockForOrder } from "@/lib/inventory";
 import { createAdminNotification } from "@/lib/notifications";
+import { calculateDeliveryFee } from "@/lib/delivery-calc";
 import {
   sendOrderConfirmationEmail,
   sendAdminOrderNotificationEmail,
@@ -131,6 +132,9 @@ export async function POST(request: NextRequest) {
       email,
       city,
       address,
+      customerLatitude,
+      customerLongitude,
+      saveAddressToProfile,
       deliveryNotes,
       paymentMethod = "COD",
       items,
@@ -249,7 +253,24 @@ export async function POST(request: NextRequest) {
 
     // Calculate subtotal from verified DB prices
     const subtotal = resolvedItems.reduce((sum, item) => sum + item.total, 0);
-    const shippingFee = subtotal >= 2000 ? 0 : 200;
+
+    const parsedLat =
+      customerLatitude !== undefined && customerLatitude !== null && customerLatitude !== "" && !isNaN(Number(customerLatitude))
+        ? Number(customerLatitude)
+        : null;
+    const parsedLng =
+      customerLongitude !== undefined && customerLongitude !== null && customerLongitude !== "" && !isNaN(Number(customerLongitude))
+        ? Number(customerLongitude)
+        : null;
+
+    const deliveryCalc = calculateDeliveryFee({
+      customerLat: parsedLat,
+      customerLng: parsedLng,
+      subtotal,
+      isFreeShippingCoupon: couponCode === "FREESHIP",
+    });
+
+    const shippingFee = deliveryCalc.deliveryFee;
     const finalDiscount = Math.min(subtotal, Math.max(0, Number(discountAmount) || 0));
     const total = Math.max(0, subtotal + shippingFee - finalDiscount);
 
@@ -272,6 +293,10 @@ export async function POST(request: NextRequest) {
             email: email || null,
             city: String(city).trim(),
             address: String(address).trim(),
+            customerLatitude: parsedLat,
+            customerLongitude: parsedLng,
+            deliveryDistanceKm: deliveryCalc.distanceKm,
+            deliveryFeeType: deliveryCalc.feeType,
             deliveryNotes: finalDeliveryNotes,
             paymentMethod,
             paymentStatus: "PENDING",
@@ -311,6 +336,19 @@ export async function POST(request: NextRequest) {
 
         if (itemsToReserve.length > 0) {
           await reserveStockForOrder(tx, createdOrder.id, itemsToReserve);
+        }
+
+        if (saveAddressToProfile && session?.user?.id) {
+          await tx.user.update({
+            where: { id: session.user.id },
+            data: {
+              address: String(address).trim(),
+              city: String(city).trim(),
+              phone: cleanPhone,
+              latitude: parsedLat,
+              longitude: parsedLng,
+            },
+          }).catch((err) => console.error("Failed to update user address profile:", err));
         }
 
         return createdOrder;

@@ -5,10 +5,12 @@ import {
   AlertCircle,
   CheckCircle2,
   ChevronDown,
+  ExternalLink,
   Loader2,
   Mail,
   MapPin,
   MessageCircle,
+  Navigation,
   Package,
   Phone,
   RefreshCw,
@@ -36,6 +38,11 @@ interface Order {
   email: string | null;
   city: string;
   address: string;
+  customerLatitude?: number | null;
+  customerLongitude?: number | null;
+  deliveryDistanceKm?: number | null;
+  deliveryFeeType?: string | null;
+  shippingFee?: number | null;
   deliveryNotes: string | null;
   paymentMethod: string;
   paymentStatus: string;
@@ -198,6 +205,7 @@ export default function OrdersTab() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+
       const json = await res.json();
 
       if (!res.ok || !json.success) {
@@ -315,6 +323,23 @@ export default function OrdersTab() {
             const isExpanded = expandedId === order.id;
             const isUpdating = updatingId === order.id;
             const phoneDigits = whatsappNumber(order.phone);
+            const hasCoords =
+              order.customerLatitude !== null &&
+              order.customerLatitude !== undefined &&
+              order.customerLongitude !== null &&
+              order.customerLongitude !== undefined;
+
+            const mapsUrl = hasCoords
+              ? `https://www.google.com/maps/search/?api=1&query=${order.customerLatitude},${order.customerLongitude}`
+              : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                  `${order.address}, ${order.city}, Pakistan`
+                )}`;
+
+            const whatsappMessage = `Assalam-o-Alaikum ${order.customerName}, this is Tameer-e-Sehat regarding your order ${order.orderNumber}.${
+              hasCoords
+                ? ` Delivery Location: https://maps.google.com/?q=${order.customerLatitude},${order.customerLongitude}`
+                : ` Delivery Address: ${order.address}, ${order.city}`
+            }`;
 
             return (
               <div
@@ -352,7 +377,7 @@ export default function OrdersTab() {
                         <span className="truncate">{order.customerName}</span>
                       </div>
 
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-body">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-ink-body">
                         <a
                           href={`tel:${order.phone}`}
                           className="inline-flex items-center gap-1.5 font-semibold text-primary hover:underline"
@@ -370,11 +395,42 @@ export default function OrdersTab() {
                           </a>
                         )}
                         <span className="inline-flex items-center gap-1.5">
-                          <MapPin className="w-3.5 h-3.5 text-ink-subtle" />
+                          <MapPin className="w-3.5 h-3.5 text-ink-subtle shrink-0" />
                           <span>
                             {order.address}, {order.city}
                           </span>
                         </span>
+
+                        {/* Location Navigation & Distance Pill */}
+                        <div className="inline-flex items-center gap-1.5 flex-wrap">
+                          {order.deliveryDistanceKm !== null &&
+                            order.deliveryDistanceKm !== undefined && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-info-soft text-info border border-info-line">
+                                <Navigation className="w-2.5 h-2.5" />
+                                <span>{order.deliveryDistanceKm} km from Matab</span>
+                              </span>
+                            )}
+                          {order.deliveryFeeType && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold tracking-wider uppercase bg-surface-sunken text-ink-muted border border-line">
+                              {order.deliveryFeeType}
+                            </span>
+                          )}
+                          <a
+                            href={mapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-semibold transition-colors"
+                            title={
+                              hasCoords
+                                ? `GPS: ${order.customerLatitude?.toFixed(4)}, ${order.customerLongitude?.toFixed(4)}`
+                                : "Open address in Google Maps"
+                            }
+                          >
+                            <Navigation className="w-3 h-3 text-emerald-600" />
+                            <span>{hasCoords ? "GPS Map" : "Search Map"}</span>
+                            <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                          </a>
+                        </div>
                       </div>
 
                       <p className="text-[11px] text-ink-subtle">
@@ -389,7 +445,7 @@ export default function OrdersTab() {
                     <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-stretch sm:items-center gap-2 shrink-0">
                       <a
                         href={`https://wa.me/${phoneDigits}?text=${encodeURIComponent(
-                          `Assalam-o-Alaikum ${order.customerName}, this is Tameer-e-Sehat regarding your order ${order.orderNumber}.`
+                          whatsappMessage
                         )}`}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -418,7 +474,7 @@ export default function OrdersTab() {
                       <button
                         type="button"
                         onClick={() => setExpandedId(isExpanded ? null : order.id)}
-                        className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-line text-xs font-semibold text-ink-body hover:bg-surface transition-colors"
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-line text-xs font-semibold text-ink-body hover:bg-surface transition-colors cursor-pointer"
                         aria-expanded={isExpanded}
                       >
                         {isUpdating ? (
@@ -438,6 +494,61 @@ export default function OrdersTab() {
 
                 {isExpanded && (
                   <div className="border-t border-line bg-surface/50 p-4 sm:p-5 space-y-4">
+                    {/* Dispatch & Delivery Geography Card */}
+                    <div className="bg-white rounded-xl border border-line p-3 text-xs space-y-2">
+                      <div className="flex items-center justify-between border-b border-line pb-2">
+                        <span className="font-bold text-ink flex items-center gap-1.5">
+                          <Navigation className="w-3.5 h-3.5 text-primary" />
+                          <span>Dispatch Location &amp; Distance</span>
+                        </span>
+                        {order.deliveryDistanceKm !== null &&
+                        order.deliveryDistanceKm !== undefined ? (
+                          <span className="font-semibold text-primary">
+                            {order.deliveryDistanceKm} km from Korangi Matab
+                          </span>
+                        ) : (
+                          <span className="text-ink-subtle">Distance not computed</span>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-ink-body text-[11px]">
+                        <div>
+                          <span className="text-ink-muted block font-semibold uppercase text-[10px]">
+                            GPS Coordinates
+                          </span>
+                          <span className="font-mono">
+                            {hasCoords
+                              ? `${order.customerLatitude?.toFixed(5)}, ${order.customerLongitude?.toFixed(5)}`
+                              : "Manual address only (no GPS)"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-ink-muted block font-semibold uppercase text-[10px]">
+                            Delivery Rate Tier
+                          </span>
+                          <span>
+                            {order.deliveryFeeType || "FLAT"} · Shipping Fee:{" "}
+                            {order.shippingFee !== null && order.shippingFee !== undefined
+                              ? formatMoney(order.shippingFee)
+                              : "N/A"}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-ink-muted block font-semibold uppercase text-[10px]">
+                            Navigation Link
+                          </span>
+                          <a
+                            href={mapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 font-semibold text-primary hover:underline"
+                          >
+                            <span>Open in Google Maps</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
                     <div>
                       <h4 className="text-[11px] font-bold uppercase tracking-wider text-ink-muted mb-2">
                         Items
@@ -524,7 +635,7 @@ export default function OrdersTab() {
                               })
                             }
                             disabled={isUpdating}
-                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-brand-green-800 disabled:opacity-50 transition-colors"
+                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-white text-xs font-semibold hover:bg-brand-green-800 disabled:opacity-50 transition-colors cursor-pointer"
                           >
                             {isUpdating ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin" />

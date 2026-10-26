@@ -134,17 +134,51 @@ export default function HijamaBookingModal({
   const [confirmedBooking, setConfirmedBooking] = useState<any | null>(null);
   const [copiedTicket, setCopiedTicket] = useState<boolean>(false);
 
-  // Authentication Gate state (Step 4 for unauthenticated users)
-  const [authTab, setAuthTab] = useState<"signin" | "signup">("signin");
-  const [authEmail, setAuthEmail] = useState("");
-  const [authPassword, setAuthPassword] = useState("");
-  const [authName, setAuthName] = useState("");
-  const [authPhone, setAuthPhone] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [authLoading, setAuthLoading] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [authSuccessMsg, setAuthSuccessMsg] = useState<string | null>(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const router = useRouter();
+
+  // Restore saved booking draft if returning from auth redirect
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const shouldResume = params.get("resumeBooking");
+    if (shouldResume === "hijama" || shouldResume === "true") {
+      const draft = getBookingDraft(HIJAMA_BOOKING_DRAFT_KEY);
+      if (draft) {
+        if (draft.gender) setGender(draft.gender);
+        if (draft.selectedDate) setSelectedDate(draft.selectedDate);
+        if (draft.selectedPlan) setSelectedPlan(draft.selectedPlan);
+        if (draft.screening) setScreening(draft.screening);
+        if (draft.selectedSlot) setSelectedSlot(draft.selectedSlot);
+        if (draft.details) {
+          setDetails((prev) => ({
+            ...prev,
+            ...draft.details,
+          }));
+        }
+        if (session?.user) {
+          setStep(4);
+        }
+      }
+    }
+  }, [session]);
+
+  const handleRedirectToAuth = (type: "login" | "register") => {
+    if (typeof window === "undefined") return;
+    saveBookingDraft(HIJAMA_BOOKING_DRAFT_KEY, {
+      gender,
+      selectedDate,
+      selectedPlan,
+      screening,
+      selectedSlot,
+      details,
+    });
+    const currentPath = window.location.pathname + window.location.hash;
+    const targetUrl = buildAuthUrl(type, {
+      redirect: currentPath,
+      resumeBooking: "hijama",
+    });
+    router.push(targetUrl);
+  };
 
   // Pre-fill user details when session arrives
   useEffect(() => {
@@ -302,6 +336,7 @@ export default function HijamaBookingModal({
       setConfirmedBooking(json.data);
       setStepDirection(1);
       setStep(5);
+      clearBookingDraft(HIJAMA_BOOKING_DRAFT_KEY);
       onBookingSuccess?.(json.data);
     } catch (err: any) {
       console.error("Booking submission error:", err);
@@ -310,81 +345,6 @@ export default function HijamaBookingModal({
       );
     } finally {
       setSubmitting(false);
-    }
-  };
-
-  // Step 4 Authentication Gate Handlers
-  const handleAuthSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthLoading(true);
-    setAuthError(null);
-    setAuthSuccessMsg(null);
-
-    try {
-      const cleanEmail = authEmail.trim().toLowerCase();
-      if (!cleanEmail || !authPassword) {
-        throw new Error("Please enter both email and password.");
-      }
-
-      const res = await signIn.email({
-        email: cleanEmail,
-        password: authPassword,
-      });
-
-      if (res.error) {
-        const errorMsg = (res.error.message || "").toLowerCase();
-        const errorCode = (res.error as { code?: string })?.code;
-
-        if (errorCode === "EMAIL_NOT_VERIFIED" || errorMsg.includes("email not verified")) {
-          throw new Error("Your email address is not verified yet. Please check your inbox or verify your account before booking.");
-        }
-        throw new Error(res.error.message || "Invalid email or password.");
-      }
-    } catch (err: any) {
-      setAuthError(err.message || "Sign in failed. Check your credentials.");
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
-  const handleAuthRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthLoading(true);
-    setAuthError(null);
-    setAuthSuccessMsg(null);
-
-    try {
-      const cleanEmail = authEmail.trim().toLowerCase();
-      if (!authName.trim()) throw new Error("Full name is required.");
-      if (!cleanEmail) throw new Error("Email address is required.");
-      if (cleanEmail === "admin@tameeresehat.com") {
-        throw new Error("This email is reserved for administrative access. Please use a personal email.");
-      }
-      if (authPassword.length < 8) {
-        throw new Error("Password must be at least 8 characters long.");
-      }
-
-      const callbackUrl = typeof window !== "undefined" ? window.location.href : "/";
-
-      const res = await signUp.email({
-        name: authName.trim(),
-        email: cleanEmail,
-        password: authPassword,
-        phone: authPhone.trim() || undefined,
-        callbackURL: callbackUrl,
-      } as any);
-
-      if (res.error) {
-        throw new Error(res.error.message || "Failed to create account.");
-      }
-
-      setAuthSuccessMsg(
-        `Account created! A verification link has been sent to ${cleanEmail}. Please verify your email to activate your account and complete booking.`
-      );
-    } catch (err: any) {
-      setAuthError(err.message || "Registration failed. Please try again.");
-    } finally {
-      setAuthLoading(false);
     }
   };
 
@@ -1036,263 +996,40 @@ export default function HijamaBookingModal({
         {step === 4 && (
           <div className="space-y-4">
             {!session?.user ? (
-              <div className="space-y-4">
-                <div className="flex items-start gap-2.5 rounded-xl border border-success-line bg-success-soft p-4 text-xs">
-                  <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                  <div>
-                    <strong className="block font-bold text-ink">Sign-in required to reserve this slot</strong>
-                    <span className="text-ink-body">
-                      Your selected wing, date, screening answers, and slot will stay in place while you authenticate.
+              <div className="space-y-4 max-w-md mx-auto py-2">
+                <div className="flex items-start gap-3 rounded-2xl border border-success-line bg-success-soft p-5 text-xs">
+                  <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+                  <div className="space-y-1">
+                    <strong className="block text-sm font-bold text-ink">
+                      Account Required to Reserve Slot
+                    </strong>
+                    <span className="text-ink-body leading-relaxed block">
+                      An account is required to generate your official clinical appointment ticket, issue SMS/WhatsApp reminders, and keep your Sunnah cupping history secure.
+                    </span>
+                    <span className="text-secondary-text font-medium block pt-1">
+                      Your selected wing, date, package, and slot will stay saved while you authenticate.
                     </span>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsAuthModalOpen(true)}
-                  className="w-full rounded-xl bg-primary px-4 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-brand-green-800 cursor-pointer"
-                >
-                  Sign In or Create Account
-                </button>
-              </div>
-            ) : false ? (
-              /* Legacy inline auth form retained for compatibility; the shared modal is the live flow. */
-              <div className="space-y-4">
-                <div className="text-center max-w-md mx-auto space-y-1">
-                  <h3 className="font-serif text-xl font-bold text-ink">
-                    Sign In Required to Reserve Slot
-                  </h3>
-                  <p className="text-xs text-ink-body">
-                    Please sign in or create an account to issue your verified clinical booking ticket and link your session history.
-                  </p>
-                </div>
 
-                {/* Tabs */}
-                <div className="grid grid-cols-2 p-1 bg-surface border border-line rounded-xl text-xs font-bold max-w-sm mx-auto">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                   <button
                     type="button"
-                    onClick={() => {
-                      setAuthTab("signin");
-                      setAuthError(null);
-                      setAuthSuccessMsg(null);
-                    }}
-                    className={`py-2 rounded-lg transition-colors cursor-pointer ${
-                      authTab === "signin"
-                        ? "bg-primary text-white shadow-xs"
-                        : "text-ink-subtle hover:text-ink"
-                    }`}
+                    onClick={() => handleRedirectToAuth("register")}
+                    className="w-full rounded-xl bg-primary px-4 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-md transition-all hover:bg-brand-green-800 flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    Sign In
+                    <span>Create Account</span>
+                    <ArrowRight className="h-4 w-4" />
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setAuthTab("signup");
-                      setAuthError(null);
-                      setAuthSuccessMsg(null);
-                    }}
-                    className={`py-2 rounded-lg transition-colors cursor-pointer ${
-                      authTab === "signup"
-                        ? "bg-primary text-white shadow-xs"
-                        : "text-ink-subtle hover:text-ink"
-                    }`}
+                    onClick={() => handleRedirectToAuth("login")}
+                    className="w-full rounded-xl border border-line-strong bg-white px-4 py-3 text-xs font-bold uppercase tracking-wider text-ink shadow-xs transition-all hover:bg-surface flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    Create Account
+                    <span>Sign In</span>
+                    <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>
-
-                {authTab === "signin" ? (
-                  <form onSubmit={handleAuthSignIn} className="space-y-3 max-w-md mx-auto">
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-ink block">
-                        Email Address <span className="text-danger">*</span>
-                      </label>
-                      <div className="relative">
-                        <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <input
-                          type="email"
-                          required
-                          value={authEmail}
-                          onChange={(e) => setAuthEmail(e.target.value)}
-                          placeholder="name@example.com"
-                          className="w-full pl-9 pr-3 py-2 bg-surface border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <label className="text-xs font-semibold text-ink">
-                          Password <span className="text-danger">*</span>
-                        </label>
-                        <a
-                          href="/forgot-password"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[10px] text-primary hover:underline"
-                        >
-                          Forgot password?
-                        </a>
-                      </div>
-                      <div className="relative">
-                        <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <input
-                          type={showPassword ? "text" : "password"}
-                          required
-                          value={authPassword}
-                          onChange={(e) => setAuthPassword(e.target.value)}
-                          placeholder="Enter your password"
-                          className="w-full pl-9 pr-9 py-2 bg-surface border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle hover:text-ink cursor-pointer"
-                        >
-                          {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                        </button>
-                      </div>
-                    </div>
-
-                    {authError && (
-                      <div className="p-3 rounded-xl bg-danger-soft border border-danger/20 text-danger text-xs flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-danger" />
-                        <span>{authError}</span>
-                      </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={authLoading}
-                      className="w-full py-2.5 px-4 bg-primary hover:bg-brand-green-800 disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer mt-2"
-                    >
-                      {authLoading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Signing In...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Sign In &amp; Continue</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </>
-                      )}
-                    </button>
-                  </form>
-                ) : (
-                  <form onSubmit={handleAuthRegister} className="space-y-3 max-w-md mx-auto">
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-ink block">
-                        Full Name <span className="text-danger">*</span>
-                      </label>
-                      <div className="relative">
-                        <User className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <input
-                          type="text"
-                          required
-                          value={authName}
-                          onChange={(e) => setAuthName(e.target.value)}
-                          placeholder="e.g. Usman Ahmed"
-                          className="w-full pl-9 pr-3 py-2 bg-surface border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label className="text-xs font-semibold text-ink block">
-                        Email Address <span className="text-danger">*</span>
-                      </label>
-                      <div className="relative">
-                        <Mail className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                        <input
-                          type="email"
-                          required
-                          value={authEmail}
-                          onChange={(e) => setAuthEmail(e.target.value)}
-                          placeholder="name@example.com"
-                          className="w-full pl-9 pr-3 py-2 bg-surface border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      <div className="space-y-1">
-                        <label className="text-xs font-semibold text-ink block">
-                          Password (min 8 chars) <span className="text-danger">*</span>
-                        </label>
-                        <div className="relative">
-                          <Lock className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                          <input
-                            type={showPassword ? "text" : "password"}
-                            required
-                            minLength={8}
-                            value={authPassword}
-                            onChange={(e) => setAuthPassword(e.target.value)}
-                            placeholder="At least 8 chars"
-                            className="w-full pl-9 pr-9 py-2 bg-surface border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-subtle hover:text-ink cursor-pointer"
-                          >
-                            {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <label className="text-xs font-semibold text-ink block">
-                          Phone (WhatsApp)
-                        </label>
-                        <div className="relative">
-                          <Phone className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                          <input
-                            type="tel"
-                            value={authPhone}
-                            onChange={(e) => setAuthPhone(e.target.value)}
-                            placeholder="0300 1234567"
-                            className="w-full pl-9 pr-3 py-2 bg-surface border border-line-strong rounded-xl text-xs text-ink focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {authError && (
-                      <div className="p-3 rounded-xl bg-danger-soft border border-danger/20 text-danger text-xs flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-danger" />
-                        <span>{authError}</span>
-                      </div>
-                    )}
-
-                    {authSuccessMsg && (
-                      <div className="p-3 rounded-xl bg-success-soft border border-success-line text-success text-xs flex items-start gap-2">
-                        <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-success" />
-                        <div className="space-y-1">
-                          <strong className="block font-bold">Verification Email Dispatched</strong>
-                          <p className="text-[11px] leading-relaxed">{authSuccessMsg}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    <button
-                      type="submit"
-                      disabled={authLoading}
-                      className="w-full py-2.5 px-4 bg-primary hover:bg-brand-green-800 disabled:opacity-60 text-white rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer mt-2"
-                    >
-                      {authLoading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          <span>Creating Account...</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Create Account &amp; Continue</span>
-                          <ArrowRight className="w-3.5 h-3.5" />
-                        </>
-                      )}
-                    </button>
-                  </form>
-                )}
               </div>
             ) : isStaff ? (
               <div className="p-5 rounded-2xl bg-warning-soft border border-warning-line text-center space-y-3">

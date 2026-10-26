@@ -5,33 +5,23 @@ import {
   Calendar,
   Clock,
   Search,
-  Filter,
   RefreshCw,
   Phone,
   Mail,
-  MapPin,
-  User,
   Activity,
   FileText,
   CheckCircle2,
   AlertCircle,
   MessageCircle,
-  Sparkles,
-  Edit,
   Trash2,
-  Send,
   Loader2,
   ExternalLink,
-  ChevronDown,
   X,
   Check,
   Building2,
   Video,
   Plus,
-  Link2,
-  Unlink,
 } from "lucide-react";
-import { CLINIC_INFO } from "@/app/data/products";
 
 interface Consultation {
   id: string;
@@ -72,10 +62,10 @@ const STATUS_BADGES: Record<
   { label: string; bg: string; text: string; border: string }
 > = {
   NEW: {
-    label: "New Request",
-    bg: "bg-info-soft",
-    text: "text-info",
-    border: "border-info-line",
+    label: "Pending",
+    bg: "bg-warning-soft",
+    text: "text-warning",
+    border: "border-warning-line",
   },
   CONFIRMED: {
     label: "Confirmed",
@@ -85,9 +75,9 @@ const STATUS_BADGES: Record<
   },
   RESCHEDULED: {
     label: "Rescheduled",
-    bg: "bg-warning-soft",
-    text: "text-warning",
-    border: "border-warning-line",
+    bg: "bg-info-soft",
+    text: "text-info",
+    border: "border-info-line",
   },
   PRESCRIBED: {
     label: "Prescribed",
@@ -117,50 +107,35 @@ export default function ConsultationsTab() {
   const [searchQuery, setSearchQuery] = useState("");
   const [dateFilter, setDateFilter] = useState("");
 
-  // Drawer / Modal for single consultation
-  const [selectedConsultation, setSelectedConsultation] = useState<Consultation | null>(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
-  // Edit fields in drawer
-  const [editStatus, setEditStatus] = useState("NEW");
-  const [editPrescription, setEditPrescription] = useState("");
-  const [editHakimNotes, setEditHakimNotes] = useState("");
-  const [editDate, setEditDate] = useState("");
-  const [editSlot, setEditSlot] = useState("");
-  const [editPhone, setEditPhone] = useState("");
-  const [editEmail, setEditEmail] = useState("");
-  const [savingChanges, setSavingChanges] = useState(false);
-  const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
-  const [saveErrorMsg, setSaveErrorMsg] = useState<string | null>(null);
-
-  // ── One-click "Apply" (accept) workflow ──
-  // When an in-person request has no confirmed slot yet we cannot accept it
-  // blindly, so a compact slot picker opens instead of the full drawer.
-  const [applyTarget, setApplyTarget] = useState<Consultation | null>(null);
-  const [applyDate, setApplyDate] = useState("");
-  const [applySlot, setApplySlot] = useState("");
-  const [applySlots, setApplySlots] = useState<
+  // ── Centered Modal State ──
+  const [selectedConsultation, setSelectedConsultation] =
+    useState<Consultation | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalDate, setModalDate] = useState("");
+  const [modalSlot, setModalSlot] = useState("");
+  const [modalSlots, setModalSlots] = useState<
     { slot: string; available: boolean }[]
   >([]);
-  const [applyLoading, setApplyLoading] = useState(false);
-  const [applyingId, setApplyingId] = useState<string | null>(null);
+  const [modalSlotsLoading, setModalSlotsLoading] = useState(false);
+  const [modalSubmitting, setModalSubmitting] = useState(false);
+  const [modalNotice, setModalNotice] = useState<{
+    tone: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  // Global action banner for feedback
   const [actionNotice, setActionNotice] = useState<{
     tone: "success" | "error";
     message: string;
   } | null>(null);
 
-  // ── Manual booking (staff creates on behalf of WhatsApp/phone patients) ──
+  // ── Manual booking (staff entry for phone/walk-in) ──
   const [isNewBookingOpen, setIsNewBookingOpen] = useState(false);
   const [newBookingSubmitting, setNewBookingSubmitting] = useState(false);
   const [newBookingError, setNewBookingError] = useState<string | null>(null);
   const [newBookingSuccess, setNewBookingSuccess] = useState<any | null>(null);
   const [newBookingAvail, setNewBookingAvail] = useState<any | null>(null);
   const [newBookingAvailLoading, setNewBookingAvailLoading] = useState(false);
-  const [linkedAccount, setLinkedAccount] = useState<{
-    id: string;
-    name: string | null;
-    email: string | null;
-  } | null>(null);
   const [newBooking, setNewBooking] = useState({
     fullName: "",
     phone: "",
@@ -173,123 +148,220 @@ export default function ConsultationsTab() {
     appointmentDate: "",
     appointmentSlot: "",
   });
-  const [lookupResults, setLookupResults] = useState<{
-    users: any[];
-    consultations: any[];
-  } | null>(null);
-  const [lookupLoading, setLookupLoading] = useState(false);
 
-  // ── Link account inside the dossier drawer ──
-  const [showLinkPanel, setShowLinkPanel] = useState(false);
-  const [linkQuery, setLinkQuery] = useState("");
-  const [linkResults, setLinkResults] = useState<any[]>([]);
-  const [linkLoading, setLinkLoading] = useState(false);
-  const [linkError, setLinkError] = useState<string | null>(null);
+  const fetchConsultations = useCallback(
+    async (silent = false) => {
+      if (!silent) setLoading(true);
+      else setRefreshing(true);
 
-  const fetchConsultations = useCallback(async (silent = false) => {
-    if (!silent) setLoading(true);
-    else setRefreshing(true);
+      try {
+        const params = new URLSearchParams();
+        if (statusFilter !== "ALL") params.set("status", statusFilter);
+        if (searchQuery.trim()) params.set("search", searchQuery.trim());
+        if (dateFilter) params.set("date", dateFilter);
 
-    try {
-      const params = new URLSearchParams();
-      if (statusFilter !== "ALL") params.set("status", statusFilter);
-      if (searchQuery.trim()) params.set("search", searchQuery.trim());
-      if (dateFilter) params.set("date", dateFilter);
-
-      const res = await fetch(`/api/consultations?${params.toString()}`);
-      const json = await res.json();
-      if (res.ok && json.success) {
-        setConsultations(json.data || []);
+        const res = await fetch(`/api/consultations?${params.toString()}`);
+        const json = await res.json();
+        if (res.ok && json.success) {
+          setConsultations(json.data || []);
+        }
+      } catch (err) {
+        console.error("Failed to load consultations:", err);
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-    } catch (err) {
-      console.error("Failed to load consultations:", err);
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [statusFilter, searchQuery, dateFilter]);
+    },
+    [statusFilter, searchQuery, dateFilter]
+  );
 
   useEffect(() => {
     fetchConsultations();
   }, [fetchConsultations]);
 
-  const handleOpenDrawer = (item: Consultation) => {
+  // Open the centered modal
+  const handleOpenModal = (item: Consultation) => {
     setSelectedConsultation(item);
-    setEditStatus(item.status || "NEW");
-    setEditPrescription(item.prescribedTreatment || "");
-    setEditHakimNotes(item.hakimNotes || "");
-    setEditDate(item.appointmentDate || "");
-    setEditSlot(item.appointmentSlot || "");
-    setEditPhone(item.phone || "");
-    setEditEmail(item.email || "");
-    setSaveSuccessMsg(null);
-    setSaveErrorMsg(null);
-    setIsDrawerOpen(true);
+
+    const fallback = new Date();
+    fallback.setDate(fallback.getDate() + 1);
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const fallbackDate = `${fallback.getFullYear()}-${pad(
+      fallback.getMonth() + 1
+    )}-${pad(fallback.getDate())}`;
+
+    setModalDate(item.appointmentDate || fallbackDate);
+    setModalSlot(item.appointmentSlot || "");
+    setModalNotice(null);
+    setIsModalOpen(true);
   };
 
-  const handleSaveChanges = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedConsultation) return;
+  // Dynamically load available slots for in-person requests
+  useEffect(() => {
+    if (
+      !isModalOpen ||
+      !selectedConsultation ||
+      selectedConsultation.consultationType !== "IN_PERSON" ||
+      !modalDate
+    ) {
+      setModalSlots([]);
+      return;
+    }
 
-    setSavingChanges(true);
-    setSaveSuccessMsg(null);
-    setSaveErrorMsg(null);
+    let cancelled = false;
+    setModalSlotsLoading(true);
+
+    fetch(`/api/consultations/availability?date=${encodeURIComponent(modalDate)}`)
+      .then((res) => res.json())
+      .then((json) => {
+        if (cancelled || !json.success) return;
+        const slots = (json.data?.slots || []) as {
+          slot: string;
+          available: boolean;
+        }[];
+        setModalSlots(slots);
+        setModalSlot((prev) => {
+          if (slots.some((s) => s.slot === prev && s.available)) return prev;
+          if (slots.some((s) => s.slot === prev)) return prev;
+          return slots.find((s) => s.available)?.slot || "";
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setModalSlots([]);
+      })
+      .finally(() => {
+        if (!cancelled) setModalSlotsLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isModalOpen, selectedConsultation, modalDate]);
+
+  // ── Action 1: Confirm Request ──
+  const handleConfirm = async () => {
+    if (!selectedConsultation) return;
+    setModalSubmitting(true);
+    setModalNotice(null);
+
+    const isInPerson = selectedConsultation.consultationType === "IN_PERSON";
+    try {
+      const res = await fetch(`/api/consultations/${selectedConsultation.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status: "CONFIRMED",
+          ...(isInPerson && modalDate ? { appointmentDate: modalDate } : {}),
+          ...(isInPerson && modalSlot ? { appointmentSlot: modalSlot } : {}),
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to confirm request.");
+      }
+
+      const updated = json.data;
+      setSelectedConsultation(updated);
+      setConsultations((prev) =>
+        prev.map((c) => (c.id === updated.id ? updated : c))
+      );
+
+      const contactEmail =
+        updated.patientEmail || updated.email || updated.user?.email;
+      const successMsg = contactEmail
+        ? `Request confirmed! Confirmation email dispatched to ${contactEmail}.`
+        : `Request confirmed! (No email address on file for this ticket).`;
+
+      setModalNotice({ tone: "success", message: successMsg });
+      setActionNotice({
+        tone: "success",
+        message: `${updated.ticketNumber}: ${successMsg}`,
+      });
+    } catch (err: any) {
+      setModalNotice({
+        tone: "error",
+        message: err.message || "Failed to confirm request.",
+      });
+    } finally {
+      setModalSubmitting(false);
+    }
+  };
+
+  // ── Action 2: Put into Pending ──
+  const handleSetPending = async () => {
+    if (!selectedConsultation) return;
+    setModalSubmitting(true);
+    setModalNotice(null);
 
     try {
       const res = await fetch(`/api/consultations/${selectedConsultation.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          status: editStatus,
-          prescribedTreatment: editPrescription,
-          hakimNotes: editHakimNotes,
-          appointmentDate: editDate || null,
-          appointmentSlot: editSlot || null,
-          patientPhone: editPhone,
-          patientEmail: editEmail,
+          status: "NEW",
         }),
       });
 
       const json = await res.json();
       if (!res.ok || !json.success) {
-        throw new Error(json.error || "Failed to update consultation.");
+        throw new Error(json.error || "Failed to put request into pending.");
       }
 
-      setSaveSuccessMsg("Consultation updated. Notification email dispatched if applicable.");
-      setSelectedConsultation(json.data);
+      const updated = json.data;
+      setSelectedConsultation(updated);
+      setConsultations((prev) =>
+        prev.map((c) => (c.id === updated.id ? updated : c))
+      );
 
-      // Refresh table in background
-      fetchConsultations(true);
+      const successMsg = `Ticket ${updated.ticketNumber} marked as Pending.`;
+      setModalNotice({ tone: "success", message: successMsg });
+      setActionNotice({ tone: "success", message: successMsg });
     } catch (err: any) {
-      setSaveErrorMsg(err.message || "Failed to update.");
+      setModalNotice({
+        tone: "error",
+        message: err.message || "Failed to update status.",
+      });
     } finally {
-      setSavingChanges(false);
+      setModalSubmitting(false);
     }
   };
 
+  // ── Action 3: Delete Request ──
   const handleDelete = async (id: string, ticket: string) => {
-    if (!window.confirm(`Are you sure you want to delete consultation ${ticket}? This action cannot be undone.`)) {
+    if (
+      !window.confirm(
+        `Are you sure you want to delete consultation ${ticket}? This action cannot be undone.`
+      )
+    ) {
       return;
     }
 
+    setModalSubmitting(true);
     try {
       const res = await fetch(`/api/consultations/${id}`, {
         method: "DELETE",
       });
       const json = await res.json();
       if (res.ok && json.success) {
-        setIsDrawerOpen(false);
+        setIsModalOpen(false);
         setSelectedConsultation(null);
-        fetchConsultations(true);
+        setConsultations((prev) => prev.filter((c) => c.id !== id));
+        setActionNotice({
+          tone: "success",
+          message: `Consultation ${ticket} was deleted.`,
+        });
       } else {
         alert(json.error || "Failed to delete.");
       }
     } catch (err: any) {
       alert("Error deleting consultation.");
+    } finally {
+      setModalSubmitting(false);
     }
   };
 
-  // ── Manual booking helpers ──
+  // ── Manual Booking Helpers ──
   const openNewBooking = () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -310,37 +382,12 @@ export default function ConsultationsTab() {
       appointmentDate: dateStr,
       appointmentSlot: "",
     });
-    setLinkedAccount(null);
-    setLookupResults(null);
     setNewBookingError(null);
     setNewBookingSuccess(null);
     setNewBookingAvail(null);
     setIsNewBookingOpen(true);
   };
 
-  const lookupPatients = async (query: string) => {
-    const q = query.trim();
-    if (q.length < 3) {
-      setLookupResults(null);
-      return;
-    }
-    setLookupLoading(true);
-    try {
-      const res = await fetch(
-        `/api/admin/patient-lookup?q=${encodeURIComponent(q)}`
-      );
-      const json = await res.json();
-      if (res.ok && json.success) {
-        setLookupResults(json.data);
-      }
-    } catch (err) {
-      console.error("Patient lookup failed:", err);
-    } finally {
-      setLookupLoading(false);
-    }
-  };
-
-  // Load available slots for the manual booking date
   useEffect(() => {
     if (
       !isNewBookingOpen ||
@@ -423,7 +470,6 @@ export default function ConsultationsTab() {
           preferredContact:
             newBooking.channel === "WHATSAPP" ? "WHATSAPP" : "EMAIL",
           status: newBooking.status,
-          userId: linkedAccount?.id || undefined,
         }),
       });
 
@@ -441,195 +487,9 @@ export default function ConsultationsTab() {
     }
   };
 
-  const openExistingConsultation = async (id: string) => {
-    try {
-      const res = await fetch(`/api/consultations/${id}`);
-      const json = await res.json();
-      if (res.ok && json.success) {
-        setIsNewBookingOpen(false);
-        handleOpenDrawer(json.data);
-      }
-    } catch (err) {
-      console.error("Failed to open consultation:", err);
-    }
-  };
-
-  // ── Link account helpers (dossier drawer) ──
-  const searchAccounts = async (query: string) => {
-    const q = query.trim();
-    if (q.length < 3) return;
-
-    setLinkLoading(true);
-    setLinkError(null);
-    try {
-      const res = await fetch(
-        `/api/admin/patient-lookup?q=${encodeURIComponent(q)}`
-      );
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || "Search failed.");
-      }
-      setLinkResults(json.data.users || []);
-    } catch (err: any) {
-      setLinkError(err.message || "Search failed.");
-    } finally {
-      setLinkLoading(false);
-    }
-  };
-
-  const linkAccount = async (userId: string | null) => {
-    if (!selectedConsultation) return;
-
-    setLinkLoading(true);
-    setLinkError(null);
-    try {
-      const res = await fetch(
-        `/api/consultations/${selectedConsultation.id}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId }),
-        }
-      );
-
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || "Failed to link account.");
-      }
-
-      setSelectedConsultation(json.data);
-      setShowLinkPanel(false);
-      setLinkQuery("");
-      setLinkResults([]);
-      fetchConsultations(true);
-    } catch (err: any) {
-      setLinkError(err.message || "Failed to link account.");
-    } finally {
-      setLinkLoading(false);
-    }
-  };
-
-  const getWhatsAppContactLink = (c: Consultation) => {
-    const digits = (c.phone || "").replace(/[^0-9]/g, "");
-    if (digits.length < 7) return null;
-    const text =
-      `*Assalam-o-Alaikum ${c.fullName} Sahib/Sahiba*\n` +
-      `This is Matab Tameer-e-Sehat (Hakeem Tahir Hameed) regarding your Consultation Ticket *${c.ticketNumber}* for: *${c.primarySymptoms}*.\n\n` +
-      `We are ready to discuss your health assessment.`;
-    return `https://wa.me/${digits}?text=${encodeURIComponent(text)}`;
-  };
-
-  const applyConsultation = async (
-    item: Consultation,
-    date?: string,
-    slot?: string
-  ) => {
-    setApplyingId(item.id);
-    setActionNotice(null);
-    try {
-      const res = await fetch(`/api/consultations/${item.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          status: "CONFIRMED",
-          ...(date ? { appointmentDate: date } : {}),
-          ...(slot ? { appointmentSlot: slot } : {}),
-        }),
-      });
-      const json = await res.json();
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || "Failed to accept the request.");
-      }
-
-      setApplyTarget(null);
-      setSelectedConsultation((prev) =>
-        prev?.id === item.id ? json.data : prev
-      );
-      if (selectedConsultation?.id === item.id) {
-        setEditStatus(json.data.status || "CONFIRMED");
-        setEditDate(json.data.appointmentDate || "");
-        setEditSlot(json.data.appointmentSlot || "");
-      }
-      setActionNotice({
-        tone: "success",
-        message: `${item.ticketNumber} accepted for ${item.fullName}. Confirmation email dispatched if an email is on file.`,
-      });
-      fetchConsultations(true);
-    } catch (err: any) {
-      setActionNotice({
-        tone: "error",
-        message: err.message || "Failed to accept the request.",
-      });
-    } finally {
-      setApplyingId(null);
-    }
-  };
-
-  const startApply = (item: Consultation, e?: React.MouseEvent) => {
-    e?.stopPropagation();
-
-    // Online requests, and in-person requests that already carry a slot,
-    // can be accepted immediately.
-    if (
-      item.consultationType !== "IN_PERSON" ||
-      (item.appointmentDate && item.appointmentSlot)
-    ) {
-      applyConsultation(item);
-      return;
-    }
-
-    const fallback = new Date();
-    fallback.setDate(fallback.getDate() + 1);
-    const pad = (n: number) => n.toString().padStart(2, "0");
-    const fallbackDate = `${fallback.getFullYear()}-${pad(
-      fallback.getMonth() + 1
-    )}-${pad(fallback.getDate())}`;
-
-    setApplyTarget(item);
-    setApplyDate(item.appointmentDate || fallbackDate);
-    setApplySlot(item.appointmentSlot || "");
-  };
-
-  // Slot list for the quick-accept picker.
-  useEffect(() => {
-    if (!applyTarget || !applyDate) {
-      setApplySlots([]);
-      return;
-    }
-
-    let cancelled = false;
-    setApplyLoading(true);
-
-    fetch(`/api/consultations/availability?date=${encodeURIComponent(applyDate)}`)
-      .then((res) => res.json())
-      .then((json) => {
-        if (cancelled || !json.success) return;
-        const slots = (json.data?.slots || []) as {
-          slot: string;
-          available: boolean;
-        }[];
-        setApplySlots(slots);
-        setApplySlot((prev) =>
-          slots.some((s) => s.slot === prev && s.available)
-            ? prev
-            : slots.find((s) => s.available)?.slot || ""
-        );
-      })
-      .catch(() => {
-        if (!cancelled) setApplySlots([]);
-      })
-      .finally(() => {
-        if (!cancelled) setApplyLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [applyTarget, applyDate]);
-
-  const selectedWhatsAppLink = selectedConsultation
-    ? getWhatsAppContactLink(selectedConsultation)
-    : null;
+  const modalBadge = selectedConsultation
+    ? STATUS_BADGES[selectedConsultation.status] || STATUS_BADGES.NEW
+    : STATUS_BADGES.NEW;
 
   return (
     <div className="space-y-6">
@@ -638,10 +498,10 @@ export default function ConsultationsTab() {
         <div>
           <h2 className="font-serif text-lg font-bold text-ink flex items-center gap-2">
             <Activity className="w-5 h-5 text-secondary-text" />
-            <span>Consultation &amp; Appointment Dossiers</span>
+            <span>Consultation Requests</span>
           </h2>
           <p className="text-xs text-ink-muted">
-            Review patient health concerns, manage appointment slots, and dispatch Hakeem prescriptions with email alerts.
+            Manage incoming patient consultation requests, confirm appointments, and dispatch status alerts.
           </p>
         </div>
 
@@ -658,7 +518,9 @@ export default function ConsultationsTab() {
             disabled={refreshing}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-neutral-700 hover:bg-surface border border-line transition-all disabled:opacity-50 cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`}
+            />
             <span>Refresh</span>
           </button>
         </div>
@@ -686,7 +548,7 @@ export default function ConsultationsTab() {
             className="w-full px-3 py-2.5 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
           >
             <option value="ALL">All Statuses ({consultations.length})</option>
-            <option value="NEW">New Requests</option>
+            <option value="NEW">Pending Requests</option>
             <option value="CONFIRMED">Confirmed Slots</option>
             <option value="RESCHEDULED">Rescheduled</option>
             <option value="PRESCRIBED">Prescribed</option>
@@ -706,7 +568,7 @@ export default function ConsultationsTab() {
         </div>
       </div>
 
-      {/* Action feedback */}
+      {/* Global Action feedback */}
       {actionNotice && (
         <div
           className={`p-3 rounded-xl border text-xs flex items-start justify-between gap-3 ${
@@ -739,7 +601,7 @@ export default function ConsultationsTab() {
         {loading ? (
           <div className="py-16 text-center text-ink space-y-2">
             <Loader2 className="w-8 h-8 animate-spin mx-auto" />
-            <p className="text-xs font-semibold">Loading consultation dossiers...</p>
+            <p className="text-xs font-semibold">Loading consultation requests...</p>
           </div>
         ) : consultations.length === 0 ? (
           <div className="py-16 text-center text-ink-muted space-y-2">
@@ -767,7 +629,7 @@ export default function ConsultationsTab() {
                     <tr
                       key={item.id}
                       className="hover:bg-surface/60 transition-colors group cursor-pointer"
-                      onClick={() => handleOpenDrawer(item)}
+                      onClick={() => handleOpenModal(item)}
                     >
                       <td className="py-3.5 px-4">
                         <div className="font-mono font-bold text-ink">
@@ -786,20 +648,19 @@ export default function ConsultationsTab() {
                       <td className="py-3.5 px-4">
                         <div className="font-bold text-ink">{item.fullName}</div>
                         <div className="text-[11px] text-ink-muted">
-                          {[item.gender, item.age ? `${item.age} yrs` : null, item.city]
+                          {[
+                            item.gender,
+                            item.age ? `${item.age} yrs` : null,
+                            item.city,
+                          ]
                             .filter(Boolean)
                             .join(" · ")}
                         </div>
-                        {item.phone ? (
+                        {item.phone && (
                           <div className="mt-1 flex items-center gap-1.5">
-                            <a
-                              href={`tel:${item.phone.replace(/[^0-9+]/g, "")}`}
-                              onClick={(e) => e.stopPropagation()}
-                              className="text-[11px] text-ink font-mono hover:text-primary hover:underline"
-                              title={`Call ${item.phone}`}
-                            >
+                            <span className="text-[11px] text-ink font-mono">
                               {item.phone}
-                            </a>
+                            </span>
                             <a
                               href={`https://wa.me/${item.phone.replace(/[^0-9]/g, "")}`}
                               target="_blank"
@@ -819,37 +680,14 @@ export default function ConsultationsTab() {
                               <Phone className="w-3 h-3" />
                             </a>
                           </div>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenDrawer(item);
-                            }}
-                            className="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-warning-soft text-warning border border-warning-line cursor-pointer"
-                          >
-                            <Phone className="w-2.5 h-2.5" />
-                            <span>No phone — add</span>
-                          </button>
                         )}
-                        {item.email ? (
-                          <a
-                            href={`mailto:${item.email}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="mt-0.5 flex items-center gap-1 text-[10px] text-ink-muted hover:text-primary truncate max-w-[190px]"
-                            title={item.email}
-                          >
+                        {item.email && (
+                          <div className="mt-0.5 flex items-center gap-1 text-[10px] text-ink-muted truncate max-w-[190px]">
                             <Mail className="w-2.5 h-2.5 shrink-0" />
                             <span className="truncate">{item.email}</span>
-                          </a>
-                        ) : (
-                          <div className="mt-0.5 flex items-center gap-1 text-[10px] text-ink-subtle">
-                            <Mail className="w-2.5 h-2.5" />
-                            <span>No email on file</span>
                           </div>
                         )}
                       </td>
-
 
                       <td className="py-3.5 px-4">
                         <div className="inline-flex items-center gap-1 font-semibold text-ink">
@@ -895,39 +733,17 @@ export default function ConsultationsTab() {
                       </td>
 
                       <td className="py-3.5 px-4 text-right">
-                        <div className="inline-flex items-center gap-1.5">
-                          {item.status === "NEW" && (
-                            <button
-                              type="button"
-                              onClick={(e) => startApply(item, e)}
-                              disabled={applyingId === item.id}
-                              className="px-3 py-1.5 bg-success hover:bg-success/90 text-white rounded-lg text-xs font-bold transition-all inline-flex items-center gap-1 cursor-pointer disabled:opacity-60"
-                              title="Accept this request and confirm the appointment"
-                            >
-                              {applyingId === item.id ? (
-                                <Loader2 className="w-3 h-3 animate-spin" />
-                              ) : (
-                                <Check className="w-3.5 h-3.5" />
-                              )}
-                              <span>Apply</span>
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenDrawer(item);
-                            }}
-                            className="px-3 py-1.5 bg-surface-inverse hover:bg-brand-green-900 text-white rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1 cursor-pointer"
-                          >
-                            <span>
-                              {item.status === "NEW" ? "Open" : "Manage"}
-                            </span>
-                            <ChevronDown className="w-3 h-3" />
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenModal(item);
+                          }}
+                          className="px-3 py-1.5 bg-surface hover:bg-surface-sunken border border-line text-ink rounded-lg text-xs font-semibold transition-all inline-flex items-center gap-1 cursor-pointer"
+                        >
+                          <span>Manage</span>
+                        </button>
                       </td>
-
                     </tr>
                   );
                 })}
@@ -937,110 +753,328 @@ export default function ConsultationsTab() {
         )}
       </div>
 
-      {/* Quick Accept — only for in-person requests that still need a slot */}
-      {applyTarget && (
-        <div className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-white rounded-2xl border border-line shadow-2xl p-6 space-y-4">
-            <div className="flex items-start justify-between gap-3">
-              <div>
+      {/* ── Centered Minimalist Modal ── */}
+      {isModalOpen && selectedConsultation && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+          onClick={() => setIsModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-lg bg-white rounded-2xl border border-line shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-3 p-5 border-b border-line bg-surface/50">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-xs font-bold text-ink bg-white px-2 py-0.5 rounded border border-line">
+                    {selectedConsultation.ticketNumber}
+                  </span>
+                  <span
+                    className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${modalBadge.bg} ${modalBadge.text} ${modalBadge.border}`}
+                  >
+                    {modalBadge.label}
+                  </span>
+                </div>
                 <h3 className="font-serif text-lg font-bold text-ink">
-                  Confirm this appointment
+                  {selectedConsultation.fullName}
                 </h3>
-                <p className="text-xs text-ink-muted mt-0.5">
-                  {applyTarget.fullName} · {applyTarget.ticketNumber} — this
-                  in-person request has no confirmed slot yet.
+                <p className="text-xs text-ink-muted">
+                  {[
+                    selectedConsultation.age
+                      ? `${selectedConsultation.age} yrs`
+                      : null,
+                    selectedConsultation.gender,
+                    selectedConsultation.city || "Pakistan",
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                  {" · "}
+                  Booked{" "}
+                  {new Date(selectedConsultation.createdAt).toLocaleDateString(
+                    "en-US",
+                    {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }
+                  )}
                 </p>
               </div>
+
               <button
                 type="button"
-                onClick={() => setApplyTarget(null)}
-                className="w-8 h-8 rounded-full bg-surface hover:bg-line flex items-center justify-center text-ink cursor-pointer"
+                onClick={() => setIsModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-white hover:bg-surface border border-line flex items-center justify-center text-ink cursor-pointer shrink-0"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="space-y-3">
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-ink">
-                  Appointment Date
-                </label>
-                <input
-                  type="date"
-                  value={applyDate}
-                  onChange={(e) => setApplyDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-xs font-semibold text-ink">
-                  Available Slot
-                </label>
-                <select
-                  value={applySlot}
-                  onChange={(e) => setApplySlot(e.target.value)}
-                  disabled={applyLoading}
-                  className="w-full px-3 py-2 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink disabled:opacity-50"
+            {/* Modal Body */}
+            <div className="p-5 space-y-4">
+              {modalNotice && (
+                <div
+                  className={`p-3 rounded-xl border text-xs flex items-start justify-between gap-2 ${
+                    modalNotice.tone === "success"
+                      ? "bg-success-soft border-success-line text-success"
+                      : "bg-danger-soft border-danger/20 text-danger"
+                  }`}
                 >
-                  <option value="">
-                    {applyLoading ? "Loading slots…" : "Select a slot"}
-                  </option>
-                  {applySlots
-                    .filter((slot) => slot.available)
-                    .map((slot) => (
-                      <option key={slot.slot} value={slot.slot}>
-                        {slot.slot}
-                      </option>
-                    ))}
-                </select>
-                {!applyLoading && applySlots.length === 0 && (
-                  <p className="text-[10px] text-warning">
-                    No open slots on this date. Pick another working day.
-                  </p>
+                  <span className="flex items-center gap-2">
+                    {modalNotice.tone === "success" ? (
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                    ) : (
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                    )}
+                    <span>{modalNotice.message}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setModalNotice(null)}
+                    className="cursor-pointer opacity-70 hover:opacity-100"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+              {/* Patient Contact Strip */}
+              <div className="flex flex-wrap items-center gap-2">
+                {selectedConsultation.phone ? (
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface rounded-xl border border-line text-xs">
+                    <Phone className="w-3.5 h-3.5 text-ink-subtle" />
+                    <span className="font-mono text-ink font-semibold">
+                      {selectedConsultation.phone}
+                    </span>
+                    <a
+                      href={`https://wa.me/${selectedConsultation.phone.replace(/[^0-9]/g, "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="ml-1 p-1 rounded-md text-success hover:bg-success-soft"
+                      title="WhatsApp patient"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                    </a>
+                    <a
+                      href={`tel:${selectedConsultation.phone.replace(/[^0-9+]/g, "")}`}
+                      className="p-1 rounded-md text-info hover:bg-info-soft"
+                      title="Call patient"
+                    >
+                      <Phone className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-warning-soft border border-warning-line text-warning rounded-xl text-xs">
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>No phone on file</span>
+                  </span>
+                )}
+
+                {selectedConsultation.email ? (
+                  <a
+                    href={`mailto:${selectedConsultation.email}`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface hover:bg-surface-sunken rounded-xl border border-line text-xs text-ink truncate max-w-[220px]"
+                    title={selectedConsultation.email}
+                  >
+                    <Mail className="w-3.5 h-3.5 text-ink-subtle shrink-0" />
+                    <span className="truncate">{selectedConsultation.email}</span>
+                  </a>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface border border-line text-ink-subtle rounded-xl text-xs">
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>No email</span>
+                  </span>
                 )}
               </div>
+
+              {/* Consultation Mode & Time Configuration */}
+              <div className="bg-surface rounded-xl border border-line p-3.5 space-y-2.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-ink-subtle font-medium">Mode</span>
+                  <div className="inline-flex items-center gap-1.5 font-semibold text-ink">
+                    {selectedConsultation.consultationType === "ONLINE" ? (
+                      <>
+                        <Video className="w-3.5 h-3.5 text-info" />
+                        <span>Online Telehealth</span>
+                      </>
+                    ) : (
+                      <>
+                        <Building2 className="w-3.5 h-3.5 text-success" />
+                        <span>Karachi Clinic (In-Person)</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* If In-Person, minimal date and time-slot selector */}
+                {selectedConsultation.consultationType === "IN_PERSON" ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-line">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-ink-subtle">
+                        Date
+                      </label>
+                      <input
+                        type="date"
+                        value={modalDate}
+                        onChange={(e) => setModalDate(e.target.value)}
+                        className="w-full px-2.5 py-1.5 bg-white border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-ink"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-bold uppercase tracking-wider text-ink-subtle">
+                        Time Slot
+                      </label>
+                      <select
+                        value={modalSlot}
+                        onChange={(e) => setModalSlot(e.target.value)}
+                        disabled={modalSlotsLoading}
+                        className="w-full px-2.5 py-1.5 bg-white border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-ink disabled:opacity-50"
+                      >
+                        <option value="">
+                          {modalSlotsLoading
+                            ? "Loading slots..."
+                            : "Select a slot"}
+                        </option>
+                        {modalSlots
+                          .filter((s) => s.available || s.slot === modalSlot)
+                          .map((s) => (
+                            <option key={s.slot} value={s.slot}>
+                              {s.slot}{" "}
+                              {!s.available && s.slot === modalSlot
+                                ? "(Current)"
+                                : ""}
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+                  </div>
+                ) : (
+                  selectedConsultation.appointmentDate && (
+                    <div className="flex items-center justify-between text-xs pt-2 border-t border-line">
+                      <span className="text-ink-subtle font-medium">
+                        Scheduled Time
+                      </span>
+                      <span className="font-semibold text-ink">
+                        {selectedConsultation.appointmentDate} ·{" "}
+                        {selectedConsultation.appointmentSlot || "Anytime"}
+                      </span>
+                    </div>
+                  )
+                )}
+              </div>
+
+              {/* Symptoms / Concern */}
+              <div className="space-y-1.5">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-ink-subtle">
+                  Primary Concern / Symptoms
+                </span>
+                <div className="p-3 bg-surface rounded-xl border border-line text-xs text-ink leading-relaxed">
+                  {selectedConsultation.primarySymptoms ||
+                    "No symptoms specified."}
+                </div>
+              </div>
+
+              {/* Medical Report (if any) */}
+              {selectedConsultation.reportUrl && (
+                <div className="flex items-center justify-between p-3 bg-success-soft/50 rounded-xl border border-success-line">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <FileText className="w-4 h-4 text-success shrink-0" />
+                    <span className="text-xs font-semibold text-ink truncate">
+                      {selectedConsultation.reportName || "Attached Medical Report"}
+                    </span>
+                  </div>
+                  <a
+                    href={selectedConsultation.reportUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-white hover:bg-surface border border-line rounded-lg text-xs font-semibold text-ink shrink-0"
+                  >
+                    <span>View</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-line">
+            {/* Modal Controls (Ultra Minimalist: Delete, Pending, Confirm) */}
+            <div className="p-4 border-t border-line bg-surface/50 flex flex-wrap items-center justify-between gap-2">
+              {/* Delete Request */}
               <button
                 type="button"
-                onClick={() => setApplyTarget(null)}
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-ink border border-line hover:bg-surface cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={!applyDate || !applySlot || applyingId === applyTarget.id}
                 onClick={() =>
-                  applyConsultation(applyTarget, applyDate, applySlot)
+                  handleDelete(
+                    selectedConsultation.id,
+                    selectedConsultation.ticketNumber
+                  )
                 }
-                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-success hover:bg-success/90 disabled:opacity-50 inline-flex items-center gap-1.5 cursor-pointer"
+                disabled={modalSubmitting}
+                className="px-3.5 py-2 text-xs font-semibold text-danger hover:bg-danger-soft border border-danger/20 rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
-                {applyingId === applyTarget.id ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <Check className="w-3.5 h-3.5" />
-                )}
-                <span>Accept &amp; Confirm</span>
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete Request</span>
               </button>
+
+              <div className="flex items-center gap-2">
+                {/* Put into Pending */}
+                <button
+                  type="button"
+                  onClick={handleSetPending}
+                  disabled={
+                    modalSubmitting || selectedConsultation.status === "NEW"
+                  }
+                  className="px-3.5 py-2 text-xs font-semibold text-warning bg-warning-soft hover:bg-warning-soft/80 border border-warning-line rounded-xl transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  title={
+                    selectedConsultation.status === "NEW"
+                      ? "Already pending"
+                      : "Put request into pending"
+                  }
+                >
+                  {modalSubmitting ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Clock className="w-3.5 h-3.5" />
+                  )}
+                  <span>Put into Pending</span>
+                </button>
+
+                {/* Confirm Request */}
+                <button
+                  type="button"
+                  onClick={handleConfirm}
+                  disabled={
+                    modalSubmitting ||
+                    (selectedConsultation.consultationType === "IN_PERSON" &&
+                      (!modalDate || !modalSlot))
+                  }
+                  className="px-4 py-2 text-xs font-bold text-white bg-success hover:bg-success/90 rounded-xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer disabled:opacity-50"
+                >
+                  {modalSubmitting ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Check className="w-3.5 h-3.5" />
+                  )}
+                  <span>Confirm Request</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* New Booking Modal — staff manual entry for phone/WhatsApp bookings */}
+      {/* Manual New Booking Modal */}
       {isNewBookingOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
-          <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-line max-h-[92vh] overflow-y-auto">
+          <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-line max-h-[92vh] overflow-y-auto">
             <div className="flex items-start justify-between gap-3 px-5 py-4 border-b border-line sticky top-0 bg-white z-10">
               <div>
                 <h3 className="font-serif text-base font-bold text-ink">
                   New Booking — Manual Entry
                 </h3>
                 <p className="text-[11px] text-ink-muted">
-                  For phone / WhatsApp bookings. Creates a trackable ticket instantly.
+                  For phone / WhatsApp bookings. Creates a trackable ticket.
                 </p>
               </div>
               <button
@@ -1069,15 +1103,6 @@ export default function ConsultationsTab() {
                     <p className="text-[11px] text-success">
                       {newBookingSuccess.fullName} · {newBookingSuccess.phone}
                     </p>
-                    <p className="text-[11px] text-ink-muted leading-relaxed">
-                      Status: <strong>{newBookingSuccess.status}</strong>.{" "}
-                      {newBookingSuccess.userId
-                        ? "Linked to the patient's account — it now appears in their dashboard."
-                        : "Not linked to an account — the patient can track it with the ticket and phone."}
-                      {newBookingSuccess.email
-                        ? " A confirmation email has been dispatched."
-                        : ""}
-                    </p>
                   </div>
                   <div className="flex gap-2">
                     <button
@@ -1099,74 +1124,72 @@ export default function ConsultationsTab() {
               ) : (
                 <form onSubmit={handleCreateBooking} className="space-y-3">
                   {newBookingError && (
-                    <div className="p-2.5 bg-danger-soft border border-danger/20 rounded-xl text-[11px] text-danger flex items-center gap-2">
-                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    <div className="p-2.5 rounded-xl bg-danger-soft border border-danger/20 text-xs text-danger flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
                       <span>{newBookingError}</span>
                     </div>
                   )}
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <div className="space-y-0.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
                       <label className="text-[11px] font-semibold text-ink">
-                        Patient Name <span className="text-danger">*</span>
+                        Patient Full Name *
                       </label>
                       <input
                         type="text"
                         required
                         value={newBooking.fullName}
                         onChange={(e) =>
-                          setNewBooking((prev) => ({
-                            ...prev,
+                          setNewBooking((b) => ({
+                            ...b,
                             fullName: e.target.value,
                           }))
                         }
-                        placeholder="e.g. Ahmed Khan"
-                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
+                        placeholder="e.g. Tariq Mehmood"
+                        className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       />
                     </div>
-                    <div className="space-y-0.5">
+
+                    <div className="space-y-1">
                       <label className="text-[11px] font-semibold text-ink">
-                        WhatsApp / Phone <span className="text-danger">*</span>
+                        Phone / WhatsApp *
                       </label>
                       <input
                         type="tel"
                         required
                         value={newBooking.phone}
                         onChange={(e) =>
-                          setNewBooking((prev) => ({
-                            ...prev,
+                          setNewBooking((b) => ({
+                            ...b,
                             phone: e.target.value,
                           }))
                         }
-                        onBlur={() => lookupPatients(newBooking.phone)}
-                        placeholder="0300-1234567"
-                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
+                        placeholder="0300 1234567"
+                        className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <div className="space-y-0.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
                       <label className="text-[11px] font-semibold text-ink">
-                        Email{" "}
-                        <span className="text-ink-subtle font-normal">
-                          (optional)
-                        </span>
+                        Patient Email (Optional)
                       </label>
                       <input
                         type="email"
                         value={newBooking.email}
                         onChange={(e) =>
-                          setNewBooking((prev) => ({
-                            ...prev,
+                          setNewBooking((b) => ({
+                            ...b,
                             email: e.target.value,
                           }))
                         }
                         placeholder="patient@example.com"
-                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
+                        className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       />
                     </div>
-                    <div className="space-y-0.5">
+
+                    <div className="space-y-1">
                       <label className="text-[11px] font-semibold text-ink">
                         City
                       </label>
@@ -1174,299 +1197,138 @@ export default function ConsultationsTab() {
                         type="text"
                         value={newBooking.city}
                         onChange={(e) =>
-                          setNewBooking((prev) => ({
-                            ...prev,
+                          setNewBooking((b) => ({
+                            ...b,
                             city: e.target.value,
                           }))
                         }
-                        placeholder="Karachi"
-                        className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white"
+                        className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    <div className="space-y-0.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
                       <label className="text-[11px] font-semibold text-ink">
-                        Visit Mode
+                        Consultation Type
                       </label>
                       <select
                         value={newBooking.consultationType}
                         onChange={(e) =>
-                          setNewBooking((prev) => ({
-                            ...prev,
+                          setNewBooking((b) => ({
+                            ...b,
                             consultationType: e.target.value,
                           }))
                         }
                         className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       >
-                        <option value="IN_PERSON">In-Person Clinic</option>
-                        <option value="ONLINE">Online / WhatsApp</option>
+                        <option value="IN_PERSON">In-Person (Karachi Clinic)</option>
+                        <option value="ONLINE">Online Telehealth</option>
                       </select>
                     </div>
-                    <div className="space-y-0.5">
-                      <label className="text-[11px] font-semibold text-ink">
-                        Contact Channel
-                      </label>
-                      <select
-                        value={newBooking.channel}
-                        onChange={(e) =>
-                          setNewBooking((prev) => ({
-                            ...prev,
-                            channel: e.target.value,
-                          }))
-                        }
-                        className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
-                      >
-                        <option value="WHATSAPP">WhatsApp</option>
-                        <option value="EMAIL">Email</option>
-                      </select>
-                    </div>
-                    <div className="space-y-0.5">
+
+                    <div className="space-y-1">
                       <label className="text-[11px] font-semibold text-ink">
                         Initial Status
                       </label>
                       <select
                         value={newBooking.status}
                         onChange={(e) =>
-                          setNewBooking((prev) => ({
-                            ...prev,
+                          setNewBooking((b) => ({
+                            ...b,
                             status: e.target.value,
                           }))
                         }
                         className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
                       >
-                        <option value="CONFIRMED">Confirmed</option>
-                        <option value="NEW">New Request</option>
-                        <option value="RESCHEDULED">Rescheduled</option>
-                        <option value="COMPLETED">Completed</option>
-                        <option value="CANCELLED">Cancelled</option>
+                        <option value="CONFIRMED">CONFIRMED</option>
+                        <option value="NEW">PENDING</option>
                       </select>
                     </div>
                   </div>
 
-                  <div className="space-y-0.5">
+                  {newBooking.consultationType === "IN_PERSON" && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-semibold text-ink">
+                          Appointment Date
+                        </label>
+                        <input
+                          type="date"
+                          value={newBooking.appointmentDate}
+                          onChange={(e) =>
+                            setNewBooking((b) => ({
+                              ...b,
+                              appointmentDate: e.target.value,
+                            }))
+                          }
+                          className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
+                        />
+                      </div>
+
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-semibold text-ink">
+                          Time Slot
+                        </label>
+                        <select
+                          value={newBooking.appointmentSlot}
+                          onChange={(e) =>
+                            setNewBooking((b) => ({
+                              ...b,
+                              appointmentSlot: e.target.value,
+                            }))
+                          }
+                          disabled={
+                            newBookingAvailLoading || !newBookingAvail?.isOpen
+                          }
+                          className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink disabled:opacity-60"
+                        >
+                          {newBookingAvailLoading ? (
+                            <option value="">Loading slots…</option>
+                          ) : !newBookingAvail?.isOpen ? (
+                            <option value="">Clinic closed</option>
+                          ) : (
+                            <>
+                              <option value="">Select a time…</option>
+                              {(newBookingAvail.slots || []).map((slot: any) => (
+                                <option
+                                  key={slot.slot}
+                                  value={slot.slot}
+                                  disabled={!slot.available}
+                                >
+                                  {slot.slot}
+                                  {slot.available ? "" : " — Booked"}
+                                </option>
+                              ))}
+                            </>
+                          )}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-1">
                     <label className="text-[11px] font-semibold text-ink">
-                      Health Concern / Notes
+                      Chief Complaint / Notes
                     </label>
                     <textarea
                       rows={2}
                       value={newBooking.primarySymptoms}
                       onChange={(e) =>
-                        setNewBooking((prev) => ({
-                          ...prev,
+                        setNewBooking((b) => ({
+                          ...b,
                           primarySymptoms: e.target.value,
                         }))
                       }
-                      placeholder="Reason for consultation (from the WhatsApp conversation)"
-                      className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink focus:bg-white resize-none"
+                      placeholder="Brief notes from the patient..."
+                      className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink resize-none"
                     />
-                  </div>
-
-                  {newBooking.consultationType === "IN_PERSON" && (
-                    <>
-                      <div className="grid grid-cols-2 gap-2.5">
-                        <div className="space-y-0.5">
-                          <label className="text-[11px] font-semibold text-ink">
-                            Appointment Date
-                          </label>
-                          <input
-                            type="date"
-                            value={newBooking.appointmentDate}
-                            onChange={(e) =>
-                              setNewBooking((prev) => ({
-                                ...prev,
-                                appointmentDate: e.target.value,
-                                appointmentSlot: "",
-                              }))
-                            }
-                            className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
-                          />
-                        </div>
-                        <div className="space-y-0.5">
-                          <label className="text-[11px] font-semibold text-ink">
-                            Time Slot
-                          </label>
-                          <select
-                            value={newBooking.appointmentSlot}
-                            onChange={(e) =>
-                              setNewBooking((prev) => ({
-                                ...prev,
-                                appointmentSlot: e.target.value,
-                              }))
-                            }
-                            disabled={
-                              newBookingAvailLoading ||
-                              !newBookingAvail?.isOpen
-                            }
-                            className="w-full px-2.5 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink disabled:opacity-60"
-                          >
-                            {newBookingAvailLoading ? (
-                              <option value="">Loading slots…</option>
-                            ) : !newBookingAvail?.isOpen ? (
-                              <option value="">Clinic closed</option>
-                            ) : (
-                              <>
-                                <option value="">Select a time…</option>
-                                {(newBookingAvail.slots || []).map(
-                                  (slot: any) => (
-                                    <option
-                                      key={slot.slot}
-                                      value={slot.slot}
-                                      disabled={!slot.available}
-                                    >
-                                      {slot.slot}
-                                      {slot.available ? "" : " — Booked"}
-                                    </option>
-                                  )
-                                )}
-                              </>
-                            )}
-                          </select>
-                        </div>
-                      </div>
-                      {!newBookingAvailLoading &&
-                        newBookingAvail &&
-                        !newBookingAvail.isOpen && (
-                          <p className="text-[10px] text-warning flex items-center gap-1">
-                            <AlertCircle className="w-3 h-3 shrink-0" />
-                            Clinic closed on this date — pick another day.
-                          </p>
-                        )}
-                    </>
-                  )}
-
-                  {/* Linked account + duplicate search */}
-                  <div className="bg-surface border border-line rounded-xl p-3 space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="text-[11px]">
-                        <span className="text-ink-subtle block font-semibold uppercase tracking-wide text-[10px]">
-                          Patient Account (optional)
-                        </span>
-                        {linkedAccount ? (
-                          <strong className="text-ink">
-                            {linkedAccount.name || linkedAccount.email}
-                            {linkedAccount.email
-                              ? ` · ${linkedAccount.email}`
-                              : ""}
-                          </strong>
-                        ) : (
-                          <span className="text-ink-muted">
-                            Not linked — trackable via ticket + phone only.
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            lookupPatients(
-                              newBooking.phone || newBooking.fullName
-                            )
-                          }
-                          className="px-2.5 py-1.5 bg-white border border-line hover:bg-surface rounded-lg text-[10px] font-bold text-ink cursor-pointer flex items-center gap-1"
-                        >
-                          {lookupLoading ? (
-                            <Loader2 className="w-3 h-3 animate-spin" />
-                          ) : (
-                            <Search className="w-3 h-3" />
-                          )}
-                          Find
-                        </button>
-                        {linkedAccount && (
-                          <button
-                            type="button"
-                            onClick={() => setLinkedAccount(null)}
-                            className="px-2.5 py-1.5 bg-white border border-line hover:bg-danger-soft rounded-lg text-[10px] font-bold text-danger cursor-pointer"
-                          >
-                            Clear
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    {lookupResults && (
-                      <div className="space-y-2 pt-2 border-t border-line">
-                        {lookupResults.consultations.length > 0 && (
-                          <div className="bg-warning-soft border border-warning-line rounded-lg p-2 space-y-1">
-                            <p className="text-[10px] font-bold text-warning uppercase tracking-wide">
-                              Existing tickets found — edit instead of
-                              duplicating:
-                            </p>
-                            {lookupResults.consultations
-                              .slice(0, 4)
-                              .map((c: any) => (
-                                <button
-                                  key={c.id}
-                                  type="button"
-                                  onClick={() => openExistingConsultation(c.id)}
-                                  className="w-full text-left text-[11px] px-2 py-1 rounded bg-white/70 hover:bg-white border border-warning-line flex items-center justify-between gap-2 cursor-pointer"
-                                >
-                                  <span>
-                                    <strong className="font-mono">
-                                      {c.ticketNumber}
-                                    </strong>{" "}
-                                    · {c.fullName} · {c.status}
-                                  </span>
-                                  <span className="text-warning font-semibold shrink-0">
-                                    Open →
-                                  </span>
-                                </button>
-                              ))}
-                          </div>
-                        )}
-
-                        {lookupResults.users.length > 0 && (
-                          <div className="space-y-1">
-                            <p className="text-[10px] font-bold text-ink-subtle uppercase tracking-wide">
-                              Registered accounts:
-                            </p>
-                            {lookupResults.users.slice(0, 4).map((u: any) => (
-                              <button
-                                key={u.id}
-                                type="button"
-                                onClick={() =>
-                                  setLinkedAccount({
-                                    id: u.id,
-                                    name: u.name,
-                                    email: u.email,
-                                  })
-                                }
-                                className={`w-full text-left text-[11px] px-2 py-1.5 rounded-lg border flex items-center justify-between gap-2 cursor-pointer ${
-                                  linkedAccount?.id === u.id
-                                    ? "bg-success-soft border-success-line"
-                                    : "bg-white border-line hover:border-ink/30"
-                                }`}
-                              >
-                                <span>
-                                  <strong>{u.name || u.email}</strong>
-                                  {u.email ? ` · ${u.email}` : ""}
-                                  {u.phone ? ` · ${u.phone}` : ""}
-                                </span>
-                                {linkedAccount?.id === u.id ? (
-                                  <Check className="w-3.5 h-3.5 text-success shrink-0" />
-                                ) : (
-                                  <Link2 className="w-3.5 h-3.5 text-ink-subtle shrink-0" />
-                                )}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-
-                        {lookupResults.users.length === 0 &&
-                          lookupResults.consultations.length === 0 && (
-                            <p className="text-[10px] text-ink-subtle">
-                              No matching accounts or tickets found.
-                            </p>
-                          )}
-                      </div>
-                    )}
                   </div>
 
                   <button
                     type="submit"
                     disabled={newBookingSubmitting}
-                    className="w-full h-11 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+                    className="w-full h-10 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer mt-4"
                   >
                     {newBookingSubmitting ? (
                       <>
@@ -1482,430 +1344,6 @@ export default function ConsultationsTab() {
                   </button>
                 </form>
               )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Consultation Dossier Drawer / Modal */}
-      {isDrawerOpen && selectedConsultation && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex justify-end">
-          <div className="w-full max-w-2xl bg-white h-full overflow-y-auto p-6 sm:p-8 flex flex-col justify-between space-y-6 shadow-2xl">
-            <div className="space-y-6">
-              {/* Drawer Top Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-line">
-                <div className="space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm font-bold text-ink bg-success-soft px-2 py-0.5 rounded border border-success-line">
-                      {selectedConsultation.ticketNumber}
-                    </span>
-                    <span className="text-xs text-ink-subtle">
-                      Booked {new Date(selectedConsultation.createdAt).toLocaleString()}
-                    </span>
-                  </div>
-                  <h3 className="font-serif text-lg font-bold text-ink">
-                    {selectedConsultation.fullName} ({selectedConsultation.age} yrs, {selectedConsultation.gender})
-                  </h3>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setIsDrawerOpen(false)}
-                  className="w-8 h-8 rounded-full bg-surface hover:bg-line flex items-center justify-center text-ink cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Patient Quick Contact Bar */}
-              <div className="space-y-2 pt-1">
-                <div className="flex flex-wrap gap-2">
-                  {selectedWhatsAppLink ? (
-                    <a
-                      href={selectedWhatsAppLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-2 bg-success hover:bg-success/90 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs"
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      <span>WhatsApp ({selectedConsultation.phone})</span>
-                    </a>
-                  ) : (
-                    <span className="px-3 py-2 bg-warning-soft border border-warning-line text-warning rounded-xl text-xs font-semibold flex items-center gap-1.5">
-                      <Phone className="w-4 h-4" />
-                      <span>No phone on file — add one below</span>
-                    </span>
-                  )}
-
-                  {selectedConsultation.phone && (
-                    <a
-                      href={`tel:${selectedConsultation.phone.replace(/[^0-9+]/g, "")}`}
-                      className="px-3 py-2 bg-surface border border-line hover:bg-surface-sunken text-ink rounded-xl text-xs font-semibold flex items-center gap-1.5"
-                    >
-                      <Phone className="w-4 h-4 text-ink" />
-                      <span>Call {selectedConsultation.phone}</span>
-                    </a>
-                  )}
-
-                  {selectedConsultation.email && (
-                    <a
-                      href={`mailto:${selectedConsultation.email}`}
-                      className="px-3 py-2 bg-surface border border-line hover:bg-surface-sunken text-ink rounded-xl text-xs font-semibold flex items-center gap-1.5"
-                    >
-                      <Mail className="w-4 h-4 text-ink" />
-                      <span>Email ({selectedConsultation.email})</span>
-                    </a>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-surface border border-line rounded-2xl p-3">
-                  <label className="text-[10px] font-bold uppercase tracking-wide text-ink-subtle space-y-1">
-                    <span>Patient Phone / WhatsApp</span>
-                    <input
-                      type="tel"
-                      value={editPhone}
-                      onChange={(e) => setEditPhone(e.target.value)}
-                      placeholder="e.g. 0300 1234567"
-                      className="w-full px-2.5 py-1.5 bg-white border border-line rounded-lg text-[11px] font-normal text-ink focus:outline-none focus:border-ink"
-                    />
-                  </label>
-                  <label className="text-[10px] font-bold uppercase tracking-wide text-ink-subtle space-y-1">
-                    <span>Patient Email</span>
-                    <input
-                      type="email"
-                      value={editEmail}
-                      onChange={(e) => setEditEmail(e.target.value)}
-                      placeholder="patient@example.com"
-                      className="w-full px-2.5 py-1.5 bg-white border border-line rounded-lg text-[11px] font-normal text-ink focus:outline-none focus:border-ink"
-                    />
-                  </label>
-                  <p className="sm:col-span-2 text-[10px] text-ink-subtle">
-                    Saved with the dossier below. The clinic uses this number for
-                    call-backs and WhatsApp confirmation.
-                  </p>
-                </div>
-              </div>
-
-              {/* Linked Patient Account */}
-              <div className="bg-white border border-line rounded-2xl p-4 space-y-2">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="text-xs">
-                    <span className="text-ink-subtle block text-[10px] uppercase font-bold tracking-wide">
-                      Linked Patient Account
-                    </span>
-                    {selectedConsultation.user ? (
-                      <strong className="text-ink">
-                        {selectedConsultation.user.name ||
-                          selectedConsultation.user.email}
-                        {selectedConsultation.user.email
-                          ? ` · ${selectedConsultation.user.email}`
-                          : ""}
-                      </strong>
-                    ) : (
-                      <span className="text-ink-subtle">
-                        Not linked — this ticket won&apos;t appear in the
-                        patient&apos;s dashboard.
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setShowLinkPanel((open) => !open);
-                        setLinkError(null);
-                        if (!showLinkPanel) {
-                          const q =
-                            selectedConsultation.phone ||
-                            selectedConsultation.email ||
-                            "";
-                          setLinkQuery(q);
-                          if (q.length >= 3) searchAccounts(q);
-                        }
-                      }}
-                      className="px-2.5 py-1.5 bg-surface border border-line hover:bg-surface-sunken rounded-lg text-[10px] font-bold text-ink cursor-pointer flex items-center gap-1"
-                    >
-                      <Link2 className="w-3 h-3" />
-                      {selectedConsultation.user ? "Change" : "Link account"}
-                    </button>
-                    {selectedConsultation.user && (
-                      <button
-                        type="button"
-                        onClick={() => linkAccount(null)}
-                        className="px-2.5 py-1.5 bg-white border border-danger/20 hover:bg-danger-soft rounded-lg text-[10px] font-bold text-danger cursor-pointer flex items-center gap-1"
-                      >
-                        <Unlink className="w-3 h-3" />
-                        Unlink
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {showLinkPanel && (
-                  <div className="space-y-2 pt-2 border-t border-line">
-                    {linkError && (
-                      <p className="text-[10px] text-danger">{linkError}</p>
-                    )}
-                    <div className="flex gap-1.5">
-                      <input
-                        type="text"
-                        value={linkQuery}
-                        onChange={(e) => setLinkQuery(e.target.value)}
-                        placeholder="Search by phone, email, or name"
-                        className="flex-1 px-2.5 py-1.5 bg-surface border border-line rounded-lg text-[11px] text-ink focus:outline-none focus:border-ink"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => searchAccounts(linkQuery)}
-                        disabled={linkLoading}
-                        className="px-3 py-1.5 bg-surface-inverse hover:bg-brand-green-900 text-white rounded-lg text-[10px] font-bold cursor-pointer disabled:opacity-50 flex items-center gap-1"
-                      >
-                        {linkLoading ? (
-                          <Loader2 className="w-3 h-3 animate-spin" />
-                        ) : (
-                          <Search className="w-3 h-3" />
-                        )}
-                        Search
-                      </button>
-                    </div>
-                    {linkResults.map((u: any) => (
-                      <button
-                        key={u.id}
-                        type="button"
-                        onClick={() => linkAccount(u.id)}
-                        className="w-full text-left text-[11px] px-2.5 py-1.5 rounded-lg border border-line bg-white hover:border-ink/40 flex items-center justify-between gap-2 cursor-pointer"
-                      >
-                        <span>
-                          <strong>{u.name || u.email}</strong>
-                          {u.email ? ` · ${u.email}` : ""}
-                          {u.phone ? ` · ${u.phone}` : ""}
-                        </span>
-                        <span className="text-ink font-bold shrink-0">
-                          Link
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Medical Dossier Preview */}
-              <div className="bg-surface rounded-2xl border border-line p-4 space-y-3 text-xs">
-                <h4 className="font-serif font-bold text-sm text-ink flex items-center gap-1.5">
-                  <Activity className="w-4 h-4 text-secondary-text" />
-                  <span>Patient Health Dossier</span>
-                </h4>
-
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div>
-                    <span className="text-ink-subtle block">City / Location:</span>
-                    <strong className="text-ink">{selectedConsultation.city}</strong>
-                  </div>
-                  <div>
-                    <span className="text-ink-subtle block">Condition Duration:</span>
-                    <strong className="text-ink">{selectedConsultation.duration}</strong>
-                  </div>
-                </div>
-
-                <div className="pt-2 border-t border-line">
-                  <span className="text-ink-subtle block mb-1">Primary Symptoms &amp; Notes:</span>
-                  <p className="text-ink bg-white p-3 rounded-xl border border-line leading-relaxed">
-                    {selectedConsultation.primarySymptoms}
-                  </p>
-                </div>
-
-                {selectedConsultation.currentMedications && (
-                  <div>
-                    <span className="text-ink-subtle block mb-1">Current Medications / Allergies:</span>
-                    <p className="text-ink bg-white p-2.5 rounded-xl border border-line">
-                      {selectedConsultation.currentMedications}
-                    </p>
-                  </div>
-                )}
-
-                {selectedConsultation.reportUrl && (
-                  <div className="pt-2 border-t border-line">
-                    <span className="text-ink-subtle block mb-1 font-semibold">
-                      Attached Medical Report:
-                    </span>
-                    <div className="flex items-center justify-between p-3 bg-white rounded-xl border border-brand-green-200 shadow-xs">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className="w-8 h-8 rounded-lg bg-success-soft text-primary flex items-center justify-center shrink-0">
-                          <FileText className="w-4 h-4" />
-                        </div>
-                        <div className="min-w-0 pr-2">
-                          <p className="font-semibold text-ink text-xs truncate max-w-[220px]">
-                            {selectedConsultation.reportName || "Medical Report / Document"}
-                          </p>
-                          {selectedConsultation.reportSize && (
-                            <p className="text-[10px] text-ink-subtle">
-                              {selectedConsultation.reportSize}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <a
-                        href={selectedConsultation.reportUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary hover:bg-brand-green-800 text-white rounded-lg text-xs font-semibold transition-colors shrink-0"
-                      >
-                        <span>View / Download</span>
-                        <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Accept request (drawer copy of the row action) */}
-              {selectedConsultation.status === "NEW" && (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-success-soft border border-success-line rounded-2xl">
-                  <div className="text-xs text-success">
-                    <strong className="block">This request is pending.</strong>
-                    <span>
-                      Apply to confirm the slot and dispatch the patient email.
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => startApply(selectedConsultation)}
-                    disabled={applyingId === selectedConsultation.id}
-                    className="px-4 py-2 bg-success hover:bg-success/90 text-white rounded-xl text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer disabled:opacity-60 shrink-0"
-                  >
-                    {applyingId === selectedConsultation.id ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Check className="w-3.5 h-3.5" />
-                    )}
-                    <span>Apply &amp; Confirm</span>
-                  </button>
-                </div>
-              )}
-
-              {/* Status Update & Reschedule Form */}
-              <form onSubmit={handleSaveChanges} className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-serif font-bold text-sm text-ink flex items-center gap-1.5">
-                    <Edit className="w-4 h-4 text-secondary-text" />
-                    <span>Hakeem Clinical Actions &amp; Prescription</span>
-                  </h4>
-                </div>
-
-                {saveSuccessMsg && (
-                  <div className="p-3 bg-success-soft border border-success-line rounded-xl text-xs text-success flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-success shrink-0" />
-                    <span>{saveSuccessMsg}</span>
-                  </div>
-                )}
-
-                {saveErrorMsg && (
-                  <div className="p-3 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-center gap-2">
-                    <AlertCircle className="w-4 h-4 text-danger shrink-0" />
-                    <span>{saveErrorMsg}</span>
-                  </div>
-                )}
-
-                {/* Status Selector */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-ink">Ticket Status</label>
-                    <select
-                      value={editStatus}
-                      onChange={(e) => setEditStatus(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-line rounded-xl text-xs font-semibold text-ink focus:outline-none focus:border-ink"
-                    >
-                      <option value="NEW">NEW REQUEST</option>
-                      <option value="CONFIRMED">CONFIRMED (Sends Email)</option>
-                      <option value="RESCHEDULED">RESCHEDULED (Sends Email)</option>
-                      <option value="PRESCRIBED">PRESCRIBED (Dispatches Rx)</option>
-                      <option value="COMPLETED">COMPLETED</option>
-                      <option value="CANCELLED">CANCELLED</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-ink">Appointment Date</label>
-                    <input
-                      type="date"
-                      value={editDate}
-                      onChange={(e) => setEditDate(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-semibold text-ink">Time Slot</label>
-                    <input
-                      type="text"
-                      value={editSlot}
-                      onChange={(e) => setEditSlot(e.target.value)}
-                      placeholder="e.g. 11:00 AM - 12:00 PM"
-                      className="w-full px-3 py-2 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink"
-                    />
-                  </div>
-                </div>
-
-                {/* Prescription Area */}
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-ink flex items-center justify-between">
-                    <span>Prescribed Botanical Protocol (Urdu / English)</span>
-                    <span className="text-[10px] text-plum font-bold uppercase">
-                      Will be emailed to patient if provided
-                    </span>
-                  </label>
-                  <textarea
-                    rows={4}
-                    value={editPrescription}
-                    onChange={(e) => setEditPrescription(e.target.value)}
-                    placeholder="e.g. 1. Majoon Dabeed-ul-Ward (1 teaspoon morning & night with warm water)&#10;2. Arq-e-Gulab (1/2 cup before meals)&#10;3. Sharbat Bazoori Motadil (2 tablespoons daily)..."
-                    className="w-full p-3 bg-plum-soft/30 border border-plum-line rounded-xl text-xs text-ink focus:outline-none focus:border-plum resize-none font-mono"
-                  />
-                </div>
-
-                {/* Hakeem Notes / Dietary Restrictions */}
-                <div className="space-y-1">
-                  <label className="text-xs font-semibold text-ink">
-                    Dietary Restrictions (Parhez) &amp; Clinical Hakeem Notes
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={editHakimNotes}
-                    onChange={(e) => setEditHakimNotes(e.target.value)}
-                    placeholder="e.g. Strictly avoid sour items, cold water, and heavy fried foods. Drink barley water (Aab-e-Jau)..."
-                    className="w-full p-3 bg-white border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-ink resize-none"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between gap-3 pt-4 border-t border-line">
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(selectedConsultation.id, selectedConsultation.ticketNumber)}
-                    className="px-3.5 py-2.5 text-xs text-danger hover:bg-danger-soft rounded-xl border border-danger/20 transition-colors flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                    <span>Delete Ticket</span>
-                  </button>
-
-                  <button
-                    type="submit"
-                    disabled={savingChanges}
-                    className="px-5 py-2.5 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all flex items-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
-                  >
-                    {savingChanges ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Updating &amp; Dispatched...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-4 h-4" />
-                        <span>Save &amp; Dispatch Patient Email</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </form>
             </div>
           </div>
         </div>

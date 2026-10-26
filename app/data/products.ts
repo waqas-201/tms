@@ -22,7 +22,7 @@ export interface Product {
   slug: string;
   name: string;
   urduName: string;
-  category: "murabbajaat" | "arqiyat" | "oils-marham" | "herbs-seeds" | "teas-vitality" | "hair-skin" | "herbs" | string;
+  category: "murabbajaat" | "oils-marham" | "herbs-seeds" | "teas-vitality" | "herbs" | string;
   categoryId?: string;
   categoryLabel: string;
   categoryUrdu: string;
@@ -96,15 +96,6 @@ export const CATEGORIES: CategoryInfo[] = [
     description: "Cold-pressed pure herbal oils, therapeutic massage liniments, and soothing balms.",
     heroImage: "/images/products/8669_1_Juniper-Berries-002.jpg.webp",
     productCount: 40,
-  },
-  {
-    id: "arqiyat",
-    slug: "arqiyat",
-    name: "Arqiyat (Distillates)",
-    urduName: "عرقیات خالص",
-    description: "Triple-distilled therapeutic botanical waters and calming floral extracts.",
-    heroImage: "/images/products/8677_0_Gemini_Generated_Image_oeeza4oeeza4oeez.jpg",
-    productCount: 30,
   },
   {
     id: "teas-vitality",
@@ -195,7 +186,7 @@ export const CONSULTATION_AREAS = [
   },
   {
     title: "Cough, Chest & Seasonal Allergies",
-    urduTitle: "کھانسی، نزلہ اور موسمی الرجیز",
+    urduTitle: "کھانسی، نزلہ اور موسمی الرجز",
     description: "Soothing herbal teas and natural extracts to clear chest phlegm, ease seasonal coughs, and stay healthy.",
     icon: "Wind"
   },

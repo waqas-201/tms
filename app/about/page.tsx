@@ -3,6 +3,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { CLINIC_INFO } from "@/app/data/products";
+import { SITE_URL } from "@/lib/site";
 import {
   Sparkles,
   Award,
@@ -18,13 +19,13 @@ export const metadata: Metadata = {
   description:
     "Learn about our clinic history, our Hakeem's philosophy, and our pure herbal preparation standards at Tameer-e-Sehat in Karachi, Pakistan since 1990.",
   alternates: {
-    canonical: "https://tameeresehat.com/about",
+    canonical: `${SITE_URL}/about`,
   },
   openGraph: {
     title: "About Tameer-e-Sehat · 35+ Years of Herbal Care",
     description:
       "Bridging 35+ years of classical Eastern Tibbi wisdom with modern purity. Pure steam distillates, artisanal herbal preserves, and honest healthcare.",
-    url: "https://tameeresehat.com/about",
+    url: `${SITE_URL}/about`,
     siteName: "Tameer-e-Sehat",
     locale: "en_PK",
     type: "website",
@@ -55,7 +56,7 @@ export default function AboutPage() {
         name: "About Tameer-e-Sehat",
         description:
           "History, ethos, Hakeem lineage, and apothecary compounding standards of Matab Tameer-e-Sehat in Karachi.",
-        url: "https://tameeresehat.com/about",
+        url: `${SITE_URL}/about`,
       },
       {
         "@type": "BreadcrumbList",
@@ -64,13 +65,13 @@ export default function AboutPage() {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://tameeresehat.com",
+            item: SITE_URL,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "About Us",
-            item: "https://tameeresehat.com/about",
+            item: `${SITE_URL}/about`,
           },
         ],
       },

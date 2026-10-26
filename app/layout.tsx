@@ -12,6 +12,7 @@ import ClientModals from "@/app/components/ClientModals";
 import RouteFade from "@/app/components/motion/RouteFade";
 import { CLINIC_INFO } from "@/app/data/products";
 import { BRAND } from "@/lib/brand-colors";
+import { SITE_URL } from "@/lib/site";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -28,7 +29,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://tameeresehat.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Tameer-e-Sehat | Traditional Unani Medicine & Online Hakeem Consultation",
     template: "%s | Tameer-e-Sehat",
@@ -55,13 +56,13 @@ export const metadata: Metadata = {
   creator: "Tameer-e-Sehat",
   publisher: "Matab Tameer-e-sehat",
   alternates: {
-    canonical: "./",
+    canonical: SITE_URL,
   },
   openGraph: {
     title: "Tameer-e-Sehat | Traditional Unani Medicine & Hakeem Consultation",
     description:
       "Bridging 35+ years of classical Eastern wisdom with modern purity. Pure steam distillates, artisanal herbal preserves, and confidential online consultations.",
-    url: "https://tameeresehat.com",
+    url: SITE_URL,
     siteName: "Tameer-e-Sehat",
     locale: "en_PK",
     type: "website",
@@ -110,12 +111,12 @@ export default function RootLayout({
     "@graph": [
       {
         "@type": ["MedicalClinic", "LocalBusiness", "Pharmacy"],
-        "@id": "https://tameeresehat.com/#clinic",
+        "@id": `${SITE_URL}/#clinic`,
         name: CLINIC_INFO.clinicName,
         alternateName: "Tameer-e-Sehat Herbal Clinic & Apothecary",
-        url: "https://tameeresehat.com",
-        logo: "https://tameeresehat.com/images/cropped-logo.png",
-        image: "https://tameeresehat.com/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg",
+        url: SITE_URL,
+        logo: `${SITE_URL}/images/cropped-logo.png`,
+        image: `${SITE_URL}/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg`,
         description:
           "Established in 1990 in Karachi, Pakistan. 35+ years of classical Tibbi wisdom, personalized Hakeem consultations, pure steam distillates (Arqiyat), and small-batch herbal preserves (Murabbajaat).",
         telephone: CLINIC_INFO.phoneFormatted,
@@ -159,17 +160,17 @@ export default function RootLayout({
       },
       {
         "@type": "WebSite",
-        "@id": "https://tameeresehat.com/#website",
-        url: "https://tameeresehat.com",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
         name: "Tameer-e-Sehat",
         publisher: {
-          "@id": "https://tameeresehat.com/#clinic",
+          "@id": `${SITE_URL}/#clinic`,
         },
         potentialAction: {
           "@type": "SearchAction",
           target: {
             "@type": "EntryPoint",
-            urlTemplate: "https://tameeresehat.com/products?search={search_term_string}",
+            urlTemplate: `${SITE_URL}/products?search={search_term_string}`,
           },
           "query-input": "required name=search_term_string",
         },

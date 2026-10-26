@@ -17,16 +17,22 @@ if (process.env.DATABASE_URL) {
   } catch {}
 }
 
+// Legacy WordPress/WooCommerce sitemaps still listed in Search Console.
+// Redirect them to the single live Next.js sitemap.
+const LEGACY_SITEMAP_PATHS = [
+  "/sitemap_index.xml",
+  "/wp-sitemap.xml",
+  "/product-sitemap.xml",
+  "/page-sitemap.xml",
+  "/sitemap-0.xml",
+  "/sitemap.xml.gz",
+];
+
 const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Playwright and local tooling reach the dev server via 127.0.0.1, which
-  // Next treats as a different origin from localhost. Allow it so dev-only
-  // HMR/client resources are not blocked during browser tests.
   allowedDevOrigins: ["127.0.0.1"],
-  // Pin the root so Turbopack does not walk past this app due to stray lockfiles,
-  // and so PostCSS can resolve @tailwindcss/postcss.
   turbopack: {
     root: path.resolve(__dirname),
   },
@@ -86,11 +92,11 @@ const nextConfig: NextConfig = {
         destination: "/products",
         permanent: true,
       },
-      {
-        source: "/shop/:slug*",
-        destination: "/products/:slug*",
+      ...LEGACY_SITEMAP_PATHS.map((source) => ({
+        source,
+        destination: "/sitemap.xml",
         permanent: true,
-      },
+      })),
     ];
   },
   async headers() {

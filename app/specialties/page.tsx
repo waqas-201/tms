@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { CLINIC_INFO } from "@/app/data/products";
 import { CLINICAL_SPECIALTIES } from "@/app/data/specialties";
+import { SITE_URL } from "@/lib/site";
 import Reveal from "@/app/components/motion/Reveal";
 import {
   Stethoscope,
@@ -25,13 +26,13 @@ export const metadata: Metadata = {
   description:
     "Explore our 6 specialized clinical departments: Stomach & GERD, Knee & Joint Pain, Liver Detox, Vitality & Energy, Allergies, and Hair Health. 35+ years of Unani healing in Karachi.",
   alternates: {
-    canonical: "https://tameeresehat.com/specialties",
+    canonical: `${SITE_URL}/specialties`,
   },
   openGraph: {
     title: "Clinical Specialties & Chronic Health Care | Tameer-e-Sehat",
     description:
       "Explore 6 specialized Unani clinical departments in Karachi: Digestive disorders, Arthritis, Vitality, Respiratory, and Liver care.",
-    url: "https://tameeresehat.com/specialties",
+    url: `${SITE_URL}/specialties`,
     siteName: "Tameer-e-Sehat",
     locale: "en_PK",
     type: "website",
@@ -62,7 +63,7 @@ export default function SpecialtiesPage() {
         name: "Clinical Specialties & Chronic Health Care Departments",
         description:
           "Explore our specialized Unani clinical departments: Stomach & GERD, Knee & Joint Pain, Liver Detox, Vitality & Energy, Allergies, and Hair Health.",
-        url: "https://tameeresehat.com/specialties",
+        url: `${SITE_URL}/specialties`,
       },
       {
         "@type": "BreadcrumbList",
@@ -71,13 +72,13 @@ export default function SpecialtiesPage() {
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://tameeresehat.com",
+            item: SITE_URL,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Clinical Specialties",
-            item: "https://tameeresehat.com/specialties",
+            item: `${SITE_URL}/specialties`,
           },
         ],
       },

@@ -282,6 +282,24 @@ function ProductsContent() {
     loadCatalog();
   }, []);
 
+  // Fallback check: If URL has a category that has 0 products or is deleted/unknown, reset to 'all'
+  useEffect(() => {
+    if (selectedCategory === 'all' || isLoading) return;
+
+    const inVisual = VISUAL_CATEGORIES.some(
+      (v) => v.slug === selectedCategory || v.id === selectedCategory
+    );
+    const inDbWithProducts = categoriesList.some(
+      (c) =>
+        (c.id === selectedCategory || c.slug === selectedCategory) &&
+        (c.productCount ?? 0) > 0
+    );
+
+    if (!inVisual && !inDbWithProducts) {
+      setSelectedCategory('all');
+    }
+  }, [selectedCategory, categoriesList, isLoading]);
+
   // Sync price slider range bounds when maxCatalogPrice initializes from database
   useEffect(() => {
     if (!hasCustomMaxPrice.current && maxCatalogPrice > DEFAULT_MAX_PRICE) {

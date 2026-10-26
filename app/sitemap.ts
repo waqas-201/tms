@@ -1,77 +1,58 @@
 import type { MetadataRoute } from "next";
 import prisma from "@/lib/prisma";
 import { PRODUCTS } from "@/app/data/products";
+import { SITE_URL } from "@/lib/site";
+
+// Crawlers usually arrive on a cold serverless function, and this sitemap was
+// being rebuilt from the database on every fetch — one fetch took 51 seconds
+// and Search Console recorded "Couldn't fetch". Prerendering it and refreshing
+// in the background means a fetch is answered from the CDN, and a slow or
+// unreachable database can never fail the response.
+export const revalidate = 3600;
+
+// Public pages with real content. Auth, checkout, account and wishlist screens
+// are absent by design, and so are the ?category= / ?page= filter views: they
+// canonicalise to /products, so listing them here would only invite duplicates.
+const STATIC_PATHS = [
+  "",
+  "/products",
+  "/specialties",
+  "/hijama",
+  "/consultation",
+  "/about",
+  "/contact",
+] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://tameeresehat.com";
-  const now = new Date();
+  const staticRoutes: MetadataRoute.Sitemap = STATIC_PATHS.map((path) => ({
+    url: `${SITE_URL}${path}`,
+  }));
 
-  // Core static public routes
-  const staticRoutes: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/products`,
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/specialties`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/consultation`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/about`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-  ];
+  return [...staticRoutes, ...(await productRoutes())];
+}
 
-  let productRoutes: MetadataRoute.Sitemap = [];
+async function productRoutes(): Promise<MetadataRoute.Sitemap> {
   try {
     const products = await prisma.product.findMany({
-      select: {
-        slug: true,
-        updatedAt: true,
-      },
+      select: { slug: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
     });
 
     if (products.length > 0) {
-      productRoutes = products.map((product) => ({
-        url: `${baseUrl}/products/${product.slug}`,
-        lastModified: product.updatedAt || now,
-        changeFrequency: "weekly",
-        priority: 0.8,
+      return products.map((product) => ({
+        url: `${SITE_URL}/products/${product.slug}`,
+        // A real edit timestamp. Google discards lastmod values that only ever
+        // reflect the moment of the request, so nothing here is invented.
+        lastModified: product.updatedAt,
       }));
     }
-  } catch (err) {
-    // Graceful fallback to static catalog products
-    productRoutes = PRODUCTS.map((product) => ({
-      url: `${baseUrl}/products/${product.slug}`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.8,
-    }));
+  } catch (error) {
+    // A build or revalidation must never fail because Postgres is unavailable;
+    // the static catalogue keeps the sitemap complete until the next cycle.
+    console.error("Sitemap: database unavailable, using static catalogue", error);
   }
 
-  return [...staticRoutes, ...productRoutes];
+  return PRODUCTS.map((product) => ({
+    url: `${SITE_URL}/products/${product.slug}`,
+  }));
 }

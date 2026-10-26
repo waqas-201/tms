@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import React from "react";
 import prisma from "@/lib/prisma";
 import { getSafeProductImage } from "@/lib/utils";
+import { SITE_URL } from "@/lib/site";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -40,11 +41,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     product.shortDescription ||
     `${product.name} - 100% natural Unani formulation for ${product.traditionalPurpose || "holistic wellness"}. Handcrafted in Karachi, Pakistan.`;
 
-  const canonicalUrl = `https://tameeresehat.com/products/${product.slug}`;
+  const canonicalUrl = `${SITE_URL}/products/${product.slug}`;
   const primaryImage = getSafeProductImage(product.image);
   const imageUrl = primaryImage.startsWith("http")
     ? primaryImage
-    : `https://tameeresehat.com${primaryImage}`;
+    : `${SITE_URL}${primaryImage}`;
 
   return {
     title,
@@ -86,11 +87,11 @@ export default async function ProductDetailLayout({
 
   if (!product) return <>{children}</>;
 
-  const productUrl = `https://tameeresehat.com/products/${product.slug}`;
+  const productUrl = `${SITE_URL}/products/${product.slug}`;
   const primaryImage = getSafeProductImage(product.image);
   const imageUrl = primaryImage.startsWith("http")
     ? primaryImage
-    : `https://tameeresehat.com${primaryImage}`;
+    : `${SITE_URL}${primaryImage}`;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -134,13 +135,13 @@ export default async function ProductDetailLayout({
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://tameeresehat.com",
+        item: SITE_URL,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Shop Remedies",
-        item: "https://tameeresehat.com/products",
+        item: `${SITE_URL}/products`,
       },
       {
         "@type": "ListItem",

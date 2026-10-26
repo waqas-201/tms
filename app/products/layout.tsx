@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
 import React from "react";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Herbal Remedies & Pure Natural Distillates Store",
   description:
     "Shop 100% natural Unani remedies: pure steam distillates (Arqiyat), small-batch herbal preserves (Murabbajaat), pain relief oils, and vitality teas across Pakistan.",
   alternates: {
-    canonical: "https://tameeresehat.com/products",
+    canonical: `${SITE_URL}/products`,
   },
   openGraph: {
     title: "Herbal Remedies & Natural Apothecary Store | Tameer-e-Sehat",
     description:
       "Shop 100% natural Unani remedies: pure steam distillates (Arqiyat), small-batch herbal preserves (Murabbajaat), pain relief oils, and vitality teas.",
-    url: "https://tameeresehat.com/products",
+    url: `${SITE_URL}/products`,
     siteName: "Tameer-e-Sehat",
     locale: "en_PK",
     type: "website",
@@ -45,11 +46,11 @@ export default function ProductsLayout({
     name: "Herbal Remedies & Pure Natural Distillates Store",
     description:
       "Shop 100% natural Unani remedies: pure steam distillates (Arqiyat), small-batch herbal preserves (Murabbajaat), pain relief oils, and vitality teas.",
-    url: "https://tameeresehat.com/products",
+    url: `${SITE_URL}/products`,
     isPartOf: {
       "@type": "WebSite",
       name: "Tameer-e-Sehat",
-      url: "https://tameeresehat.com",
+      url: SITE_URL,
     },
     breadcrumb: {
       "@type": "BreadcrumbList",
@@ -58,13 +59,13 @@ export default function ProductsLayout({
           "@type": "ListItem",
           position: 1,
           name: "Home",
-          item: "https://tameeresehat.com",
+          item: SITE_URL,
         },
         {
           "@type": "ListItem",
           position: 2,
           name: "Shop Remedies",
-          item: "https://tameeresehat.com/products",
+          item: `${SITE_URL}/products`,
         },
       ],
     },

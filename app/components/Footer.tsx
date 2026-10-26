@@ -106,8 +106,8 @@ export default function Footer() {
             <Link
               href="/"
               onClick={handleHomeClick}
-              className="inline-flex items-center group"
               aria-label="Tameer-e-Sehat Home"
+              className="inline-flex items-center group"
             >
               <BrandLogo variant="footer" />
             </Link>
@@ -218,11 +218,6 @@ export default function Footer() {
               <li>
                 <Link href="/products?category=murabbajaat" className="hover:text-white transition-colors">
                   Herbal Preserves (Murabba)
-                </Link>
-              </li>
-              <li>
-                <Link href="/products?category=arqiyat" className="hover:text-white transition-colors">
-                  Pure Herbal Waters (Arq)
                 </Link>
               </li>
               <li>

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import HijamaLandingClient from "./HijamaLandingClient";
 import { CLINIC_INFO } from "@/app/data/products";
+import { SITE_URL } from "@/lib/site";
+
 
 export const metadata: Metadata = {
   title: "Sunnah Hijama (Wet Cupping) — Classical Healing by Prophetic Tradition",
@@ -20,14 +22,14 @@ export const metadata: Metadata = {
     "Tibb-e-Nabawi Karachi",
   ],
   alternates: {
-    canonical: "/hijama",
+    canonical: `${SITE_URL}/hijama`,
   },
   openGraph: {
     title:
       "Sunnah Hijama (Wet Cupping) — Classical Healing by Prophetic Tradition | Tameer-e-Sehat",
     description:
       "Sterile, physician-grade wet cupping administered by certified Hakeems & Hajjama practitioners in Karachi. 100% single-use sterile cups, segregated wings, authentic lunar Sunnah timings.",
-    url: "https://tameeresehat.com/hijama",
+    url: `${SITE_URL}/hijama`,
     siteName: "Tameer-e-Sehat",
     locale: "en_PK",
     type: "website",
@@ -73,7 +75,7 @@ export default function HijamaPage() {
       {
         "@type": "MedicalClinic",
         name: CLINIC_INFO.clinicName,
-        url: "https://tameeresehat.com/hijama",
+        url: `${SITE_URL}/hijama`,
         telephone: CLINIC_INFO.phoneFormatted,
         address: {
           "@type": "PostalAddress",

@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
 import React from "react";
 import { CLINIC_INFO } from "@/app/data/products";
+import { SITE_URL } from "@/lib/site";
+
 
 export const metadata: Metadata = {
   title: "Contact Us, Clinic Location & Hakeem Timings",
   description:
     "Visit Matab Tameer-e-Sehat in Korangi Karachi or contact our Hakeem directly via WhatsApp & phone. Monday to Saturday clinic hours, directions, and FAQs.",
   alternates: {
-    canonical: "https://tameeresehat.com/contact",
+    canonical: `${SITE_URL}/contact`,
   },
   openGraph: {
     title: "Contact Matab Tameer-e-Sehat | Herbal Clinic Karachi",
     description:
       "Get in touch with Tameer-e-Sehat clinic in Karachi. Physical clinic address, consultation helpline, WhatsApp support, and delivery assistance.",
-    url: "https://tameeresehat.com/contact",
+    url: `${SITE_URL}/contact`,
     siteName: "Tameer-e-Sehat",
     locale: "en_PK",
     type: "website",
@@ -48,7 +50,7 @@ export default function ContactLayout({
         name: "Contact Matab Tameer-e-Sehat",
         description:
           "Contact details, physical location, opening hours, and direct consultation channels for Matab Tameer-e-Sehat in Karachi.",
-        url: "https://tameeresehat.com/contact",
+        url: `${SITE_URL}/contact`,
       },
       {
         "@type": "FAQPage",
@@ -94,13 +96,13 @@ export default function ContactLayout({
             "@type": "ListItem",
             position: 1,
             name: "Home",
-            item: "https://tameeresehat.com",
+            item: SITE_URL,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: "Contact Us",
-            item: "https://tameeresehat.com/contact",
+            item: `${SITE_URL}/contact`,
           },
         ],
       },

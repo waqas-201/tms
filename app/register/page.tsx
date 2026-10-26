@@ -4,6 +4,7 @@ import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signUp } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 import {
   Sparkles,
   Lock,
@@ -19,6 +20,14 @@ import {
   Navigation,
   Check,
 } from "lucide-react";
+
+/**
+ * Shared field styling. 16px on phones on purpose: iOS Safari force-zooms the
+ * page when a focused input renders below 16px, which then reflows the whole
+ * form. The 12px design size only takes over from the `sm` breakpoint up.
+ */
+const FIELD_CLASS =
+  "w-full bg-surface border border-line rounded-lg py-2.5 text-base sm:text-xs text-ink focus:outline-none focus:border-primary focus:bg-white transition-colors";
 
 function RegisterForm() {
   const router = useRouter();
@@ -123,10 +132,10 @@ function RegisterForm() {
   };
 
   return (
-    <div className="max-w-md w-full space-y-6 bg-white p-8 sm:p-10 rounded-2xl border border-line shadow-xl">
+    <div className="max-w-md w-full space-y-5 sm:space-y-6 bg-white p-5 sm:p-8 md:p-10 rounded-2xl border border-line shadow-xl">
       <div className="text-center space-y-2">
-        <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest font-semibold text-secondary-text">
-          <Sparkles className="w-3.5 h-3.5" />
+        <span className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs uppercase tracking-widest font-semibold text-secondary-text">
+          <Sparkles className="w-3.5 h-3.5 shrink-0" />
           <span>New Account Registration</span>
         </span>
         <h1 className="font-serif text-2xl sm:text-3xl font-bold text-primary">

@@ -4,7 +4,21 @@ import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signUp } from "@/lib/auth-client";
-import { Sparkles, Lock, Mail, User, ArrowRight, Loader2, AlertCircle, ShieldCheck, Eye, EyeOff } from "lucide-react";
+import {
+  Sparkles,
+  Lock,
+  Mail,
+  User,
+  ArrowRight,
+  Loader2,
+  AlertCircle,
+  ShieldCheck,
+  Eye,
+  EyeOff,
+  MapPin,
+  Navigation,
+  Check,
+} from "lucide-react";
 
 function RegisterForm() {
   const router = useRouter();
@@ -17,11 +31,41 @@ function RegisterForm() {
     password: "",
     phone: "",
     city: "Karachi",
+    address: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
   });
 
   const [loading, setLoading] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [locationNote, setLocationNote] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  const handleDetectLocation = () => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      setLocationNote("Geolocation is not supported by your browser.");
+      return;
+    }
+    setLocating(true);
+    setLocationNote(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setFormData((prev) => ({
+          ...prev,
+          latitude: Number(pos.coords.latitude.toFixed(6)),
+          longitude: Number(pos.coords.longitude.toFixed(6)),
+        }));
+        setLocating(false);
+        setLocationNote("Location coordinates detected successfully.");
+      },
+      () => {
+        setLocating(false);
+        setLocationNote("Location permission denied or unavailable. You can still enter your address manually.");
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,6 +101,9 @@ function RegisterForm() {
         password: formData.password,
         phone: formData.phone.trim(),
         city: formData.city.trim(),
+        address: formData.address.trim() || undefined,
+        latitude: formData.latitude ?? undefined,
+        longitude: formData.longitude ?? undefined,
         callbackURL: safeRedirect,
       } as Parameters<typeof signUp.email>[0]);
 
@@ -169,6 +216,46 @@ function RegisterForm() {
         </div>
 
         <div className="space-y-1.5">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-semibold text-ink">
+              Address <span className="text-ink-muted text-[10px] font-normal">(Optional for delivery)</span>
+            </label>
+            <button
+              type="button"
+              onClick={handleDetectLocation}
+              disabled={locating}
+              className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:text-brand-green-800 transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {locating ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <Navigation className="w-3 h-3" />
+              )}
+              <span>{formData.latitude ? "Update GPS Pin" : "Detect GPS Pin"}</span>
+            </button>
+          </div>
+          <div className="relative">
+            <MapPin className="w-4 h-4 text-ink-muted absolute left-3.5 top-3" />
+            <textarea
+              rows={2}
+              value={formData.address}
+              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              placeholder="House / Apartment #, Street, Area / Landmark..."
+              className="w-full pl-10 pr-3.5 py-2 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white transition-colors resize-none"
+            />
+          </div>
+          {formData.latitude !== null && formData.longitude !== null && (
+            <div className="flex items-center gap-1.5 text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+              <Check className="w-3 h-3 text-emerald-600 shrink-0" />
+              <span>GPS Pin saved ({formData.latitude.toFixed(4)}, {formData.longitude.toFixed(4)})</span>
+            </div>
+          )}
+          {locationNote && (formData.latitude === null || formData.longitude === null) && (
+            <p className="text-[11px] text-ink-muted">{locationNote}</p>
+          )}
+        </div>
+
+        <div className="space-y-1.5">
           <label className="text-xs font-semibold text-ink">
             Password (Min 8 characters) <span className="text-danger">*</span>
           </label>
@@ -234,12 +321,11 @@ function RegisterForm() {
 
 export default function RegisterPage() {
   return (
-    <div className="min-h-[80vh] bg-surface flex items-center justify-center py-16 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-[85vh] py-12 px-4 flex items-center justify-center bg-sand-50/50">
       <Suspense
         fallback={
-          <div className="max-w-md w-full bg-white p-10 rounded-2xl border border-line text-center space-y-3">
-            <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto" />
-            <p className="text-xs text-ink-muted">Loading registration...</p>
+          <div className="flex flex-col items-center justify-center p-12">
+            <Loader2 className="w-8 h-8 text-primary animate-spin" />
           </div>
         }
       >

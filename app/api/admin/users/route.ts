@@ -5,7 +5,7 @@ import { requireRole, ROLES } from "@/lib/rbac";
 
 export async function GET(request: NextRequest) {
   try {
-    const { session, errorResponse } = await requireRole(request, [ROLES.ADMIN]);
+    const { errorResponse } = await requireRole(request, [ROLES.ADMIN]);
     if (errorResponse) return errorResponse;
 
     const { searchParams } = new URL(request.url);
@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
         { email: { contains: search, mode: "insensitive" } },
         { phone: { contains: search, mode: "insensitive" } },
         { city: { contains: search, mode: "insensitive" } },
+        { address: { contains: search, mode: "insensitive" } },
       ];
     }
 
@@ -65,6 +66,9 @@ export async function GET(request: NextRequest) {
                 role: true,
                 phone: true,
                 city: true,
+                address: true,
+                latitude: true,
+                longitude: true,
                 isActive: true,
                 deletedAt: true,
                 createdAt: true,
@@ -103,7 +107,7 @@ export async function GET(request: NextRequest) {
         deleted: deletedCount,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching users in admin route:", error);
     return NextResponse.json(
       { success: false, error: "Failed to retrieve users." },
@@ -114,11 +118,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { session, errorResponse } = await requireRole(request, [ROLES.ADMIN]);
+    const { errorResponse } = await requireRole(request, [ROLES.ADMIN]);
     if (errorResponse) return errorResponse;
 
     const body = await request.json();
-    const { name, email, password, role, phone, city } = body;
+    const { name, email, password, role, phone, city, address, latitude, longitude } = body;
 
     if (!name || !email || !password || !role) {
       return NextResponse.json(
@@ -129,7 +133,8 @@ export async function POST(request: NextRequest) {
 
     const targetRole = role.toLowerCase().trim();
     // Allow assigning staff roles (hakim, editor, contributor) or regular user
-    if (![ROLES.HAKIM, ROLES.EDITOR, ROLES.CONTRIBUTOR, ROLES.USER].includes(targetRole as any)) {
+    const allowedRoles = [ROLES.HAKIM, ROLES.EDITOR, ROLES.CONTRIBUTOR, ROLES.USER];
+    if (!allowedRoles.includes(targetRole as (typeof allowedRoles)[number])) {
       return NextResponse.json(
         {
           success: false,
@@ -171,20 +176,27 @@ export async function POST(request: NextRequest) {
           password,
         },
       });
-    } catch (authErr: any) {
+    } catch (authErr: unknown) {
+      const authMsg = authErr instanceof Error ? authErr.message : "Failed to create authentication account.";
       return NextResponse.json(
-        { success: false, error: authErr.message || "Failed to create authentication account." },
+        { success: false, error: authMsg },
         { status: 400 }
       );
     }
 
-    // Update role, phone, city, active status in Prisma
+    const parsedLat = typeof latitude === "number" && !isNaN(latitude) ? latitude : null;
+    const parsedLng = typeof longitude === "number" && !isNaN(longitude) ? longitude : null;
+
+    // Update role, phone, city, address, coordinates, active status in Prisma
     const updatedUser = await prisma.user.update({
       where: { email: lowerEmail },
       data: {
         role: targetRole,
         phone: phone || null,
         city: city || "Karachi",
+        address: address?.trim() || null,
+        latitude: parsedLat,
+        longitude: parsedLng,
         isActive: true,
         deletedAt: null,
         // The admin is creating this account on the person's behalf, so treat
@@ -199,6 +211,9 @@ export async function POST(request: NextRequest) {
         role: true,
         phone: true,
         city: true,
+        address: true,
+        latitude: true,
+        longitude: true,
         isActive: true,
         deletedAt: true,
         createdAt: true,
@@ -213,10 +228,11 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : "Failed to create user account.";
     console.error("Error creating staff user:", error);
     return NextResponse.json(
-      { success: false, error: error?.message || "Failed to create user account." },
+      { success: false, error: errorMsg },
       { status: 500 }
     );
   }

@@ -820,7 +820,7 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
                 <a href="tel:+923353547888" style="display: inline-block; padding: 9px 16px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px; margin-right: 8px;">
                   Call the Matab
                 </a>
-                <a href="https://wa.me/923353547888" style="display: inline-block; padding: 9px 16px; background-color: #25D366; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px;">
+                <a href="https://wa.me/923353547888" style="display: inline-block; padding: 9px 16px; background-color: ${BRAND.whatsapp}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px;">
                   WhatsApp us
                 </a>
               </div>
@@ -1153,7 +1153,7 @@ export async function sendAppointmentStatusEmail(params: {
         <a href="tel:+923353547888" style="display: inline-block; padding: 9px 16px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px; margin-right: 8px;">
           Call +92 335 3547888
         </a>
-        <a href="https://wa.me/923353547888" style="display: inline-block; padding: 9px 16px; background-color: #25D366; color: #ffffff; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px;">
+        <a href="https://wa.me/923353547888" style="display: inline-block; padding: 9px 16px; background-color: ${BRAND.whatsapp}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 12px; font-weight: 700; border-radius: 6px;">
           WhatsApp the Hakeem
         </a>
       </p>

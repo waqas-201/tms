@@ -12,7 +12,7 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
-    const { role, phone, city, name, isActive, restore } = body;
+    const { role, phone, city, name, isActive, restore, address, latitude, longitude } = body;
 
     const targetUser = await prisma.user.findUnique({
       where: { id },
@@ -64,11 +64,20 @@ export async function PATCH(
       );
     }
 
-    const updateData: Record<string, any> = {};
+    const updateData: Record<string, unknown> = {};
     if (role) updateData.role = role.toLowerCase().trim();
-    if (phone !== undefined) updateData.phone = phone;
-    if (city !== undefined) updateData.city = city;
+    if (phone !== undefined) updateData.phone = phone ? String(phone).trim() : null;
+    if (city !== undefined) updateData.city = city ? String(city).trim() : "Karachi";
     if (name !== undefined && name.trim()) updateData.name = name.trim();
+    if (address !== undefined) {
+      updateData.address = typeof address === "string" && address.trim() ? address.trim() : null;
+    }
+    if (latitude !== undefined) {
+      updateData.latitude = typeof latitude === "number" && !isNaN(latitude) ? latitude : null;
+    }
+    if (longitude !== undefined) {
+      updateData.longitude = typeof longitude === "number" && !isNaN(longitude) ? longitude : null;
+    }
 
     // Handling restore action
     if (restore === true) {
@@ -94,6 +103,9 @@ export async function PATCH(
         role: true,
         phone: true,
         city: true,
+        address: true,
+        latitude: true,
+        longitude: true,
         isActive: true,
         deletedAt: true,
         updatedAt: true,
@@ -112,10 +124,11 @@ export async function PATCH(
       data: updated,
       message: statusMessage,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : "Failed to update user.";
     console.error("Error updating user:", error);
     return NextResponse.json(
-      { success: false, error: error?.message || "Failed to update user." },
+      { success: false, error: errorMsg },
       { status: 500 }
     );
   }
@@ -190,32 +203,25 @@ export async function DELETE(
       });
     }
 
-    // Default Soft Delete:
-    // Mark as deleted, deactivate, and immediately terminate sessions
+    // Soft delete: mark deletedAt and deactivate
     await prisma.session.deleteMany({ where: { userId: id } });
-    const updated = await prisma.user.update({
+    await prisma.user.update({
       where: { id },
       data: {
         deletedAt: new Date(),
         isActive: false,
       },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        deletedAt: true,
-      },
     });
 
     return NextResponse.json({
       success: true,
-      data: updated,
-      message: `User '${targetUser.name}' (${targetUser.email}) archived to Deleted Accounts. Medical and order records remain intact.`,
+      message: `Account '${targetUser.name}' archived/soft-deleted successfully.`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMsg = error instanceof Error ? error.message : "Failed to delete user.";
     console.error("Error deleting user:", error);
     return NextResponse.json(
-      { success: false, error: error?.message || "Failed to delete user." },
+      { success: false, error: errorMsg },
       { status: 500 }
     );
   }

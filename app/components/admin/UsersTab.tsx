@@ -1,22 +1,16 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   AlertCircle,
   Archive,
-  ArrowRight,
   CheckCircle2,
-  Clock,
   Edit2,
-  Eye,
-  KeyRound,
   Loader2,
   Lock,
-  Mail,
   MapPin,
-  MessageCircle,
+  Navigation,
   Phone,
-  Plus,
   RefreshCw,
   RotateCcw,
   Search,
@@ -26,12 +20,11 @@ import {
   Trash2,
   Unlock,
   UserCheck,
-  UserMinus,
   UserPlus,
   Users,
   X,
 } from "lucide-react";
-import { ROLES, Role } from "@/lib/rbac-base";
+import { ROLES } from "@/lib/rbac-base";
 
 interface UserItem {
   id: string;
@@ -40,6 +33,9 @@ interface UserItem {
   role: string;
   phone: string | null;
   city: string | null;
+  address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   isActive: boolean;
   deletedAt: string | null;
   createdAt: string;
@@ -123,6 +119,8 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserItem | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [locatingAdd, setLocatingAdd] = useState(false);
+  const [locatingEdit, setLocatingEdit] = useState(false);
 
   // Form State for Add User
   const [addForm, setAddForm] = useState({
@@ -132,6 +130,9 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
     role: "user",
     phone: "",
     city: "Karachi",
+    address: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
   });
 
   // Form State for Edit User
@@ -140,8 +141,57 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
     role: "user",
     phone: "",
     city: "",
+    address: "",
+    latitude: null as number | null,
+    longitude: null as number | null,
     isActive: true,
   });
+
+  const handleDetectAddLocation = () => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+    setLocatingAdd(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setAddForm((prev) => ({
+          ...prev,
+          latitude: Number(pos.coords.latitude.toFixed(6)),
+          longitude: Number(pos.coords.longitude.toFixed(6)),
+        }));
+        setLocatingAdd(false);
+      },
+      () => {
+        setLocatingAdd(false);
+        alert("Could not detect location. Please check browser permissions.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  const handleDetectEditLocation = () => {
+    if (typeof window === "undefined" || !navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+    setLocatingEdit(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setEditForm((prev) => ({
+          ...prev,
+          latitude: Number(pos.coords.latitude.toFixed(6)),
+          longitude: Number(pos.coords.longitude.toFixed(6)),
+        }));
+        setLocatingEdit(false);
+      },
+      () => {
+        setLocatingEdit(false);
+        alert("Could not detect location. Please check browser permissions.");
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   const fetchUsers = useCallback(
     async (isRefresh = false) => {
@@ -182,7 +232,7 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
         if (json.counts) {
           setCounts(json.counts);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Failed to load users.");
       } finally {
         setLoading(false);
@@ -193,8 +243,60 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
   );
 
   useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+    let ignore = false;
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const params = new URLSearchParams();
+        if (search.trim()) params.set("search", search.trim());
+
+        if (viewFilter === "DELETED") {
+          params.set("status", "DELETED");
+        } else if (viewFilter === "SUSPENDED") {
+          params.set("status", "SUSPENDED");
+        } else {
+          params.set("status", "ALL");
+        }
+
+        if (viewFilter === "STAFF") {
+          params.set("role", "STAFF");
+        } else if (viewFilter === "CUSTOMER") {
+          params.set("role", "CUSTOMER");
+        } else if (roleFilter !== "ALL") {
+          params.set("role", roleFilter);
+        }
+
+        const res = await fetch(`/api/admin/users?${params.toString()}`, {
+          cache: "no-store",
+        });
+        const json = await res.json();
+
+        if (ignore) return;
+        if (!res.ok || !json.success) {
+          throw new Error(json.error || "Failed to load users directory.");
+        }
+
+        setUsers(json.data || []);
+        if (json.counts) {
+          setCounts(json.counts);
+        }
+      } catch (err: unknown) {
+        if (!ignore) {
+          setError(err instanceof Error ? err.message : "Failed to load users.");
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
+          setRefreshing(false);
+        }
+      }
+    };
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, [search, viewFilter, roleFilter]);
 
   // Handle Action notification dismissal
   useEffect(() => {
@@ -230,8 +332,8 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
       }
       setActionSuccess(json.message);
       fetchUsers(true);
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to update account status.");
     } finally {
       setActionLoading(false);
     }
@@ -263,8 +365,8 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
       }
       setActionSuccess(json.message);
       fetchUsers(true);
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to archive user.");
     } finally {
       setActionLoading(false);
     }
@@ -289,8 +391,8 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
       }
       setActionSuccess(json.message);
       fetchUsers(true);
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to restore account.");
     } finally {
       setActionLoading(false);
     }
@@ -327,8 +429,8 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
       }
       setActionSuccess(json.message);
       fetchUsers(true);
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to permanently delete user.");
     } finally {
       setActionLoading(false);
     }
@@ -342,6 +444,9 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
       role: user.role,
       phone: user.phone || "",
       city: user.city || "Karachi",
+      address: user.address || "",
+      latitude: user.latitude,
+      longitude: user.longitude,
       isActive: user.isActive,
     });
     setIsEditModalOpen(true);
@@ -366,8 +471,8 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
       setActionSuccess(json.message);
       setIsEditModalOpen(false);
       fetchUsers(true);
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to update user.");
     } finally {
       setActionLoading(false);
     }
@@ -401,10 +506,13 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
         role: "user",
         phone: "",
         city: "Karachi",
+        address: "",
+        latitude: null,
+        longitude: null,
       });
       fetchUsers(true);
-    } catch (err: any) {
-      alert(err.message);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to create user account.");
     } finally {
       setActionLoading(false);
     }
@@ -441,11 +549,14 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
               : "bg-white border-line hover:border-line-strong"
           }`}
         >
-          <div className="flex items-center gap-2 text-ink-muted mb-1">
-            <Users className="w-4 h-4 text-primary" />
-            <span className="text-[10px] uppercase tracking-wider font-bold">Total Directory</span>
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-ink-muted uppercase tracking-wider">
+              Total Users
+            </span>
+            <Users className="w-4 h-4 text-ink-subtle" />
           </div>
-          <p className="text-xl font-serif font-bold text-ink">{counts.total}</p>
+          <p className="text-xl font-bold font-serif text-ink mt-1">{counts.total}</p>
+          <p className="text-[10px] text-ink-subtle mt-0.5">{counts.active} active accounts</p>
         </button>
 
         <button
@@ -455,15 +566,18 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
           }}
           className={`p-3.5 rounded-xl border text-left transition-all ${
             viewFilter === "STAFF"
-              ? "bg-purple-50/60 border-purple-400 shadow-xs"
+              ? "bg-purple-50/50 border-purple-300 shadow-xs"
               : "bg-white border-line hover:border-line-strong"
           }`}
         >
-          <div className="flex items-center gap-2 text-purple-700 mb-1">
-            <Shield className="w-4 h-4 text-purple-600" />
-            <span className="text-[10px] uppercase tracking-wider font-bold">Staff & Hakims</span>
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-purple-700 uppercase tracking-wider">
+              Staff & Clinicians
+            </span>
+            <ShieldCheck className="w-4 h-4 text-purple-600" />
           </div>
-          <p className="text-xl font-serif font-bold text-purple-900">{counts.staff}</p>
+          <p className="text-xl font-bold font-serif text-purple-900 mt-1">{counts.staff}</p>
+          <p className="text-[10px] text-purple-700/70 mt-0.5">Hakims, Editors, Staff</p>
         </button>
 
         <button
@@ -473,15 +587,18 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
           }}
           className={`p-3.5 rounded-xl border text-left transition-all ${
             viewFilter === "CUSTOMER"
-              ? "bg-blue-50/60 border-blue-400 shadow-xs"
+              ? "bg-emerald-50/50 border-emerald-300 shadow-xs"
               : "bg-white border-line hover:border-line-strong"
           }`}
         >
-          <div className="flex items-center gap-2 text-blue-700 mb-1">
-            <UserCheck className="w-4 h-4 text-blue-600" />
-            <span className="text-[10px] uppercase tracking-wider font-bold">Patients & Buyers</span>
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider">
+              Customers
+            </span>
+            <UserCheck className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="text-xl font-serif font-bold text-blue-900">{counts.customers}</p>
+          <p className="text-xl font-bold font-serif text-emerald-900 mt-1">{counts.customers}</p>
+          <p className="text-[10px] text-emerald-700/70 mt-0.5">Registered patients</p>
         </button>
 
         <button
@@ -491,15 +608,18 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
           }}
           className={`p-3.5 rounded-xl border text-left transition-all ${
             viewFilter === "SUSPENDED"
-              ? "bg-amber-50/70 border-amber-400 shadow-xs"
+              ? "bg-amber-50/50 border-amber-300 shadow-xs"
               : "bg-white border-line hover:border-line-strong"
           }`}
         >
-          <div className="flex items-center gap-2 text-amber-700 mb-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-amber-700 uppercase tracking-wider">
+              Suspended
+            </span>
             <Lock className="w-4 h-4 text-amber-600" />
-            <span className="text-[10px] uppercase tracking-wider font-bold">Suspended</span>
           </div>
-          <p className="text-xl font-serif font-bold text-amber-900">{counts.suspended}</p>
+          <p className="text-xl font-bold font-serif text-amber-900 mt-1">{counts.suspended}</p>
+          <p className="text-[10px] text-amber-700/70 mt-0.5">Logins disabled</p>
         </button>
 
         <button
@@ -509,152 +629,133 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
           }}
           className={`p-3.5 rounded-xl border text-left transition-all ${
             viewFilter === "DELETED"
-              ? "bg-rose-50/70 border-rose-400 shadow-xs"
+              ? "bg-rose-50/50 border-rose-300 shadow-xs"
               : "bg-white border-line hover:border-line-strong"
           }`}
         >
-          <div className="flex items-center gap-2 text-rose-700 mb-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-rose-700 uppercase tracking-wider">
+              Archived
+            </span>
             <Archive className="w-4 h-4 text-rose-600" />
-            <span className="text-[10px] uppercase tracking-wider font-bold">Deleted / Archived</span>
           </div>
-          <p className="text-xl font-serif font-bold text-rose-900">{counts.deleted}</p>
+          <p className="text-xl font-bold font-serif text-rose-900 mt-1">{counts.deleted}</p>
+          <p className="text-[10px] text-rose-700/70 mt-0.5">Soft-deleted</p>
         </button>
       </div>
 
-      {/* Toolbar & Filters */}
-      <div className="bg-white rounded-2xl border border-line p-4 space-y-3">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          {/* Search Input */}
+      {/* Control Bar: Search, Role Select, Refresh, Add Staff */}
+      <div className="bg-white p-3.5 rounded-xl border border-line shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 flex-1 min-w-[260px]">
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
             <input
-              type="search"
+              type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name, email, phone number, or city..."
-              className="w-full pl-9 pr-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink focus:outline-none focus:border-primary focus:bg-white transition-colors"
+              placeholder="Search by name, email, phone, city, address..."
+              className="w-full pl-9 pr-3 py-1.5 text-xs border border-line rounded-lg focus:border-primary focus:outline-none"
             />
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => fetchUsers(true)}
-              disabled={refreshing}
-              className="p-2 border border-line rounded-xl hover:bg-surface text-ink-muted hover:text-ink transition-colors flex items-center gap-1.5 text-xs"
-              title="Refresh users directory"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin text-primary" : ""}`} />
-              <span className="hidden sm:inline">Refresh</span>
-            </button>
-
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="px-3.5 py-2 bg-primary text-white rounded-xl hover:bg-primary-hover transition-colors font-medium text-xs flex items-center gap-1.5 shadow-xs"
-            >
-              <UserPlus className="w-4 h-4" />
-              <span>Add User / Staff</span>
-            </button>
-          </div>
+          <select
+            value={roleFilter}
+            onChange={(e) => setRoleFilter(e.target.value)}
+            className="px-2.5 py-1.5 text-xs border border-line rounded-lg bg-surface text-ink-body focus:border-primary focus:outline-none"
+          >
+            <option value="ALL">All Roles</option>
+            <option value="admin">Primary Admin</option>
+            <option value="hakim">Hakim</option>
+            <option value="editor">Editor</option>
+            <option value="contributor">Contributor</option>
+            <option value="user">Customer</option>
+          </select>
         </div>
 
-        {/* View Tabs & Sub-Filters */}
-        <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-line/60">
-          <span className="text-[11px] font-semibold text-ink-muted mr-1.5">View:</span>
-          {(
-            [
-              { id: "ALL", label: `All Users (${counts.total})` },
-              { id: "STAFF", label: `Staff & Practitioners (${counts.staff})` },
-              { id: "CUSTOMER", label: `Patients / Customers (${counts.customers})` },
-              { id: "SUSPENDED", label: `Suspended (${counts.suspended})` },
-              { id: "DELETED", label: `Archived / Deleted (${counts.deleted})` },
-            ] as const
-          ).map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setViewFilter(tab.id)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                viewFilter === tab.id
-                  ? "bg-ink text-white shadow-xs"
-                  : "bg-surface text-ink-body hover:bg-surface-sunken"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => fetchUsers(true)}
+            disabled={refreshing}
+            className="p-2 border border-line rounded-lg hover:bg-surface text-ink-muted hover:text-ink transition-colors"
+            title="Refresh Users"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? "animate-spin" : ""}`} />
+          </button>
+
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="px-3.5 py-1.5 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 shadow-xs transition-colors"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>Register User or Staff</span>
+          </button>
         </div>
       </div>
 
-      {/* Users List / Table */}
-      <div className="bg-white rounded-2xl border border-line overflow-hidden shadow-xs">
+      {/* Error state */}
+      {error && (
+        <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      {/* Users Table */}
+      <div className="bg-white rounded-xl border border-line shadow-xs overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center space-y-3">
-            <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto" />
-            <p className="text-xs text-ink-muted">Loading user accounts directory...</p>
-          </div>
-        ) : error ? (
-          <div className="p-8 text-center space-y-3">
-            <AlertCircle className="w-8 h-8 text-danger mx-auto" />
-            <p className="text-xs text-danger font-medium">{error}</p>
-            <button
-              onClick={() => fetchUsers(true)}
-              className="text-xs font-semibold text-primary underline"
-            >
-              Retry
-            </button>
+          <div className="flex items-center justify-center p-12 text-ink-muted text-xs">
+            <Loader2 className="w-5 h-5 animate-spin text-primary mr-2" />
+            <span>Loading users directory...</span>
           </div>
         ) : users.length === 0 ? (
-          <div className="p-12 text-center space-y-2">
-            <Users className="w-8 h-8 text-ink-subtle mx-auto" />
-            <p className="text-sm font-semibold text-ink">No user accounts found</p>
-            <p className="text-xs text-ink-muted max-w-sm mx-auto">
-              {search
-                ? `No accounts match "${search}" with current view filters.`
-                : "No accounts match this selected category."}
+          <div className="text-center p-12 text-ink-muted text-xs space-y-1">
+            <Users className="w-8 h-8 text-ink-subtle mx-auto mb-2" />
+            <p className="font-semibold text-ink">No users found</p>
+            <p className="text-[11px]">
+              Try adjusting your search criteria or filter to see other accounts.
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-surface/80 border-b border-line text-[11px] font-bold text-ink-muted uppercase tracking-wider">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-surface border-b border-line text-ink-muted text-[11px] font-semibold uppercase tracking-wider">
+                <tr>
                   <th className="py-3 px-4">User Details</th>
-                  <th className="py-3 px-4">Role & Access</th>
-                  <th className="py-3 px-4">Location / Contact</th>
-                  <th className="py-3 px-4">Records & History</th>
-                  <th className="py-3 px-4">Account Status</th>
+                  <th className="py-3 px-4">Role</th>
+                  <th className="py-3 px-4">Contact & Location</th>
+                  <th className="py-3 px-4">Activity</th>
+                  <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line text-xs text-ink">
+              <tbody className="divide-y divide-line">
                 {users.map((user) => {
                   const roleMeta = ROLE_CONFIG[user.role] || ROLE_CONFIG.user;
-                  const isCurrentAdmin = user.role === ROLES.ADMIN;
-                  const isSelf = user.id === currentUserId;
                   const isDeleted = Boolean(user.deletedAt);
+                  const isPrimaryAdmin = user.role === ROLES.ADMIN;
 
                   return (
                     <tr
                       key={user.id}
                       className={`hover:bg-surface/50 transition-colors ${
                         isDeleted
-                          ? "bg-rose-50/20"
+                          ? "bg-rose-50/20 opacity-75"
                           : !user.isActive
                           ? "bg-amber-50/20"
                           : ""
                       }`}
                     >
-                      {/* Name & Avatar */}
+                      {/* Name & Email */}
                       <td className="py-3 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-sand-200 border border-sand-300 flex items-center justify-center font-bold text-ink text-xs shrink-0">
-                            {user.name.slice(0, 2).toUpperCase()}
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-xs shrink-0">
+                            {user.name ? user.name[0]?.toUpperCase() : "U"}
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5">
-                              <span className="font-semibold text-ink text-xs">{user.name}</span>
-                              {isSelf && (
-                                <span className="px-1.5 py-0.5 rounded bg-surface-sunken text-[10px] font-bold text-ink-muted">
+                              <span className="font-semibold text-ink">{user.name}</span>
+                              {user.id === currentUserId && (
+                                <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.2 rounded font-bold">
                                   You
                                 </span>
                               )}
@@ -675,21 +776,34 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
                         </span>
                       </td>
 
-                      {/* Contact / Phone */}
+                      {/* Contact & Location */}
                       <td className="py-3 px-4 text-ink-body">
-                        <div className="space-y-0.5 text-[11px]">
+                        <div className="space-y-1 text-[11px] max-w-[240px]">
                           {user.phone ? (
                             <div className="flex items-center gap-1 text-ink">
-                              <Phone className="w-3 h-3 text-ink-subtle" />
-                              <span>{user.phone}</span>
+                              <Phone className="w-3 h-3 text-ink-subtle shrink-0" />
+                              <span className="truncate">{user.phone}</span>
                             </div>
                           ) : (
                             <span className="text-ink-subtle italic">No phone</span>
                           )}
                           <div className="flex items-center gap-1 text-ink-muted">
-                            <MapPin className="w-3 h-3 text-ink-subtle" />
+                            <MapPin className="w-3 h-3 text-ink-subtle shrink-0" />
                             <span>{user.city || "Karachi"}</span>
+                            {user.latitude !== null && user.longitude !== null && (
+                              <span
+                                className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                title={`GPS Pin: ${user.latitude.toFixed(4)}, ${user.longitude.toFixed(4)}`}
+                              >
+                                GPS Pin
+                              </span>
+                            )}
                           </div>
+                          {user.address && (
+                            <p className="text-[10px] text-ink-muted line-clamp-1 truncate" title={user.address}>
+                              {user.address}
+                            </p>
+                          )}
                         </div>
                       </td>
 
@@ -752,8 +866,8 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
                               <button
                                 onClick={() => handlePermanentDelete(user)}
                                 disabled={actionLoading}
-                                className="p-1.5 text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-lg transition-colors"
-                                title="Permanently wipe record (only if 0 orders/consults)"
+                                className="p-1 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                title="Permanently delete user"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -762,41 +876,41 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
                             <>
                               <button
                                 onClick={() => openEditModal(user)}
-                                disabled={actionLoading}
-                                className="p-1.5 text-ink-body hover:text-ink hover:bg-surface border border-line rounded-lg transition-colors"
-                                title="Edit Role & Profile"
+                                className="px-2.5 py-1 text-[11px] font-semibold text-ink-body bg-surface border border-line hover:border-primary/50 hover:text-primary rounded-lg flex items-center gap-1 transition-colors"
+                                title="Edit Profile & Role"
                               >
-                                <Edit2 className="w-3.5 h-3.5" />
+                                <Edit2 className="w-3 h-3" />
+                                <span>Edit</span>
                               </button>
 
-                              {!isCurrentAdmin && (
-                                <button
-                                  onClick={() => handleToggleSuspend(user)}
-                                  disabled={actionLoading}
-                                  className={`p-1.5 border rounded-lg transition-colors ${
-                                    user.isActive
-                                      ? "text-amber-700 hover:bg-amber-50 border-amber-200"
-                                      : "text-emerald-700 hover:bg-emerald-50 border-emerald-200"
-                                  }`}
-                                  title={user.isActive ? "Suspend login access" : "Reactivate login access"}
-                                >
-                                  {user.isActive ? (
-                                    <Lock className="w-3.5 h-3.5" />
-                                  ) : (
-                                    <Unlock className="w-3.5 h-3.5" />
-                                  )}
-                                </button>
-                              )}
+                              {!isPrimaryAdmin && (
+                                <>
+                                  <button
+                                    onClick={() => handleToggleSuspend(user)}
+                                    disabled={actionLoading}
+                                    className={`p-1 rounded-lg transition-colors ${
+                                      user.isActive
+                                        ? "text-amber-600 hover:bg-amber-50"
+                                        : "text-emerald-600 hover:bg-emerald-50"
+                                    }`}
+                                    title={user.isActive ? "Suspend login access" : "Activate account"}
+                                  >
+                                    {user.isActive ? (
+                                      <Lock className="w-3.5 h-3.5" />
+                                    ) : (
+                                      <Unlock className="w-3.5 h-3.5" />
+                                    )}
+                                  </button>
 
-                              {!isCurrentAdmin && (
-                                <button
-                                  onClick={() => handleSoftDelete(user)}
-                                  disabled={actionLoading}
-                                  className="p-1.5 text-rose-600 hover:bg-rose-50 border border-rose-200 rounded-lg transition-colors"
-                                  title="Archive / Soft Delete account"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
+                                  <button
+                                    onClick={() => handleSoftDelete(user)}
+                                    disabled={actionLoading}
+                                    className="p-1 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                                    title="Archive / Soft Delete"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </>
                               )}
                             </>
                           )}
@@ -811,7 +925,7 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
         )}
       </div>
 
-      {/* Modal 1: Add User / Staff */}
+      {/* Modal 1: Register User / Staff */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl border border-line shadow-2xl max-w-md w-full overflow-hidden">
@@ -828,21 +942,25 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
               </button>
             </div>
 
-            <form onSubmit={handleAddSubmit} className="p-5 space-y-4">
+            <form onSubmit={handleAddSubmit} className="p-5 space-y-3.5 max-h-[85vh] overflow-y-auto">
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-ink">Full Name</label>
+                <label className="text-xs font-semibold text-ink">
+                  Full Name <span className="text-rose-600">*</span>
+                </label>
                 <input
                   type="text"
                   required
                   value={addForm.name}
                   onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
-                  placeholder="e.g. Hakeem Asadullah or Ahmed Khan"
+                  placeholder="e.g. Hakim Tariq Mehmood"
                   className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:border-primary focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-ink">Email Address</label>
+                <label className="text-xs font-semibold text-ink">
+                  Email Address <span className="text-rose-600">*</span>
+                </label>
                 <input
                   type="email"
                   required
@@ -854,28 +972,31 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-ink">Initial Password</label>
+                <label className="text-xs font-semibold text-ink">
+                  Initial Password <span className="text-rose-600">*</span>
+                </label>
                 <input
-                  type="text"
+                  type="password"
                   required
+                  minLength={8}
                   value={addForm.password}
                   onChange={(e) => setAddForm({ ...addForm, password: e.target.value })}
-                  placeholder="Temporary login password (min 8 chars)"
-                  className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:border-primary focus:outline-none font-mono"
+                  placeholder="Min 8 characters"
+                  className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:border-primary focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-semibold text-ink">Role & Access Tier</label>
+                <label className="text-xs font-semibold text-ink">Account Role</label>
                 <select
                   value={addForm.role}
                   onChange={(e) => setAddForm({ ...addForm, role: e.target.value })}
                   className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:border-primary focus:outline-none bg-white"
                 >
-                  <option value="user">Customer / Patient (Standard User)</option>
-                  <option value="hakim">Hakim (Physician / Clinical Consultations)</option>
-                  <option value="editor">Staff Editor (Catalog & Stock Management)</option>
-                  <option value="contributor">Contributor (Order Operations)</option>
+                  <option value="user">Customer / Patient (Regular User)</option>
+                  <option value="hakim">Hakim (Physician / Clinical consults)</option>
+                  <option value="editor">Staff Editor (Catalog & Content)</option>
+                  <option value="contributor">Contributor (Limited Operations)</option>
                 </select>
                 <p className="text-[11px] text-ink-muted">
                   Primary Admin role cannot be assigned. Only one primary admin exists in the system.
@@ -903,6 +1024,41 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
                     className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:border-primary focus:outline-none"
                   />
                 </div>
+              </div>
+
+              {/* Location: Street Address & Pin */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-ink">Delivery / Street Address</label>
+                  <button
+                    type="button"
+                    onClick={handleDetectAddLocation}
+                    disabled={locatingAdd}
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:text-brand-green-800 transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {locatingAdd ? <Loader2 className="w-3 h-3 animate-spin" /> : <Navigation className="w-3 h-3" />}
+                    <span>{addForm.latitude ? "Update GPS Pin" : "Detect Pin"}</span>
+                  </button>
+                </div>
+                <textarea
+                  rows={2}
+                  value={addForm.address}
+                  onChange={(e) => setAddForm({ ...addForm, address: e.target.value })}
+                  placeholder="House / Apartment #, Street, Area / Landmark..."
+                  className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:border-primary focus:outline-none resize-none"
+                />
+                {addForm.latitude !== null && addForm.longitude !== null && (
+                  <div className="flex items-center justify-between p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-[11px] text-emerald-800">
+                    <span>GPS Pin: {addForm.latitude.toFixed(4)}, {addForm.longitude.toFixed(4)}</span>
+                    <button
+                      type="button"
+                      onClick={() => setAddForm({ ...addForm, latitude: null, longitude: null })}
+                      className="text-[10px] text-rose-600 hover:underline font-semibold"
+                    >
+                      Clear Pin
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="pt-2 flex items-center justify-end gap-2 border-t border-line">
@@ -946,7 +1102,7 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
               </button>
             </div>
 
-            <form onSubmit={handleEditSubmit} className="p-5 space-y-4">
+            <form onSubmit={handleEditSubmit} className="p-5 space-y-3.5 max-h-[85vh] overflow-y-auto">
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-ink">Name</label>
                 <input
@@ -1008,6 +1164,41 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
                     className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:border-primary focus:outline-none"
                   />
                 </div>
+              </div>
+
+              {/* Location: Street Address & Pin */}
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-ink">Delivery / Street Address</label>
+                  <button
+                    type="button"
+                    onClick={handleDetectEditLocation}
+                    disabled={locatingEdit}
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-primary hover:text-brand-green-800 transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {locatingEdit ? <Loader2 className="w-3 h-3 animate-spin" /> : <Navigation className="w-3 h-3" />}
+                    <span>{editForm.latitude ? "Update GPS Pin" : "Detect Pin"}</span>
+                  </button>
+                </div>
+                <textarea
+                  rows={2}
+                  value={editForm.address}
+                  onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                  placeholder="House / Apartment #, Street, Area / Landmark..."
+                  className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:border-primary focus:outline-none resize-none"
+                />
+                {editForm.latitude !== null && editForm.longitude !== null && (
+                  <div className="flex items-center justify-between p-2 bg-emerald-50 border border-emerald-200 rounded-lg text-[11px] text-emerald-800">
+                    <span>GPS Pin: {editForm.latitude.toFixed(4)}, {editForm.longitude.toFixed(4)}</span>
+                    <button
+                      type="button"
+                      onClick={() => setEditForm({ ...editForm, latitude: null, longitude: null })}
+                      className="text-[10px] text-rose-600 hover:underline font-semibold"
+                    >
+                      Clear Pin
+                    </button>
+                  </div>
+                )}
               </div>
 
               {selectedUser.role !== ROLES.ADMIN && (

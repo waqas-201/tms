@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import OrderInvoiceModal from "@/app/components/OrderInvoiceModal";
 import {
   AlertCircle,
   CheckCircle2,
@@ -13,6 +14,7 @@ import {
   Navigation,
   Package,
   Phone,
+  Printer,
   RefreshCw,
   Search,
   ShoppingBag,
@@ -43,11 +45,14 @@ interface Order {
   deliveryDistanceKm?: number | null;
   deliveryFeeType?: string | null;
   shippingFee?: number | null;
+  subtotal: number;
   deliveryNotes: string | null;
   paymentMethod: string;
   paymentStatus: string;
   orderStatus: string;
   total: number;
+  paidAmount?: number;
+  dueAmount?: number;
   trackingNote: string | null;
   createdAt: string;
   items: OrderItem[];
@@ -55,6 +60,7 @@ interface Order {
 }
 
 const ORDER_STATUSES = [
+  { value: "PENDING_CONFIRMATION", label: "Pending Confirmation" },
   { value: "PENDING", label: "Order received" },
   { value: "CONFIRMED", label: "Confirmed" },
   { value: "DISPATCHED", label: "On the way" },
@@ -70,6 +76,7 @@ const PAYMENT_STATUSES = [
 ];
 
 const STATUS_BADGES: Record<string, string> = {
+  PENDING_CONFIRMATION: "bg-amber-50 text-amber-800 border-amber-200",
   PENDING: "bg-warning-soft text-warning border-warning-line",
   CONFIRMED: "bg-info-soft text-info border-info-line",
   DISPATCHED: "bg-info-soft text-info border-info-line",
@@ -132,6 +139,10 @@ export default function OrdersTab() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
   const [trackingDrafts, setTrackingDrafts] = useState<Record<string, string>>({});
+  const [feeDrafts, setFeeDrafts] = useState<Record<string, number>>({});
+  const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<Order | null>(null);
+  const [sendingEmailId, setSendingEmailId] = useState<string | null>(null);
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
 
   const fetchOrders = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -194,7 +205,12 @@ export default function OrdersTab() {
 
   const updateOrder = async (
     order: Order,
-    payload: { orderStatus?: string; paymentStatus?: string; trackingNote?: string }
+    payload: {
+      orderStatus?: string;
+      paymentStatus?: string;
+      trackingNote?: string;
+      shippingFee?: number;
+    }
   ) => {
     setUpdatingId(order.id);
     setError(null);
@@ -215,10 +231,41 @@ export default function OrdersTab() {
       setOrders((prev) =>
         prev.map((item) => (item.id === order.id ? { ...item, ...json.data } : item))
       );
+
+      if (payload.orderStatus === "CONFIRMED") {
+        setActionNotice(`Order ${order.orderNumber} successfully confirmed with freight charges!`);
+        setTimeout(() => setActionNotice(null), 6000);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update order.");
     } finally {
       setUpdatingId(null);
+    }
+  };
+
+  const handleSendInvoiceEmail = async (order: Order) => {
+    setSendingEmailId(order.id);
+    setError(null);
+    setActionNotice(null);
+
+    try {
+      const res = await fetch(`/api/orders/${order.id}/send-invoice`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to dispatch invoice email.");
+      }
+
+      setActionNotice(`Official invoice email dispatched to ${order.email || "customer"}!`);
+      setTimeout(() => setActionNotice(null), 6000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to send invoice email.");
+    } finally {
+      setSendingEmailId(null);
     }
   };
 
@@ -239,12 +286,12 @@ export default function OrdersTab() {
           <AlertCircle className="w-4 h-4 text-warning shrink-0" />
           <div>
             <p className="text-[10px] uppercase tracking-wider font-bold text-warning">
-              Awaiting confirmation
+              Needs confirmation
             </p>
             <p className="text-lg font-serif font-bold text-warning">{counts.pending}</p>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-line px-4 py-3 flex items-center gap-3">
+        <div className="bg-white rounded-xl border border-info-line px-4 py-3 flex items-center gap-3">
           <Truck className="w-4 h-4 text-info shrink-0" />
           <div>
             <p className="text-[10px] uppercase tracking-wider font-bold text-ink-muted">
@@ -254,6 +301,13 @@ export default function OrdersTab() {
           </div>
         </div>
       </div>
+
+      {actionNotice && (
+        <div className="p-3 bg-success-soft border border-success-line rounded-xl text-xs text-success flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-success" />
+          <span>{actionNotice}</span>
+        </div>
+      )}
 
       {/* Toolbar */}
       <div className="bg-white rounded-2xl border border-line p-4 flex flex-col sm:flex-row sm:items-center gap-3">
@@ -335,11 +389,13 @@ export default function OrdersTab() {
                   `${order.address}, ${order.city}, Pakistan`
                 )}`;
 
-            const whatsappMessage = `Assalam-o-Alaikum ${order.customerName}, this is Tameer-e-Sehat regarding your order ${order.orderNumber}.${
-              hasCoords
-                ? ` Delivery Location: https://maps.google.com/?q=${order.customerLatitude},${order.customerLongitude}`
-                : ` Delivery Address: ${order.address}, ${order.city}`
-            }`;
+            const isPendingApproval =
+              order.orderStatus === "PENDING_CONFIRMATION" || order.orderStatus === "PENDING";
+
+            const originUrl = typeof window !== "undefined" ? window.location.origin : "";
+            const publicInvoiceUrl = `${originUrl}/invoices/${order.orderNumber}`;
+
+            const whatsappMessage = `Assalam-o-Alaikum ${order.customerName},\nThis is Tameer-e-Sehat Herbal Clinic regarding your order ${order.orderNumber}.\n\n📦 Order Breakdown:\n• Products Subtotal: ₨ ${(order.subtotal || order.total - (order.shippingFee || 0)).toLocaleString()}\n• Delivery Charges: ${order.shippingFee ? `₨ ${order.shippingFee.toLocaleString()}` : "Free"}\n• Total Payable (COD): ₨ ${order.total.toLocaleString()}\n\n📄 View & Download your official Invoice:\n${publicInvoiceUrl}\n\nJazakAllah!`;
 
             return (
               <div
@@ -443,6 +499,16 @@ export default function OrdersTab() {
 
                     {/* Contact + status controls */}
                     <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-stretch sm:items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedInvoiceOrder(order)}
+                        className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-primary/10 text-primary border border-primary/20 text-xs font-semibold hover:bg-primary/15 transition-colors cursor-pointer"
+                        title="View & Print Official PDF Invoice"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        <span>Invoice</span>
+                      </button>
+
                       <a
                         href={`https://wa.me/${phoneDigits}?text=${encodeURIComponent(
                           whatsappMessage
@@ -492,8 +558,138 @@ export default function OrdersTab() {
                   </div>
                 </div>
 
+                {/* Freight Quick Assessment Panel (For Pending Orders) */}
+                {isPendingApproval && (
+                  <div className="mx-4 sm:mx-5 mb-4 p-4 bg-amber-50/80 border border-amber-200 rounded-xl space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Truck className="w-4 h-4 text-amber-800 shrink-0" />
+                        <h4 className="font-bold text-xs text-amber-950">
+                          Set Freight &amp; Approve Order ({order.city} — {order.address})
+                        </h4>
+                      </div>
+                      <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider bg-amber-100 px-2 py-0.5 rounded">
+                        Action Required
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                      <span className="text-amber-900 font-semibold text-[11px]">Presets:</span>
+                      <button
+                        type="button"
+                        onClick={() => setFeeDrafts((prev) => ({ ...prev, [order.id]: 150 }))}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white hover:bg-amber-100 border border-amber-300 text-amber-900 transition-colors cursor-pointer"
+                      >
+                        ₨ 150 (Karachi Local)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFeeDrafts((prev) => ({ ...prev, [order.id]: 250 }))}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white hover:bg-amber-100 border border-amber-300 text-amber-900 transition-colors cursor-pointer"
+                      >
+                        ₨ 250 (Trax / Leopard City)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFeeDrafts((prev) => ({ ...prev, [order.id]: 350 }))}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white hover:bg-amber-100 border border-amber-300 text-amber-900 transition-colors cursor-pointer"
+                      >
+                        ₨ 350 (Heavy / Remote)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFeeDrafts((prev) => ({ ...prev, [order.id]: 0 }))}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-white hover:bg-amber-100 border border-amber-300 text-emerald-800 transition-colors cursor-pointer"
+                      >
+                        ₨ 0 (Free Delivery)
+                      </button>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
+                      <div className="relative flex-1">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-amber-800">
+                          ₨
+                        </span>
+                        <input
+                          type="number"
+                          min="0"
+                          value={feeDrafts[order.id] ?? (order.shippingFee || 200)}
+                          onChange={(e) =>
+                            setFeeDrafts((prev) => ({ ...prev, [order.id]: Number(e.target.value) }))
+                          }
+                          className="w-full pl-8 pr-3 py-2 bg-white border border-amber-300 rounded-xl text-xs font-bold text-ink focus:outline-none focus:border-primary"
+                          placeholder="Delivery fee in PKR"
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        disabled={isUpdating}
+                        onClick={() =>
+                          updateOrder(order, {
+                            orderStatus: "CONFIRMED",
+                            shippingFee: feeDrafts[order.id] ?? (order.shippingFee || 200),
+                          })
+                        }
+                        className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-primary hover:bg-brand-green-800 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors disabled:opacity-50 cursor-pointer"
+                      >
+                        {isUpdating ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        )}
+                        <span>
+                          Approve &amp; Confirm Invoice (Total ₨{" "}
+                          {(
+                            order.subtotal + (feeDrafts[order.id] ?? (order.shippingFee || 200))
+                          ).toLocaleString()}
+                          )
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {isExpanded && (
                   <div className="border-t border-line bg-surface/50 p-4 sm:p-5 space-y-4">
+                    {/* Action Hub */}
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedInvoiceOrder(order)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-primary bg-primary text-white text-xs font-semibold hover:bg-brand-green-800 transition-colors cursor-pointer"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        <span>Print / View Invoice</span>
+                      </button>
+
+                      {order.email && (
+                        <button
+                          type="button"
+                          disabled={sendingEmailId === order.id}
+                          onClick={() => handleSendInvoiceEmail(order)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line bg-white hover:bg-surface text-xs font-semibold text-primary transition-colors disabled:opacity-50 cursor-pointer"
+                        >
+                          {sendingEmailId === order.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Mail className="w-3.5 h-3.5" />
+                          )}
+                          <span>Send Invoice Email</span>
+                        </button>
+                      )}
+
+                      <a
+                        href={publicInvoiceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line bg-white hover:bg-surface text-xs font-semibold text-ink-body transition-colors"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        <span>Open Public Web Invoice</span>
+                      </a>
+                    </div>
+
                     {/* Dispatch & Delivery Geography Card */}
                     <div className="bg-white rounded-xl border border-line p-3 text-xs space-y-2">
                       <div className="flex items-center justify-between border-b border-line pb-2">
@@ -526,10 +722,10 @@ export default function OrdersTab() {
                             Delivery Rate Tier
                           </span>
                           <span>
-                            {order.deliveryFeeType || "FLAT"} · Shipping Fee:{" "}
+                            {order.deliveryFeeType || "MANUAL"} · Shipping Fee:{" "}
                             {order.shippingFee !== null && order.shippingFee !== undefined
                               ? formatMoney(order.shippingFee)
-                              : "N/A"}
+                              : "Pending Review"}
                           </span>
                         </div>
                         <div>
@@ -653,6 +849,15 @@ export default function OrdersTab() {
             );
           })}
         </div>
+      )}
+
+      {/* Official Order Invoice Modal */}
+      {selectedInvoiceOrder && (
+        <OrderInvoiceModal
+          isOpen={Boolean(selectedInvoiceOrder)}
+          onClose={() => setSelectedInvoiceOrder(null)}
+          order={selectedInvoiceOrder}
+        />
       )}
     </div>
   );

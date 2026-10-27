@@ -185,7 +185,7 @@ export default function OrdersTab() {
   const counts = useMemo(() => {
     return {
       total: orders.length,
-      pending: orders.filter((order) => order.orderStatus === "PENDING").length,
+      pending: orders.filter((order) => order.orderStatus === "PENDING" || order.orderStatus === "PENDING_CONFIRMATION").length,
       active: orders.filter((order) =>
         ["CONFIRMED", "DISPATCHED"].includes(order.orderStatus)
       ).length,

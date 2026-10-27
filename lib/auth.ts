@@ -53,26 +53,9 @@ export const auth = betterAuth({
     },
   },
   emailVerification: {
-    sendOnSignUp: true,
+    sendOnSignUp: false, // Handled automatically by emailOTP plugin with 6-digit OTP passkeys
     autoSignInAfterVerification: true,
     expiresIn: 60 * 60 * 24, // 24 hours legacy fallback
-    sendVerificationEmail: async ({ user, url, token }) => {
-      const result = await sendVerificationEmail({
-        to: user.email,
-        name: user.name,
-        url,
-        token,
-      });
-
-      if (!result.success) {
-        console.error(
-          "[auth] Verification email could not be delivered to",
-          user.email,
-          "—",
-          result.error
-        );
-      }
-    },
   },
   plugins: [
     emailOTP({
@@ -110,7 +93,7 @@ export const auth = betterAuth({
       otpLength: 6,
       allowedAttempts: 3,
       storeOTP: "hashed",
-      overrideDefaultEmailVerification: true,
+      overrideDefaultEmailVerification: false,
       sendVerificationOnSignUp: true,
       resendStrategy: "rotate",
     }),

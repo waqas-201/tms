@@ -116,7 +116,7 @@ export default function Footer() {
               Established in 1990 in Karachi, Tameer-e-Sehat is a trusted herbal clinic and remedy center. We use pure, natural herbs and time-tested recipes to provide honest, gentle remedies for you and your family.
             </p>
 
-            <div className="pt-2 flex items-center gap-3">
+            <div className="pt-2 flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={() =>
@@ -306,11 +306,11 @@ export default function Footer() {
           <p>
             <strong className="text-brand-gold-300">Important Health Notice:</strong> Our natural remedies and advice are based on traditional herbal medicine. They are designed to support your daily wellness, digestion, and natural body strength. If you have a severe medical emergency or are pregnant, please consult your doctor. Keep all natural remedies in a cool, dry place away from direct sunlight.
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-brand-green-900/40 text-xs">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-brand-green-900/40 text-xs text-center sm:text-left">
             <p>
               &copy; {new Date().getFullYear()} {CLINIC_INFO.brandName}. All rights reserved. Registered Herbal Health Clinic, Karachi, Pakistan.
             </p>
-            <div className="flex items-center gap-4 text-on-inverse/90">
+            <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-3 gap-y-1.5 text-on-inverse/90">
               <Link
                 href="/consultation"
                 onClick={(e) => {

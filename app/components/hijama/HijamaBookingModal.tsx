@@ -182,6 +182,7 @@ export default function HijamaBookingModal({
       redirect: currentPath,
       resumeBooking: "hijama",
     });
+    onClose?.();
     router.push(targetUrl);
   };
 

@@ -14,6 +14,7 @@ import {
   ArrowLeft,
   RefreshCw,
   ShieldCheck,
+  ShieldAlert,
   Inbox,
 } from "lucide-react";
 
@@ -24,6 +25,7 @@ function VerifyEmailContent() {
   const errorParam = searchParams.get("error");
   const emailParam = searchParams.get("email");
   const isNewSignup = searchParams.get("new") === "true";
+  const isUnverifiedLogin = searchParams.get("source") === "unverified";
   const redirectParam = searchParams.get("redirect") || searchParams.get("callbackURL") || "/account";
 
   const safeRedirect =
@@ -41,6 +43,13 @@ function VerifyEmailContent() {
   const [resending, setResending] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
   const [cooldown, setCooldown] = useState(isNewSignup ? 30 : 0);
+
+  // Keep emailInput updated if emailParam changes
+  useEffect(() => {
+    if (emailParam && !emailInput) {
+      setEmailInput(emailParam);
+    }
+  }, [emailParam, emailInput]);
 
   // Decrement cooldown timer
   useEffect(() => {
@@ -200,27 +209,57 @@ function VerifyEmailContent() {
         <div className="space-y-5">
           <div className="text-center space-y-2">
             <div className="w-14 h-14 rounded-full bg-success-soft border border-success-line text-primary flex items-center justify-center mx-auto">
-              {isNewSignup ? <Inbox className="w-7 h-7" /> : <Mail className="w-7 h-7 text-secondary-text" />}
+              {isNewSignup ? (
+                <Inbox className="w-7 h-7" />
+              ) : isUnverifiedLogin ? (
+                <ShieldAlert className="w-7 h-7 text-primary" />
+              ) : (
+                <Mail className="w-7 h-7 text-secondary-text" />
+              )}
             </div>
             <span className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest font-semibold text-secondary-text">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>{isNewSignup ? "Registration Step 2 of 2" : "Email Verification"}</span>
+              <span>
+                {status === "error"
+                  ? "Verification Issue"
+                  : isNewSignup
+                  ? "Registration Step 2 of 2"
+                  : isUnverifiedLogin
+                  ? "Account Activation Required"
+                  : "Email Verification"}
+              </span>
             </span>
             <h1 className="font-serif text-2xl font-bold text-primary">
               {status === "error"
                 ? "Verification Link Expired"
                 : isNewSignup
                 ? "Check Your Email"
+                : isUnverifiedLogin
+                ? "Verify Your Email to Continue"
                 : "Verify Your Account"}
             </h1>
             <p className="text-xs text-ink-muted leading-relaxed">
               {status === "error"
                 ? "This verification link is invalid or has expired. Enter your email below to receive a fresh activation link."
+                : isUnverifiedLogin && (emailParam || emailInput)
+                ? `Assalam-o-Alaikum! Your account with ${emailParam || emailInput} is registered, but requires email verification before signing in. Please check your inbox or spam folder for your activation link.`
                 : isNewSignup && emailParam
                 ? `Assalam-o-Alaikum! We have sent a secure activation link to ${emailParam}. Please click the link in your email to activate your account.`
                 : "Please verify your email address to access your consultations and order records."}
             </p>
           </div>
+
+          {isUnverifiedLogin && (emailParam || emailInput) && (
+            <div className="p-3.5 bg-warning-soft border border-warning-line rounded-xl text-xs text-warning flex items-start gap-2.5">
+              <ShieldAlert className="w-4 h-4 shrink-0 mt-0.5 text-warning" />
+              <div className="space-y-0.5">
+                <p className="font-semibold text-warning">Pending Email Activation</p>
+                <p className="text-[11px] text-warning/90 leading-relaxed">
+                  Your patient registration is preserved. For security, please activate your account using the verification link sent to your email.
+                </p>
+              </div>
+            </div>
+          )}
 
           {errorMessage && (
             <div className="p-3.5 bg-danger-soft border border-danger/20 rounded-xl text-xs text-danger flex items-center gap-2">
@@ -281,7 +320,7 @@ function VerifyEmailContent() {
               className="inline-flex items-center gap-1.5 text-primary font-semibold hover:underline"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>Already verified? Sign In</span>
+              <span>Sign in with another account</span>
             </Link>
 
             <Link

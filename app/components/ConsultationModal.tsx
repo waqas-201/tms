@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { CLINIC_INFO } from "@/app/data/products";
 import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   CONSULTATION_DRAFT_KEY,
   saveBookingDraft,
@@ -103,13 +103,32 @@ export default function ConsultationModal({
   }
 
   const router = useRouter();
+  const pathname = usePathname();
+
+  const isAuthRoute =
+    pathname?.startsWith("/login") ||
+    pathname?.startsWith("/register") ||
+    pathname?.startsWith("/verify-email") ||
+    pathname?.startsWith("/forgot-password");
+
+  // Ensure modal is closed when navigating to an auth route
+  useEffect(() => {
+    if (isAuthRoute && isOpen) {
+      handleClose();
+    }
+  }, [isAuthRoute, isOpen, handleClose]);
+
+  const hasResumedRef = useRef(false);
 
   // Restore saved consultation draft if returning from auth redirect
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || isAuthRoute) return;
     const params = new URLSearchParams(window.location.search);
     const shouldResume = params.get("resumeBooking");
-    if (shouldResume === "consultation" || shouldResume === "true") {
+    if (
+      (shouldResume === "consultation" || shouldResume === "true") &&
+      !hasResumedRef.current
+    ) {
       const draft = getBookingDraft<any>(CONSULTATION_DRAFT_KEY);
       if (draft) {
         if (draft.consultationType) setConsultationType(draft.consultationType);
@@ -117,14 +136,26 @@ export default function ConsultationModal({
         if (draft.appointmentSlot) setAppointmentSlot(draft.appointmentSlot);
         if (draft.patientPhone) setPatientPhone(draft.patientPhone);
         if (draft.symptomText) setSymptomText(draft.symptomText);
-        if (sessionData?.user) {
-          if (!isOpen && context?.openConsultation) {
-            context.openConsultation();
-          }
+      }
+      if (sessionData?.user) {
+        hasResumedRef.current = true;
+        if (!isOpen && context?.openConsultation) {
+          context.openConsultation();
+        }
+        try {
+          params.delete("resumeBooking");
+          const remaining = params.toString();
+          const cleanUrl =
+            window.location.pathname +
+            (remaining ? `?${remaining}` : "") +
+            window.location.hash;
+          window.history.replaceState(null, "", cleanUrl);
+        } catch {
+          // ignore
         }
       }
     }
-  }, [sessionData?.user, isOpen, context]);
+  }, [sessionData?.user, isOpen, context, isAuthRoute]);
 
   const handleRedirectToAuth = (type: "login" | "register") => {
     if (typeof window === "undefined") return;
@@ -140,6 +171,7 @@ export default function ConsultationModal({
       redirect: currentPath,
       resumeBooking: "consultation",
     });
+    handleClose();
     router.push(targetUrl);
   };
 
@@ -421,6 +453,7 @@ export default function ConsultationModal({
       }
 
       setBookingSuccess(json.data);
+      clearBookingDraft(CONSULTATION_DRAFT_KEY);
     } catch (err: any) {
       setBookingError(err.message || "Failed to book slot. Please try again.");
     } finally {
@@ -449,7 +482,7 @@ Please confirm my appointment.`;
     return `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(msg)}`;
   };
 
-  if (!mounted || typeof document === "undefined") {
+  if (!mounted || typeof document === "undefined" || isAuthRoute) {
     return null;
   }
 

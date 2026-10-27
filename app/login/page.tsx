@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn, getSession, sendVerificationEmail } from "@/lib/auth-client";
+import { signIn, getSession } from "@/lib/auth-client";
 import {
   Sparkles,
   Lock,
@@ -12,10 +12,8 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle2,
-  RefreshCw,
   Eye,
   EyeOff,
-  ShieldAlert,
 } from "lucide-react";
 import { isStaffRole } from "@/lib/rbac-base";
 
@@ -29,29 +27,13 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Unverified account handling
-  const [isUnverified, setIsUnverified] = useState(false);
-  const [resending, setResending] = useState(false);
-  const [resendSuccess, setResendSuccess] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
-
-  // Decrement resend cooldown timer
-  useEffect(() => {
-    if (cooldown <= 0) return;
-    const timer = setInterval(() => {
-      setCooldown((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [cooldown]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setIsUnverified(false);
-    setResendSuccess(false);
 
     try {
       const cleanEmail = email.trim().toLowerCase();
@@ -65,10 +47,13 @@ function LoginForm() {
         const errorCode = (res.error as { code?: string })?.code;
 
         if (errorCode === "EMAIL_NOT_VERIFIED" || errorMsg.includes("email not verified")) {
-          setIsUnverified(true);
-          setError(
-            "Your email address is not verified yet. Verification is strictly required before you can access your account."
-          );
+          setRedirecting(true);
+          const safeRedirect =
+            redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")
+              ? redirectParam
+              : "/account";
+          const verifyUrl = `/verify-email?email=${encodeURIComponent(cleanEmail)}&redirect=${encodeURIComponent(safeRedirect)}&source=unverified`;
+          router.push(verifyUrl);
           return;
         }
 
@@ -93,53 +78,7 @@ function LoginForm() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Failed to sign in. Please check your credentials.";
       setError(msg);
-    } finally {
       setLoading(false);
-    }
-  };
-
-  const handleResendVerification = async () => {
-    if (!email.trim() || resending || cooldown > 0) return;
-    setResending(true);
-    setResendSuccess(false);
-
-    try {
-      const cleanEmail = email.trim().toLowerCase();
-      const safeCallback =
-        redirectParam && redirectParam.startsWith("/") && !redirectParam.startsWith("//")
-          ? redirectParam
-          : "/account";
-
-      if (typeof sendVerificationEmail === "function") {
-        const res = await sendVerificationEmail({
-          email: cleanEmail,
-          callbackURL: safeCallback,
-        });
-        if (res?.error) {
-          throw new Error(res.error.message || "Failed to dispatch verification email.");
-        }
-      } else {
-        const res = await fetch("/api/auth/send-verification-email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: cleanEmail,
-            callbackURL: safeCallback,
-          }),
-        });
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          throw new Error(data.message || "Failed to dispatch verification email.");
-        }
-      }
-
-      setResendSuccess(true);
-      setCooldown(60);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to dispatch verification email. Please try again.";
-      setError(msg);
-    } finally {
-      setResending(false);
     }
   };
 
@@ -172,48 +111,6 @@ function LoginForm() {
         </div>
       )}
 
-      {isUnverified && (
-        <div className="p-4 bg-warning-soft/90 border border-warning-line rounded-xl space-y-2.5 text-xs text-warning shadow-xs">
-          <div className="flex items-start gap-2.5">
-            <ShieldAlert className="w-4 h-4 text-warning shrink-0 mt-0.5" />
-            <div>
-              <p className="font-bold text-warning">Email Verification Pending</p>
-              <p className="text-[11px] text-warning leading-relaxed mt-0.5">
-                Check your inbox for the activation link sent to <strong>{email.trim()}</strong>.
-              </p>
-            </div>
-          </div>
-
-          {resendSuccess && (
-            <div className="p-2 bg-success-soft border border-success-line rounded-lg text-[11px] text-success flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
-              <span>✓ Fresh activation link dispatched! Please check your spam or inbox.</span>
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={handleResendVerification}
-            disabled={resending || cooldown > 0}
-            className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-warning hover:bg-warning text-white rounded-lg text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer shadow-xs"
-          >
-            {resending ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Sending Activation Link...</span>
-              </>
-            ) : cooldown > 0 ? (
-              <span>Resend available in {cooldown}s</span>
-            ) : (
-              <>
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>Resend Verification Email</span>
-              </>
-            )}
-          </button>
-        </div>
-      )}
-
       <form onSubmit={handleLogin} className="space-y-4">
         <div className="space-y-1.5">
           <label className="text-xs font-semibold text-ink">
@@ -225,10 +122,7 @@ function LoginForm() {
               type="email"
               required
               value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (isUnverified) setIsUnverified(false);
-              }}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="your.email@example.com"
               className="w-full pl-10 pr-3.5 py-2.5 bg-surface border border-line-strong rounded-lg text-xs text-ink focus:outline-none focus:border-primary focus:bg-white transition-colors"
             />
@@ -274,10 +168,15 @@ function LoginForm() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || redirecting}
           className="w-full flex items-center justify-center gap-2 py-3 bg-primary hover:bg-brand-green-800 text-white text-xs font-semibold uppercase tracking-wider rounded-md transition-all shadow-md disabled:opacity-50 cursor-pointer"
         >
-          {loading ? (
+          {redirecting ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Redirecting to Verification...</span>
+            </>
+          ) : loading ? (
             <>
               <Loader2 className="w-4 h-4 animate-spin" />
               <span>Authenticating...</span>

@@ -60,6 +60,7 @@ export async function GET(request: NextRequest) {
             },
           },
         },
+        payments: true,
         user: {
           select: { id: true, name: true, email: true },
         },

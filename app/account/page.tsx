@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signOut, sendVerificationEmail } from "@/lib/auth-client";
@@ -8,6 +8,7 @@ import { useCart } from "@/app/context/CartContext";
 import { CLINIC_INFO, Product } from "@/app/data/products";
 import SurfaceFade from "@/app/components/motion/SurfaceFade";
 import ClinicCallCard from "@/app/components/ClinicCallCard";
+import OrderInvoiceModal from "@/app/components/OrderInvoiceModal";
 import { getSafeProductImage } from "@/lib/utils";
 import { isStaffRole } from "@/lib/rbac-base";
 import {
@@ -34,10 +35,15 @@ import {
   Droplets,
   MapPin,
   Navigation,
+  Receipt,
+  FileText,
+  Printer,
+  Search,
 } from "lucide-react";
 
 type AccountTab =
   | "orders"
+  | "ledger"
   | "wishlist"
   | "consultations"
   | "hijama"
@@ -45,6 +51,7 @@ type AccountTab =
 
 const ORDER_STATUS_LABELS: Record<string, string> = {
   PENDING: "Order received",
+  PENDING_CONFIRMATION: "Pending freight review",
   CONFIRMED: "Confirmed",
   DISPATCHED: "On the way",
   DELIVERED: "Delivered",
@@ -54,6 +61,7 @@ const ORDER_STATUS_LABELS: Record<string, string> = {
 const ORDER_STEPS = ["Order received", "Confirmed", "On the way", "Delivered"];
 const ORDER_STEP_INDEX: Record<string, number> = {
   PENDING: 0,
+  PENDING_CONFIRMATION: 0,
   CONFIRMED: 1,
   DISPATCHED: 2,
   DELIVERED: 3,
@@ -83,6 +91,7 @@ const CONSULT_STEP_INDEX: Record<string, number> = {
 };
 
 const HIJAMA_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pending confirmation",
   CONFIRMED: "Slot confirmed",
   COMPLETED: "Completed",
   CANCELLED: "Cancelled",
@@ -91,6 +100,7 @@ const HIJAMA_STATUS_LABELS: Record<string, string> = {
 
 const HIJAMA_STEPS = ["Slot confirmed", "Session completed"];
 const HIJAMA_STEP_INDEX: Record<string, number> = {
+  PENDING: 0,
   CONFIRMED: 0,
   COMPLETED: 1,
 };
@@ -105,6 +115,8 @@ function orderStatusChipClass(status: string) {
       return "bg-success-soft text-success";
     case "CANCELLED":
       return "bg-danger-soft text-danger";
+    case "PENDING_CONFIRMATION":
+      return "bg-warning-soft text-warning border border-warning-line";
     default:
       return "bg-warning-soft text-warning";
   }
@@ -250,6 +262,23 @@ const PAKISTAN_CITIES = [
   "Other City / Town",
 ];
 
+interface LedgerEntry {
+  id: string;
+  rawDate: number;
+  dateStr: string;
+  type: "ORDER" | "HIJAMA" | "CONSULTATION";
+  typeUrdu: string;
+  title: string;
+  subtitle: string;
+  reference: string;
+  debit: number;
+  credit: number;
+  balance: number;
+  paymentStatus: "PAID" | "PENDING" | "PARTIAL" | "CANCELLED" | "COMPLIMENTARY";
+  orderStatus: string;
+  orderRecord?: any;
+}
+
 export default function AccountPage() {
   const { data: sessionData, isPending } = useSession();
   const { wishlist, removeFromWishlist, addToCart } = useCart();
@@ -261,6 +290,15 @@ export default function AccountPage() {
   const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [reorderMessage, setReorderMessage] = useState<string | null>(null);
+
+  // Invoice Quick Preview Modal
+  const [selectedInvoiceOrder, setSelectedInvoiceOrder] = useState<any | null>(null);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+
+  // Ledger Filter States
+  const [ledgerTypeFilter, setLedgerTypeFilter] = useState<"ALL" | "ORDER" | "HIJAMA" | "CONSULTATION">("ALL");
+  const [ledgerStatusFilter, setLedgerStatusFilter] = useState<"ALL" | "DUE" | "PAID">("ALL");
+  const [ledgerSearch, setLedgerSearch] = useState("");
 
   const [resendingVerification, setResendingVerification] = useState(false);
   const [resendSuccess, setResendSuccess] = useState(false);
@@ -460,12 +498,10 @@ export default function AccountPage() {
   const fetchUserData = async () => {
     setLoadingData(true);
     try {
-      // Attach any guest bookings made with this account's verified email
-      // before loading the dashboard, so they appear immediately.
       try {
         await fetch("/api/account/link-records", { method: "POST" });
       } catch {
-        // Linking is best-effort; never block the dashboard on it.
+        // Linking is best-effort
       }
 
       const [ordersRes, consultRes, hijamaRes] = await Promise.all([
@@ -495,7 +531,6 @@ export default function AccountPage() {
 
     let addedCount = 0;
     order.items.forEach((item: any) => {
-      // Find matching product in catalog
       const matchedProduct = catalogProducts.find((p) => p.id === item.productId || p.name === item.productName);
       if (matchedProduct && matchedProduct.sizes && matchedProduct.sizes.length > 0) {
         const matchedSize = matchedProduct.sizes.find((s) => s.name === item.sizeName || s.weight === item.sizeWeight) || matchedProduct.sizes[0];
@@ -510,6 +545,154 @@ export default function AccountPage() {
 
   // Get wishlist products
   const wishlistProducts = catalogProducts.filter((p) => wishlist.includes(p.id));
+
+  // Compute Unified Patient Ledger entries
+  const ledgerEntries: LedgerEntry[] = useMemo(() => {
+    const list: Omit<LedgerEntry, "balance">[] = [];
+
+    // 1. Orders
+    orders.forEach((o) => {
+      const isCancelled = o.orderStatus === "CANCELLED";
+      const debit = isCancelled ? 0 : (o.total || 0);
+      const paid = isCancelled
+        ? 0
+        : o.paymentStatus === "PAID"
+        ? (o.total || 0)
+        : (o.paidAmount || 0);
+
+      let paymentStatus: LedgerEntry["paymentStatus"] = "PENDING";
+      if (isCancelled) paymentStatus = "CANCELLED";
+      else if (o.paymentStatus === "PAID") paymentStatus = "PAID";
+      else if ((o.paidAmount || 0) > 0) paymentStatus = "PARTIAL";
+
+      const dateObj = new Date(o.createdAt);
+
+      list.push({
+        id: `ORDER-${o.id}`,
+        rawDate: dateObj.getTime(),
+        dateStr: dateObj.toLocaleDateString("en-PK", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+        type: "ORDER",
+        typeUrdu: "دواخانہ آرڈر",
+        title: "Apothecary Remedy Order",
+        subtitle: `${o.items?.length || 0} item${o.items?.length === 1 ? "" : "s"}${o.city ? ` · ${o.city}` : ""}`,
+        reference: o.orderNumber,
+        debit,
+        credit: paid,
+        paymentStatus,
+        orderStatus: o.orderStatus,
+        orderRecord: o,
+      });
+    });
+
+    // 2. Hijama Bookings
+    hijamaBookings.forEach((b) => {
+      const isCancelled = b.status === "CANCELLED" || b.status === "NO_SHOW";
+      const fee = b.feeAmount || 2500;
+      const debit = isCancelled ? 0 : fee;
+      const credit = isCancelled
+        ? 0
+        : b.paymentStatus === "PAID_AT_CLINIC"
+        ? fee
+        : 0;
+
+      let paymentStatus: LedgerEntry["paymentStatus"] = "PENDING";
+      if (isCancelled) paymentStatus = "CANCELLED";
+      else if (b.paymentStatus === "PAID_AT_CLINIC") paymentStatus = "PAID";
+
+      const dateObj = new Date(b.createdAt || b.appointmentDate);
+
+      list.push({
+        id: `HIJAMA-${b.id}`,
+        rawDate: dateObj.getTime(),
+        dateStr: dateObj.toLocaleDateString("en-PK", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+        type: "HIJAMA",
+        typeUrdu: "حجامہ سیشن",
+        title: "Sunnah Hijama Session",
+        subtitle: `${b.appointmentDate}${b.appointmentSlot ? ` · ${b.appointmentSlot}` : ""} (${b.gender === "FEMALE" ? "Female" : "Male"} Session)`,
+        reference: b.ticketNumber,
+        debit,
+        credit,
+        paymentStatus,
+        orderStatus: b.status,
+      });
+    });
+
+    // 3. Consultations
+    consultations.forEach((c) => {
+      const isCancelled = c.status === "CANCELLED";
+      const dateObj = new Date(c.createdAt || c.appointmentDate || Date.now());
+
+      list.push({
+        id: `CONSULT-${c.id}`,
+        rawDate: dateObj.getTime(),
+        dateStr: dateObj.toLocaleDateString("en-PK", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+        type: "CONSULTATION",
+        typeUrdu: "طبی معائنہ",
+        title: "Hakeem Consultation",
+        subtitle: `${c.appointmentDate || "Intake"}${c.appointmentSlot ? ` · ${c.appointmentSlot}` : ""} (${c.consultationType === "ONLINE" ? "Online Consultation" : "In-Person Clinic"})`,
+        reference: c.ticketNumber,
+        debit: 0,
+        credit: 0,
+        paymentStatus: isCancelled ? "CANCELLED" : "COMPLIMENTARY",
+        orderStatus: c.status,
+      });
+    });
+
+    // Sort ascending by date to calculate accurate running balance
+    list.sort((a, b) => a.rawDate - b.rawDate);
+
+    let running = 0;
+    const withBalance: LedgerEntry[] = list.map((item) => {
+      running += item.debit - item.credit;
+      return {
+        ...item,
+        balance: running,
+      };
+    });
+
+    // Return descending for display (most recent first)
+    return withBalance.reverse();
+  }, [orders, hijamaBookings, consultations]);
+
+  const ledgerTotalBilled = useMemo(() => {
+    return ledgerEntries.reduce((sum, e) => sum + e.debit, 0);
+  }, [ledgerEntries]);
+
+  const ledgerTotalPaid = useMemo(() => {
+    return ledgerEntries.reduce((sum, e) => sum + e.credit, 0);
+  }, [ledgerEntries]);
+
+  const ledgerBalanceDue = useMemo(() => {
+    return Math.max(0, ledgerTotalBilled - ledgerTotalPaid);
+  }, [ledgerTotalBilled, ledgerTotalPaid]);
+
+  const filteredLedgerEntries = useMemo(() => {
+    return ledgerEntries.filter((item) => {
+      if (ledgerTypeFilter !== "ALL" && item.type !== ledgerTypeFilter) return false;
+      if (ledgerStatusFilter === "DUE" && item.debit <= item.credit) return false;
+      if (ledgerStatusFilter === "PAID" && item.paymentStatus !== "PAID") return false;
+      if (ledgerSearch.trim()) {
+        const q = ledgerSearch.toLowerCase().trim();
+        const matchRef = item.reference.toLowerCase().includes(q);
+        const matchTitle = item.title.toLowerCase().includes(q);
+        const matchSubtitle = item.subtitle.toLowerCase().includes(q);
+        if (!matchRef && !matchTitle && !matchSubtitle) return false;
+      }
+      return true;
+    });
+  }, [ledgerEntries, ledgerTypeFilter, ledgerStatusFilter, ledgerSearch]);
 
   // Loading state
   if (isPending) {
@@ -887,6 +1070,23 @@ export default function AccountPage() {
           </button>
 
           <button
+            onClick={() => setActiveTab("ledger")}
+            className={`pb-3 px-2 border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer ${
+              activeTab === "ledger"
+                ? "border-primary text-primary font-bold"
+                : "border-transparent text-ink-subtle hover:text-primary"
+            }`}
+          >
+            <Receipt className="w-4 h-4" />
+            <span>Ledger &amp; Billing (کھاتہ)</span>
+            {ledgerBalanceDue > 0 && (
+              <span className="px-1.5 py-0.5 bg-warning-soft text-warning border border-warning-line text-[10px] rounded-full font-bold">
+                ₨ {ledgerBalanceDue.toLocaleString()}
+              </span>
+            )}
+          </button>
+
+          <button
             onClick={() => setActiveTab("wishlist")}
             className={`pb-3 px-2 border-b-2 flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer ${
               activeTab === "wishlist"
@@ -935,8 +1135,9 @@ export default function AccountPage() {
           </button>
         </div>
 
-        {/* ─── TAB 1: ORDERS ─── */}
+        {/* ─── TAB CONTENT ─── */}
         <SurfaceFade surfaceKey={activeTab}>
+        {/* ─── TAB 1: ORDERS ─── */}
         {activeTab === "orders" && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -1026,10 +1227,30 @@ export default function AccountPage() {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <span className="font-serif text-base font-bold text-primary">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-serif text-base font-bold text-primary mr-1">
                         ₨ {order.total.toLocaleString()}
                       </span>
+                      <Link
+                        href={`/invoices/${order.orderNumber}`}
+                        target="_blank"
+                        className="px-2.5 py-1.5 bg-surface hover:bg-surface-sunken border border-line text-primary text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors"
+                        title="View & Download PDF Invoice"
+                      >
+                        <FileText className="w-3.5 h-3.5 text-primary" />
+                        <span className="hidden sm:inline">Invoice</span>
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedInvoiceOrder(order);
+                          setIsInvoiceModalOpen(true);
+                        }}
+                        className="p-1.5 bg-surface hover:bg-surface-sunken border border-line text-primary text-xs font-semibold rounded-lg flex items-center transition-colors cursor-pointer"
+                        title="Quick View Printable Invoice"
+                      >
+                        <Printer className="w-3.5 h-3.5 text-primary" />
+                      </button>
                       <Link
                         href={`/track-order?ref=${order.orderNumber}`}
                         className="px-3 py-1.5 bg-surface hover:bg-surface-sunken border border-line text-primary text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors"
@@ -1103,7 +1324,414 @@ export default function AccountPage() {
           </div>
         )}
 
-        {/* ─── TAB 2: WISHLIST ─── */}
+        {/* ─── TAB 2: LEDGER & BILLING (کھاتہ و بلنگ) ─── */}
+        {activeTab === "ledger" && (
+          <div className="space-y-6">
+            {/* Header Banner */}
+            <div className="bg-white p-5 sm:p-6 rounded-2xl border border-line shadow-2xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="font-serif text-lg sm:text-xl font-bold text-primary">
+                    Patient Financial Ledger &amp; Billing
+                  </h2>
+                  <span className="text-xs font-serif text-ink-subtle">
+                    (کھاتہ و بلنگ اسٹیٹمنٹ)
+                  </span>
+                </div>
+                <p className="text-xs text-ink-subtle mt-0.5 max-w-xl">
+                  Consolidated ledger statement across your apothecary orders, clinical consultations, and Sunnah Hijama sessions.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 self-stretch sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2 bg-surface hover:bg-surface-sunken border border-line text-primary rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Print Statement</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Financial Summary KPI Tiles */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <SummaryTile
+                label="Total Billed"
+                value={`₨ ${ledgerTotalBilled.toLocaleString()}`}
+                hint="Total debited (orders & sessions)"
+              />
+              <SummaryTile
+                label="Total Paid"
+                value={`₨ ${ledgerTotalPaid.toLocaleString()}`}
+                hint="Collected via COD & clinic"
+              />
+              <div className="bg-white p-4 rounded-2xl border border-line shadow-2xs">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-ink-subtle">
+                  Current Balance Due
+                </p>
+                <p className={`font-serif text-lg sm:text-xl font-bold mt-1 break-words ${
+                  ledgerBalanceDue > 0 ? "text-danger" : "text-success"
+                }`}>
+                  ₨ {ledgerBalanceDue.toLocaleString()}
+                </p>
+                <p className="text-[10px] text-ink-subtle mt-0.5">
+                  {ledgerBalanceDue > 0 ? "Outstanding balance" : "All accounts clear"}
+                </p>
+              </div>
+              <div className="bg-white p-4 rounded-2xl border border-line shadow-2xs">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-ink-subtle">
+                  Account Standing
+                </p>
+                <div className="mt-1 flex items-center gap-1.5">
+                  {ledgerBalanceDue === 0 ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-success-soft text-success border border-success-line text-xs font-bold rounded-lg">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>All Cleared (بے باق)</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-warning-soft text-warning border border-warning-line text-xs font-bold rounded-lg">
+                      <AlertCircle className="w-3.5 h-3.5" />
+                      <span>₨ {ledgerBalanceDue.toLocaleString()} Due</span>
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] text-ink-subtle mt-1">
+                  {ledgerEntries.length} total transaction entries
+                </p>
+              </div>
+            </div>
+
+            {/* Payment advice alert if balance due */}
+            {ledgerBalanceDue > 0 && (
+              <div className="p-4 bg-warning-soft/80 border border-warning-line rounded-2xl text-xs text-warning flex items-start gap-3">
+                <AlertCircle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-bold text-warning text-xs">
+                    Pending Payment Notice (ادائیگی کی یاد دہانی)
+                  </p>
+                  <p className="text-warning text-[11px] leading-relaxed">
+                    You have an outstanding balance of <strong>₨ {ledgerBalanceDue.toLocaleString()}</strong>.
+                    Orders placed with <strong>Cash on Delivery (COD)</strong> are collected by the courier rider upon delivery.
+                    Hijama cupping and clinic fees are payable upon arrival at the clinic reception or via JazzCash/Bank transfer.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Filters & Search */}
+            <div className="bg-white p-4 rounded-2xl border border-line shadow-2xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => setLedgerTypeFilter("ALL")}
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
+                    ledgerTypeFilter === "ALL"
+                      ? "bg-primary text-white"
+                      : "bg-surface hover:bg-surface-sunken text-ink-body border border-line"
+                  }`}
+                >
+                  All ({ledgerEntries.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLedgerTypeFilter("ORDER")}
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
+                    ledgerTypeFilter === "ORDER"
+                      ? "bg-primary text-white"
+                      : "bg-surface hover:bg-surface-sunken text-ink-body border border-line"
+                  }`}
+                >
+                  Orders ({orders.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLedgerTypeFilter("HIJAMA")}
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
+                    ledgerTypeFilter === "HIJAMA"
+                      ? "bg-primary text-white"
+                      : "bg-surface hover:bg-surface-sunken text-ink-body border border-line"
+                  }`}
+                >
+                  Hijama ({hijamaBookings.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLedgerTypeFilter("CONSULTATION")}
+                  className={`px-3 py-1.5 rounded-lg font-semibold transition-colors cursor-pointer ${
+                    ledgerTypeFilter === "CONSULTATION"
+                      ? "bg-primary text-white"
+                      : "bg-surface hover:bg-surface-sunken text-ink-body border border-line"
+                  }`}
+                >
+                  Consultations ({consultations.length})
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1 md:w-56">
+                  <Search className="w-3.5 h-3.5 text-ink-subtle absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={ledgerSearch}
+                    onChange={(e) => setLedgerSearch(e.target.value)}
+                    placeholder="Search reference #..."
+                    className="w-full pl-8 pr-3 py-1.5 bg-surface border border-line rounded-lg text-xs text-ink focus:outline-none focus:border-primary"
+                  />
+                </div>
+                <select
+                  value={ledgerStatusFilter}
+                  onChange={(e: any) => setLedgerStatusFilter(e.target.value)}
+                  className="px-2.5 py-1.5 bg-surface border border-line rounded-lg text-xs font-semibold text-ink-body cursor-pointer"
+                >
+                  <option value="ALL">All Payments</option>
+                  <option value="DUE">Pending Due Only</option>
+                  <option value="PAID">Fully Paid Only</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Table / Ledger Records */}
+            {loadingData ? (
+              <div className="p-12 text-center bg-white rounded-2xl border border-line">
+                <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto mb-2" />
+                <p className="text-xs text-ink-subtle">Loading your financial statement...</p>
+              </div>
+            ) : filteredLedgerEntries.length === 0 ? (
+              <div className="bg-white p-12 rounded-2xl border border-line text-center space-y-3">
+                <Receipt className="w-12 h-12 text-ink-subtle opacity-40 mx-auto" />
+                <h3 className="font-serif text-lg font-bold text-primary">
+                  No ledger records found
+                </h3>
+                <p className="text-xs text-ink-body max-w-sm mx-auto">
+                  {ledgerSearch || ledgerTypeFilter !== "ALL" || ledgerStatusFilter !== "ALL"
+                    ? "No transactions match your current filters."
+                    : "Your ledger statement will display transaction history as soon as you place an order or schedule a clinic consultation."}
+                </p>
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl border border-line shadow-2xs overflow-hidden">
+                {/* Desktop View Table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-surface-sunken border-b border-line text-[11px] font-bold uppercase tracking-wider text-ink-subtle">
+                      <tr>
+                        <th className="py-3 px-4">Date &amp; Ref</th>
+                        <th className="py-3 px-4">Domain / Service</th>
+                        <th className="py-3 px-4">Status</th>
+                        <th className="py-3 px-4 text-right">Debit (Billed)</th>
+                        <th className="py-3 px-4 text-right">Credit (Paid)</th>
+                        <th className="py-3 px-4 text-right">Balance</th>
+                        <th className="py-3 px-4 text-center">Invoice / Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-line">
+                      {filteredLedgerEntries.map((entry) => {
+                        return (
+                          <tr key={entry.id} className="hover:bg-sand-50/50 transition-colors">
+                            <td className="py-3.5 px-4">
+                              <span className="font-mono font-bold text-primary block">
+                                {entry.reference}
+                              </span>
+                              <span className="text-[11px] text-ink-subtle">
+                                {entry.dateStr}
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                                  entry.type === "ORDER"
+                                    ? "bg-primary/10 text-primary"
+                                    : entry.type === "HIJAMA"
+                                    ? "bg-brand-gold-50 text-brand-gold-800"
+                                    : "bg-sand-100 text-ink-body"
+                                }`}>
+                                  {entry.type === "ORDER" && <Package className="w-3.5 h-3.5" />}
+                                  {entry.type === "HIJAMA" && <Droplets className="w-3.5 h-3.5" />}
+                                  {entry.type === "CONSULTATION" && <Calendar className="w-3.5 h-3.5" />}
+                                </span>
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="font-bold text-ink-body">{entry.title}</span>
+                                    <span className="text-[10px] text-ink-subtle">({entry.typeUrdu})</span>
+                                  </div>
+                                  <p className="text-[11px] text-ink-subtle truncate max-w-xs">
+                                    {entry.subtitle}
+                                  </p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-3.5 px-4">
+                              <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                                entry.paymentStatus === "PAID"
+                                  ? "bg-success-soft text-success border border-success-line"
+                                  : entry.paymentStatus === "CANCELLED"
+                                  ? "bg-danger-soft text-danger border border-danger/20"
+                                  : entry.paymentStatus === "PARTIAL"
+                                  ? "bg-warning-soft text-warning border border-warning-line"
+                                  : entry.paymentStatus === "COMPLIMENTARY"
+                                  ? "bg-info-soft text-info border border-info-line"
+                                  : "bg-warning-soft text-warning border border-warning-line"
+                              }`}>
+                                {entry.paymentStatus === "COMPLIMENTARY"
+                                  ? "Complimentary"
+                                  : entry.paymentStatus === "PAID"
+                                  ? "Paid in Full"
+                                  : entry.paymentStatus === "PARTIAL"
+                                  ? "Partially Paid"
+                                  : entry.paymentStatus === "CANCELLED"
+                                  ? "Cancelled / Void"
+                                  : "Payment Due"}
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4 text-right font-mono font-semibold text-ink">
+                              {entry.debit > 0 ? `₨ ${entry.debit.toLocaleString()}` : "—"}
+                            </td>
+                            <td className="py-3.5 px-4 text-right font-mono font-semibold text-brand-green-700">
+                              {entry.credit > 0 ? `₨ ${entry.credit.toLocaleString()}` : "—"}
+                            </td>
+                            <td className="py-3.5 px-4 text-right font-mono font-bold">
+                              <span className={entry.balance > 0 ? "text-danger" : "text-primary"}>
+                                ₨ {entry.balance.toLocaleString()}
+                              </span>
+                            </td>
+                            <td className="py-3.5 px-4 text-center">
+                              {entry.type === "ORDER" && entry.orderRecord ? (
+                                <div className="flex items-center justify-center gap-1.5">
+                                  <Link
+                                    href={`/invoices/${entry.reference}`}
+                                    target="_blank"
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-surface hover:bg-surface-sunken border border-line text-primary rounded-lg text-[11px] font-semibold transition-colors"
+                                    title="View & Download PDF Invoice"
+                                  >
+                                    <FileText className="w-3 h-3" />
+                                    <span>PDF</span>
+                                  </Link>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedInvoiceOrder(entry.orderRecord);
+                                      setIsInvoiceModalOpen(true);
+                                    }}
+                                    className="p-1 bg-surface hover:bg-surface-sunken border border-line text-primary rounded-lg text-[11px] transition-colors cursor-pointer"
+                                    title="Quick Preview Invoice"
+                                  >
+                                    <Printer className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              ) : entry.type === "HIJAMA" ? (
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveTab("hijama")}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-surface hover:bg-surface-sunken border border-line text-ink-body rounded-lg text-[11px] font-semibold transition-colors cursor-pointer"
+                                >
+                                  <span>View Ticket</span>
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveTab("consultations")}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-surface hover:bg-surface-sunken border border-line text-ink-body rounded-lg text-[11px] font-semibold transition-colors cursor-pointer"
+                                >
+                                  <span>View</span>
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile View Cards */}
+                <div className="md:hidden divide-y divide-line">
+                  {filteredLedgerEntries.map((entry) => (
+                    <div key={entry.id} className="p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="font-mono font-bold text-sm text-primary">
+                            {entry.reference}
+                          </span>
+                          <p className="text-[11px] text-ink-subtle">{entry.dateStr}</p>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                          entry.paymentStatus === "PAID"
+                            ? "bg-success-soft text-success border border-success-line"
+                            : entry.paymentStatus === "CANCELLED"
+                            ? "bg-danger-soft text-danger border border-danger/20"
+                            : "bg-warning-soft text-warning border border-warning-line"
+                        }`}>
+                          {entry.paymentStatus}
+                        </span>
+                      </div>
+
+                      <div className="text-xs space-y-0.5">
+                        <p className="font-bold text-ink">{entry.title} ({entry.typeUrdu})</p>
+                        <p className="text-[11px] text-ink-subtle">{entry.subtitle}</p>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2 bg-surface p-2.5 rounded-xl border border-line text-center text-xs">
+                        <div>
+                          <p className="text-[9px] uppercase font-bold text-ink-subtle">Billed</p>
+                          <p className="font-mono font-bold text-ink mt-0.5">
+                            {entry.debit > 0 ? `₨ ${entry.debit.toLocaleString()}` : "—"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] uppercase font-bold text-ink-subtle">Paid</p>
+                          <p className="font-mono font-bold text-brand-green-700 mt-0.5">
+                            {entry.credit > 0 ? `₨ ${entry.credit.toLocaleString()}` : "—"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[9px] uppercase font-bold text-ink-subtle">Balance</p>
+                          <p className={`font-mono font-bold mt-0.5 ${entry.balance > 0 ? "text-danger" : "text-primary"}`}>
+                            ₨ {entry.balance.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="pt-1 flex items-center justify-end gap-2">
+                        {entry.type === "ORDER" && entry.orderRecord && (
+                          <Link
+                            href={`/invoices/${entry.reference}`}
+                            target="_blank"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold shadow-xs"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            <span>Download Invoice (PDF)</span>
+                          </Link>
+                        )}
+                        {entry.type === "HIJAMA" && (
+                          <button
+                            type="button"
+                            onClick={() => setActiveTab("hijama")}
+                            className="px-3 py-1.5 bg-surface border border-line text-ink rounded-lg text-xs font-semibold"
+                          >
+                            View Hijama Ticket
+                          </button>
+                        )}
+                        {entry.type === "CONSULTATION" && (
+                          <button
+                            type="button"
+                            onClick={() => setActiveTab("consultations")}
+                            className="px-3 py-1.5 bg-surface border border-line text-ink rounded-lg text-xs font-semibold"
+                          >
+                            View Consultation
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─── TAB 3: WISHLIST ─── */}
         {activeTab === "wishlist" && (
           <div className="space-y-4">
             {wishlistProducts.length > 0 && (
@@ -1196,7 +1824,7 @@ export default function AccountPage() {
           </div>
         )}
 
-        {/* ─── TAB 3: CONSULTATIONS ─── */}
+        {/* ─── TAB 4: CONSULTATIONS ─── */}
         {activeTab === "consultations" && (
           <div className="space-y-4">
             <ClinicCallCard />
@@ -1377,7 +2005,7 @@ export default function AccountPage() {
           </div>
         )}
 
-        {/* ─── TAB 4: HIJAMA SESSIONS ─── */}
+        {/* ─── TAB 5: HIJAMA SESSIONS ─── */}
         {activeTab === "hijama" && (
           <div className="space-y-4">
             <ClinicCallCard />
@@ -1569,7 +2197,7 @@ export default function AccountPage() {
           </div>
         )}
 
-        {/* ─── TAB 5: PROFILE & ADDRESS ─── */}
+        {/* ─── TAB 6: PROFILE & ADDRESS ─── */}
         {activeTab === "profile" && (
           <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line shadow-xs space-y-6 max-w-2xl">
             <div className="flex items-center justify-between border-b border-sand-100 pb-3">
@@ -1763,6 +2391,16 @@ export default function AccountPage() {
           </div>
         )}
         </SurfaceFade>
+
+        {/* Printable Invoice Quick Preview Modal */}
+        <OrderInvoiceModal
+          isOpen={isInvoiceModalOpen}
+          onClose={() => {
+            setIsInvoiceModalOpen(false);
+            setSelectedInvoiceOrder(null);
+          }}
+          order={selectedInvoiceOrder}
+        />
 
       </div>
     </div>

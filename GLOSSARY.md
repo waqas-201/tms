@@ -44,6 +44,10 @@ _Avoid_: Order ID, receipt number, serial number
 A patient-provided diagnostic document (lab test, prescription, or clinical photo) securely hosted and linked to their consultation dossier.
 _Avoid_: Generic upload, file link, asset
 
+**Slot Strip**:
+A single-row, horizontally scrollable time-slot selection strip with snap alignment, edge fade indicators, keyboard navigation, and scroll chevrons, allowing patients to select an appointment window without vertical scrolling.
+_Avoid_: Time grid, vertical slot list, slot picker dropdown
+
 ### Ordering & Accounting
 
 **Order Confirmation**:

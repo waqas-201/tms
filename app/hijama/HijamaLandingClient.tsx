@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { CLINIC_INFO } from "@/app/data/products";
 import { useSession } from "@/lib/auth-client";
+import SlotStrip from "@/app/components/SlotStrip";
 import {
   getHijriDate,
   formatDateStr,
@@ -503,42 +504,13 @@ export default function HijamaLandingClient() {
                     No slots available on this date. The clinic may be closed or fully booked. Please pick another date.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-                    {slots.map((s) => {
-                      const isSelected = selectedSlot === s.slot;
-                      const isFull = s.seatsRemaining <= 0;
-
-                      return (
-                        <button
-                          key={s.slot}
-                          type="button"
-                          disabled={isFull}
-                          onClick={() => !isFull && setSelectedSlot(s.slot)}
-                          title={isFull ? "This slot is fully booked" : `Select ${s.slot}`}
-                          className={`py-2 px-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center relative ${
-                            isFull
-                              ? "bg-brand-green-50 text-primary/70 border-success-line/70 opacity-60 blur-[0.4px] hover:blur-[0.4px] cursor-not-allowed select-none"
-                              : isSelected
-                              ? "bg-surface-inverse text-white border-ink shadow-xs cursor-pointer"
-                              : "bg-surface text-ink border-line hover:border-ink cursor-pointer"
-                          }`}
-                        >
-                          <span className="text-xs font-bold leading-tight">{s.startTime}</span>
-                          <span
-                            className={`text-[10px] mt-0.5 ${
-                              isFull
-                                ? "text-primary/60 font-semibold"
-                                : isSelected
-                                ? "text-brand-gold-500 font-semibold"
-                                : "text-ink-subtle"
-                            }`}
-                          >
-                            {isFull ? "Booked" : "Available"}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <SlotStrip
+                    slots={slots}
+                    selectedSlot={selectedSlot}
+                    onSelectSlot={(slot) => setSelectedSlot(slot)}
+                    variant="inverse"
+                    bgFadeClass="from-surface"
+                  />
                 )}
               </div>
             </div>

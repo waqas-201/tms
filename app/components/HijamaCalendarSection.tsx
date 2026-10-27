@@ -37,6 +37,7 @@ import {
 import Reveal from "./motion/Reveal";
 import StepTransition from "./motion/StepTransition";
 import StepConnector from "./motion/StepConnector";
+import SlotStrip from "./SlotStrip";
 
 export default function HijamaCalendarSection() {
   const { data: session } = useSession();
@@ -656,44 +657,13 @@ export default function HijamaCalendarSection() {
                         No slots available on this date. The clinic may be closed or fully booked. Please select an alternative date.
                       </div>
                     ) : (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[220px] overflow-y-auto pr-1">
-                        {slots.map((s) => {
-                          const isChosen = selectedSlot === s.slot;
-                          const isFull = s.seatsRemaining <= 0 || !s.available;
-
-                          return (
-                            <button
-                              key={s.slot}
-                              type="button"
-                              disabled={isFull}
-                              onClick={() => !isFull && setSelectedSlot(s.slot)}
-                              title={isFull ? "This slot is fully booked" : `Select ${s.slot}`}
-                              className={`py-2 px-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center relative ${
-                                isFull
-                                  ? "bg-brand-green-50 text-primary/70 border-success-line/70 opacity-60 blur-[0.4px] hover:blur-[0.4px] cursor-not-allowed select-none"
-                                  : isChosen
-                                  ? "bg-surface-inverse text-white border-ink shadow-xs font-semibold cursor-pointer"
-                                  : "bg-surface text-ink border-line hover:border-ink cursor-pointer"
-                              }`}
-                            >
-                              <span className="text-xs font-bold leading-tight">
-                                {s.startTime || s.slot}
-                              </span>
-                              <span
-                                className={`text-[10px] mt-0.5 ${
-                                  isFull
-                                    ? "text-primary/60 font-semibold"
-                                    : isChosen
-                                    ? "text-secondary-text font-semibold"
-                                    : "text-ink-subtle"
-                                }`}
-                              >
-                                {isFull ? "Booked" : "Available"}
-                              </span>
-                            </button>
-                          );
-                        })}
-                      </div>
+                      <SlotStrip
+                        slots={slots}
+                        selectedSlot={selectedSlot}
+                        onSelectSlot={(slot) => setSelectedSlot(slot)}
+                        variant="inverse"
+                        bgFadeClass="from-surface"
+                      />
                     )}
                   </div>
 

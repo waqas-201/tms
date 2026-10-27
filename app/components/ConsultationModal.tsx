@@ -41,6 +41,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUploadThing } from "@/lib/uploadthing";
+import SlotStrip from "@/app/components/SlotStrip";
 
 export interface AttachedReportFile {
   name: string;
@@ -811,41 +812,14 @@ Please confirm my appointment.`;
                           Please pick another date.
                         </div>
                       ) : availability && availability.slots?.length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                          {availability.slots.map((s: any) => {
-                            const isSelected = appointmentSlot === s.slot;
-                            return (
-                              <button
-                                key={s.slot}
-                                type="button"
-                                disabled={!s.available}
-                                onClick={() => setAppointmentSlot(s.slot)}
-                                className={`p-2.5 rounded-lg border text-center transition-all ${
-                                  !s.available
-                                    ? "bg-surface-sunken border-line text-ink-subtle cursor-not-allowed line-through"
-                                    : isSelected
-                                    ? "bg-primary text-white border-primary shadow-xs"
-                                    : "bg-white border-line text-ink hover:border-primary"
-                                }`}
-                              >
-                                <span className="block text-xs font-bold font-mono">
-                                  {s.slot}
-                                </span>
-                                <span
-                                  className={`block text-[10px] mt-0.5 ${
-                                    isSelected
-                                      ? "text-white/80"
-                                      : s.available
-                                      ? "text-success font-semibold"
-                                      : "text-ink-subtle"
-                                  }`}
-                                >
-                                  {s.available ? "Available" : "Booked"}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
+                        <SlotStrip
+                          slots={availability.slots}
+                          selectedSlot={appointmentSlot}
+                          onSelectSlot={(slot) => setAppointmentSlot(slot)}
+                          variant="primary"
+                          bgFadeClass="from-white"
+                          showClockIcon
+                        />
                       ) : (
                         <p className="text-xs text-ink-subtle">
                           No slots available for this date.

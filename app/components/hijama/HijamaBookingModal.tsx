@@ -43,6 +43,7 @@ import {
   buildAuthUrl,
 } from "@/lib/auth-redirect";
 import StepTransition from "@/app/components/motion/StepTransition";
+import SlotStrip from "@/app/components/SlotStrip";
 import StepConnector from "@/app/components/motion/StepConnector";
 import {
   formatDateStr,
@@ -734,45 +735,14 @@ export default function HijamaBookingModal({
                   No slots configured for this date.
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[220px] overflow-y-auto pr-1">
-                  {availability.slots.map((slot) => {
-                    const isChosen = selectedSlot === slot.slot;
-                    const isAvailable = slot.available && slot.seatsRemaining > 0;
-
-                    return (
-                      <button
-                        key={slot.slot}
-                        type="button"
-                        disabled={!isAvailable}
-                        onClick={() => setSelectedSlot(slot.slot)}
-                        className={`p-2.5 rounded-xl border text-left flex items-center justify-between text-xs transition-all ${
-                          isChosen
-                            ? "bg-primary text-white border-primary shadow-sm font-semibold cursor-pointer"
-                            : isAvailable
-                            ? "bg-white border-line hover:border-primary hover:bg-success-soft/50 text-ink cursor-pointer"
-                            : "bg-brand-green-50 text-primary/60 border-success-line/70 opacity-60 blur-[0.4px] hover:blur-[0.4px] cursor-not-allowed select-none"
-                        }`}
-                      >
-                        <span className="truncate">{slot.slot}</span>
-                        {isAvailable ? (
-                          <span
-                            className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold shrink-0 ml-1 ${
-                              isChosen
-                                ? "bg-white/20 text-white"
-                                : "bg-brand-green-50 text-primary"
-                            }`}
-                          >
-                            Available
-                          </span>
-                        ) : (
-                          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-brand-green-50 text-primary/70 shrink-0 ml-1">
-                            Booked
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+                <SlotStrip
+                  slots={availability.slots}
+                  selectedSlot={selectedSlot}
+                  onSelectSlot={(slot) => setSelectedSlot(slot)}
+                  variant="primary"
+                  bgFadeClass="from-white"
+                  showClockIcon
+                />
               )}
             </div>
           </div>

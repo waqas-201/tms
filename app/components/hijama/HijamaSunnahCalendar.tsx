@@ -16,6 +16,7 @@ import {
   ArrowRight,
   Loader2,
 } from "lucide-react";
+import SlotStrip from "@/app/components/SlotStrip";
 import {
   getHijriDate,
   formatDateStr,
@@ -608,66 +609,17 @@ export default function HijamaSunnahCalendar({
                   No time slots configured for this date.
                 </div>
               ) : (
-                <div className="space-y-1.5 max-h-[310px] overflow-y-auto pr-1">
-                  {dateAvailability.slots.map((slot) => {
-                    const isSlotSelected = selectedSlot === slot.slot;
-                    const isAvailable =
-                      slot.available && slot.seatsRemaining > 0;
-
-                    return (
-                      <button
-                        key={slot.slot}
-                        type="button"
-                        disabled={!isAvailable}
-                        onClick={() => handleSlotClick(slot)}
-                        className={`w-full p-2.5 rounded-xl border text-left flex items-center justify-between transition-all ${
-                          isSlotSelected
-                            ? "bg-primary text-white border-primary shadow-md cursor-pointer"
-                            : isAvailable
-                            ? "bg-white border-line hover:border-primary hover:bg-success-soft/40 text-ink cursor-pointer"
-                            : "bg-brand-green-50 text-primary/60 border-success-line/70 opacity-60 blur-[0.4px] hover:blur-[0.4px] cursor-not-allowed select-none"
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
-                          <Clock
-                            className={`w-3.5 h-3.5 shrink-0 ${
-                              isSlotSelected
-                                ? "text-brand-gold-200"
-                                : isAvailable
-                                ? "text-primary"
-                                : "text-ink-subtle"
-                            }`}
-                          />
-                          <span className="text-xs font-semibold truncate">
-                            {slot.slot}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-2 shrink-0">
-                          {isAvailable ? (
-                            <span
-                              className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                                isSlotSelected
-                                  ? "bg-white/20 text-white"
-                                  : "bg-brand-green-50 text-primary border border-brand-green-200"
-                              }`}
-                            >
-                              Available
-                            </span>
-                          ) : (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-brand-green-50 text-primary/70">
-                              Booked
-                            </span>
-                          )}
-
-                          {isSlotSelected && (
-                            <CheckCircle2 className="w-4 h-4 text-brand-gold-200" />
-                          )}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
+                <SlotStrip
+                  slots={dateAvailability.slots}
+                  selectedSlot={selectedSlot}
+                  onSelectSlot={(slotStr: string) => {
+                    const slotObj = dateAvailability.slots.find((s) => s.slot === slotStr);
+                    if (slotObj) handleSlotClick(slotObj);
+                  }}
+                  variant="primary"
+                  bgFadeClass="from-white"
+                  showClockIcon
+                />
               )}
             </div>
 

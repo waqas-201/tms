@@ -289,7 +289,7 @@ export interface OrderConfirmationEmailParams {
   paymentMethod?: string;
   items: OrderItemEmailData[];
   subtotal: number;
-  shippingFee: number;
+  shippingFee?: number | null;
   discountAmount?: number;
   total: number;
   createdAt?: Date | string;
@@ -362,10 +362,10 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
       `
         : "";
 
-    const shippingDisplay =
-      shippingFee === 0
-        ? `<span style="color: ${BRAND.success}; font-weight: 700; text-transform: uppercase;">Free</span>`
-        : `₨ ${shippingFee}`;
+    const hasShipping = typeof shippingFee === "number" && shippingFee > 0;
+    const shippingDisplay = hasShipping
+      ? `₨ ${shippingFee.toLocaleString()}`
+      : `<span style="color: ${BRAND.secondaryText}; font-weight: 600;">Pending Clinic Confirmation</span>`;
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -469,10 +469,10 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
                   </tr>
                   <tr style="border-top: 2px solid ${BRAND.primary};">
                     <td colspan="3" align="right" style="padding: 12px 10px; font-size: 15px; font-weight: 700; color: ${BRAND.primary};">
-                      Total Payable (COD):
+                      ${hasShipping ? "Total Payable (COD):" : "Products Total (COD):"}
                     </td>
                     <td align="right" style="padding: 12px 10px; font-size: 16px; font-weight: 800; color: ${BRAND.primary};">
-                      ₨ ${total.toLocaleString()}
+                      ₨ ${total.toLocaleString()}${hasShipping ? "" : ` <span style="font-size: 11px; font-weight: normal; color: ${BRAND.inkSubtle};">(+ Delivery)</span>`}
                     </td>
                   </tr>
                 </tfoot>

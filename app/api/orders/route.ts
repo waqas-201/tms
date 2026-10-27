@@ -270,14 +270,16 @@ export async function POST(request: NextRequest) {
       isFreeShippingCoupon: couponCode === "FREESHIP",
     });
 
-    const shippingFee = deliveryCalc.deliveryFee;
+    // Deferred delivery charges: shipping fee is calculated and confirmed manually by clinic admin
+    const shippingFee = 0;
     const finalDiscount = Math.min(subtotal, Math.max(0, Number(discountAmount) || 0));
-    const total = Math.max(0, subtotal + shippingFee - finalDiscount);
+    const total = Math.max(0, subtotal - finalDiscount);
 
     let finalDeliveryNotes = deliveryNotes || null;
     if (couponCode) {
       finalDeliveryNotes = `[COUPON APPLIED: ${couponCode} | DISCOUNT: ₨ ${finalDiscount}] ` + (finalDeliveryNotes || "");
     }
+    finalDeliveryNotes = `[DELIVERY: Pending Clinic Confirmation] ` + (finalDeliveryNotes || "");
 
     // Generate readable order number: TMS-YYYY-XXXX
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
@@ -296,14 +298,15 @@ export async function POST(request: NextRequest) {
             customerLatitude: parsedLat,
             customerLongitude: parsedLng,
             deliveryDistanceKm: deliveryCalc.distanceKm,
-            deliveryFeeType: deliveryCalc.feeType,
+            deliveryFeeType: "MANUAL",
             deliveryNotes: finalDeliveryNotes,
             paymentMethod,
             paymentStatus: "PENDING",
-            orderStatus: "PENDING",
+            orderStatus: "PENDING_CONFIRMATION",
             subtotal,
-            shippingFee,
+            shippingFee: 0,
             total,
+            dueAmount: total,
             userId: session?.user?.id || null,
             items: {
               create: resolvedItems.map((item) => ({
@@ -328,7 +331,7 @@ export async function POST(request: NextRequest) {
 
         // Reserve stock for the ordered items in this transaction
         const itemsToReserve = resolvedItems
-          .filter((i) => i.productSizeId !== null)
+          .filter((i) => i.productSizeId)
           .map((i) => ({
             productSizeId: i.productSizeId as string,
             quantity: i.quantity,
@@ -359,8 +362,8 @@ export async function POST(request: NextRequest) {
     // In-app staff alert (best-effort, never blocks the order response)
     await createAdminNotification({
       type: "ORDER",
-      title: `New order ${order.orderNumber}`,
-      message: `${String(customerName).trim()} · ₨ ${total.toLocaleString()} · ${String(
+      title: `New order ${order.orderNumber} (Pending Review)`,
+      message: `${String(customerName).trim()} · ₨ ${total.toLocaleString()} (Products) · ${String(
         city
       ).trim()} · ${cleanPhone}`,
       link: "/admin?tab=orders",
@@ -389,7 +392,7 @@ export async function POST(request: NextRequest) {
         paymentMethod: paymentMethod === "COD" ? "Cash on Delivery (COD)" : paymentMethod,
         items: emailItems,
         subtotal,
-        shippingFee,
+        shippingFee: null as any,
         discountAmount: finalDiscount,
         total,
         createdAt: order.createdAt,
@@ -409,7 +412,7 @@ export async function POST(request: NextRequest) {
       paymentMethod: paymentMethod === "COD" ? "Cash on Delivery (COD)" : paymentMethod,
       items: emailItems,
       subtotal,
-      shippingFee,
+      shippingFee: null as any,
       discountAmount: finalDiscount,
       total,
       createdAt: order.createdAt,
@@ -421,7 +424,7 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         data: order,
-        message: "Order placed successfully! Cash on Delivery will be dispatched shortly.",
+        message: "Order received successfully! Clinic staff will confirm delivery charges and issue your invoice shortly.",
       },
       { status: 201 }
     );

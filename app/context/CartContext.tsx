@@ -356,18 +356,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Calculate shipping
-  let shippingFee = 0;
-  if (cart.length > 0) {
-    if (appliedCoupon?.discountType === "free_shipping" || subtotal >= freeShippingThreshold) {
-      shippingFee = 0;
-    } else {
-      shippingFee = CLINIC_INFO.flatShippingFee; // 200 PKR
-    }
-  }
-
-  const total = Math.max(0, subtotal - discountAmount + shippingFee);
-  const remainingForFreeShipping = Math.max(0, freeShippingThreshold - subtotal);
+  // Deferred delivery calculation: shipping fee is determined manually upon clinic review
+  const shippingFee = 0;
+  const total = Math.max(0, subtotal - discountAmount);
+  const remainingForFreeShipping = 0;
 
   // Apply coupon
   const applyCoupon = (code: string): { success: boolean; message: string } => {
@@ -418,9 +410,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       message += `\n*Coupon Applied (${appliedCoupon.code}):* -₨ ${discountAmount.toLocaleString()}`;
     }
 
-    message += `\n*Delivery Fee:* ${
-      shippingFee === 0 ? "FREE" : `₨ ${shippingFee}`
-    }\n*Total Payable (COD):* ₨ ${total.toLocaleString()}`;
+    message += `\n*Delivery Charges:* Pending Clinic Confirmation\n*Products Total:* ₨ ${total.toLocaleString()} (+ Delivery to be confirmed on invoice)`;
 
     if (customerDetails && customerDetails.name) {
       message += `\n\n*Customer Details:*\n• Name: ${customerDetails.name}\n• Phone: ${

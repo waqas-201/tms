@@ -13,7 +13,6 @@ import {
   ArrowRight,
   Loader2,
   AlertCircle,
-  ShieldCheck,
   Eye,
   EyeOff,
   MapPin,
@@ -93,9 +92,9 @@ function RegisterForm() {
         throw new Error("Password must be at least 8 characters long.");
       }
 
-      // Phone is mandatory so clinic staff can always reach a customer about
-      // an order or consultation.
-      if (formData.phone.replace(/\D/g, "").length < 10) {
+      const trimmedPhone = formData.phone.trim();
+      const phoneDigits = trimmedPhone.replace(/\D/g, "");
+      if (phoneDigits.length > 0 && phoneDigits.length < 10) {
         throw new Error("Please enter a valid phone / WhatsApp number.");
       }
 
@@ -108,7 +107,7 @@ function RegisterForm() {
         name: formData.name.trim(),
         email: lowerEmail,
         password: formData.password,
-        phone: formData.phone.trim(),
+        phone: trimmedPhone || undefined,
         city: formData.city.trim(),
         address: formData.address.trim() || undefined,
         latitude: formData.latitude ?? undefined,
@@ -144,13 +143,6 @@ function RegisterForm() {
         <p className="text-xs text-ink-muted">
           Track your orders and online consultation history.
         </p>
-      </div>
-
-      <div className="p-3 bg-success-soft/80 border border-success-line rounded-xl text-[11px] text-success flex items-start gap-2">
-        <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-        <span>
-          <strong>Email Verification Notice:</strong> An activation link will be sent to your email. Verification is required before placing orders.
-        </span>
       </div>
 
       {error && (
@@ -198,11 +190,13 @@ function RegisterForm() {
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-ink">
-              Phone / WhatsApp <span className="text-danger">*</span>
+              Phone / WhatsApp{" "}
+              <span className="text-ink-muted text-[10px] font-normal">
+                (Optional)
+              </span>
             </label>
             <input
               type="tel"
-              required
               inputMode="tel"
               autoComplete="tel"
               value={formData.phone}

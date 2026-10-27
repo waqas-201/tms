@@ -44,6 +44,24 @@ _Avoid_: Order ID, receipt number, serial number
 A patient-provided diagnostic document (lab test, prescription, or clinical photo) securely hosted and linked to their consultation dossier.
 _Avoid_: Generic upload, file link, asset
 
+### Ordering & Accounting
+
+**Order Confirmation**:
+The administrative review step where the clinic reviews a placed order's delivery address and manually determines and applies delivery charges.
+_Avoid_: Auto-dispatch, instant checkout
+
+**Invoice Reference**:
+A unique alphanumeric financial document identifier (e.g. `INV-2026-1042`) assigned to confirmed orders or services.
+_Avoid_: Bill number, receipt tag
+
+**Patient Ledger**:
+The unified statement of account listing chronological debits (orders, Hijama visits, consultations) and credits (payments received via COD, bank, JazzCash, EasyPaisa, clinic cash) for a patient.
+_Avoid_: Transaction log, history list
+
+**Payment Record**:
+An individual ledger entry capturing an actual financial transfer received from or refunded to a patient.
+_Avoid_: Cash entry, bank slip
+
 ### Motion
 
 **Step Transition**:
@@ -61,4 +79,3 @@ _Avoid_: Popup animation, tab effect
 **Motion Token**:
 A named duration or easing value shared by every transition in the app, so that motion stays consistent across surfaces.
 _Avoid_: Animation constant, timing config, bezier variable
-

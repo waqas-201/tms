@@ -31,26 +31,77 @@ function withReplyTo<T extends object>(payload: T) {
   return REPLY_TO ? { ...payload, replyTo: REPLY_TO } : payload;
 }
 
-interface SendEmailParams {
+export interface SendEmailParams {
   to: string;
   name?: string;
-  url: string;
+  url?: string;
   token?: string;
+  otp?: string;
 }
 
 /**
- * Sends a branded Email Verification link to the user
+ * Sends a branded Verification Code (or legacy link) to the patient
  */
-export async function sendVerificationEmail({ to, name, url }: SendEmailParams) {
+export async function sendVerificationEmail({ to, name, url, otp }: SendEmailParams) {
   try {
     const recipientName = name || "Valued Patient";
-    const verificationUrl = url.startsWith("http")
-      ? url
-      : `${APP_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+    const verificationUrl = url
+      ? url.startsWith("http")
+        ? url
+        : `${APP_URL}${url.startsWith("/") ? "" : "/"}${url}`
+      : "";
 
     if (process.env.NODE_ENV !== "production") {
-      console.log(`\n📧 [EMAIL DISPATCH - VERIFY EMAIL] To: ${to}\n🔗 Verification Link: ${verificationUrl}\n`);
+      if (otp) {
+        console.log(`\n📬 [EMAIL DISPATCH - VERIFICATION CODE] To: ${to}\n🔢 Verification Code: ${otp}\n⏳ Valid for: 5 minutes\n`);
+      } else {
+        console.log(`\n📧 [EMAIL DISPATCH - VERIFY EMAIL] To: ${to}\n🔗 Verification Link: ${verificationUrl}\n`);
+      }
     }
+
+    const codeSection = otp
+      ? `
+              <!-- Verification Code Callout Card -->
+              <div style="margin: 28px 0; text-align: center;">
+                <div style="display: inline-block; background-color: ${BRAND.surface}; border: 2px dashed ${BRAND.primary}; border-radius: 12px; padding: 20px 32px;">
+                  <span style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; color: ${BRAND.inkSubtle}; margin-bottom: 8px;">
+                    Verification Code · تصدیقی کوڈ
+                  </span>
+                  <span style="display: block; font-family: 'SF Mono', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 36px; font-weight: 800; letter-spacing: 8px; color: ${BRAND.primary};">
+                    ${otp}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Bilingual Expiration & Security Guidance -->
+              <div style="background-color: ${BRAND.surface}; border-radius: 10px; padding: 14px 18px; margin: 20px 0; border-left: 4px solid ${BRAND.primary};">
+                <p style="margin: 0 0 6px 0; font-size: 13px; line-height: 1.5; color: ${BRAND.inkBody};">
+                  <strong>Security Notice:</strong> This code is valid for <strong>5 minutes</strong>. Enter this 6-digit code on the verification screen to activate your account.
+                </p>
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: ${BRAND.inkBody}; direction: rtl; text-align: right; font-family: Tahoma, 'Noto Nastaliq Urdu', sans-serif;">
+                  <strong>سیکیورٹی نوٹ:</strong> یہ تصدیقی کوڈ <strong>۵ منٹ</strong> کے لیے کارآمد ہے۔ اپنا اکاؤنٹ فعال کرنے کے لیے یہ ۶ ہندسوں کا کوڈ اسکرین پر درج کریں۔
+                </p>
+              </div>
+      `
+      : `
+              <!-- CTA Button (Legacy Fallback) -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 28px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="${verificationUrl}" target="_blank" style="display: inline-block; padding: 14px 32px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 14px; font-weight: bold; border-radius: 10px; letter-spacing: 0.5px; box-shadow: 0 2px 6px ${BRAND.primaryA2};">
+                      Verify Email Address
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 0 0 16px 0; font-size: 13px; line-height: 1.5; color: ${BRAND.inkSubtle};">
+                If the button above does not work, copy and paste this link into your browser:
+              </p>
+              <p style="margin: 0 0 24px 0; font-size: 12px; line-height: 1.4; word-break: break-all; color: ${BRAND.secondaryText}; background-color: ${BRAND.surface}; padding: 10px; border-radius: 6px; border: 1px dashed ${BRAND.line};">
+                ${verificationUrl}
+              </p>
+      `;
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -85,31 +136,15 @@ export async function sendVerificationEmail({ to, name, url }: SendEmailParams) 
                 Assalam-o-Alaikum, ${recipientName}!
               </h2>
               <p style="margin: 0 0 20px 0; font-size: 15px; line-height: 1.6; color: ${BRAND.inkBody};">
-                Thank you for joining <strong>Tameer-e-Sehat</strong>. To activate your patient account and secure your consultations and remedy orders, please verify your email address.
+                Thank you for joining <strong>Tameer-e-Sehat</strong>. To activate your patient account and secure your clinical consultations and remedies, please enter your verification code.
               </p>
 
-              <!-- CTA Button -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 28px 0;">
-                <tr>
-                  <td align="center">
-                    <a href="${verificationUrl}" target="_blank" style="display: inline-block; padding: 14px 32px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 14px; font-weight: bold; border-radius: 10px; letter-spacing: 0.5px; box-shadow: 0 2px 6px ${BRAND.primaryA2};">
-                      Verify Email Address
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="margin: 0 0 16px 0; font-size: 13px; line-height: 1.5; color: ${BRAND.inkSubtle};">
-                If the button above does not work, copy and paste this link into your browser:
-              </p>
-              <p style="margin: 0 0 24px 0; font-size: 12px; line-height: 1.4; word-break: break-all; color: ${BRAND.secondaryText}; background-color: ${BRAND.surface}; padding: 10px; border-radius: 6px; border: 1px dashed ${BRAND.line};">
-                ${verificationUrl}
-              </p>
+              ${codeSection}
 
               <hr style="border: 0; border-top: 1px solid ${BRAND.surfaceSunken}; margin: 24px 0;" />
 
               <p style="margin: 0; font-size: 12px; line-height: 1.5; color: ${BRAND.inkSubtle};">
-                This link will expire in <strong>24 hours</strong>. If you did not create an account with Tameer-e-Sehat, please disregard this email.
+                If you did not request this code or create an account with Tameer-e-Sehat, please safely disregard this email.
               </p>
             </td>
           </tr>
@@ -137,7 +172,7 @@ export async function sendVerificationEmail({ to, name, url }: SendEmailParams) 
     const { data, error } = await resend.emails.send(withReplyTo({
       from: DEFAULT_FROM,
       to: [to],
-      subject: "Verify Your Email - Tameer-e-Sehat Herbal Clinic",
+      subject: otp ? `${otp} is your verification code - Tameer-e-Sehat` : "Verify Your Email - Tameer-e-Sehat Herbal Clinic",
       html: htmlContent,
     }));
 
@@ -155,18 +190,68 @@ export async function sendVerificationEmail({ to, name, url }: SendEmailParams) 
 }
 
 /**
- * Sends a branded Password Reset link to the user
+ * Sends a branded Password Reset Code (or legacy link) to the patient
  */
-export async function sendPasswordResetEmail({ to, name, url }: SendEmailParams) {
+export async function sendPasswordResetEmail({ to, name, url, otp }: SendEmailParams) {
   try {
     const recipientName = name || "Valued Patient";
-    const resetUrl = url.startsWith("http")
-      ? url
-      : `${APP_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+    const resetUrl = url
+      ? url.startsWith("http")
+        ? url
+        : `${APP_URL}${url.startsWith("/") ? "" : "/"}${url}`
+      : "";
 
     if (process.env.NODE_ENV !== "production") {
-      console.log(`\n📧 [EMAIL DISPATCH - PASSWORD RESET] To: ${to}\n🔗 Reset Link: ${resetUrl}\n`);
+      if (otp) {
+        console.log(`\n📬 [EMAIL DISPATCH - PASSWORD RESET CODE] To: ${to}\n🔢 Reset Code: ${otp}\n⏳ Valid for: 5 minutes\n`);
+      } else {
+        console.log(`\n📧 [EMAIL DISPATCH - PASSWORD RESET] To: ${to}\n🔗 Reset Link: ${resetUrl}\n`);
+      }
     }
+
+    const codeSection = otp
+      ? `
+              <!-- Reset Code Callout Card -->
+              <div style="margin: 28px 0; text-align: center;">
+                <div style="display: inline-block; background-color: ${BRAND.surface}; border: 2px dashed ${BRAND.primary}; border-radius: 12px; padding: 20px 32px;">
+                  <span style="display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 700; color: ${BRAND.inkSubtle}; margin-bottom: 8px;">
+                    Password Reset Code · پاس ورڈ تبدیل کرنے کا کوڈ
+                  </span>
+                  <span style="display: block; font-family: 'SF Mono', Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 36px; font-weight: 800; letter-spacing: 8px; color: ${BRAND.primary};">
+                    ${otp}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Bilingual Expiration & Security Guidance -->
+              <div style="background-color: ${BRAND.surface}; border-radius: 10px; padding: 14px 18px; margin: 20px 0; border-left: 4px solid ${BRAND.primary};">
+                <p style="margin: 0 0 6px 0; font-size: 13px; line-height: 1.5; color: ${BRAND.inkBody};">
+                  <strong>Security Notice:</strong> This password reset code is valid for <strong>5 minutes</strong>. Enter this code along with your new password to restore account access.
+                </p>
+                <p style="margin: 0; font-size: 13px; line-height: 1.5; color: ${BRAND.inkBody}; direction: rtl; text-align: right; font-family: Tahoma, 'Noto Nastaliq Urdu', sans-serif;">
+                  <strong>سیکیورٹی نوٹ:</strong> یہ کوڈ <strong>۵ منٹ</strong> کے لیے کارآمد ہے۔ نیا پاس ورڈ سیٹ کرنے کے لیے یہ کوڈ درج کریں۔
+                </p>
+              </div>
+      `
+      : `
+              <!-- CTA Button (Legacy Fallback) -->
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 28px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="${resetUrl}" target="_blank" style="display: inline-block; padding: 14px 32px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 14px; font-weight: bold; border-radius: 10px; letter-spacing: 0.5px; box-shadow: 0 2px 6px ${BRAND.primaryA2};">
+                      Reset My Password
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin: 0 0 16px 0; font-size: 13px; line-height: 1.5; color: ${BRAND.inkSubtle};">
+                If you are having trouble clicking the button, copy and paste the link below:
+              </p>
+              <p style="margin: 0 0 24px 0; font-size: 12px; line-height: 1.4; word-break: break-all; color: ${BRAND.secondaryText}; background-color: ${BRAND.surface}; padding: 10px; border-radius: 6px; border: 1px dashed ${BRAND.line};">
+                ${resetUrl}
+              </p>
+      `;
 
     const htmlContent = `
 <!DOCTYPE html>
@@ -204,28 +289,12 @@ export async function sendPasswordResetEmail({ to, name, url }: SendEmailParams)
                 Hello <strong>${recipientName}</strong>, we received a request to reset the password for your account associated with <strong>${to}</strong>.
               </p>
 
-              <!-- CTA Button -->
-              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin: 28px 0;">
-                <tr>
-                  <td align="center">
-                    <a href="${resetUrl}" target="_blank" style="display: inline-block; padding: 14px 32px; background-color: ${BRAND.primary}; color: ${BRAND.surfaceRaised}; text-decoration: none; font-size: 14px; font-weight: bold; border-radius: 10px; letter-spacing: 0.5px; box-shadow: 0 2px 6px ${BRAND.primaryA2};">
-                      Reset My Password
-                    </a>
-                  </td>
-                </tr>
-              </table>
-
-              <p style="margin: 0 0 16px 0; font-size: 13px; line-height: 1.5; color: ${BRAND.inkSubtle};">
-                If you are having trouble clicking the button, copy and paste the link below:
-              </p>
-              <p style="margin: 0 0 24px 0; font-size: 12px; line-height: 1.4; word-break: break-all; color: ${BRAND.secondaryText}; background-color: ${BRAND.surface}; padding: 10px; border-radius: 6px; border: 1px dashed ${BRAND.line};">
-                ${resetUrl}
-              </p>
+              ${codeSection}
 
               <hr style="border: 0; border-top: 1px solid ${BRAND.surfaceSunken}; margin: 24px 0;" />
 
               <p style="margin: 0; font-size: 12px; line-height: 1.5; color: ${BRAND.inkSubtle};">
-                <strong>Security Notice:</strong> This password reset link is valid for <strong>1 hour</strong>. If you did not make this request, please safely ignore this email; your password will remain unchanged.
+                <strong>Security Notice:</strong> If you did not make this request, please safely ignore this email; your password will remain unchanged.
               </p>
             </td>
           </tr>
@@ -253,7 +322,7 @@ export async function sendPasswordResetEmail({ to, name, url }: SendEmailParams)
     const { data, error } = await resend.emails.send(withReplyTo({
       from: DEFAULT_FROM,
       to: [to],
-      subject: "Reset Your Password - Tameer-e-Sehat Herbal Clinic",
+      subject: otp ? `${otp} is your password reset code - Tameer-e-Sehat` : "Reset Your Password - Tameer-e-Sehat Herbal Clinic",
       html: htmlContent,
     }));
 
@@ -269,7 +338,6 @@ export async function sendPasswordResetEmail({ to, name, url }: SendEmailParams)
     return { success: false, error: errorMsg };
   }
 }
-
 export interface OrderItemEmailData {
   productName: string;
   sizeWeight: string;

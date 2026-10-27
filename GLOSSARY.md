@@ -83,3 +83,13 @@ _Avoid_: Popup animation, tab effect
 **Motion Token**:
 A named duration or easing value shared by every transition in the app, so that motion stays consistent across surfaces.
 _Avoid_: Animation constant, timing config, bezier variable
+
+### Patient Authentication & Security
+
+**Verification Code**:
+A temporary, single-use 6-digit numeric passkey issued via email to confirm a patient's identity or verify email ownership.
+_Avoid_: OTP, pin, activation link, token, secret
+
+**Password Reset Code**:
+A single-use 6-digit numeric passkey issued to a patient to authenticate an authorized password change request.
+_Avoid_: Reset token, recovery link, reset password URL

@@ -1,10 +1,16 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { emailOTP } from "better-auth/plugins";
 import prisma from "./prisma";
 import { sendVerificationEmail, sendPasswordResetEmail } from "./email";
 import { linkGuestRecordsToUser } from "./link-records";
 
 const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "admin@tameeresehat.com").toLowerCase().trim();
+
+let _lastEmittedOTP: { email: string; otp: string; type: string } | null = null;
+export function getLastEmittedOTP() {
+  return _lastEmittedOTP;
+}
 
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
@@ -15,7 +21,19 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
-    resetPasswordTokenExpiresIn: 60 * 60, // 1 hour
+    revokeSessionsOnPasswordReset: true,
+    onPasswordReset: async ({ user }) => {
+      try {
+        if (user?.id) {
+          await prisma.session.deleteMany({
+            where: { userId: user.id },
+          });
+        }
+      } catch (err) {
+        console.error("[auth] Failed to purge sessions on password reset:", err);
+      }
+    },
+    resetPasswordTokenExpiresIn: 60 * 60, // 1 hour legacy fallback
     sendResetPassword: async ({ user, url, token }) => {
       const result = await sendPasswordResetEmail({
         to: user.email,
@@ -37,7 +55,7 @@ export const auth = betterAuth({
   emailVerification: {
     sendOnSignUp: true,
     autoSignInAfterVerification: true,
-    expiresIn: 60 * 60 * 24, // 24 hours
+    expiresIn: 60 * 60 * 24, // 24 hours legacy fallback
     sendVerificationEmail: async ({ user, url, token }) => {
       const result = await sendVerificationEmail({
         to: user.email,
@@ -56,6 +74,47 @@ export const auth = betterAuth({
       }
     },
   },
+  plugins: [
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }) {
+        _lastEmittedOTP = { email, otp, type };
+        if (type === "email-verification") {
+          const result = await sendVerificationEmail({
+            to: email,
+            otp,
+          });
+          if (!result.success) {
+            console.error(
+              "[auth] Verification code could not be delivered to",
+              email,
+              "—",
+              result.error
+            );
+          }
+        } else if (type === "forget-password") {
+          const result = await sendPasswordResetEmail({
+            to: email,
+            otp,
+          });
+          if (!result.success) {
+            console.error(
+              "[auth] Password reset code could not be delivered to",
+              email,
+              "—",
+              result.error
+            );
+          }
+        }
+      },
+      expiresIn: 300, // 5 minutes
+      otpLength: 6,
+      allowedAttempts: 3,
+      storeOTP: "hashed",
+      overrideDefaultEmailVerification: true,
+      sendVerificationOnSignUp: true,
+      resendStrategy: "rotate",
+    }),
+  ],
   user: {
     additionalFields: {
       role: {
@@ -169,6 +228,22 @@ export const auth = betterAuth({
               "[Retro-link] Failed to attach guest records:",
               err
             );
+          }
+        },
+      },
+    },
+    account: {
+      update: {
+        after: async (account) => {
+          try {
+            // Invalidate all active sessions for this user upon password change
+            if (account?.userId) {
+              await prisma.session.deleteMany({
+                where: { userId: account.userId },
+              });
+            }
+          } catch (err) {
+            console.error("[auth] Failed to revoke active sessions after password update:", err);
           }
         },
       },

@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { requireRole, ROLES } from "@/lib/rbac";
 import { commitShipmentForOrder, releaseReservationForOrder } from "@/lib/inventory";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 export async function GET(
   request: NextRequest,
@@ -66,7 +67,7 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await request.json();
-    const { orderStatus, paymentStatus, trackingNote } = body;
+    const { orderStatus, paymentStatus, trackingNote, shippingFee, deliveryNotes } = body;
 
     const existing = await prisma.order.findFirst({
       where: { OR: [{ id }, { orderNumber: id }] },
@@ -91,12 +92,29 @@ export async function PATCH(
       }
     }
 
+    let calculatedTotal = existing.total;
+    let calculatedShippingFee = existing.shippingFee;
+    let calculatedDueAmount = existing.dueAmount;
+
+    if (shippingFee !== undefined && shippingFee !== null) {
+      calculatedShippingFee = Math.max(0, Number(shippingFee) || 0);
+      calculatedTotal = existing.subtotal + calculatedShippingFee;
+      calculatedDueAmount = Math.max(0, calculatedTotal - existing.paidAmount);
+    }
+
     const updated = await prisma.order.update({
       where: { id: existing.id },
       data: {
         ...(orderStatus && { orderStatus }),
         ...(paymentStatus && { paymentStatus }),
         ...(trackingNote !== undefined && { trackingNote }),
+        ...(deliveryNotes !== undefined && { deliveryNotes }),
+        ...(shippingFee !== undefined && shippingFee !== null && {
+          shippingFee: calculatedShippingFee,
+          total: calculatedTotal,
+          dueAmount: calculatedDueAmount,
+          deliveryFeeType: "MANUAL",
+        }),
       },
       include: {
         items: {
@@ -108,6 +126,35 @@ export async function PATCH(
         },
       },
     });
+
+    // If order was confirmed and email exists, dispatch invoice email
+    if (
+      orderStatus === "CONFIRMED" &&
+      (existing.orderStatus === "PENDING_CONFIRMATION" || existing.orderStatus === "PENDING") &&
+      existing.email
+    ) {
+      sendOrderConfirmationEmail({
+        to: existing.email,
+        customerName: existing.customerName,
+        orderNumber: existing.orderNumber,
+        phone: existing.phone,
+        city: existing.city,
+        address: existing.address,
+        deliveryNotes: updated.deliveryNotes,
+        paymentMethod: existing.paymentMethod,
+        items: updated.items.map((i) => ({
+          productName: i.productName,
+          sizeWeight: i.sizeWeight,
+          price: i.price,
+          quantity: i.quantity,
+          total: i.total,
+        })),
+        subtotal: updated.subtotal,
+        shippingFee: updated.shippingFee,
+        total: updated.total,
+        createdAt: updated.createdAt,
+      }).catch((err) => console.error("[Order Confirmation Email on Approval Error]:", err));
+    }
 
     return NextResponse.json({
       success: true,

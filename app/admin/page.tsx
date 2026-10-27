@@ -23,6 +23,7 @@ import {
   ShoppingBag,
   Users,
   ArrowRight,
+  Receipt,
 } from "lucide-react";
 import ProductFormModal from "@/app/components/ProductFormModal";
 import ReceiveStockModal from "@/app/components/inventory/ReceiveStockModal";
@@ -38,12 +39,14 @@ import ClinicScheduleTab from "@/app/components/admin/ClinicScheduleTab";
 import HijamaTab from "@/app/components/admin/HijamaTab";
 import OrdersTab from "@/app/components/admin/OrdersTab";
 import UsersTab from "@/app/components/admin/UsersTab";
+import AccountingTab from "@/app/components/admin/AccountingTab";
 import NotificationBell from "@/app/components/admin/NotificationBell";
 import SurfaceFade from "@/app/components/motion/SurfaceFade";
 import { ROLES, isStaffRole } from "@/lib/rbac-base";
 
 type AdminTab =
   | "orders"
+  | "accounting"
   | "products"
   | "inventory"
   | "categories"
@@ -55,6 +58,7 @@ type AdminTab =
 
 const TABS: { id: AdminTab; label: string; icon: typeof Package; adminOnly?: boolean }[] = [
   { id: "orders", label: "Orders", icon: ShoppingBag },
+  { id: "accounting", label: "Accounting & Payments", icon: Receipt },
   { id: "products", label: "Products", icon: Package },
   { id: "inventory", label: "Stock", icon: Warehouse },
   { id: "consultations", label: "Consultations & Rx", icon: Activity },
@@ -233,7 +237,7 @@ export default function AdminDashboardPage() {
                 Tameer-e-Sehat Admin
               </h1>
               <p className="text-[11px] text-ink-muted truncate">
-                Catalog, stock & units · {userName}
+                Catalog, stock &amp; units · {userName}
               </p>
             </div>
           </div>
@@ -375,6 +379,8 @@ export default function AdminDashboardPage() {
 
         <SurfaceFade surfaceKey={activeTab}>
           {activeTab === "orders" && <OrdersTab />}
+
+          {activeTab === "accounting" && <AccountingTab />}
 
           {activeTab === "products" && (
             <ProductsTab

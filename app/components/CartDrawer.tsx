@@ -146,33 +146,13 @@ export default function CartDrawer() {
           </div>
         </SheetHeader>
 
-        {/* ── 2. FREE SHIPPING PROGRESS METER ── */}
+        {/* ── 2. CLINIC DELIVERY ASSESSMENT NOTICE ── */}
         {cart.length > 0 && (
-          <div className="bg-success-soft/80 border-b border-success-line/90 px-4 sm:px-5 py-3 text-xs">
-            <div className="flex items-center justify-between mb-1.5 font-medium text-ink">
-              <div className="flex items-center gap-1.5">
-                <Truck className="w-3.5 h-3.5 text-success shrink-0" />
-                <span className="font-semibold text-neutral-800">
-                  {remainingForFreeShipping > 0 ? (
-                    <>
-                      Add <strong className="text-success font-bold">₨ {remainingForFreeShipping.toLocaleString()}</strong> more for FREE Delivery
-                    </>
-                  ) : (
-                    <span className="text-success font-bold flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-success" />
-                      🎉 You qualified for FREE Nationwide Delivery!
-                    </span>
-                  )}
-                </span>
-              </div>
-              <span className="font-bold text-success text-[11px]">{progressPercent}%</span>
-            </div>
-            <div className="w-full h-1.5 bg-success-soft rounded-full overflow-hidden">
-              <div
-                className="h-full bg-success rounded-full transition-all duration-500 ease-out"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
+          <div className="bg-amber-50/90 border-b border-amber-200/90 px-4 sm:px-5 py-2.5 text-xs text-amber-950 flex items-center gap-2">
+            <Truck className="w-3.5 h-3.5 text-amber-800 shrink-0" />
+            <span className="font-medium">
+              Delivery charges confirmed by clinic after order review
+            </span>
           </div>
         )}
 

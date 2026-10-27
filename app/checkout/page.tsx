@@ -104,8 +104,7 @@ export default function CheckoutPage() {
     });
   }, [formData.latitude, formData.longitude, subtotal, appliedCoupon]);
 
-  const effectiveShippingFee = deliveryCalc.deliveryFee;
-  const effectiveTotal = Math.max(0, subtotal - discountAmount + effectiveShippingFee);
+  const payableSubtotal = Math.max(0, subtotal - discountAmount);
 
   const handleDetectLocation = () => {
     if (!navigator.geolocation) {
@@ -476,9 +475,11 @@ export default function CheckoutPage() {
               <div className="flex justify-between border-b border-line/80 pb-2 font-bold text-ink">
                 <span className="flex items-center gap-1.5">
                   <Receipt className="w-4 h-4 text-secondary-text" />
-                  <span>Cash on Delivery (COD) Summary</span>
+                  <span>Order Placement Summary</span>
                 </span>
-                <span className="text-[11px] text-success font-semibold">Pay on Delivery</span>
+                <span className="text-[11px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 font-semibold">
+                  Pending Delivery Confirmation
+                </span>
               </div>
               <p>
                 <strong className="text-ink">Recipient Name:</strong> {createdOrder.customerName} ({createdOrder.phone})
@@ -487,10 +488,20 @@ export default function CheckoutPage() {
                 <strong className="text-ink">Delivery Address:</strong> {createdOrder.city} — {createdOrder.address}
               </p>
               <p>
-                <strong className="text-ink">Total Payable to Rider:</strong>{" "}
-                <span className="text-sm font-bold text-ink">
-                  ₨ {createdOrder.total.toLocaleString()}
+                <strong className="text-ink">Products Subtotal:</strong>{" "}
+                <span className="font-bold text-ink">
+                  ₨ {createdOrder.subtotal?.toLocaleString?.() || createdOrder.subtotal}
                 </span>
+              </p>
+              <p>
+                <strong className="text-ink">Delivery Charges:</strong>{" "}
+                <span className="text-amber-800 font-semibold">
+                  To be calculated &amp; confirmed by clinic admin
+                </span>
+              </p>
+              <p className="border-t border-line/80 pt-2 flex justify-between items-baseline font-bold text-ink">
+                <span>Products Total:</span>
+                <span className="text-sm">₨ {createdOrder.total?.toLocaleString?.() || createdOrder.total} (+ Delivery TBD)</span>
               </p>
               {createdOrder.deliveryNotes && (
                 <p className="text-[11px] text-ink-muted">
@@ -942,14 +953,33 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* 3. Delivery Method Options */}
+            {/* 3. Dispatch Speed & Delivery Charges */}
             <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line/80 shadow-xs space-y-4">
-              <h2 className="font-serif text-base sm:text-lg font-bold text-ink border-b border-line pb-3 flex items-center gap-2">
-                <Truck className="w-4 h-4 text-secondary-text" />
-                <span>3. Dispatch Speed &amp; Courier Service</span>
-              </h2>
+              <div className="flex items-center justify-between border-b border-line pb-3">
+                <h2 className="font-serif text-base sm:text-lg font-bold text-ink flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-secondary-text" />
+                  <span>3. Dispatch Speed &amp; Courier Service</span>
+                </h2>
+                <span className="text-[11px] font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+                  Manual Clinic Assessment
+                </span>
+              </div>
 
-              <div className="space-y-3">
+              {/* Informative notice card */}
+              <div className="p-4 bg-amber-50/70 border border-amber-200/90 rounded-xl space-y-2 text-xs text-amber-950">
+                <div className="flex items-center gap-2 font-bold text-amber-900">
+                  <Clock className="w-4 h-4 text-amber-700 shrink-0" />
+                  <span>Delivery Charges Quoted After Order Review</span>
+                </div>
+                <p className="text-[11px] leading-relaxed text-amber-900/90">
+                  Because authentic Unani remedies, glass Murabba preserves, and Arq bottles vary significantly in weight, fragility, and courier zones across Pakistan, our dispensary team calculates shipping charges manually upon reviewing your address.
+                </p>
+                <p className="text-[11px] font-medium text-amber-900">
+                  ✓ Delivery charges are <strong>NOT charged upfront</strong>. Our clinic will generate your official invoice and share it with you via WhatsApp &amp; Email prior to dispatch.
+                </p>
+              </div>
+
+              <div className="space-y-3 pt-1">
                 <label className="flex items-start gap-3 p-3.5 rounded-xl border-2 border-ink bg-surface cursor-pointer">
                   <input
                     type="radio"
@@ -962,12 +992,12 @@ export default function CheckoutPage() {
                   <div className="text-xs flex-1">
                     <div className="font-bold text-ink flex items-center justify-between">
                       <span>Standard Tracked Courier (Nationwide)</span>
-                      <span className="text-success font-bold">
-                        {effectiveShippingFee === 0 ? "FREE" : `₨ ${effectiveShippingFee}`}
+                      <span className="text-amber-800 font-semibold bg-amber-100/70 px-2 py-0.5 rounded text-[10px]">
+                        Quoted on Invoice
                       </span>
                     </div>
                     <p className="text-ink-muted text-[11px] mt-0.5">
-                      Delivered via Blue-Ex / Leopard / Trax across Pakistan (2-4 business days).
+                      Delivered via Trax / Leopard / Blue-Ex across Pakistan (2-4 business days).
                     </p>
                   </div>
                 </label>
@@ -985,10 +1015,12 @@ export default function CheckoutPage() {
                     <div className="text-xs flex-1">
                       <div className="font-bold text-ink flex items-center justify-between">
                         <span>Express Karachi Clinic Rider (Within 24 Hours)</span>
-                        <span className="text-secondary-text font-semibold">Priority</span>
+                        <span className="text-amber-800 font-semibold bg-amber-100/70 px-2 py-0.5 rounded text-[10px]">
+                          Direct Clinic Dispatch
+                        </span>
                       </div>
                       <p className="text-ink-muted text-[11px] mt-0.5">
-                        Direct dispatch from our Karachi Dispensary to your doorstep.
+                        Direct dispatch from our Korangi Dispensary to your doorstep.
                       </p>
                     </div>
                   </label>
@@ -1130,22 +1162,23 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                <div className="flex justify-between text-ink-body">
-                  <span>
-                    Delivery ({deliveryCalc.feeType === "DYNAMIC" ? "Local Rider" : "Courier"})
-                  </span>
-                  <span className="font-semibold text-ink">
-                    {effectiveShippingFee === 0 ? (
-                      <span className="text-success font-bold uppercase">Free</span>
-                    ) : (
-                      `₨ ${effectiveShippingFee}`
-                    )}
+                <div className="flex justify-between items-center text-ink-body">
+                  <span>Delivery Charges</span>
+                  <span className="font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 text-[11px]">
+                    To be quoted by clinic
                   </span>
                 </div>
 
-                <div className="flex justify-between text-base font-bold text-ink pt-2 border-t border-line">
-                  <span>Total (Cash on Delivery)</span>
-                  <span>₨ {effectiveTotal.toLocaleString()}</span>
+                <div className="pt-2 border-t border-line">
+                  <div className="flex justify-between items-baseline">
+                    <div>
+                      <span className="text-sm font-bold text-ink block">Products Total</span>
+                      <span className="text-[11px] text-ink-muted">Delivery fee will be added to your invoice</span>
+                    </div>
+                    <span className="text-base sm:text-lg font-bold text-ink">
+                      ₨ {payableSubtotal.toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -1157,7 +1190,7 @@ export default function CheckoutPage() {
                     className="w-full flex items-center justify-center gap-2 py-4 bg-surface-inverse hover:bg-surface-inverse-hover text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-md hover:shadow-lg text-center cursor-pointer"
                   >
                     <Lock className="w-4 h-4 text-brand-gold-500" />
-                    <span>Sign In &amp; Verify Email to Order (₨ {effectiveTotal.toLocaleString()})</span>
+                    <span>Sign In &amp; Verify Email to Order (₨ {payableSubtotal.toLocaleString()})</span>
                   </Link>
                   <p className="text-[11px] text-ink-muted text-center">
                     New patient? <Link href="/register?redirect=/checkout" className="text-ink font-bold underline">Create an account</Link> to place your order.
@@ -1179,7 +1212,7 @@ export default function CheckoutPage() {
                     ) : (
                       <>
                         <AlertCircle className="w-4 h-4 text-warning" />
-                        <span>Verify Email to Place Order (₨ {effectiveTotal.toLocaleString()})</span>
+                        <span>Verify Email to Place Order (₨ {payableSubtotal.toLocaleString()})</span>
                       </>
                     )}
                   </button>
@@ -1207,7 +1240,7 @@ export default function CheckoutPage() {
                     </>
                   ) : (
                     <>
-                      <span>Confirm Cash on Delivery (₨ {total.toLocaleString()})</span>
+                      <span>Confirm Cash on Delivery (₨ {payableSubtotal.toLocaleString()} + Delivery TBD)</span>
                       <ArrowRight className="w-4 h-4 text-brand-gold-500" />
                     </>
                   )}

@@ -301,12 +301,9 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Safety & Legal Disclaimer */}
-        <div className="pt-8 border-t border-brand-green-900/60 space-y-3 text-[11px] text-on-inverse/85 leading-relaxed">
-          <p>
-            <strong className="text-brand-gold-300">Important Health Notice:</strong> Our natural remedies and advice are based on traditional herbal medicine. They are designed to support your daily wellness, digestion, and natural body strength. If you have a severe medical emergency or are pregnant, please consult your doctor. Keep all natural remedies in a cool, dry place away from direct sunlight.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-brand-green-900/40 text-xs text-center sm:text-left">
+        {/* Copyright & Secondary Navigation */}
+        <div className="pt-8 border-t border-brand-green-900/60">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-on-inverse/85 text-center sm:text-left">
             <p>
               &copy; {new Date().getFullYear()} {CLINIC_INFO.brandName}. All rights reserved. Registered Herbal Health Clinic, Karachi, Pakistan.
             </p>

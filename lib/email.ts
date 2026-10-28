@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { BRAND } from "./brand-colors";
+import prisma from "./prisma";
 
 const resendApiKey = process.env.RESEND_API_KEY;
 export const resend = new Resend(resendApiKey || "re_placeholder_key_for_build");
@@ -30,6 +31,136 @@ const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL 
 function withReplyTo<T extends object>(payload: T) {
   return REPLY_TO ? { ...payload, replyTo: REPLY_TO } : payload;
 }
+
+/**
+ * Resolves all active admin and super_admin email addresses from the database.
+ * Ensures the super admin, any existing admin, and future provisioned admins receive automated alerts.
+ * Falls back to process.env.ADMIN_NOTIFICATION_EMAIL / ADMIN_EMAIL if no active staff users in DB.
+ */
+export async function getAdminNotificationRecipients(): Promise<string[]> {
+  try {
+    const admins = await prisma.user.findMany({
+      where: {
+        role: { in: ["admin", "super_admin"] },
+        isActive: true,
+        deletedAt: null,
+      },
+      select: { email: true },
+    });
+
+    const emails = admins
+      .map((a) => a.email?.trim().toLowerCase())
+      .filter((e): e is string => Boolean(e && e.includes("@")));
+
+    if (emails.length > 0) {
+      return Array.from(new Set(emails));
+    }
+  } catch (err) {
+    console.error("[getAdminNotificationRecipients] Failed to query admin users:", err);
+  }
+
+  const fallback =
+    process.env.ADMIN_NOTIFICATION_EMAIL ||
+    process.env.ADMIN_EMAIL ||
+    "admin@tameeresehat.com";
+  const cleanFallback = fallback.includes("<")
+    ? fallback.match(/<([^>]+)>/)?.[1] || fallback
+    : fallback;
+  return cleanFallback ? [cleanFallback.trim().toLowerCase()] : [];
+}
+
+/**
+ * Sends an automated notification email to all active super_admin and admin recipients.
+ * Dispatches an individual email to each admin so staff addresses remain private and isolated.
+ * Uses Resend batch send if multiple recipients, or single send if only one recipient.
+ */
+export async function sendEmailToAdmins({
+  subject,
+  html,
+}: {
+  subject: string;
+  html: string;
+}) {
+  try {
+    const recipients = await getAdminNotificationRecipients();
+    if (recipients.length === 0) {
+      console.warn("[sendEmailToAdmins] No active admin recipients found. Notification skipped.");
+      return { success: false, error: "No admin recipients found" };
+    }
+
+    if (process.env.NODE_ENV !== "production") {
+      console.log(`\n📬 [ADMIN NOTIFICATION DISPATCH] Subject: ${subject}`);
+      console.log(`👥 Recipients (${recipients.length}): ${recipients.join(", ")}\n`);
+    }
+
+    if (recipients.length === 1) {
+      const { data, error } = await resend.emails.send(
+        withReplyTo({
+          from: DEFAULT_FROM,
+          to: [recipients[0]],
+          subject,
+          html,
+        })
+      );
+      if (error) {
+        console.error("[sendEmailToAdmins Single Send Error]:", error);
+        return { success: false, error };
+      }
+      return { success: true, data };
+    }
+
+    // Try Resend batch send
+    try {
+      const batchPayload = recipients.map((toEmail) =>
+        withReplyTo({
+          from: DEFAULT_FROM,
+          to: [toEmail],
+          subject,
+          html,
+        })
+      );
+
+      const result = await resend.batch.send(batchPayload);
+      if (!result.error) {
+        return { success: true, data: result.data };
+      }
+      console.warn("[sendEmailToAdmins] Batch send returned error, falling back to parallel dispatch:", result.error);
+    } catch (batchErr) {
+      console.warn("[sendEmailToAdmins] Batch send threw, falling back to parallel dispatch:", batchErr);
+    }
+
+    // Fallback: send individual emails in parallel with Promise.allSettled
+    const results = await Promise.allSettled(
+      recipients.map((toEmail) =>
+        resend.emails.send(
+          withReplyTo({
+            from: DEFAULT_FROM,
+            to: [toEmail],
+            subject,
+            html,
+          })
+        )
+      )
+    );
+
+    const failures = results.filter(
+      (r) =>
+        r.status === "rejected" ||
+        (r.status === "fulfilled" && (r.value as any)?.error)
+    );
+    if (failures.length > 0) {
+      console.error(
+        `[sendEmailToAdmins] ${failures.length} of ${recipients.length} admin dispatches encountered errors.`
+      );
+    }
+
+    return { success: true, results };
+  } catch (err: any) {
+    console.error("[sendEmailToAdmins Exception]:", err);
+    return { success: false, error: err.message };
+  }
+}
+
 
 export interface SendEmailParams {
   to: string;
@@ -639,11 +770,7 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
  */
 export async function sendAdminOrderNotificationEmail(params: OrderConfirmationEmailParams) {
   try {
-    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.ADMIN_EMAIL || "admin@tameeresehat.com";
-    const cleanAdminTo = adminEmail.includes("<")
-      ? adminEmail.match(/<([^>]+)>/)?.[1] || adminEmail
-      : adminEmail;
-
+    
     const {
       customerName,
       orderNumber,
@@ -700,19 +827,10 @@ export async function sendAdminOrderNotificationEmail(params: OrderConfirmationE
 </html>
     `;
 
-    const { data, error } = await resend.emails.send(withReplyTo({
-      from: DEFAULT_FROM,
-      to: [cleanAdminTo],
+    return await sendEmailToAdmins({
       subject: `[New Order Alert] ${orderNumber} - ₨ ${total.toLocaleString()} (${customerName})`,
       html: htmlContent,
-    }));
-
-    if (error) {
-      console.error("[Admin Order Notification Email Error]:", error);
-      return { success: false, error };
-    }
-
-    return { success: true, data };
+    });
   } catch (err: any) {
     console.error("[sendAdminOrderNotificationEmail Exception]:", err);
     return { success: false, error: err.message };
@@ -944,11 +1062,7 @@ export async function sendAppointmentConfirmationEmail(params: AppointmentEmailP
  */
 export async function sendAdminAppointmentNotificationEmail(params: AppointmentEmailParams) {
   try {
-    const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || process.env.ADMIN_EMAIL || "admin@tameeresehat.com";
-    const cleanAdminTo = adminEmail.includes("<")
-      ? adminEmail.match(/<([^>]+)>/)?.[1] || adminEmail
-      : adminEmail;
-
+    
     const {
       fullName,
       ticketNumber,
@@ -1009,19 +1123,10 @@ export async function sendAdminAppointmentNotificationEmail(params: AppointmentE
 </html>
     `;
 
-    const { data, error } = await resend.emails.send(withReplyTo({
-      from: DEFAULT_FROM,
-      to: [cleanAdminTo],
+    return await sendEmailToAdmins({
       subject: `[Booking Alert] ${ticketNumber} - ${fullName} (${appointmentDate || "Today"} ${appointmentSlot || ""})`,
       html: htmlContent,
-    }));
-
-    if (error) {
-      console.error("[Admin Appointment Notification Email Error]:", error);
-      return { success: false, error };
-    }
-
-    return { success: true, data };
+    });
   } catch (err: any) {
     console.error("[sendAdminAppointmentNotificationEmail Exception]:", err);
     return { success: false, error: err.message };
@@ -1049,13 +1154,7 @@ export async function sendAdminHijamaNotificationEmail(
   params: HijamaAdminNotificationParams
 ) {
   try {
-    const adminEmail =
-      process.env.ADMIN_NOTIFICATION_EMAIL ||
-      process.env.ADMIN_EMAIL ||
-      "admin@tameeresehat.com";
-    const cleanAdminTo = adminEmail.includes("<")
-      ? adminEmail.match(/<([^>]+)>/)?.[1] || adminEmail
-      : adminEmail;
+
 
     const {
       fullName,
@@ -1116,21 +1215,10 @@ export async function sendAdminHijamaNotificationEmail(
 </html>
     `;
 
-    const { data, error } = await resend.emails.send(
-      withReplyTo({
-        from: DEFAULT_FROM,
-        to: [cleanAdminTo],
-        subject: `[URGENT] New Hijama Booking: ${ticketNumber} - ${fullName} (${appointmentDate})`,
-        html: htmlContent,
-      })
-    );
-
-    if (error) {
-      console.error("[Admin Hijama Notification Email Error]:", error);
-      return { success: false, error };
-    }
-
-    return { success: true, data };
+    return await sendEmailToAdmins({
+      subject: `[URGENT] New Hijama Booking: ${ticketNumber} - ${fullName} (${appointmentDate})`,
+      html: htmlContent,
+    });
   } catch (err: any) {
     console.error("[sendAdminHijamaNotificationEmail Exception]:", err);
     return { success: false, error: err.message };

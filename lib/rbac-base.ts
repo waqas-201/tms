@@ -1,9 +1,11 @@
 export const ROLES = {
+  SUPER_ADMIN: "super_admin",
   ADMIN: "admin",
-  HAKIM: "hakim",
-  EDITOR: "editor",
-  CONTRIBUTOR: "contributor",
   USER: "user",
+  // Legacy aliases for non-breaking transitions
+  HAKIM: "admin",
+  EDITOR: "admin",
+  CONTRIBUTOR: "admin",
 } as const;
 
 export type Role = (typeof ROLES)[keyof typeof ROLES] | string;
@@ -23,9 +25,30 @@ export type Permission =
   | "consultations:view_own"
   | "inquiries:view"
   | "users:manage"
-  | "stats:view";
+  | "stats:view"
+  | "staff:manage"
+  | "system:bootstrap";
 
 export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
+  super_admin: [
+    "dashboard:view",
+    "orders:list_all",
+    "orders:manage",
+    "orders:view_own",
+    "products:create",
+    "products:edit",
+    "products:delete",
+    "inventory:view",
+    "inventory:manage",
+    "units:manage",
+    "consultations:manage",
+    "consultations:view_own",
+    "inquiries:view",
+    "users:manage",
+    "stats:view",
+    "staff:manage",
+    "system:bootstrap",
+  ],
   admin: [
     "dashboard:view",
     "orders:list_all",
@@ -42,28 +65,6 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     "inquiries:view",
     "users:manage",
     "stats:view",
-  ],
-  hakim: [
-    "dashboard:view",
-    "orders:view_own",
-    "consultations:manage",
-    "consultations:view_own",
-    "inquiries:view",
-  ],
-  editor: [
-    "dashboard:view",
-    "orders:view_own",
-    "products:create",
-    "products:edit",
-    "inventory:view",
-    "inventory:manage",
-    "consultations:view_own",
-  ],
-  contributor: [
-    "dashboard:view",
-    "orders:view_own",
-    "inquiries:view",
-    "consultations:view_own",
   ],
   user: [
     "orders:view_own",
@@ -86,10 +87,13 @@ export function hasPermission(role: Role | undefined | null, permission: Permiss
 export function isStaffRole(role: Role | undefined | null): boolean {
   if (!role) return false;
   const normalized = String(role).toLowerCase();
-  return (
-    normalized === ROLES.ADMIN ||
-    normalized === ROLES.HAKIM ||
-    normalized === ROLES.EDITOR ||
-    normalized === ROLES.CONTRIBUTOR
-  );
+  return normalized === ROLES.SUPER_ADMIN || normalized === ROLES.ADMIN;
+}
+
+/**
+ * Helper to determine if a role is the sovereign Super Admin
+ */
+export function isSuperAdmin(role: Role | undefined | null): boolean {
+  if (!role) return false;
+  return String(role).toLowerCase() === ROLES.SUPER_ADMIN;
 }

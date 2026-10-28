@@ -5,8 +5,6 @@ import prisma from "./prisma";
 import { sendVerificationEmail, sendPasswordResetEmail } from "./email";
 import { linkGuestRecordsToUser } from "./link-records";
 
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "admin@tameeresehat.com").toLowerCase().trim();
-
 let _lastEmittedOTP: { email: string; otp: string; type: string } | null = null;
 export function getLastEmittedOTP() {
   return _lastEmittedOTP;
@@ -142,58 +140,42 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
-        before: async (user) => {
-          const userEmail = (user.email || "").toLowerCase().trim();
+        before: async (user: any) => {
+          // If role was explicitly provisioned internally as super_admin or admin, allow it.
+          // All standard public user registrations (with input: false on role) default strictly to "user".
+          const rawRole = user?.role;
+          const requestedRole = typeof rawRole === "string" ? rawRole.toLowerCase().trim() : "";
+          const finalRole =
+            requestedRole === "super_admin" || requestedRole === "admin"
+              ? requestedRole
+              : "user";
 
-          // Check if user is attempting to register as the designated bootstrap admin
-          if (userEmail === ADMIN_EMAIL) {
-            // Ensure only ONE admin exists across the entire platform
-            const existingAdmin = await prisma.user.findFirst({
-              where: { role: "admin" },
-            });
-
-            // If an admin already exists and it's NOT this email, do not allow creating a second admin
-            if (existingAdmin && existingAdmin.email.toLowerCase().trim() !== ADMIN_EMAIL) {
-              return {
-                data: {
-                  ...user,
-                  role: "user",
-                  isActive: true,
-                },
-              };
-            }
-
-            return {
-              data: {
-                ...user,
-                role: "admin",
-                emailVerified: true,
-                isActive: true,
-              },
-            };
-          }
-
-          // All standard public user registrations MUST strictly default to "user"
           return {
             data: {
               ...user,
-              role: "user",
-              isActive: true,
+              role: finalRole,
+              isActive: user?.isActive !== undefined ? user.isActive : true,
             },
           };
         },
       },
       update: {
-        before: async (user) => {
-          const userEmail = (user.email || "").toLowerCase().trim();
-          // Prevent unauthorized role privilege escalation to admin
-          if (user.role === "admin" && userEmail !== ADMIN_EMAIL) {
-            return {
-              data: {
-                ...user,
-                role: "user",
-              },
-            };
+        before: async (user: any) => {
+          // Prevent unauthorized role privilege escalation via standard profile update endpoints
+          if (user?.role && typeof user.role === "string" && user.role !== "user") {
+            const existing = await prisma.user.findUnique({
+              where: { id: user.id },
+              select: { role: true },
+            });
+            // Preserve existing role if standard user tries to escalate
+            if (existing && existing.role !== user.role && existing.role === "user") {
+              return {
+                data: {
+                  ...user,
+                  role: "user",
+                },
+              };
+            }
           }
         },
         after: async (user) => {

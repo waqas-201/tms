@@ -93,3 +93,25 @@ _Avoid_: OTP, pin, activation link, token, secret
 **Password Reset Code**:
 A single-use 6-digit numeric passkey issued to a patient to authenticate an authorized password change request.
 _Avoid_: Reset token, recovery link, reset password URL
+
+### Administrative Access & Governance
+
+**Super Admin**:
+The sovereign administrative account holder possessing root system privileges, including exclusive authority to provision or revoke Admin accounts, access system security configuration, and decommission administrative roles.
+_Avoid_: Root user, master admin, system owner
+
+**Admin**:
+An authorized operational staff member with access to daily clinical and e-commerce back-office capabilities (order management, catalog editing, consultations, Hijama bookings, customer inquiries), strictly restricted from managing staff or altering the Super Admin account.
+_Avoid_: Manager, staff, operator, sub-admin
+
+**Bootstrap Key**:
+A cryptographically secure, single-use alphanumeric key generated on the server and redeemed exactly once on a dedicated setup interface to claim and initialize the permanent Super Admin account, permanently revoked and purged upon successful redemption.
+_Avoid_: Master password, registration token, invite code, license key
+
+**Admin Quota**:
+The strict platform constraint enforcing a hard ceiling of at most three concurrent active Admin accounts across the system.
+_Avoid_: Staff limit, user cap, seat count
+
+**Super Admin Cell**:
+The isolated, self-service security compartment within the Super Admin console where the Super Admin can review their credentials or self-terminate/transfer the role under mandatory password and authentication re-verification.
+_Avoid_: Super admin profile, root panel, account killer

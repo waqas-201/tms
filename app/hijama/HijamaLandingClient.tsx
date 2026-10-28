@@ -354,8 +354,8 @@ export default function HijamaLandingClient() {
                   onClick={() => setGender("MALE")}
                   className={`py-3 px-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                     gender === "MALE"
-                      ? "bg-surface-inverse text-white border-ink shadow-xs"
-                      : "bg-surface text-ink-body border-line hover:border-ink/40"
+                      ? "bg-primary text-white border-primary shadow-xs"
+                      : "bg-surface text-ink-body border-line hover:border-primary/50"
                   }`}
                 >
                   <span className="text-xs font-bold">Male Ward</span>
@@ -373,8 +373,8 @@ export default function HijamaLandingClient() {
                   onClick={() => setGender("FEMALE")}
                   className={`py-3 px-4 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                     gender === "FEMALE"
-                      ? "bg-surface-inverse text-white border-ink shadow-xs"
-                      : "bg-surface text-ink-body border-line hover:border-ink/40"
+                      ? "bg-primary text-white border-primary shadow-xs"
+                      : "bg-surface text-ink-body border-line hover:border-primary/50"
                   }`}
                 >
                   <span className="text-xs font-bold">Female Ward</span>
@@ -424,8 +424,8 @@ export default function HijamaLandingClient() {
                           onClick={() => setSelectedDate(sd.date)}
                           className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                             isSelected
-                              ? "bg-surface-inverse text-white border-secondary shadow-xs"
-                              : "bg-surface text-ink border-line hover:border-secondary/60"
+                              ? "bg-primary text-white border-primary shadow-xs"
+                              : "bg-surface text-ink border-line hover:border-primary/50"
                           }`}
                         >
                           <div className="flex items-center justify-between">
@@ -439,8 +439,8 @@ export default function HijamaLandingClient() {
                             <span
                               className={`text-[10px] px-1.5 py-0.2 rounded-full ${
                                 isSelected
-                                  ? "bg-secondary/20 text-on-inverse"
-                                  : "bg-surface-inverse/5 text-ink"
+                                  ? "bg-white/20 text-white font-medium"
+                                  : "bg-primary/10 text-primary font-semibold"
                               }`}
                             >
                               {sd.totalAvailableSeats === 0 ? "Full" : `${sd.totalAvailableSeats} slots`}
@@ -508,7 +508,7 @@ export default function HijamaLandingClient() {
                     slots={slots}
                     selectedSlot={selectedSlot}
                     onSelectSlot={(slot) => setSelectedSlot(slot)}
-                    variant="inverse"
+                    variant="primary"
                     bgFadeClass="from-surface"
                   />
                 )}
@@ -542,7 +542,7 @@ export default function HijamaLandingClient() {
                     </Link>
                     <Link
                       href={`/login?redirect=${encodeURIComponent("/hijama#hijama-booking")}`}
-                      className="w-full py-3 px-6 bg-surface-inverse hover:bg-brand-green-900 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2"
+                      className="w-full py-3 px-6 bg-primary hover:bg-primary-hover text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs flex items-center justify-center gap-2"
                     >
                       <span>Sign In</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -649,7 +649,7 @@ export default function HijamaLandingClient() {
                     <button
                       type="submit"
                       disabled={submitting || !selectedSlot}
-                      className="w-full py-3.5 px-6 bg-surface-inverse hover:bg-brand-green-900 text-white font-bold text-sm rounded-xl transition-all shadow-sm cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
+                      className="w-full py-3.5 px-6 bg-primary hover:bg-primary-hover text-white font-bold text-sm rounded-xl transition-all shadow-sm cursor-pointer disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                       {submitting ? (
                         <>
@@ -658,7 +658,7 @@ export default function HijamaLandingClient() {
                         </>
                       ) : (
                         <>
-                          <span>Confirm Hijama Seat (Pay ₨ 2,500 at Clinic)</span>
+                          <span>Confirm Hijama Seat (Pay at Clinic)</span>
                           <ArrowRight className="w-4 h-4" />
                         </>
                       )}

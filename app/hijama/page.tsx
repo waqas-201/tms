@@ -66,7 +66,7 @@ export default function HijamaPage() {
         relevantSpecialty: "TraditionalMedicine",
         offers: {
           "@type": "Offer",
-          price: "2500",
+          price: "250",
           priceCurrency: "PKR",
           availability: "https://schema.org/InStock",
           validFrom: "2026-01-01",

@@ -325,7 +325,7 @@ export default function HijamaBookingModal({
             ? `Other: ${screening.customReason}`
             : screening.cuppingReason,
         contraindications: contraindicationsObj,
-        feeAmount: availability?.standardFee || 2500,
+        feeAmount: availability?.standardFee || 1250,
         paymentStatus: "UNPAID",
       };
 
@@ -371,7 +371,7 @@ export default function HijamaBookingModal({
       `*Appointment Date:* ${booking.appointmentDate} (${booking.hijriDate || "Sunnah Day"})\n` +
       `*Time Slot:* ${booking.appointmentSlot}\n` +
       `*Cupping Reason:* ${booking.cuppingReason || "Sunnah Detox"}\n` +
-      `*Fee:* ₨ ${booking.feeAmount?.toLocaleString() || "2,500"} (Pay at Clinic)\n\n` +
+      `*Fee:* 1 cup: ₨ 250 each (5 cups min. · Pay at Clinic)\n\n` +
       `_Please confirm my seat reservation. JazakAllah khair._`;
 
     return `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(
@@ -397,7 +397,7 @@ export default function HijamaBookingModal({
   const handleAddToCalendar = () => {
     if (!confirmedBooking) return;
     const title = `Sunnah Hijama Session - Tameer-e-Sehat (${confirmedBooking.ticketNumber})`;
-    const desc = `Hijama Cupping Appointment for ${confirmedBooking.fullName}. Slot: ${confirmedBooking.appointmentSlot}. Ward: ${confirmedBooking.gender}. Pay at Clinic: ₨ 2,500.`;
+    const desc = `Hijama Cupping Appointment for ${confirmedBooking.fullName}. Slot: ${confirmedBooking.appointmentSlot}. Ward: ${confirmedBooking.gender}. Pay at Clinic: 1 cup: ₨ 250 each (5 cups min.).`;
     const loc = "Tameer-e-Sehat Herbal Clinic & Hijama Center, Karachi, Pakistan";
 
     const cleanDate = confirmedBooking.appointmentDate.replace(/-/g, "");
@@ -594,7 +594,7 @@ export default function HijamaBookingModal({
             <div className="p-3.5 rounded-xl bg-surface border border-line flex items-start gap-2.5 text-xs text-ink-body">
               <Info className="w-4 h-4 text-secondary-text shrink-0 mt-0.5" />
               <span>
-                Standard fee for all sessions is <strong>₨ 2,500</strong>, including medical-grade sterile vacuum cups, surgical precision blades, and anti-bacterial herbal dress kit.
+                Standard cupping fee is <strong>1 cup: ₨ 250 each (5 cups minimum)</strong>, including medical-grade sterile vacuum cups, surgical precision blades, and anti-bacterial herbal dress kit.
               </span>
             </div>
           </div>
@@ -1149,7 +1149,7 @@ export default function HijamaBookingModal({
                 </div>
                 <div>
                   <span className="block text-[10px] text-ink-subtle">Clinical Fee:</span>
-                  <span className="font-bold text-primary">₨ 2,500 (Pay at Clinic)</span>
+                  <span className="font-bold text-primary">1 cup: ₨ 250 each (5 cups min. · Pay at Clinic)</span>
                 </div>
               </div>
             </div>
@@ -1256,7 +1256,7 @@ export default function HijamaBookingModal({
                 <div>
                   <span className="text-[10px] text-ink-subtle block">Fee &amp; Payment:</span>
                   <span className="font-bold text-primary">
-                    ₨ {confirmedBooking.feeAmount?.toLocaleString() || "2,500"} (Pay at Clinic)
+                    1 cup: ₨ 250 each (5 cups min. · Pay at Clinic)
                   </span>
                 </div>
               </div>

@@ -147,7 +147,7 @@ export const DEFAULT_HIJAMA_SETTING = {
   moonSightingOffset: 0,
   sunnahMaleCapacity: 1,
   sunnahFemaleCapacity: 1,
-  standardFee: 2500,
+  standardFee: 1250,
 };
 
 /**
@@ -227,7 +227,7 @@ export async function updateHijamaSettings(data: {
       moonSightingOffset: data.moonSightingOffset ?? 0,
       sunnahMaleCapacity: data.sunnahMaleCapacity ?? 1,
       sunnahFemaleCapacity: data.sunnahFemaleCapacity ?? 1,
-      standardFee: data.standardFee ?? 2500,
+      standardFee: data.standardFee ?? 1250,
     },
   });
 }

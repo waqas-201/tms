@@ -582,7 +582,7 @@ export default function HijamaSunnahCalendar({
                   <span>Available 45-Min Sessions</span>
                 </span>
                 <span className="text-[10px] text-ink-subtle font-normal">
-                  Standard Fee: ₨ 2,500
+                  1 cup: ₨ 250 each (5 cups min. · Pay at Clinic)
                 </span>
               </div>
 

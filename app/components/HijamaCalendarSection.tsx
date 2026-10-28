@@ -313,7 +313,9 @@ export default function HijamaCalendarSection() {
                     Pay at Clinic
                   </span>
                   <span className="text-base sm:text-lg font-bold text-ink">
-                    ₨ {confirmedBooking.feeAmount.toLocaleString()}
+                    1 cup: ₨ 250 each</span>
+                  <span className="text-[10px] text-ink-muted block">
+                    5 cups minimum
                   </span>
                 </div>
               </div>
@@ -408,7 +410,7 @@ export default function HijamaCalendarSection() {
                         <span
                           className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] transition-all duration-200 ${
                             isReached
-                              ? "bg-surface-inverse text-white"
+                              ? "bg-primary text-white"
                               : "bg-line text-ink-body"
                           } ${isCurrent ? "scale-110" : ""}`}
                         >
@@ -444,7 +446,7 @@ export default function HijamaCalendarSection() {
                         </span>
                       </div>
                       <span className="text-[11px] font-bold text-primary shrink-0 self-end sm:self-auto">
-                        ₨ 2,500
+                        1 cup: ₨ 250 each (5 cups min.)
                       </span>
                     </div>
                   )}
@@ -464,8 +466,8 @@ export default function HijamaCalendarSection() {
                         onClick={() => setGender("MALE")}
                         className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                           gender === "MALE"
-                            ? "bg-surface-inverse text-white border-ink shadow-xs"
-                            : "bg-surface text-ink-body border-line hover:border-ink/40"
+                            ? "bg-primary text-white border-primary shadow-xs"
+                            : "bg-surface text-ink-body border-line hover:border-primary/50"
                         }`}
                       >
                         <span className="text-xs font-bold">Male Ward</span>
@@ -483,8 +485,8 @@ export default function HijamaCalendarSection() {
                         onClick={() => setGender("FEMALE")}
                         className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                           gender === "FEMALE"
-                            ? "bg-surface-inverse text-white border-ink shadow-xs"
-                            : "bg-surface text-ink-body border-line hover:border-ink/40"
+                            ? "bg-primary text-white border-primary shadow-xs"
+                            : "bg-surface text-ink-body border-line hover:border-primary/50"
                         }`}
                       >
                         <span className="text-xs font-bold">Female Ward</span>
@@ -538,8 +540,8 @@ export default function HijamaCalendarSection() {
                                 onClick={() => setSelectedDate(sd.date)}
                                 className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                                   isPicked
-                                    ? "bg-surface-inverse text-white border-ink shadow-xs"
-                                    : "bg-surface text-ink border-line hover:border-ink/40"
+                                    ? "bg-primary text-white border-primary shadow-xs"
+                                    : "bg-surface text-ink border-line hover:border-primary/50"
                                 }`}
                               >
                                 <div className="flex items-center justify-between">
@@ -554,7 +556,7 @@ export default function HijamaCalendarSection() {
                                     className={`text-[9px] px-1.5 py-0.2 rounded-full ${
                                       isPicked
                                         ? "bg-white/20 text-white font-medium"
-                                        : "bg-surface-inverse/5 text-ink font-semibold"
+                                        : "bg-primary/10 text-primary font-semibold"
                                     }`}
                                   >
                                     {sd.totalAvailableSeats === 0 ? "Full" : `${sd.totalAvailableSeats} slots`}
@@ -566,7 +568,7 @@ export default function HijamaCalendarSection() {
                                   </div>
                                   <div
                                     className={`text-[10px] ${
-                                      isPicked ? "text-brand-green-300" : "text-ink-body"
+                                      isPicked ? "text-white/80" : "text-ink-body"
                                     }`}
                                   >
                                     {sd.hijriMonthName}
@@ -601,7 +603,7 @@ export default function HijamaCalendarSection() {
                     type="button"
                     disabled={!selectedDate}
                     onClick={() => goToStep(2)}
-                    className="w-full py-3 px-4 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                    className="w-full py-3 px-4 bg-primary hover:bg-primary-hover disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                   >
                     <span>Continue to Time Slots</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -638,7 +640,7 @@ export default function HijamaCalendarSection() {
                         <span>Select 45-Minute Session</span>
                       </span>
                       <span className="text-[10px] text-ink-subtle font-normal">
-                        Fee: ₨ 2,500 (Pay at Clinic)
+                        1 cup: ₨ 250 each (5 cups min. · Pay at Clinic)
                       </span>
                     </div>
 
@@ -661,7 +663,7 @@ export default function HijamaCalendarSection() {
                         slots={slots}
                         selectedSlot={selectedSlot}
                         onSelectSlot={(slot) => setSelectedSlot(slot)}
-                        variant="inverse"
+                        variant="primary"
                         bgFadeClass="from-surface"
                       />
                     )}
@@ -682,7 +684,7 @@ export default function HijamaCalendarSection() {
                       type="button"
                       disabled={!selectedSlot}
                       onClick={() => goToStep(3)}
-                      className="flex-1 py-3 px-4 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                      className="flex-1 py-3 px-4 bg-primary hover:bg-primary-hover disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                     >
                       <span>Continue to Patient Details</span>
                       <ArrowRight className="w-3.5 h-3.5" />
@@ -740,7 +742,7 @@ export default function HijamaCalendarSection() {
                         </Link>
                         <Link
                           href={`/login?redirect=${encodeURIComponent("/#hijama-calendar")}`}
-                          className="w-full sm:flex-1 py-2.5 px-4 bg-surface-inverse hover:bg-brand-green-900 text-white rounded-xl text-xs font-bold uppercase tracking-wider text-center transition-all shadow-xs"
+                          className="w-full sm:flex-1 py-2.5 px-4 bg-primary hover:bg-primary-hover text-white rounded-xl text-xs font-bold uppercase tracking-wider text-center transition-all shadow-xs"
                         >
                           Sign In
                         </Link>
@@ -844,7 +846,7 @@ export default function HijamaCalendarSection() {
                         <button
                           type="submit"
                           disabled={submitting || !selectedSlot}
-                          className="flex-1 py-3 px-4 bg-surface-inverse hover:bg-brand-green-900 disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+                          className="flex-1 py-3 px-4 bg-primary hover:bg-primary-hover disabled:opacity-50 text-white font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
                         >
                           {submitting ? (
                             <>
@@ -853,7 +855,7 @@ export default function HijamaCalendarSection() {
                             </>
                           ) : (
                             <>
-                              <span>Confirm Booking (Pay ₨ 2,500 at Clinic)</span>
+                              <span>Confirm Booking (Pay at Clinic)</span>
                               <ArrowRight className="w-3.5 h-3.5" />
                             </>
                           )}

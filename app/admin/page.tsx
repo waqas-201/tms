@@ -13,6 +13,7 @@ import {
   LogOut,
   Loader2,
   ShieldAlert,
+  ShieldCheck,
   Leaf,
   AlertTriangle,
   CheckCircle2,
@@ -40,6 +41,7 @@ import HijamaTab from "@/app/components/admin/HijamaTab";
 import OrdersTab from "@/app/components/admin/OrdersTab";
 import UsersTab from "@/app/components/admin/UsersTab";
 import AccountingTab from "@/app/components/admin/AccountingTab";
+import StaffAdminsTab from "@/app/components/admin/StaffAdminsTab";
 import NotificationBell from "@/app/components/admin/NotificationBell";
 import SurfaceFade from "@/app/components/motion/SurfaceFade";
 import { ROLES, isStaffRole } from "@/lib/rbac-base";
@@ -54,9 +56,10 @@ type AdminTab =
   | "consultations"
   | "schedule"
   | "hijama"
-  | "users";
+  | "users"
+  | "staff";
 
-const TABS: { id: AdminTab; label: string; icon: typeof Package; adminOnly?: boolean }[] = [
+const TABS: { id: AdminTab; label: string; icon: typeof Package; adminOnly?: boolean; superAdminOnly?: boolean }[] = [
   { id: "orders", label: "Orders", icon: ShoppingBag },
   { id: "accounting", label: "Accounting & Payments", icon: Receipt },
   { id: "products", label: "Products", icon: Package },
@@ -67,6 +70,7 @@ const TABS: { id: AdminTab; label: string; icon: typeof Package; adminOnly?: boo
   { id: "categories", label: "Categories", icon: FolderTree },
   { id: "units", label: "Units", icon: Scale },
   { id: "users", label: "Users & Access", icon: Users, adminOnly: true },
+  { id: "staff", label: "Admin Team & Cell", icon: ShieldCheck, superAdminOnly: true },
 ];
 
 export default function AdminDashboardPage() {
@@ -76,16 +80,19 @@ export default function AdminDashboardPage() {
 
   const userRole = (() => {
     const rawRole = (sessionData?.user as any)?.role;
-    // Roles are stored lowercase, but guard against stray casing so the admin
-    // keeps the Users & Access tab instead of silently losing it.
     return typeof rawRole === "string" && rawRole.trim() ? rawRole.trim().toLowerCase() : "user";
   })();
   const isStaff = isStaffRole(userRole);
-  const isAdmin = userRole === ROLES.ADMIN;
+  const isSuperAdmin = userRole === ROLES.SUPER_ADMIN;
+  const isAdmin = userRole === ROLES.ADMIN || isSuperAdmin;
 
   const visibleTabs = useMemo(() => {
-    return isAdmin ? TABS : TABS.filter((t) => !t.adminOnly);
-  }, [isAdmin]);
+    return TABS.filter((t) => {
+      if (t.superAdminOnly) return isSuperAdmin;
+      if (t.adminOnly) return isAdmin;
+      return true;
+    });
+  }, [isAdmin, isSuperAdmin]);
 
   const tabFromUrl = searchParams.get("tab") as AdminTab | null;
   const initialTab: AdminTab =
@@ -237,7 +244,7 @@ export default function AdminDashboardPage() {
                 Tameer-e-Sehat Admin
               </h1>
               <p className="text-[11px] text-ink-muted truncate">
-                Catalog, stock &amp; units · {userName}
+                Catalog, stock &amp; units · {userName} {isSuperAdmin ? "(Super Admin)" : "(Admin)"}
               </p>
             </div>
           </div>
@@ -317,14 +324,25 @@ export default function AdminDashboardPage() {
                   </p>
                 </div>
               </div>
-              <button
-                onClick={() => setTab("users")}
-                className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-primary hover:bg-brand-green-800 text-white rounded-xl text-xs font-semibold transition-colors shrink-0"
-              >
-                <Users className="w-3.5 h-3.5" />
-                <span>Manage Users</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              <div className="flex items-center gap-2">
+                {isSuperAdmin && (
+                  <button
+                    onClick={() => setTab("staff")}
+                    className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-colors shrink-0"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                    <span>Manage Admins &amp; Cell</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setTab("users")}
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 bg-primary hover:bg-brand-green-800 text-white rounded-xl text-xs font-semibold transition-colors shrink-0"
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  <span>Manage Users</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -445,6 +463,13 @@ export default function AdminDashboardPage() {
               </div>
             )
           )}
+
+          {activeTab === "staff" && (
+            <StaffAdminsTab
+              isSuperAdmin={isSuperAdmin}
+              currentUserEmail={sessionData?.user?.email}
+            />
+          )}
         </SurfaceFade>
       </main>
 
@@ -465,10 +490,7 @@ export default function AdminDashboardPage() {
 
       <ReceiveStockModal
         isOpen={isReceiveStockOpen}
-        onClose={() => {
-          setIsReceiveStockOpen(false);
-          setPreselectedProductSizeId(null);
-        }}
+        onClose={() => setIsReceiveStockOpen(false)}
         onSuccess={() => fetchData(true)}
         preselectedProductSizeId={preselectedProductSizeId}
       />
@@ -483,15 +505,6 @@ export default function AdminDashboardPage() {
         productSizeItem={selectedAdjustItem}
       />
 
-      <StockMovementsDrawer
-        isOpen={isMovementsDrawerOpen}
-        onClose={() => {
-          setIsMovementsDrawerOpen(false);
-          setSelectedMovementsItem(null);
-        }}
-        productSizeItem={selectedMovementsItem}
-      />
-
       <QuickStockModal
         isOpen={isQuickStockOpen}
         onClose={() => {
@@ -500,6 +513,15 @@ export default function AdminDashboardPage() {
         }}
         onSuccess={() => fetchData(true)}
         productSizeItem={selectedQuickStockItem}
+      />
+
+      <StockMovementsDrawer
+        isOpen={isMovementsDrawerOpen}
+        onClose={() => {
+          setIsMovementsDrawerOpen(false);
+          setSelectedMovementsItem(null);
+        }}
+        productSizeItem={selectedMovementsItem}
       />
     </div>
   );

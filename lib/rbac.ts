@@ -52,8 +52,14 @@ export async function requireRole(
     }
 
     const userRole = String(userObj.role || ROLES.USER).toLowerCase();
+    const normalizedAllowed = allowedRoles.map((r) => String(r).toLowerCase());
 
-    if (!allowedRoles.includes(userRole)) {
+    // Super Admin inherently satisfies checks requiring standard Admin
+    const isAllowed =
+      normalizedAllowed.includes(userRole) ||
+      (userRole === ROLES.SUPER_ADMIN && normalizedAllowed.includes(ROLES.ADMIN));
+
+    if (!isAllowed) {
       return {
         session: null,
         errorResponse: NextResponse.json(

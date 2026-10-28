@@ -25,43 +25,53 @@ export async function PATCH(
       );
     }
 
-    // Safety check 1: Cannot demote or suspend own admin account
-    const isTargetAdmin = targetUser.id === session.user.id || targetUser.role === ROLES.ADMIN;
-    if (isTargetAdmin) {
-      if (role && role !== ROLES.ADMIN) {
-        return NextResponse.json(
-          { success: false, error: "Cannot demote or alter the role of the primary Admin account." },
-          { status: 400 }
-        );
-      }
-      if (isActive === false) {
-        return NextResponse.json(
-          { success: false, error: "Cannot suspend or deactivate the primary Admin account." },
-          { status: 400 }
-        );
-      }
-    }
+    const requesterRole = String((session?.user as any)?.role || "").toLowerCase();
+    const isSuperAdmin = requesterRole === ROLES.SUPER_ADMIN;
 
-    // Safety check 2: Cannot promote another user to "admin" (single admin constraint)
-    if (role === ROLES.ADMIN && targetUser.id !== session.user.id) {
+    // Safety check 1: Target is Super Admin
+    if (targetUser.role === ROLES.SUPER_ADMIN) {
       return NextResponse.json(
         {
           success: false,
-          error: "Only ONE primary admin can exist. You cannot promote another account to 'admin'.",
+          error: "The Super Admin cannot be modified through general user management. Use the Super Admin Cell or direct database access.",
         },
-        { status: 400 }
+        { status: 403 }
       );
     }
 
-    // Validate allowed roles
-    if (role && ![ROLES.ADMIN, ROLES.HAKIM, ROLES.EDITOR, ROLES.CONTRIBUTOR, ROLES.USER].includes(role)) {
+    // Safety check 2: Target is Admin, but requester is not Super Admin
+    if (targetUser.role === ROLES.ADMIN && !isSuperAdmin && targetUser.id !== session.user.id) {
       return NextResponse.json(
         {
           success: false,
-          error: "Invalid role specified. Allowed values: 'hakim', 'editor', 'contributor', 'user'.",
+          error: "Only the Super Admin can manage or modify operational Admin accounts.",
         },
-        { status: 400 }
+        { status: 403 }
       );
+    }
+
+    // Safety check 3: Role elevation
+    if (role) {
+      const normalizedRole = role.toLowerCase().trim();
+      if (normalizedRole === ROLES.SUPER_ADMIN) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "The Super Admin role cannot be assigned here. It must be claimed via one-time Bootstrap Key or transferred in the Super Admin Cell.",
+          },
+          { status: 403 }
+        );
+      }
+
+      if (normalizedRole === ROLES.ADMIN && !isSuperAdmin) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Only the Super Admin can promote accounts to the Admin role.",
+          },
+          { status: 403 }
+        );
+      }
     }
 
     const updateData: Record<string, unknown> = {};
@@ -166,11 +176,28 @@ export async function DELETE(
       );
     }
 
-    // Cannot delete primary admin account
-    if (targetUser.id === session.user.id || targetUser.role === ROLES.ADMIN) {
+    // Safety check 1: Target is Super Admin
+    if (targetUser.role === ROLES.SUPER_ADMIN) {
       return NextResponse.json(
-        { success: false, error: "Cannot delete the primary Admin account." },
-        { status: 400 }
+        {
+          success: false,
+          error: "The Super Admin cannot be removed via user management. The only valid removal mechanisms are the Super Admin Cell or direct database intervention.",
+        },
+        { status: 403 }
+      );
+    }
+
+    const requesterRole = String((session?.user as any)?.role || "").toLowerCase();
+    const isSuperAdmin = requesterRole === ROLES.SUPER_ADMIN;
+
+    // Safety check 2: Target is Admin, but requester is not Super Admin
+    if (targetUser.role === ROLES.ADMIN && !isSuperAdmin) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Only the Super Admin can delete or decommission operational Admin accounts.",
+        },
+        { status: 403 }
       );
     }
 

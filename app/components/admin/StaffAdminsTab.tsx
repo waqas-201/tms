@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Users,
+  Search,
   ShieldCheck,
   ShieldAlert,
   UserPlus,
@@ -49,8 +50,15 @@ export default function StaffAdminsTab({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  // Create Admin Modal State
+  // Create / Promote Admin Modal State
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"pick" | "create">("pick");
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [userSearchResults, setUserSearchResults] = useState<any[]>([]);
+  const [userSearchLoading, setUserSearchLoading] = useState(false);
+  const [selectedUserToPromote, setSelectedUserToPromote] = useState<any | null>(null);
+  const [promoteLoading, setPromoteLoading] = useState(false);
+
   const [createName, setCreateName] = useState("");
   const [createEmail, setCreateEmail] = useState("");
   const [createPassword, setCreatePassword] = useState("");
@@ -91,6 +99,88 @@ export default function StaffAdminsTab({
   useEffect(() => {
     fetchStaff();
   }, [fetchStaff]);
+
+  // Live Search Users for Promotion
+  useEffect(() => {
+    if (!isCreateModalOpen || modalMode !== "pick") return;
+    let ignore = false;
+    const timer = setTimeout(async () => {
+      setUserSearchLoading(true);
+      try {
+        const query = userSearchQuery.trim();
+        const res = await fetch(`/api/admin/users?search=${encodeURIComponent(query)}&status=ALL`);
+        const data = await res.json();
+        if (!ignore && data.success && Array.isArray(data.data)) {
+          // Filter out super_admin and existing operational admins
+          const nonAdmins = data.data.filter(
+            (u: any) => u.role !== "super_admin" && u.role !== "admin" && !u.deletedAt
+          );
+          setUserSearchResults(nonAdmins);
+        }
+      } catch (err) {
+        console.error("User search failed:", err);
+      } finally {
+        if (!ignore) setUserSearchLoading(false);
+      }
+    }, 250);
+    return () => {
+      ignore = true;
+      clearTimeout(timer);
+    };
+  }, [userSearchQuery, isCreateModalOpen, modalMode]);
+
+  const handlePromoteSelectedUser = async () => {
+    if (!selectedUserToPromote) return;
+    setError(null);
+    setSuccess(null);
+    setPromoteLoading(true);
+    try {
+      const res = await fetch("/api/admin/staff", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: selectedUserToPromote.id }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to promote user.");
+      }
+      setSuccess(`'${selectedUserToPromote.name}' has been promoted to Admin successfully!`);
+      setIsCreateModalOpen(false);
+      setSelectedUserToPromote(null);
+      setUserSearchQuery("");
+      fetchStaff();
+    } catch (err: any) {
+      setError(err.message || "Failed to promote user.");
+    } finally {
+      setPromoteLoading(false);
+    }
+  };
+
+  const handleDemoteAdmin = async (admin: AdminItem) => {
+    if (!window.confirm(`Are you sure you want to demote admin '${admin.name}' back to a standard user? Their administrative access will be revoked immediately and their seat quota restored.`)) {
+      return;
+    }
+
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await fetch(`/api/admin/staff/${admin.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "demote" }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to demote admin.");
+      }
+
+      setSuccess(`'${admin.name}' demoted to standard user and seat quota restored.`);
+      fetchStaff();
+    } catch (err: any) {
+      setError(err.message || "Failed to demote admin.");
+    }
+  };
 
   const handleCreateAdmin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -385,6 +475,14 @@ export default function StaffAdminsTab({
                   </button>
 
                   <button
+                    onClick={() => handleDemoteAdmin(admin)}
+                    className="p-2 rounded-xl bg-slate-900 hover:bg-amber-950/50 text-slate-400 hover:text-amber-400 border border-slate-800 transition"
+                    title="Demote to Standard User"
+                  >
+                    <RotateCw className="w-4 h-4" />
+                  </button>
+
+                  <button
                     onClick={() => handleDeleteAdmin(admin)}
                     className="p-2 rounded-xl bg-slate-900 hover:bg-rose-950/50 text-slate-400 hover:text-rose-400 border border-slate-800 transition"
                     title="Remove Admin"
@@ -446,12 +544,16 @@ export default function StaffAdminsTab({
         </div>
       </div>
 
-      {/* Provision Admin Modal */}
+      {/* Provision Admin Modal (Pick Existing User or Create New) */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
             <button
-              onClick={() => setIsCreateModalOpen(false)}
+              onClick={() => {
+                setIsCreateModalOpen(false);
+                setSelectedUserToPromote(null);
+                setUserSearchQuery("");
+              }}
               className="absolute top-5 right-5 text-slate-400 hover:text-white"
             >
               <X className="w-5 h-5" />
@@ -459,85 +561,210 @@ export default function StaffAdminsTab({
 
             <div className="flex items-center gap-3 mb-5">
               <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-                <UserPlus className="w-5 h-5" />
+                <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white font-serif">Provision Operational Admin</h3>
-                <p className="text-xs text-slate-400">Quota: Seat {activeCount + 1} of 3</p>
+                <h3 className="text-lg font-bold text-white font-serif">Add Operational Admin</h3>
+                <p className="text-xs text-slate-400">Quota: Seat {activeCount + 1} of {maxQuota}</p>
               </div>
             </div>
 
-            <form onSubmit={handleCreateAdmin} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1.5">Full Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={createName}
-                  onChange={(e) => setCreateName(e.target.value)}
-                  placeholder="e.g. Hakim Tahir Hameed"
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                />
-              </div>
+            {/* Mode Selector Tabs */}
+            <div className="flex rounded-xl bg-slate-950 p-1 border border-slate-800 mb-5">
+              <button
+                type="button"
+                onClick={() => setModalMode("pick")}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 ${
+                  modalMode === "pick"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                <Users className="w-3.5 h-3.5" />
+                <span>Pick Existing User</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setModalMode("create")}
+                className={`flex-1 py-2 text-xs font-semibold rounded-lg transition flex items-center justify-center gap-1.5 ${
+                  modalMode === "create"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span>Create New Account</span>
+              </button>
+            </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1.5">Email Address *</label>
-                <input
-                  type="email"
-                  required
-                  value={createEmail}
-                  onChange={(e) => setCreateEmail(e.target.value)}
-                  placeholder="admin@tameeresehat.com"
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase mb-1.5">Temporary Password *</label>
-                <input
-                  type="password"
-                  required
-                  value={createPassword}
-                  onChange={(e) => setCreatePassword(e.target.value)}
-                  placeholder="Minimum 8 characters"
-                  className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+            {modalMode === "pick" ? (
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1.5">Phone (Optional)</label>
+                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1.5">
+                    Search Registered Users
+                  </label>
+                  <div className="relative">
+                    <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-500" />
+                    <input
+                      type="text"
+                      value={userSearchQuery}
+                      onChange={(e) => setUserSearchQuery(e.target.value)}
+                      placeholder="Type name, email, or phone to search..."
+                      className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+
+                {/* Search Results List */}
+                <div className="max-h-52 overflow-y-auto space-y-2 pr-1">
+                  {userSearchLoading ? (
+                    <div className="py-8 text-center text-slate-500 text-xs flex items-center justify-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
+                      <span>Searching users...</span>
+                    </div>
+                  ) : userSearchResults.length === 0 ? (
+                    <div className="py-6 text-center text-slate-500 text-xs border border-dashed border-slate-800 rounded-xl">
+                      {userSearchQuery ? "No matching non-admin users found." : "Start typing to search existing users."}
+                    </div>
+                  ) : (
+                    userSearchResults.map((u) => {
+                      const isSelected = selectedUserToPromote?.id === u.id;
+                      return (
+                        <div
+                          key={u.id}
+                          onClick={() => setSelectedUserToPromote(u)}
+                          className={`p-3 rounded-xl border cursor-pointer transition flex items-center justify-between gap-3 ${
+                            isSelected
+                              ? "bg-emerald-950/40 border-emerald-500/50"
+                              : "bg-slate-950/60 border-slate-800 hover:border-slate-700"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-8 h-8 rounded-full bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-xs shrink-0">
+                              {u.name ? u.name[0]?.toUpperCase() : "U"}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-semibold text-white truncate">{u.name}</p>
+                              <p className="text-[11px] text-slate-400 font-mono truncate">{u.email}</p>
+                              {u.phone && <p className="text-[10px] text-slate-500">{u.phone}</p>}
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-semibold text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800 shrink-0">
+                            {u.role || "user"}
+                          </span>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* Selected User Summary & Action */}
+                {selectedUserToPromote && (
+                  <div className="p-3.5 bg-emerald-950/30 border border-emerald-500/30 rounded-xl space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-emerald-400 font-semibold">Selected for Promotion</span>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedUserToPromote(null)}
+                        className="text-[10px] text-slate-400 hover:text-white"
+                      >
+                        Change
+                      </button>
+                    </div>
+                    <p className="text-sm font-bold text-white">{selectedUserToPromote.name}</p>
+                    <p className="text-xs text-slate-300 font-mono">{selectedUserToPromote.email}</p>
+                    <p className="text-[11px] text-slate-400">
+                      Their existing password will remain unchanged. They will receive an email notifying them of their new Admin access.
+                    </p>
+                  </div>
+                )}
+
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={handlePromoteSelectedUser}
+                    disabled={!selectedUserToPromote || promoteLoading}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition shadow-lg shadow-emerald-900/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    {promoteLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                    <span>Promote '{selectedUserToPromote ? selectedUserToPromote.name : "User"}' to Admin</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleCreateAdmin} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1.5">Full Name *</label>
                   <input
                     type="text"
-                    value={createPhone}
-                    onChange={(e) => setCreatePhone(e.target.value)}
-                    placeholder="0335-XXXXXXX"
+                    required
+                    value={createName}
+                    onChange={(e) => setCreateName(e.target.value)}
+                    placeholder="e.g. Hakim Tahir Hameed"
                     className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
                   />
                 </div>
+
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1.5">City</label>
+                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1.5">Email Address *</label>
                   <input
-                    type="text"
-                    value={createCity}
-                    onChange={(e) => setCreateCity(e.target.value)}
-                    placeholder="Karachi"
+                    type="email"
+                    required
+                    value={createEmail}
+                    onChange={(e) => setCreateEmail(e.target.value)}
+                    placeholder="admin@tameeresehat.com"
                     className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
                   />
                 </div>
-              </div>
 
-              <div className="pt-3">
-                <button
-                  type="submit"
-                  disabled={creating}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition shadow-lg shadow-emerald-900/30 disabled:opacity-50"
-                >
-                  {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
-                  <span>Provision Operational Admin</span>
-                </button>
-              </div>
-            </form>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 uppercase mb-1.5">Temporary Password *</label>
+                  <input
+                    type="password"
+                    required
+                    value={createPassword}
+                    onChange={(e) => setCreatePassword(e.target.value)}
+                    placeholder="Minimum 8 characters"
+                    className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 uppercase mb-1.5">Phone (Optional)</label>
+                    <input
+                      type="text"
+                      value={createPhone}
+                      onChange={(e) => setCreatePhone(e.target.value)}
+                      placeholder="0335-XXXXXXX"
+                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-300 uppercase mb-1.5">City</label>
+                    <input
+                      type="text"
+                      value={createCity}
+                      onChange={(e) => setCreateCity(e.target.value)}
+                      placeholder="Karachi"
+                      className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-3">
+                  <button
+                    type="submit"
+                    disabled={creating}
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm transition shadow-lg shadow-emerald-900/30 disabled:opacity-50"
+                  >
+                    {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
+                    <span>Provision Operational Admin</span>
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

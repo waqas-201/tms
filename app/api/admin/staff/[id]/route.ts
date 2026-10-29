@@ -16,7 +16,7 @@ export async function PATCH(
   try {
     const { id } = await context.params;
     const body = await request.json();
-    const { isActive, name, phone, city } = body || {};
+    const { isActive, name, phone, city, action, role } = body || {};
 
     const targetUser = await prisma.user.findUnique({
       where: { id },
@@ -38,6 +38,35 @@ export async function PATCH(
         },
         { status: 403 }
       );
+    }
+
+    // Demote admin to regular user
+    if (action === "demote" || role === "user") {
+      await prisma.session.deleteMany({
+        where: { userId: id },
+      });
+
+      const demoted = await prisma.user.update({
+        where: { id },
+        data: {
+          role: "user",
+          isActive: true,
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          isActive: true,
+          updatedAt: true,
+        },
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: `'${demoted.name}' has been demoted to standard user.`,
+        admin: demoted,
+      });
     }
 
     // If reactivating, verify quota

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireRole, ROLES } from "@/lib/rbac";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { sendAdminPromotionEmail } from "@/lib/email";
 
 export const dynamic = "force-dynamic";
 
@@ -55,18 +56,9 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { name, email, password, phone, city } = body || {};
+    const { name, email, password, phone, city, userId } = body || {};
 
-    if (!name || !email || !password) {
-      return NextResponse.json(
-        { success: false, error: "Name, email, and password are required to provision an Admin." },
-        { status: 400 }
-      );
-    }
-
-    const cleanEmail = email.toLowerCase().trim();
-
-    // Enforce Admin Quota: maximum 3 active admins
+    // Check current active admin quota
     const activeAdminCount = await prisma.user.count({
       where: {
         role: "admin",
@@ -75,16 +67,83 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    if (activeAdminCount >= ADMIN_QUOTA_MAX) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: `Admin quota reached. The clinic allows a maximum of ${ADMIN_QUOTA_MAX} concurrent active Admins. Please deactivate or delete an existing Admin to provision a new one.`,
-          code: "QUOTA_EXCEEDED",
+    // 1. Promoting by user ID
+    if (userId) {
+      const targetUser = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!targetUser) {
+        return NextResponse.json(
+          { success: false, error: "Target user not found." },
+          { status: 404 }
+        );
+      }
+
+      if (targetUser.role === ROLES.SUPER_ADMIN) {
+        return NextResponse.json(
+          { success: false, error: "Cannot modify the Super Admin role." },
+          { status: 400 }
+        );
+      }
+
+      if (targetUser.role === ROLES.ADMIN) {
+        return NextResponse.json(
+          { success: false, error: `'${targetUser.name}' is already an active Admin.` },
+          { status: 400 }
+        );
+      }
+
+      if (activeAdminCount >= ADMIN_QUOTA_MAX) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Admin quota reached. The clinic allows a maximum of ${ADMIN_QUOTA_MAX} concurrent active Admins. Please deactivate or demote an existing Admin first.`,
+            code: "QUOTA_EXCEEDED",
+          },
+          { status: 409 }
+        );
+      }
+
+      // Purge sessions so new admin claims take effect immediately
+      await prisma.session.deleteMany({ where: { userId: targetUser.id } });
+
+      const updated = await prisma.user.update({
+        where: { id: targetUser.id },
+        data: {
+          role: "admin",
+          isActive: true,
+          deletedAt: null,
+          ...(phone ? { phone: phone.trim() } : {}),
+          ...(city ? { city: city.trim() } : {}),
         },
-        { status: 409 }
+      });
+
+      sendAdminPromotionEmail({ to: updated.email, name: updated.name }).catch((err) => {
+        console.error("Failed to send admin promotion email:", err);
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: `'${updated.name}' promoted to Admin successfully.`,
+        admin: {
+          id: updated.id,
+          name: updated.name,
+          email: updated.email,
+          role: updated.role,
+          isActive: updated.isActive,
+        },
+      });
+    }
+
+    if (!email) {
+      return NextResponse.json(
+        { success: false, error: "Email or User ID is required." },
+        { status: 400 }
       );
     }
+
+    const cleanEmail = email.toLowerCase().trim();
 
     // Check if user already exists
     const existing = await prisma.user.findUnique({
@@ -92,12 +151,33 @@ export async function POST(request: NextRequest) {
     });
 
     if (existing) {
-      if (existing.role === "super_admin") {
+      if (existing.role === ROLES.SUPER_ADMIN) {
         return NextResponse.json(
           { success: false, error: "Cannot convert the Super Admin into a standard Admin here." },
           { status: 400 }
         );
       }
+
+      if (existing.role === ROLES.ADMIN) {
+        return NextResponse.json(
+          { success: false, error: `'${existing.name}' is already an Admin.` },
+          { status: 400 }
+        );
+      }
+
+      if (activeAdminCount >= ADMIN_QUOTA_MAX) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Admin quota reached. The clinic allows a maximum of ${ADMIN_QUOTA_MAX} concurrent active Admins. Please deactivate or demote an existing Admin first.`,
+            code: "QUOTA_EXCEEDED",
+          },
+          { status: 409 }
+        );
+      }
+
+      // Invalidate sessions immediately
+      await prisma.session.deleteMany({ where: { userId: existing.id } });
 
       // Elevate existing user to active admin
       const updated = await prisma.user.update({
@@ -111,9 +191,13 @@ export async function POST(request: NextRequest) {
         },
       });
 
+      sendAdminPromotionEmail({ to: updated.email, name: updated.name }).catch((err) => {
+        console.error("Failed to send admin promotion email:", err);
+      });
+
       return NextResponse.json({
         success: true,
-        message: "Existing user promoted to Admin successfully.",
+        message: `'${updated.name}' promoted to Admin successfully.`,
         admin: {
           id: updated.id,
           name: updated.name,
@@ -122,6 +206,25 @@ export async function POST(request: NextRequest) {
           isActive: updated.isActive,
         },
       });
+    }
+
+    // If new user, require name and password
+    if (!name || !password) {
+      return NextResponse.json(
+        { success: false, error: "Name, email, and password are required to provision a brand-new Admin." },
+        { status: 400 }
+      );
+    }
+
+    if (activeAdminCount >= ADMIN_QUOTA_MAX) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Admin quota reached. The clinic allows a maximum of ${ADMIN_QUOTA_MAX} concurrent active Admins. Please deactivate or delete an existing Admin to provision a new one.`,
+          code: "QUOTA_EXCEEDED",
+        },
+        { status: 409 }
+      );
     }
 
     // Create via Better-Auth
@@ -142,6 +245,10 @@ export async function POST(request: NextRequest) {
         phone: phone || null,
         city: city || null,
       },
+    });
+
+    sendAdminPromotionEmail({ to: created.email, name: created.name }).catch((err) => {
+      console.error("Failed to send admin promotion email:", err);
     });
 
     return NextResponse.json({

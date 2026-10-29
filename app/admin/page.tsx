@@ -453,7 +453,7 @@ export default function AdminDashboardPage() {
 
           {activeTab === "users" && (
             isAdmin ? (
-              <UsersTab currentUserId={sessionData?.user?.id} />
+              <UsersTab currentUserId={sessionData?.user?.id} isSuperAdmin={isSuperAdmin} />
             ) : (
               <div className="bg-white rounded-2xl border border-line p-8 text-center space-y-2">
                 <p className="text-sm font-semibold text-danger">Access Restricted</p>

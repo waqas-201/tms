@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireRole, ROLES } from "@/lib/rbac";
+import { sendAdminPromotionEmail } from "@/lib/email";
+
+const ADMIN_QUOTA_MAX = 3;
 
 export async function PATCH(
   request: NextRequest,
@@ -50,7 +53,10 @@ export async function PATCH(
       );
     }
 
-    // Safety check 3: Role elevation
+    let isPromotingToAdmin = false;
+    let isDemotingFromAdmin = false;
+
+    // Safety check 3: Role changes
     if (role) {
       const normalizedRole = role.toLowerCase().trim();
       if (normalizedRole === ROLES.SUPER_ADMIN) {
@@ -63,14 +69,53 @@ export async function PATCH(
         );
       }
 
-      if (normalizedRole === ROLES.ADMIN && !isSuperAdmin) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Only the Super Admin can promote accounts to the Admin role.",
+      // Demoting an admin
+      if (targetUser.role === ROLES.ADMIN && normalizedRole !== ROLES.ADMIN) {
+        if (!isSuperAdmin) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Only the Super Admin can demote operational Admin accounts.",
+            },
+            { status: 403 }
+          );
+        }
+        isDemotingFromAdmin = true;
+      }
+
+      // Promoting to admin
+      if (normalizedRole === ROLES.ADMIN && targetUser.role !== ROLES.ADMIN) {
+        if (!isSuperAdmin) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Only the Super Admin can promote accounts to the Admin role.",
+            },
+            { status: 403 }
+          );
+        }
+
+        // Quota check
+        const activeAdminCount = await prisma.user.count({
+          where: {
+            role: ROLES.ADMIN,
+            isActive: true,
+            deletedAt: null,
           },
-          { status: 403 }
-        );
+        });
+
+        if (activeAdminCount >= ADMIN_QUOTA_MAX) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Admin quota reached. The clinic allows a maximum of ${ADMIN_QUOTA_MAX} concurrent active Admins. Please deactivate or demote an existing Admin first.`,
+              code: "QUOTA_EXCEEDED",
+            },
+            { status: 409 }
+          );
+        }
+
+        isPromotingToAdmin = true;
       }
     }
 
@@ -89,17 +134,19 @@ export async function PATCH(
       updateData.longitude = typeof longitude === "number" && !isNaN(longitude) ? longitude : null;
     }
 
-    // Handling restore action
-    if (restore === true) {
+    // Auto-restore & activate if promoting to Admin
+    if (isPromotingToAdmin) {
+      updateData.deletedAt = null;
+      updateData.isActive = true;
+    } else if (restore === true) {
       updateData.deletedAt = null;
       updateData.isActive = true;
     } else if (isActive !== undefined) {
       updateData.isActive = Boolean(isActive);
     }
 
-    // If user is being suspended/deactivated or restored
-    if (updateData.isActive === false) {
-      // Purge all active sessions for this user immediately
+    // Purge active sessions if suspended, deactivated, promoted, or demoted
+    if (updateData.isActive === false || isPromotingToAdmin || isDemotingFromAdmin) {
       await prisma.session.deleteMany({ where: { userId: id } });
     }
 
@@ -122,12 +169,23 @@ export async function PATCH(
       },
     });
 
-    const statusMessage =
-      restore === true
-        ? `Account '${updated.name}' restored successfully.`
-        : updateData.isActive === false
-        ? `Account '${updated.name}' has been suspended and all active sessions revoked.`
-        : `User '${updated.name}' updated successfully.`;
+    if (isPromotingToAdmin) {
+      // Dispatch notification email
+      sendAdminPromotionEmail({ to: updated.email, name: updated.name }).catch((err) => {
+        console.error("[sendAdminPromotionEmail Exception]:", err);
+      });
+    }
+
+    let statusMessage = `User '${updated.name}' updated successfully.`;
+    if (isPromotingToAdmin) {
+      statusMessage = `Account '${updated.name}' has been promoted to Admin successfully.`;
+    } else if (isDemotingFromAdmin) {
+      statusMessage = `Account '${updated.name}' has been demoted to standard user.`;
+    } else if (restore === true) {
+      statusMessage = `Account '${updated.name}' restored successfully.`;
+    } else if (updateData.isActive === false) {
+      statusMessage = `Account '${updated.name}' has been suspended and all active sessions revoked.`;
+    }
 
     return NextResponse.json({
       success: true,
@@ -201,37 +259,43 @@ export async function DELETE(
       );
     }
 
-    // Permanent hard delete check
-    if (permanent) {
-      const hasRecords =
-        targetUser._count.orders > 0 ||
-        targetUser._count.consultations > 0 ||
-        targetUser._count.hijamaBookings > 0;
+    // Safety check 3: Self deletion
+    if (targetUser.id === session.user.id) {
+      return NextResponse.json(
+        { success: false, error: "You cannot delete your own account while logged in." },
+        { status: 400 }
+      );
+    }
 
-      if (hasRecords) {
+    // Invalidate sessions immediately
+    await prisma.session.deleteMany({ where: { userId: id } });
+
+    if (permanent) {
+      // Hard delete
+      const totalHistory =
+        (targetUser._count?.orders || 0) +
+        (targetUser._count?.consultations || 0) +
+        (targetUser._count?.hijamaBookings || 0);
+
+      if (totalHistory > 0) {
         return NextResponse.json(
           {
             success: false,
-            error:
-              "Cannot permanently wipe this user because existing clinical or order history is linked to them. Keep them archived/soft-deleted instead to preserve audit logs.",
+            error: `Cannot permanently delete '${targetUser.name}' because they have ${totalHistory} associated records (orders/consultations). Use soft-delete/suspension instead to protect clinical history.`,
           },
-          { status: 400 }
+          { status: 409 }
         );
       }
 
-      // Hard delete: remove sessions, accounts, and user
-      await prisma.session.deleteMany({ where: { userId: id } });
-      await prisma.account.deleteMany({ where: { userId: id } });
       await prisma.user.delete({ where: { id } });
 
       return NextResponse.json({
         success: true,
-        message: `Account '${targetUser.name}' permanently deleted.`,
+        message: `User '${targetUser.name}' and associated credentials permanently removed.`,
       });
     }
 
-    // Soft delete: mark deletedAt and deactivate
-    await prisma.session.deleteMany({ where: { userId: id } });
+    // Soft delete
     await prisma.user.update({
       where: { id },
       data: {
@@ -242,7 +306,7 @@ export async function DELETE(
 
     return NextResponse.json({
       success: true,
-      message: `Account '${targetUser.name}' archived/soft-deleted successfully.`,
+      message: `User '${targetUser.name}' archived. Access has been suspended.`,
     });
   } catch (error: unknown) {
     const errorMsg = error instanceof Error ? error.message : "Failed to delete user.";

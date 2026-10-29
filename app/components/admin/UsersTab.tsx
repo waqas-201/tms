@@ -94,7 +94,7 @@ const ROLE_CONFIG: Record<
 
 type ViewFilter = "ALL" | "STAFF" | "CUSTOMER" | "SUSPENDED" | "DELETED";
 
-export default function UsersTab({ currentUserId }: { currentUserId?: string }) {
+export default function UsersTab({ currentUserId, isSuperAdmin = false }: { currentUserId?: string; isSuperAdmin?: boolean }) {
   const [users, setUsers] = useState<UserItem[]>([]);
   const [counts, setCounts] = useState<UserCounts>({
     total: 0,
@@ -121,6 +121,75 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
   const [actionLoading, setActionLoading] = useState(false);
   const [locatingAdd, setLocatingAdd] = useState(false);
   const [locatingEdit, setLocatingEdit] = useState(false);
+
+  // Promote & Demote Modals
+  const [promoteTargetUser, setPromoteTargetUser] = useState<UserItem | null>(null);
+  const [demoteTargetUser, setDemoteTargetUser] = useState<UserItem | null>(null);
+  const [quotaInfo, setQuotaInfo] = useState<{ activeCount: number; maxQuota: number } | null>(null);
+  const [quotaLoading, setQuotaLoading] = useState(false);
+
+  const fetchQuota = async () => {
+    try {
+      setQuotaLoading(true);
+      const res = await fetch("/api/admin/staff");
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setQuotaInfo({ activeCount: data.activeCount, maxQuota: data.maxQuota });
+      }
+    } catch (e) {
+      console.error("Failed to load quota", e);
+    } finally {
+      setQuotaLoading(false);
+    }
+  };
+
+  const handleConfirmPromote = async () => {
+    if (!promoteTargetUser) return;
+    setActionLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/users/${promoteTargetUser.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: ROLES.ADMIN }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to promote user to Admin.");
+      }
+      setActionSuccess(data.message || `'${promoteTargetUser.name}' promoted to Admin successfully!`);
+      setPromoteTargetUser(null);
+      fetchUsers(true);
+    } catch (err: any) {
+      setError(err.message || "Failed to promote user.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleConfirmDemote = async () => {
+    if (!demoteTargetUser) return;
+    setActionLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/users/${demoteTargetUser.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role: ROLES.USER }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to demote Admin.");
+      }
+      setActionSuccess(data.message || `'${demoteTargetUser.name}' demoted to standard user.`);
+      setDemoteTargetUser(null);
+      fetchUsers(true);
+    } catch (err: any) {
+      setError(err.message || "Failed to demote Admin.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   // Form State for Add User
   const [addForm, setAddForm] = useState({
@@ -883,6 +952,33 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
                                 <span>Edit</span>
                               </button>
 
+                              {isSuperAdmin && user.role !== ROLES.ADMIN && user.role !== "super_admin" && !isDeleted && (
+                                <button
+                                  onClick={() => {
+                                    setPromoteTargetUser(user);
+                                    fetchQuota();
+                                  }}
+                                  disabled={actionLoading}
+                                  className="px-2.5 py-1 text-[11px] font-semibold text-purple-700 bg-purple-50 border border-purple-200 hover:bg-purple-100 rounded-lg flex items-center gap-1 transition-colors"
+                                  title="Promote to Operational Admin"
+                                >
+                                  <ShieldAlert className="w-3 h-3 text-purple-600" />
+                                  <span>Make Admin</span>
+                                </button>
+                              )}
+
+                              {isSuperAdmin && user.role === ROLES.ADMIN && !isDeleted && (
+                                <button
+                                  onClick={() => setDemoteTargetUser(user)}
+                                  disabled={actionLoading}
+                                  className="px-2.5 py-1 text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100 rounded-lg flex items-center gap-1 transition-colors"
+                                  title="Demote to Standard User"
+                                >
+                                  <RotateCcw className="w-3 h-3 text-amber-600" />
+                                  <span>Demote</span>
+                                </button>
+                              )}
+
                               {!isPrimaryAdmin && (
                                 <>
                                   <button
@@ -1126,7 +1222,7 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
 
               <div className="space-y-1">
                 <label className="text-xs font-semibold text-ink">Role</label>
-                {selectedUser.role === ROLES.ADMIN ? (
+                {selectedUser.role === ROLES.ADMIN && !isSuperAdmin ? (
                   <div className="p-2.5 bg-purple-50 border border-purple-200 rounded-xl text-xs text-purple-800 font-semibold flex items-center gap-2">
                     <ShieldAlert className="w-4 h-4 text-purple-600 shrink-0" />
                     <span>Primary Admin Account (Role cannot be changed)</span>
@@ -1138,6 +1234,9 @@ export default function UsersTab({ currentUserId }: { currentUserId?: string }) 
                     className="w-full px-3 py-2 text-xs border border-line rounded-xl focus:border-primary focus:outline-none bg-white"
                   >
                     <option value="user">Customer / Patient</option>
+                    {isSuperAdmin && (
+                      <option value="admin">Operational Admin (Full Platform Control)</option>
+                    )}
                     <option value="hakim">Hakim (Physician)</option>
                     <option value="editor">Staff Editor</option>
                     <option value="contributor">Contributor</option>

@@ -1447,3 +1447,77 @@ export async function sendHakimPrescriptionEmail(params: {
   }
 }
 
+
+/**
+ * Sends an email notification to a user who has just been promoted to Administrator.
+ */
+export async function sendAdminPromotionEmail(params: {
+  to: string;
+  name: string;
+}) {
+  try {
+    const { to, name } = params;
+    const adminUrl = `${APP_URL}/admin`;
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Administrator Access Granted - Tameer-e-Sehat</title>
+</head>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: ${BRAND.surface}; padding: 24px; color: ${BRAND.ink};">
+  <div style="max-width: 580px; margin: 0 auto; background: ${BRAND.surfaceRaised}; border-radius: 12px; border: 1px solid ${BRAND.line}; padding: 28px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+    <div style="background-color: ${BRAND.primary}; color: #ffffff; padding: 18px 24px; border-radius: 8px; margin-bottom: 24px; text-align: center;">
+      <h1 style="margin: 0; font-size: 20px; font-weight: 700;">Administrator Access Granted</h1>
+      <p style="margin: 4px 0 0; font-size: 13px; opacity: 0.9;">Matab Tameer-e-Sehat Portal</p>
+    </div>
+
+    <p style="font-size: 15px; line-height: 1.6; margin-bottom: 16px;">
+      Assalam-o-Alaikum <strong>${name}</strong>,
+    </p>
+
+    <p style="font-size: 14px; line-height: 1.6; color: ${BRAND.inkMuted}; margin-bottom: 20px;">
+      You have been appointed as an <strong>Administrator</strong> for Matab Tameer-e-Sehat by the Super Administrator. You now have operational management privileges over orders, products, inventory, clinic schedule, and consultations.
+    </p>
+
+    <div style="background-color: ${BRAND.surface}; border-left: 4px solid ${BRAND.primary}; padding: 14px 18px; border-radius: 4px; margin-bottom: 24px;">
+      <p style="margin: 0; font-size: 13px; color: ${BRAND.ink};">
+        <strong>Login Credentials:</strong> You can log in using your existing email (<strong>${to}</strong>) and password. No password change is required.
+      </p>
+    </div>
+
+    <div style="text-align: center; margin: 28px 0;">
+      <a href="${adminUrl}" style="background-color: ${BRAND.primary}; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 8px; font-weight: 600; font-size: 14px; display: inline-block;">
+        Open Admin Portal &rarr;
+      </a>
+    </div>
+
+    <div style="background-color: ${BRAND.surface}; padding: 16px 20px; border-radius: 8px; font-size: 12px; color: ${BRAND.inkSubtle}; text-align: center; margin-top: 24px;">
+      Matab Tameer-e-Sehat · Est. 1990 · Korangi Crossing, Karachi
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+    const { data, error } = await resend.emails.send(
+      withReplyTo({
+        from: DEFAULT_FROM,
+        to: [to],
+        subject: "Administrator Access Granted - Tameer-e-Sehat",
+        html: htmlContent,
+      })
+    );
+
+    if (error) {
+      console.error("[sendAdminPromotionEmail Error]:", error);
+      return { success: false, error };
+    }
+
+    return { success: true, data };
+  } catch (err: any) {
+    console.error("[sendAdminPromotionEmail Exception]:", err);
+    return { success: false, error: err.message };
+  }
+}

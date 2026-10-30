@@ -82,9 +82,21 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Product detail legacy WooCommerce path
       {
         source: "/product/:slug*",
         destination: "/products/:slug*",
+        permanent: true,
+      },
+      // Core pages legacy paths
+      {
+        source: "/about-us",
+        destination: "/about",
+        permanent: true,
+      },
+      {
+        source: "/contact-us",
+        destination: "/contact",
         permanent: true,
       },
       {
@@ -92,6 +104,85 @@ const nextConfig: NextConfig = {
         destination: "/products",
         permanent: true,
       },
+      // Legacy WooCommerce categories
+      {
+        source: "/product-category/murabba",
+        destination: "/products?category=murabbajaat",
+        permanent: true,
+      },
+      {
+        source: "/product-category/herbs-dry-fruit",
+        destination: "/products?category=herbs-seeds",
+        permanent: true,
+      },
+      {
+        source: "/product-category/deals",
+        destination: "/products?filter=deals",
+        permanent: true,
+      },
+      {
+        source: "/product-category/products",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/product-category/:slug*",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/category/:slug*",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/product-tag/:slug*",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/tag/:slug*",
+        destination: "/products",
+        permanent: true,
+      },
+      // Legacy Blog and Articles
+      {
+        source: "/blogs/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/blogs",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/blog/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/blog",
+        destination: "/",
+        permanent: true,
+      },
+      // WooCommerce account and checkout paths
+      {
+        source: "/cart",
+        destination: "/checkout",
+        permanent: true,
+      },
+      {
+        source: "/my-account/:slug*",
+        destination: "/account",
+        permanent: true,
+      },
+      {
+        source: "/order-tracking",
+        destination: "/track-order",
+        permanent: true,
+      },
+      // Legacy WordPress sitemaps
       ...LEGACY_SITEMAP_PATHS.map((source) => ({
         source,
         destination: "/sitemap.xml",

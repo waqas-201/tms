@@ -323,6 +323,10 @@ export default function Footer() {
                 Clinical Specialties
               </Link>
               <span>·</span>
+              <Link href="/privacy-policy" className="hover:text-white transition-colors">
+                Privacy Policy
+              </Link>
+              <span>·</span>
               <Link href="/track-order" className="hover:text-white transition-colors">
                 Track Order (COD)
               </Link>

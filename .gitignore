@@ -23,6 +23,9 @@
 *.pfx
 secrets/
 .secrets/
+*credentials*.json
+*service-account*.json
+gsc-*.json
 
 # testing
 /coverage
@@ -65,4 +68,3 @@ gitleaks-report*.json
 # playwright output
 test-results/
 playwright-report/
-

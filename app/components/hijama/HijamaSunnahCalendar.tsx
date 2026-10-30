@@ -20,6 +20,7 @@ import SlotStrip from "@/app/components/SlotStrip";
 import {
   getHijriDate,
   formatDateStr,
+  DEFAULT_PAKISTAN_MOON_OFFSET,
   type HijriDateInfo,
   type HijamaDateAvailability,
   type HijamaSlotAvailability,
@@ -34,6 +35,7 @@ export interface HijamaSunnahCalendarProps {
     slot: HijamaSlotAvailability,
     hijri: HijriDateInfo
   ) => void;
+  moonSightingOffset?: number;
   className?: string;
 }
 
@@ -42,6 +44,7 @@ export default function HijamaSunnahCalendar({
   selectedGender = "MALE",
   onSelectDate,
   onSelectSlot,
+  moonSightingOffset = DEFAULT_PAKISTAN_MOON_OFFSET,
   className = "",
 }: HijamaSunnahCalendarProps) {
   // Calendar View Month/Year State
@@ -160,7 +163,7 @@ export default function HijamaSunnahCalendar({
     for (let i = startDayOfWeek - 1; i >= 0; i--) {
       const d = new Date(currentYear, currentMonth - 1, prevMonthLastDate - i);
       const dStr = formatDateStr(d);
-      const hijri = getHijriDate(d);
+      const hijri = getHijriDate(d, moonSightingOffset);
       days.push({
         date: d,
         dateStr: dStr,
@@ -176,7 +179,7 @@ export default function HijamaSunnahCalendar({
     for (let day = 1; day <= lastDayOfMonth.getDate(); day++) {
       const d = new Date(currentYear, currentMonth, day);
       const dStr = formatDateStr(d);
-      const hijri = getHijriDate(d);
+      const hijri = getHijriDate(d, moonSightingOffset);
       days.push({
         date: d,
         dateStr: dStr,
@@ -193,7 +196,7 @@ export default function HijamaSunnahCalendar({
     for (let i = 1; i <= remainingCells; i++) {
       const d = new Date(currentYear, currentMonth + 1, i);
       const dStr = formatDateStr(d);
-      const hijri = getHijriDate(d);
+      const hijri = getHijriDate(d, moonSightingOffset);
       days.push({
         date: d,
         dateStr: dStr,
@@ -246,7 +249,7 @@ export default function HijamaSunnahCalendar({
     setCurrentYear(today.getFullYear());
     setCurrentMonth(today.getMonth());
     setSelectedDateStr(todayStr);
-    const hijri = getHijriDate(today);
+    const hijri = getHijriDate(today, moonSightingOffset);
     onSelectDate?.(todayStr, hijri);
   };
 
@@ -282,8 +285,8 @@ export default function HijamaSunnahCalendar({
   const weekDayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const selectedHijri = useMemo(() => {
-    return dateAvailability?.hijriInfo || getHijriDate(selectedDateStr);
-  }, [dateAvailability, selectedDateStr]);
+    return dateAvailability?.hijriInfo || getHijriDate(selectedDateStr, moonSightingOffset);
+  }, [dateAvailability, selectedDateStr, moonSightingOffset]);
 
   return (
     <div

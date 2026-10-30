@@ -18,6 +18,7 @@ import {
   ISLAMIC_MONTH_NAMES,
   IslamicMonthName,
   HijriDateInfo,
+  DEFAULT_PAKISTAN_MOON_OFFSET,
   parseDateInput,
   formatDateStr,
   getHijriDate,
@@ -144,7 +145,7 @@ export const DEFAULT_HIJAMA_SCHEDULE: Omit<
 
 export const DEFAULT_HIJAMA_SETTING = {
   id: "default",
-  moonSightingOffset: 0,
+  moonSightingOffset: DEFAULT_PAKISTAN_MOON_OFFSET,
   sunnahMaleCapacity: 1,
   sunnahFemaleCapacity: 1,
   standardFee: 1250,
@@ -224,7 +225,7 @@ export async function updateHijamaSettings(data: {
     },
     create: {
       id: "default",
-      moonSightingOffset: data.moonSightingOffset ?? 0,
+      moonSightingOffset: data.moonSightingOffset ?? DEFAULT_PAKISTAN_MOON_OFFSET,
       sunnahMaleCapacity: data.sunnahMaleCapacity ?? 1,
       sunnahFemaleCapacity: data.sunnahFemaleCapacity ?? 1,
       standardFee: data.standardFee ?? 1250,

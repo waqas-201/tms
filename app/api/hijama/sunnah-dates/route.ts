@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getUpcomingSunnahDates } from "@/lib/hijama";
+import { getUpcomingSunnahDates, getHijamaSettings, getHijriDate } from "@/lib/hijama";
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,11 +7,21 @@ export async function GET(request: NextRequest) {
     const monthsParam = searchParams.get("months");
     const months = monthsParam ? parseInt(monthsParam, 10) : 2;
 
-    const sunnahDates = await getUpcomingSunnahDates(
-      isNaN(months) || months < 1 ? 2 : Math.min(months, 6)
-    );
+    const [sunnahDates, settings] = await Promise.all([
+      getUpcomingSunnahDates(
+        isNaN(months) || months < 1 ? 2 : Math.min(months, 6)
+      ),
+      getHijamaSettings(),
+    ]);
 
-    return NextResponse.json({ success: true, data: sunnahDates });
+    return NextResponse.json({
+      success: true,
+      data: sunnahDates,
+      meta: {
+        moonSightingOffset: settings.moonSightingOffset,
+        todayHijri: getHijriDate(new Date(), settings.moonSightingOffset),
+      },
+    });
   } catch (error: any) {
     console.error("Error fetching upcoming Sunnah dates:", error);
     return NextResponse.json(

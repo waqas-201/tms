@@ -392,7 +392,7 @@ model HijamaScheduleConfig {
 
 model HijamaSetting {
   id                   String   @id @default("default")
-  moonSightingOffset   Int      @default(0) // -2 to +2 days for Pakistan Ruet-e-Hilal adjustment
+  moonSightingOffset   Int      @default(-1) // -2 to +2 days for Pakistan Ruet-e-Hilal adjustment
   sunnahMaleCapacity   Int      @default(4) // Boosted capacity on Sunnah days
   sunnahFemaleCapacity Int      @default(4)
   standardFee          Float    @default(2500) // PKR standard cupping fee

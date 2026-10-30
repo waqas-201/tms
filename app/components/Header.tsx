@@ -13,7 +13,7 @@ const SearchModal = dynamic(() => import("./SearchModal"), { ssr: false });
 import { useConsultation } from "@/app/context/ConsultationContext";
 import BrandLogo from "./BrandLogo";
 import { isStaffRole } from "@/lib/rbac-base";
-import { getHijriDate } from "@/lib/hijama-types";
+import { getHijriDate, DEFAULT_PAKISTAN_MOON_OFFSET } from "@/lib/hijama-types";
 import {
   Search,
   ShoppingBag,
@@ -126,29 +126,62 @@ export default function Header() {
   } | null>(null);
 
   useEffect(() => {
-    try {
-      const today = new Date();
-      for (let i = 0; i < 35; i++) {
-        const check = new Date(today);
-        check.setDate(today.getDate() + i);
-        const h = getHijriDate(check, 0);
-        if (h.isSunnahDay) {
-          const greg = check.toLocaleDateString("en-US", {
-            month: "short",
-            day: "numeric",
-          });
+    let active = true;
+    async function initBanner() {
+      try {
+        const res = await fetch("/api/hijama/sunnah-dates?months=2");
+        const json = await res.json();
+        if (active && json.success && Array.isArray(json.data) && json.data.length > 0) {
+          const first = json.data[0];
+          const today = new Date();
+          const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+          const firstDate = new Date(first.date + "T12:00:00Z");
+          const todayDate = new Date(todayStr + "T12:00:00Z");
+          const daysAway = Math.max(0, Math.round((firstDate.getTime() - todayDate.getTime()) / 86400000));
+          const isToday = first.date === todayStr;
+
           setHijamaBannerInfo({
-            daysAway: i,
-            hijriText: `${h.hijriDay}th ${h.hijriMonthName}`,
-            gregText: greg,
-            isToday: i === 0,
+            daysAway,
+            hijriText: `${first.hijriDay}th ${first.hijriMonthName}`,
+            gregText: firstDate.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+            isToday,
           });
-          break;
+          return;
         }
+      } catch {
+        // Fallback below
       }
-    } catch {
-      // fallback
+
+      try {
+        const today = new Date();
+        for (let i = 0; i < 35; i++) {
+          const check = new Date(today);
+          check.setDate(today.getDate() + i);
+          const h = getHijriDate(check, DEFAULT_PAKISTAN_MOON_OFFSET);
+          if (h.isSunnahDay) {
+            const greg = check.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+            });
+            if (active) {
+              setHijamaBannerInfo({
+                daysAway: i,
+                hijriText: `${h.hijriDay}th ${h.hijriMonthName}`,
+                gregText: greg,
+                isToday: i === 0,
+              });
+            }
+            break;
+          }
+        }
+      } catch {
+        // fallback
+      }
     }
+    initBanner();
+    return () => {
+      active = false;
+    };
   }, []);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const shopMenuRef = useRef<HTMLDivElement>(null);

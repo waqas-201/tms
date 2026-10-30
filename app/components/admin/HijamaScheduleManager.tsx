@@ -23,7 +23,7 @@ import {
   ShieldCheck,
   Check,
 } from "lucide-react";
-import { formatSlotLabel } from "@/lib/hijama-types";
+import { formatSlotLabel, getHijriDate, DEFAULT_PAKISTAN_MOON_OFFSET } from "@/lib/hijama-types";
 
 interface CustomSlot {
   id: string;
@@ -87,7 +87,7 @@ export default function HijamaScheduleManager() {
   const [schedule, setSchedule] = useState<ScheduleDay[]>([]);
   const [overrides, setOverrides] = useState<DateOverride[]>([]);
   const [settings, setSettings] = useState<Settings>({
-    moonSightingOffset: 0,
+    moonSightingOffset: DEFAULT_PAKISTAN_MOON_OFFSET,
     sunnahMaleCapacity: 1,
     sunnahFemaleCapacity: 1,
     standardFee: 2500,
@@ -147,6 +147,11 @@ export default function HijamaScheduleManager() {
   useEffect(() => {
     fetchConfig();
   }, [fetchConfig]);
+
+  // Live Pakistan Islamic Date preview
+  const livePakistanDate = useMemo(() => {
+    return getHijriDate(new Date(), settings.moonSightingOffset);
+  }, [settings.moonSightingOffset]);
 
   // Current active day in weekly schedule
   const currentDay = useMemo(() => {
@@ -1116,21 +1121,50 @@ export default function HijamaScheduleManager() {
           </div>
 
           <div className="space-y-4">
-            <div>
-              <label className="text-xs font-bold text-ink block mb-1">
-                Moon Sighting Offset (Pakistan Ruet-e-Hilal)
-              </label>
+                        <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-bold text-ink flex items-center gap-1.5">
+                  <Moon className="w-3.5 h-3.5 text-primary" />
+                  <span>Pakistan Moon Sighting (Ruet-e-Hilal Offset)</span>
+                </label>
+                <span className="text-[10px] font-bold text-primary px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20">
+                  Standard: -1 Day
+                </span>
+              </div>
               <select
                 value={settings.moonSightingOffset}
                 onChange={(e) => setSettings({ ...settings, moonSightingOffset: Number(e.target.value) })}
-                className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink font-bold"
+                className="w-full px-3 py-2 bg-surface border border-line rounded-xl text-xs text-ink font-bold focus:border-primary focus:ring-1 focus:ring-primary"
               >
-                <option value="-2">-2 Days (Early sighting adjustment)</option>
-                <option value="-1">-1 Day (1 day earlier than global calculation)</option>
-                <option value="0">0 Days (Standard Umm al-Qura calculation)</option>
-                <option value="1">+1 Day (Pakistan official Ruet-e-Hilal standard)</option>
-                <option value="2">+2 Days (+2 days sighting adjustment)</option>
+                <option value="-1">-1 Day: Standard Pakistan (Ruet-e-Hilal &mdash; 1 day behind Saudi Umm al-Qura)</option>
+                <option value="0">0 Days: Sighted Same Day as Saudi Arabia (Umm al-Qura)</option>
+                <option value="-2">-2 Days: Delayed Moon Sighting (2 days behind Saudi Arabia)</option>
+                <option value="1">+1 Day: Advanced Moon Sighting (+1 day ahead of Saudi Arabia)</option>
               </select>
+
+              {/* Live Preview Box */}
+              <div className="mt-2.5 p-3 rounded-xl bg-surface border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <span className="text-ink-muted block text-[10px] uppercase font-bold tracking-wider">
+                    Today&apos;s Active Date in Pakistan
+                  </span>
+                  <span className="font-serif font-bold text-ink text-sm">
+                    {livePakistanDate.hijriFormatted}
+                  </span>
+                </div>
+                <div>
+                  {livePakistanDate.isSunnahDay ? (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-secondary text-ink border border-secondary/40 shadow-2xs">
+                      <Sparkles className="w-3 h-3 fill-current" />
+                      <span>Today is Sunnah Cupping Day</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-medium bg-surface-muted text-ink-muted border border-line">
+                      <span>Standard Clinic Day (Not Sunnah)</span>
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">

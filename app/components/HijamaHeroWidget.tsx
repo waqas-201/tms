@@ -3,26 +3,26 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ArrowRight, Moon, ShieldCheck } from "lucide-react";
-import { getHijriDate } from "@/lib/hijama-types";
+import { getHijriDate, DEFAULT_PAKISTAN_MOON_OFFSET } from "@/lib/hijama-types";
 
 export default function HijamaHeroWidget() {
   const [sunnahText, setSunnahText] = useState<string>("Upcoming Sunnah Dates: 17th, 19th & 21st");
 
   useEffect(() => {
     try {
-      // Find the nearest upcoming Sunnah date
+      // Find the nearest upcoming Sunnah date in Pakistan
       const today = new Date();
       for (let i = 0; i < 35; i++) {
         const check = new Date(today);
         check.setDate(today.getDate() + i);
-        const h = getHijriDate(check, 0);
+        const h = getHijriDate(check, DEFAULT_PAKISTAN_MOON_OFFSET);
         if (h.isSunnahDay) {
           const gregFormatted = check.toLocaleDateString("en-US", {
             weekday: "short",
             month: "short",
             day: "numeric",
           });
-          const prefix = i === 0 ? "Today is a Sunnah Day" : `Next Sunnah Date: ${gregFormatted}`;
+          const prefix = i === 0 ? "Today is a Blessed Sunnah Day" : `Next Sunnah Date: ${gregFormatted}`;
           setSunnahText(`${prefix} (${h.hijriDay} ${h.hijriMonthName})`);
           break;
         }
@@ -58,10 +58,10 @@ export default function HijamaHeroWidget() {
 
           <Link
             href="/hijama"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-secondary hover:bg-secondary text-ink font-bold text-xs rounded-xl transition-all shrink-0 shadow-sm"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-secondary hover:bg-brand-gold-400 text-ink font-bold text-sm shadow-sm transition-all shrink-0 active:scale-95"
           >
             <span>Book Appointment</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>

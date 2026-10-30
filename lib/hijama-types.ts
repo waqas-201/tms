@@ -27,6 +27,14 @@ export interface HijriDateInfo {
 }
 
 /**
+ * Standard baseline lunar offset for Pakistan vs Saudi Umm al-Qura calendar.
+ * In Pakistan, lunar months are declared by the Central Ruet-e-Hilal Committee based
+ * on local physical crescent sightings, which places Pakistan typically 1 day behind (-1)
+ * Saudi Arabia's astronomical Umm al-Qura calendar.
+ */
+export const DEFAULT_PAKISTAN_MOON_OFFSET = -1;
+
+/**
  * Parses a Date object or "YYYY-MM-DD" string into a UTC noon Date object
  * to prevent any local timezone boundary shifts during arithmetic.
  */
@@ -54,8 +62,14 @@ export function formatDateStr(date: Date): string {
  * Converts a Gregorian date and moon-sighting offset into an Islamic (Hijri) date.
  * Uses Intl.DateTimeFormat 'en-u-ca-islamic-umalqura' calendar with day arithmetic.
  * Sunnah cupping days are the 17th, 19th, and 21st of each lunar month.
+ *
+ * Defaults to DEFAULT_PAKISTAN_MOON_OFFSET (-1) to accurately reflect local Pakistani
+ * Islamic dates according to Ruet-e-Hilal crescent sighting.
  */
-export function getHijriDate(date: Date | string, offset: number = 0): HijriDateInfo {
+export function getHijriDate(
+  date: Date | string,
+  offset: number = DEFAULT_PAKISTAN_MOON_OFFSET
+): HijriDateInfo {
   try {
     const baseDate = parseDateInput(date);
     const adjustedTime = baseDate.getTime() + offset * 86_400_000;

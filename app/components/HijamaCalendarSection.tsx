@@ -30,6 +30,7 @@ import { useSession } from "@/lib/auth-client";
 import {
   getHijriDate,
   formatDateStr,
+  DEFAULT_PAKISTAN_MOON_OFFSET,
   type HijriDateInfo,
   type UpcomingSunnahDate,
   type HijamaSlotAvailability,
@@ -78,6 +79,8 @@ export default function HijamaCalendarSection() {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [slotsError, setSlotsError] = useState<string | null>(null);
 
+  const [moonOffset, setMoonOffset] = useState<number>(DEFAULT_PAKISTAN_MOON_OFFSET);
+
   // Booking submit state
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -111,6 +114,7 @@ export default function HijamaCalendarSection() {
         const json = await res.json();
         if (active && json.success && Array.isArray(json.data) && json.data.length > 0) {
           setSunnahDates(json.data);
+          if (typeof json.meta?.moonSightingOffset === 'number') { setMoonOffset(json.meta.moonSightingOffset); }
           if (!selectedDate) {
             setSelectedDate(json.data[0].date);
           }
@@ -170,7 +174,7 @@ export default function HijamaCalendarSection() {
     for (let i = 0; i < 35; i++) {
       const check = new Date(today);
       check.setDate(today.getDate() + i);
-      const h = getHijriDate(check, 0);
+      const h = getHijriDate(check, moonOffset);
       if (h.isSunnahDay) {
         return {
           date: formatDateStr(check),
@@ -184,12 +188,12 @@ export default function HijamaCalendarSection() {
       }
     }
     return null;
-  }, [sunnahDates, todayStr, today]);
+  }, [sunnahDates, todayStr, today, moonOffset]);
 
   // Current selected date Hijri info
   const selectedHijri = useMemo(() => {
-    return getHijriDate(selectedDate || todayStr, 0);
-  }, [selectedDate, todayStr]);
+    return getHijriDate(selectedDate || todayStr, moonOffset);
+  }, [selectedDate, todayStr, moonOffset]);
 
   // Human readable selected date
   const selectedDateFormatted = useMemo(() => {

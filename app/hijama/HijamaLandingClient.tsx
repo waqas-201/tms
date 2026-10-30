@@ -101,7 +101,7 @@ export default function HijamaLandingClient() {
 
     // Compute Hijri info
     try {
-      const h = getHijriDate(selectedDate, 0);
+      const h = getHijriDate(selectedDate);
       setDateHijri(h);
     } catch {
       setDateHijri(null);
@@ -114,7 +114,7 @@ export default function HijamaLandingClient() {
         );
         const json = await res.json();
         if (active) {
-          if (json.success && json.data?.slots) {
+          if (json.success && json.data?.slots) { if (json.data?.hijriInfo) { setDateHijri(json.data.hijriInfo); }
             setSlots(json.data.slots);
           } else {
             setSlots([]);

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import React from "react";
-import prisma from "@/lib/prisma";
+import { getLiveProductBySlug } from "@/lib/catalog";
 import { getSafeProductImage } from "@/lib/utils";
 import { SITE_URL } from "@/lib/site";
 
@@ -9,30 +9,21 @@ type Props = {
   children: React.ReactNode;
 };
 
-async function getProductBySlugOrId(slug: string) {
-  try {
-    return await prisma.product.findFirst({
-      where: {
-        OR: [{ slug }, { id: slug }],
-      },
-      include: {
-        sizes: true,
-      },
-    });
-  } catch (error) {
-    console.error("Error fetching product for layout metadata:", error);
-    return null;
-  }
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const product = await getProductBySlugOrId(slug);
+  const product = await getLiveProductBySlug(slug);
+
+  const canonicalUrl = product
+    ? `${SITE_URL}/products/${product.slug}`
+    : `${SITE_URL}/products/${slug}`;
 
   if (!product) {
     return {
       title: "Herbal Remedy | Tameer-e-Sehat",
-      description: "Pure Unani herbal remedy prepared by Tameer-e-Sehat.",
+      description: "Pure Unani herbal remedy prepared by Tameer-e-Sehat in Karachi, Pakistan.",
+      alternates: {
+        canonical: canonicalUrl,
+      },
     };
   }
 
@@ -41,7 +32,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     product.shortDescription ||
     `${product.name} - 100% natural Unani formulation for ${product.traditionalPurpose || "holistic wellness"}. Handcrafted in Karachi, Pakistan.`;
 
-  const canonicalUrl = `${SITE_URL}/products/${product.slug}`;
   const primaryImage = getSafeProductImage(product.image);
   const imageUrl = primaryImage.startsWith("http")
     ? primaryImage
@@ -83,7 +73,7 @@ export default async function ProductDetailLayout({
   children,
 }: Props) {
   const { slug } = await params;
-  const product = await getProductBySlugOrId(slug);
+  const product = await getLiveProductBySlug(slug);
 
   if (!product) return <>{children}</>;
 

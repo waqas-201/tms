@@ -55,9 +55,6 @@ export const metadata: Metadata = {
   authors: [{ name: "Tameer-e-Sehat Traditional Healthcare" }],
   creator: "Tameer-e-Sehat",
   publisher: "Matab Tameer-e-sehat",
-  alternates: {
-    canonical: SITE_URL,
-  },
   openGraph: {
     title: "Tameer-e-Sehat | Traditional Unani Medicine & Hakeem Consultation",
     description:

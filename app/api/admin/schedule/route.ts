@@ -11,7 +11,13 @@ export async function GET(request: NextRequest) {
     });
 
     const userRole = (session?.user as any)?.role;
-    if (!session || !isStaffRole(userRole)) {
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Authentication required." },
+        { status: 401 }
+      );
+    }
+    if (!isStaffRole(userRole)) {
       return NextResponse.json(
         { success: false, error: "Unauthorized access to clinic schedule." },
         { status: 403 }
@@ -45,7 +51,13 @@ export async function PUT(request: NextRequest) {
     });
 
     const userRole = (session?.user as any)?.role;
-    if (!session || !isStaffRole(userRole)) {
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Authentication required." },
+        { status: 401 }
+      );
+    }
+    if (!isStaffRole(userRole)) {
       return NextResponse.json(
         { success: false, error: "Unauthorized access to update schedule." },
         { status: 403 }
@@ -113,7 +125,13 @@ export async function POST(request: NextRequest) {
     });
 
     const userRole = (session?.user as any)?.role;
-    if (!session || !isStaffRole(userRole)) {
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Authentication required." },
+        { status: 401 }
+      );
+    }
+    if (!isStaffRole(userRole)) {
       return NextResponse.json(
         { success: false, error: "Unauthorized access." },
         { status: 403 }
@@ -157,7 +175,13 @@ export async function DELETE(request: NextRequest) {
     });
 
     const userRole = (session?.user as any)?.role;
-    if (!session || !isStaffRole(userRole)) {
+    if (!session) {
+      return NextResponse.json(
+        { success: false, error: "Authentication required." },
+        { status: 401 }
+      );
+    }
+    if (!isStaffRole(userRole)) {
       return NextResponse.json(
         { success: false, error: "Unauthorized access." },
         { status: 403 }

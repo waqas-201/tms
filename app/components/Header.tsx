@@ -396,7 +396,7 @@ export default function Header() {
           </span>
 
           <Link
-            href="/track-order"
+            href="/track-order" rel="nofollow"
             className="text-[10px] text-on-inverse hover:text-brand-gold-500 underline shrink-0 ml-2"
           >
             Track Order
@@ -459,7 +459,7 @@ export default function Header() {
             <span className="hidden lg:inline opacity-30 text-on-inverse">|</span>
 
             <Link
-              href="/track-order"
+              href="/track-order" rel="nofollow"
               className="hidden lg:flex items-center gap-1.5 text-on-inverse hover:text-brand-gold-500 transition-colors"
             >
               <Truck className="w-3 h-3 text-brand-gold-500" />
@@ -767,7 +767,7 @@ export default function Header() {
                           </p>
                         </div>
                         <Link
-                          href={isStaff ? "/admin" : "/account"}
+                          href={isStaff ? "/admin" : "/account"} rel="nofollow"
                           onClick={() => setIsUserMenuOpen(false)}
                           className="w-full px-3.5 py-2 text-left text-primary hover:bg-surface flex items-center gap-2 font-semibold"
                         >
@@ -783,7 +783,7 @@ export default function Header() {
                         {!isStaff && (
                           <>
                             <Link
-                              href="/wishlist"
+                              href="/wishlist" rel="nofollow"
                               onClick={() => setIsUserMenuOpen(false)}
                               className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center justify-between"
                             >
@@ -798,7 +798,7 @@ export default function Header() {
                               )}
                             </Link>
                             <Link
-                              href="/track-order"
+                              href="/track-order" rel="nofollow"
                               onClick={() => setIsUserMenuOpen(false)}
                               className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center gap-2"
                             >
@@ -822,7 +822,7 @@ export default function Header() {
                     ) : (
                       <>
                         <Link
-                          href="/account"
+                          href="/account" rel="nofollow"
                           onClick={() => setIsUserMenuOpen(false)}
                           className="w-full px-3.5 py-2 text-left text-primary hover:bg-surface flex items-center gap-2 font-semibold"
                         >
@@ -830,7 +830,7 @@ export default function Header() {
                           <span>My Account</span>
                         </Link>
                         <Link
-                          href="/wishlist"
+                          href="/wishlist" rel="nofollow"
                           onClick={() => setIsUserMenuOpen(false)}
                           className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center justify-between"
                         >
@@ -845,21 +845,21 @@ export default function Header() {
                           )}
                         </Link>
                         <Link
-                          href="/login"
+                          href="/login" rel="nofollow"
                           onClick={() => setIsUserMenuOpen(false)}
                           className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center gap-2"
                         >
                           <span>Sign In</span>
                         </Link>
                         <Link
-                          href="/register"
+                          href="/register" rel="nofollow"
                           onClick={() => setIsUserMenuOpen(false)}
                           className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center gap-2"
                         >
                           <span>Create Account</span>
                         </Link>
                         <Link
-                          href="/track-order"
+                          href="/track-order" rel="nofollow"
                           onClick={() => setIsUserMenuOpen(false)}
                           className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center gap-2 border-t border-sand-100"
                         >
@@ -874,7 +874,7 @@ export default function Header() {
 
               {isStaff ? (
                 <Link
-                  href="/admin"
+                  href="/admin" rel="nofollow"
                   className="relative inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-primary text-white text-xs font-bold hover:bg-brand-green-800 transition-colors shadow-2xs"
                   title="Open the staff dashboard"
                   aria-label="Staff dashboard"
@@ -885,7 +885,7 @@ export default function Header() {
               ) : (
                 <>
                   <Link
-                    href="/wishlist"
+                    href="/wishlist" rel="nofollow"
                     className="relative hidden xl:inline-flex p-2 text-ink-body hover:text-primary hover:bg-black/5 rounded-full transition-colors"
                     title="Saved Remedies & Wishlist"
                     aria-label="Wishlist"
@@ -1140,7 +1140,7 @@ export default function Header() {
 
                   {!isStaff && (
                     <Link
-                      href="/wishlist"
+                      href="/wishlist" rel="nofollow"
                       onClick={closeMobileMenu}
                       className="flex items-center justify-between py-2.5 px-3 text-sm font-semibold text-ink-body hover:bg-white rounded-xl transition-colors"
                     >
@@ -1157,7 +1157,7 @@ export default function Header() {
                   )}
 
                   <Link
-                    href="/track-order"
+                    href="/track-order" rel="nofollow"
                     onClick={closeMobileMenu}
                     className="flex items-center gap-3 py-2.5 px-3 text-sm font-semibold text-ink-body hover:bg-white rounded-xl transition-colors"
                   >
@@ -1168,7 +1168,7 @@ export default function Header() {
                   {session &&
                     isStaffRole((session.user as { role?: string }).role) && (
                       <Link
-                        href="/admin"
+                        href="/admin" rel="nofollow"
                         onClick={closeMobileMenu}
                         className="flex items-center gap-3 py-2.5 px-3 text-sm font-semibold text-ink-body hover:bg-white rounded-xl transition-colors"
                       >
@@ -1183,7 +1183,7 @@ export default function Header() {
                 {session ? (
                   <div className="flex items-center justify-between gap-3">
                     <Link
-                      href={isStaff ? "/admin" : "/account"}
+                      href={isStaff ? "/admin" : "/account"} rel="nofollow"
                       onClick={closeMobileMenu}
                       className="text-xs min-w-0"
                     >
@@ -1206,14 +1206,14 @@ export default function Header() {
                 ) : (
                   <div className="flex items-center gap-2">
                     <Link
-                      href="/login"
+                      href="/login" rel="nofollow"
                       onClick={closeMobileMenu}
                       className="flex-1 text-center py-2.5 bg-primary text-white font-semibold text-xs rounded-lg"
                     >
                       Sign In
                     </Link>
                     <Link
-                      href="/register"
+                      href="/register" rel="nofollow"
                       onClick={closeMobileMenu}
                       className="flex-1 text-center py-2.5 bg-surface border border-line text-ink-body font-semibold text-xs rounded-lg"
                     >

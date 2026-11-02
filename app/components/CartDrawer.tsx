@@ -445,7 +445,7 @@ export default function CartDrawer() {
             {/* Action Buttons */}
             <div className="space-y-2 pt-1">
               <Link
-                href="/checkout"
+                href="/checkout" rel="nofollow"
                 onClick={() => setIsCartOpen(false)}
                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-surface-inverse hover:bg-surface-inverse-hover text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-all shadow-sm hover:shadow-md active:scale-98 cursor-pointer"
               >

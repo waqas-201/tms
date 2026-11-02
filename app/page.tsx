@@ -1,9 +1,17 @@
 import React from "react";
+import type { Metadata } from "next";
 import HeroSection from "@/app/components/HeroSection";
 import ClinicalSpecialtiesSection from "@/app/components/ClinicalSpecialtiesSection";
 import HijamaCalendarSection from "@/app/components/HijamaCalendarSection";
 import PrescribedRemediesSection from "@/app/components/PrescribedRemediesSection";
 import HakimAuthoritySection from "@/app/components/HakimAuthoritySection";
+import { SITE_URL } from "@/lib/site";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: SITE_URL,
+  },
+};
 
 export default function Home() {
   return (

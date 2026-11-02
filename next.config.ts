@@ -82,13 +82,14 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Product detail legacy WooCommerce path
+      // 1. Product detail legacy WooCommerce path
       {
         source: "/product/:slug*",
         destination: "/products/:slug*",
         permanent: true,
       },
-      // Core pages legacy paths
+
+      // 2. Core navigation legacy paths
       {
         source: "/about-us",
         destination: "/about",
@@ -99,29 +100,47 @@ const nextConfig: NextConfig = {
         destination: "/contact",
         permanent: true,
       },
+
+      // 3. WooCommerce shop catalog & pagination (Fixes /shop/page/3 etc.)
       {
         source: "/shop",
         destination: "/products",
         permanent: true,
       },
-      // Legacy WooCommerce categories
       {
-        source: "/product-category/murabba",
-        destination: "/products?category=murabbajaat",
+        source: "/shop/:slug*",
+        destination: "/products",
         permanent: true,
       },
+
+      // 4. Legacy WooCommerce categories & taxonomies (Direct to canonical /products to avoid redirect chains & canonical conflicts)
       {
-        source: "/product-category/herbs-dry-fruit",
-        destination: "/products?category=herbs-seeds",
+        source: "/product-category/deals/:slug*",
+        destination: "/products",
         permanent: true,
       },
       {
         source: "/product-category/deals",
-        destination: "/products?filter=deals",
+        destination: "/products",
         permanent: true,
       },
       {
-        source: "/product-category/products",
+        source: "/product-category/murabba/:slug*",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/product-category/murabba",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/product-category/herbs-dry-fruit/:slug*",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/product-category/herbs-dry-fruit",
         destination: "/products",
         permanent: true,
       },
@@ -131,7 +150,27 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/product-category",
+        destination: "/products",
+        permanent: true,
+      },
+      {
         source: "/category/:slug*",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/category",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/categories/:slug*",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/categories",
         destination: "/products",
         permanent: true,
       },
@@ -141,11 +180,98 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/product-tag",
+        destination: "/products",
+        permanent: true,
+      },
+      {
         source: "/tag/:slug*",
         destination: "/products",
         permanent: true,
       },
-      // Legacy Blog and Articles
+      {
+        source: "/tag",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/tags/:slug*",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/tags",
+        destination: "/products",
+        permanent: true,
+      },
+
+      // 5. Legacy WordPress Author Archives (Fixes Track 4 404s)
+      {
+        source: "/author/:slug*",
+        destination: "/about",
+        permanent: true,
+      },
+      {
+        source: "/author",
+        destination: "/about",
+        permanent: true,
+      },
+
+      // 6. Legacy WordPress Feeds & Comments (Fixes Track 4 404s)
+      {
+        source: "/feed/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/feed",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/comments/feed/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/comments/feed",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/comments/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/comments",
+        destination: "/",
+        permanent: true,
+      },
+
+      // 7. Legacy WordPress Core & Static Asset Probes
+      {
+        source: "/wp-content/:slug*",
+        destination: "/products",
+        permanent: true,
+      },
+      {
+        source: "/wp-includes/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/wp-admin/:slug*",
+        destination: "/login",
+        permanent: true,
+      },
+      {
+        source: "/wp-login.php",
+        destination: "/login",
+        permanent: true,
+      },
+
+      // 8. Legacy Blog and Articles
       {
         source: "/blogs/:slug*",
         destination: "/",
@@ -166,7 +292,23 @@ const nextConfig: NextConfig = {
         destination: "/",
         permanent: true,
       },
-      // WooCommerce account and checkout paths
+      {
+        source: "/article/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/articles/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+
+      // 9. WooCommerce account, cart & checkout paths
+      {
+        source: "/cart/:slug*",
+        destination: "/checkout",
+        permanent: true,
+      },
       {
         source: "/cart",
         destination: "/checkout",
@@ -178,11 +320,17 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/my-account",
+        destination: "/account",
+        permanent: true,
+      },
+      {
         source: "/order-tracking",
         destination: "/track-order",
         permanent: true,
       },
-      // Legacy WordPress sitemaps
+
+      // 10. Legacy WordPress sitemaps
       ...LEGACY_SITEMAP_PATHS.map((source) => ({
         source,
         destination: "/sitemap.xml",

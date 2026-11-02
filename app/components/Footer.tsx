@@ -202,7 +202,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/track-order" className="hover:text-white transition-colors">
+                <Link href="/track-order" rel="nofollow" className="hover:text-white transition-colors">
                   Track Order (COD)
                 </Link>
               </li>
@@ -235,11 +235,6 @@ export default function Footer() {
                   Wellness Teas & Energy Mixes
                 </Link>
               </li>
-              <li className="pt-2 border-t border-brand-green-900/50">
-                <Link href="/admin" className="text-brand-gold-300 hover:underline font-semibold">
-                  Admin Portal
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -259,7 +254,7 @@ export default function Footer() {
                     rel="noopener noreferrer"
                     className="block text-brand-gold-300 hover:underline font-semibold text-[11px] mt-0.5"
                   >
-                    View on Google Maps (Matab Tameer-e-sehat) →
+                    View on Google Maps (Matab Tameer-e-sehat) &rarr;
                   </a>
                 </div>
               </div>
@@ -294,7 +289,7 @@ export default function Footer() {
                   className="inline-flex items-center gap-1.5 text-xs text-brand-gold-300 hover:text-brand-gold-200 font-semibold hover:underline cursor-pointer"
                 >
                   <Calendar className="w-3.5 h-3.5" />
-                  <span>Book Clinic Visit →</span>
+                  <span>Book Clinic Visit &rarr;</span>
                 </button>
               </div>
             </div>
@@ -318,24 +313,24 @@ export default function Footer() {
               >
                 Consultation Help
               </Link>
-              <span>·</span>
+              <span>&middot;</span>
               <Link href="/specialties" className="hover:text-white transition-colors">
                 Clinical Specialties
               </Link>
-              <span>·</span>
+              <span>&middot;</span>
               <Link href="/privacy-policy" className="hover:text-white transition-colors">
                 Privacy Policy
               </Link>
-              <span>·</span>
-              <Link href="/track-order" className="hover:text-white transition-colors">
+              <span>&middot;</span>
+              <Link href="/track-order" rel="nofollow" className="hover:text-white transition-colors">
                 Track Order (COD)
               </Link>
-              <span>·</span>
+              <span>&middot;</span>
               <Link href="/contact" className="hover:text-white transition-colors">
                 Contact & Visit
               </Link>
-              <span>·</span>
-              <Link href="/login" className="hover:text-white transition-colors">
+              <span>&middot;</span>
+              <Link href="/login" rel="nofollow" className="hover:text-white transition-colors">
                 Sign In
               </Link>
             </div>

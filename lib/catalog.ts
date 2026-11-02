@@ -118,6 +118,7 @@ export async function getLiveCatalog(options: {
   }
 
   let orderBy: Record<string, string> = { createdAt: "desc" };
+
   if (options.sort === "price-low") {
     orderBy = { price: "asc" };
   } else if (options.sort === "price-high") {
@@ -198,4 +199,20 @@ export async function getLiveProductBySlug(slug: string): Promise<Product | null
 
   const fallback = PRODUCTS.find((p) => p.slug === slug || p.id === slug);
   return fallback || null;
+}
+
+export async function getAllProductSlugs(): Promise<string[]> {
+  try {
+    const products = await prisma.product.findMany({
+      select: { slug: true },
+    });
+    if (products.length > 0) {
+      const dbSlugs = products.map((p) => p.slug).filter(Boolean);
+      const staticSlugs = PRODUCTS.map((p) => p.slug).filter(Boolean);
+      return Array.from(new Set([...dbSlugs, ...staticSlugs]));
+    }
+  } catch (err) {
+    console.warn("Database unavailable for product slugs, using static catalogue:", err);
+  }
+  return Array.from(new Set(PRODUCTS.map((p) => p.slug).filter(Boolean)));
 }

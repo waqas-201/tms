@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { requireRole, ROLES } from "@/lib/rbac";
 import { commitShipmentForOrder, releaseReservationForOrder } from "@/lib/inventory";
 import { sendOrderConfirmationEmail } from "@/lib/email";
+import { generateInvoiceToken, verifyInvoiceToken } from "@/lib/invoice-token";
 
 export async function GET(
   request: NextRequest,
@@ -14,6 +15,8 @@ export async function GET(
     const session = await auth.api.getSession({
       headers: request.headers,
     });
+
+    const token = request.nextUrl.searchParams.get("token");
 
     const order = await prisma.order.findFirst({
       where: {
@@ -38,16 +41,48 @@ export async function GET(
     }
 
     const userRole = (session?.user as any)?.role;
+    const isStaff = userRole === ROLES.ADMIN || userRole === ROLES.EDITOR || userRole === ROLES.SUPER_ADMIN;
+    const isOwner = Boolean(
+      session?.user &&
+        (session.user.id === order.userId ||
+          (order.email && session.user.email?.toLowerCase() === order.email?.toLowerCase()))
+    );
+    const hasValidToken = verifyInvoiceToken(order.id, order.orderNumber, token);
 
-    // If order belongs to a user, ensure authorized viewer or admin or guest with order number
-    if (order.userId && session && userRole !== ROLES.ADMIN && userRole !== ROLES.EDITOR && session.user.id !== order.userId) {
+    if (isStaff || isOwner || hasValidToken) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          ...order,
+          invoiceToken: generateInvoiceToken(order.id, order.orderNumber),
+        },
+      });
+    }
+
+    // If order belongs to a registered user and requester is unauthenticated/unauthorized, deny full access
+    if (order.userId && (!session || session.user.id !== order.userId)) {
       return NextResponse.json(
         { success: false, error: "Access denied." },
         { status: 403 }
       );
     }
 
-    return NextResponse.json({ success: true, data: order });
+    // For public status tracking queries without a token, mask personal contact information
+    const maskedPhone = order.phone
+      ? order.phone.replace(/(\d{4})\d+(\d{3})/, "$1****$2")
+      : "";
+    const maskedEmail = order.email
+      ? order.email.replace(/(.{2})(.*)(@.*)/, "$1***$3")
+      : null;
+
+    const sanitizedOrder = {
+      ...order,
+      phone: maskedPhone,
+      email: maskedEmail,
+      address: `${order.city}, Pakistan`,
+    };
+
+    return NextResponse.json({ success: true, data: sanitizedOrder });
   } catch (error) {
     console.error("Error fetching order details:", error);
     return NextResponse.json(

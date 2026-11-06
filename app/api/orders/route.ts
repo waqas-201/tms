@@ -10,6 +10,7 @@ import {
   sendAdminOrderNotificationEmail,
 } from "@/lib/email";
 import { validateCoupon } from "@/lib/coupons";
+import { generateInvoiceToken } from "@/lib/invoice-token";
 
 export async function GET(request: NextRequest) {
   try {
@@ -68,7 +69,12 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, data: orders });
+    const enrichedOrders = orders.map((order) => ({
+      ...order,
+      invoiceToken: generateInvoiceToken(order.id, order.orderNumber),
+    }));
+
+    return NextResponse.json({ success: true, data: enrichedOrders });
   } catch (error) {
     console.error("Error fetching orders:", error);
     return NextResponse.json(
@@ -481,7 +487,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        data: order,
+        data: { ...order, invoiceToken: generateInvoiceToken(order.id, order.orderNumber) },
         message: "Order received successfully! Clinic staff will confirm delivery charges and issue your invoice shortly.",
       },
       { status: 201 }

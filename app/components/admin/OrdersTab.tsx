@@ -57,6 +57,7 @@ interface Order {
   createdAt: string;
   items: OrderItem[];
   user?: { id: string; name: string | null; email: string | null } | null;
+  invoiceToken?: string;
 }
 
 const ORDER_STATUSES = [
@@ -393,7 +394,8 @@ export default function OrdersTab() {
               order.orderStatus === "PENDING_CONFIRMATION" || order.orderStatus === "PENDING";
 
             const originUrl = typeof window !== "undefined" ? window.location.origin : "";
-            const publicInvoiceUrl = `${originUrl}/invoices/${order.orderNumber}`;
+            const tokenParam = order.invoiceToken ? `?token=${order.invoiceToken}` : "";
+            const publicInvoiceUrl = `${originUrl}/invoices/${order.orderNumber}${tokenParam}`;
 
             const whatsappMessage = `Assalam-o-Alaikum ${order.customerName},\nThis is Tameer-e-Sehat Herbal Clinic regarding your order ${order.orderNumber}.\n\n📦 Order Breakdown:\n• Products Subtotal: ₨ ${(order.subtotal || order.total - (order.shippingFee || 0)).toLocaleString()}\n• Delivery Charges: ${order.shippingFee ? `₨ ${order.shippingFee.toLocaleString()}` : "Free"}\n• Total Payable (COD): ₨ ${order.total.toLocaleString()}\n\n📄 View & Download your official Invoice:\n${publicInvoiceUrl}\n\nJazakAllah!`;
 

@@ -3,6 +3,10 @@ import prisma from "@/lib/prisma";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { ROLES, isStaffRole } from "@/lib/rbac";
+import { verifyInvoiceToken } from "@/lib/invoice-token";
 import { CLINIC_INFO } from "@/app/data/products";
 import InvoicePrintButton from "@/app/components/InvoicePrintButton";
 import {
@@ -16,14 +20,18 @@ import {
   Truck,
   ArrowLeft,
   MessageSquare,
+  Lock,
+  LogIn,
 } from "lucide-react";
 
 interface InvoicePageProps {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ token?: string }>;
 }
 
-export default async function InvoicePage({ params }: InvoicePageProps) {
+export default async function InvoicePage({ params, searchParams }: InvoicePageProps) {
   const { id } = await params;
+  const { token } = (await searchParams) || {};
 
   const order = await prisma.order.findFirst({
     where: {
@@ -39,6 +47,82 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
 
   if (!order) {
     notFound();
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Security & Privacy Ownership Verification
+  // ─────────────────────────────────────────────────────────────
+  const reqHeaders = await headers();
+  const session = await auth.api.getSession({
+    headers: reqHeaders,
+  });
+
+  const userRole = (session?.user as any)?.role;
+  const isStaff =
+    userRole === ROLES.ADMIN ||
+    userRole === ROLES.EDITOR ||
+    userRole === ROLES.SUPER_ADMIN ||
+    isStaffRole(userRole);
+
+  const isOwner = Boolean(
+    session?.user &&
+      ((order.userId && order.userId === session.user.id) ||
+        (order.email &&
+          session.user.email &&
+          order.email.toLowerCase() === session.user.email.toLowerCase()))
+  );
+
+  const hasValidToken = verifyInvoiceToken(order.id, order.orderNumber, token);
+
+  const isAuthorized = isStaff || isOwner || hasValidToken;
+
+  if (!isAuthorized) {
+    return (
+      <div className="bg-surface min-h-screen py-16 px-4 sm:px-6 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white rounded-2xl border border-line p-8 shadow-md text-center space-y-6">
+          <div className="w-14 h-14 mx-auto rounded-full bg-warning-soft border border-warning-line flex items-center justify-center text-warning">
+            <Lock className="w-7 h-7" />
+          </div>
+
+          <div className="space-y-2">
+            <h1 className="font-serif text-2xl font-bold text-primary">
+              Private Customer Invoice
+            </h1>
+            <p className="text-xs sm:text-sm text-ink-body leading-relaxed">
+              To protect customer privacy and contact details, this invoice requires authorization.
+              Please sign in with the account used for this order, or open the link directly
+              from your order confirmation.
+            </p>
+          </div>
+
+          <div className="pt-2 space-y-3">
+            <Link
+              href={`/account?redirect=/invoices/${encodeURIComponent(order.orderNumber)}`}
+              className="w-full inline-flex items-center justify-center gap-2 py-3 px-4 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-xl shadow-xs transition-colors"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Sign In to View Invoice</span>
+            </Link>
+
+            <Link
+              href={`/track-order?ref=${encodeURIComponent(order.orderNumber)}`}
+              className="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 bg-surface hover:bg-surface-sunken border border-line text-ink-body text-xs font-semibold rounded-xl transition-colors"
+            >
+              <Truck className="w-4 h-4" />
+              <span>Track Order Status</span>
+            </Link>
+
+            <Link
+              href="/"
+              className="inline-flex items-center justify-center gap-1.5 text-xs text-ink-muted hover:text-ink transition-colors pt-2"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Return to Store</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const invoiceNumber = `INV-${order.orderNumber}`;
@@ -83,7 +167,6 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
     };
   }
 
-  const cleanPhone = order.phone.replace(/[^0-9]/g, "");
   const waContactUrl = `https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent(
     `Assalam-o-Alaikum, I am inquiring about my invoice ${invoiceNumber} for order ${order.orderNumber}.`
   )}`;

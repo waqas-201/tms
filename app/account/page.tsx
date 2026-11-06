@@ -1232,7 +1232,7 @@ export default function AccountPage() {
                         ₨ {order.total.toLocaleString()}
                       </span>
                       <Link
-                        href={`/invoices/${order.orderNumber}`}
+                        href={`/invoices/${order.orderNumber}${(order as any).invoiceToken ? `?token=${(order as any).invoiceToken}` : ""}`}
                         target="_blank"
                         className="px-2.5 py-1.5 bg-surface hover:bg-surface-sunken border border-line text-primary text-xs font-semibold rounded-lg flex items-center gap-1 transition-colors"
                         title="View & Download PDF Invoice"
@@ -1600,7 +1600,7 @@ export default function AccountPage() {
                               {entry.type === "ORDER" && entry.orderRecord ? (
                                 <div className="flex items-center justify-center gap-1.5">
                                   <Link
-                                    href={`/invoices/${entry.reference}`}
+                                    href={`/invoices/${entry.reference}${entry.orderRecord?.invoiceToken ? `?token=${entry.orderRecord.invoiceToken}` : ""}`}
                                     target="_blank"
                                     className="inline-flex items-center gap-1 px-2.5 py-1 bg-surface hover:bg-surface-sunken border border-line text-primary rounded-lg text-[11px] font-semibold transition-colors"
                                     title="View & Download PDF Invoice"
@@ -1696,7 +1696,7 @@ export default function AccountPage() {
                       <div className="pt-1 flex items-center justify-end gap-2">
                         {entry.type === "ORDER" && entry.orderRecord && (
                           <Link
-                            href={`/invoices/${entry.reference}`}
+                            href={`/invoices/${entry.reference}${entry.orderRecord?.invoiceToken ? `?token=${entry.orderRecord.invoiceToken}` : ""}`}
                             target="_blank"
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-semibold shadow-xs"
                           >

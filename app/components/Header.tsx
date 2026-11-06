@@ -12,6 +12,7 @@ import dynamic from "next/dynamic";
 const SearchModal = dynamic(() => import("./SearchModal"), { ssr: false });
 import { useConsultation } from "@/app/context/ConsultationContext";
 import BrandLogo from "./BrandLogo";
+import MarketingFlashBanner from "./MarketingFlashBanner";
 import { isStaffRole } from "@/lib/rbac-base";
 import { getHijriDate, DEFAULT_PAKISTAN_MOON_OFFSET } from "@/lib/hijama-types";
 import {
@@ -42,6 +43,7 @@ import {
   Sun,
   Moon,
   Package,
+  BookOpen,
 } from "lucide-react";
 
 export const SHOP_SUBMENU_ITEMS = [
@@ -328,6 +330,7 @@ export default function Header() {
     // { name: "Specialties", href: "/specialties", icon: Activity },
     // Hijama removed from nav - now an emphasized inline calendar section on home page
     // { name: "Hijama", href: "/hijama", icon: Droplets },
+    { name: "Articles", href: "/articles", icon: BookOpen },
     { name: "Consult", href: "/consultation", icon: Stethoscope },
     { name: "About Us", href: "/about", icon: Building2 },
   ];
@@ -337,6 +340,7 @@ export default function Header() {
 
   return (
     <>
+      <MarketingFlashBanner />
       {/* ─── 1. HIJAMA TOP BANNER (Mobile-Dedicated & Desktop Versions) ─── */}
       {/* 1A. Dedicated Mobile Version (< sm) — Full text, high visibility CTA, no ellipsis clipping */}
       <div className="block sm:hidden bg-surface-inverse text-on-inverse px-3 py-2 border-b border-secondary/30 shadow-xs">

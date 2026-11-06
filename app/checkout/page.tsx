@@ -197,6 +197,7 @@ export default function CheckoutPage() {
     success: boolean;
     message: string;
   } | null>(null);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -311,14 +312,19 @@ export default function CheckoutPage() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleApplyCoupon = (e: React.FormEvent) => {
+  const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!couponInput.trim()) return;
-    const res = applyCoupon(couponInput);
-    setCouponFeedback(res);
-    if (res.success) {
-      setCouponInput("");
-      setTimeout(() => setCouponFeedback(null), 3000);
+    setApplyingCoupon(true);
+    try {
+      const res = await applyCoupon(couponInput);
+      setCouponFeedback(res);
+      if (res.success) {
+        setCouponInput("");
+        setTimeout(() => setCouponFeedback(null), 3500);
+      }
+    } finally {
+      setApplyingCoupon(false);
     }
   };
 
@@ -1122,10 +1128,12 @@ export default function CheckoutPage() {
                     </div>
                     <button
                       type="button"
+                      disabled={applyingCoupon}
                       onClick={handleApplyCoupon}
-                      className="px-4 py-2 bg-surface-inverse hover:bg-surface-inverse-hover text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors shrink-0 cursor-pointer"
+                      className="px-4 py-2 bg-surface-inverse hover:bg-surface-inverse-hover text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors shrink-0 cursor-pointer disabled:opacity-60 flex items-center gap-1.5"
                     >
-                      Apply
+                      {applyingCoupon && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                      <span>{applyingCoupon ? "Applying..." : "Apply"}</span>
                     </button>
                   </div>
                 )}

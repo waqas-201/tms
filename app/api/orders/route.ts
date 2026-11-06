@@ -9,6 +9,7 @@ import {
   sendOrderConfirmationEmail,
   sendAdminOrderNotificationEmail,
 } from "@/lib/email";
+import { validateCoupon } from "@/lib/coupons";
 
 export async function GET(request: NextRequest) {
   try {
@@ -139,7 +140,6 @@ export async function POST(request: NextRequest) {
       deliveryNotes,
       paymentMethod = "COD",
       items,
-      discountAmount = 0,
       couponCode = null,
     } = body;
 
@@ -264,21 +264,56 @@ export async function POST(request: NextRequest) {
         ? Number(customerLongitude)
         : null;
 
+    // Authoritative Server-Side Coupon Validation
+    let validatedCouponId: string | null = null;
+    let validatedCouponCode: string | null = null;
+    let finalDiscount = 0;
+    let isFreeShippingCoupon = false;
+
+    if (couponCode && String(couponCode).trim()) {
+      const couponValidation = await validateCoupon({
+        code: String(couponCode).trim(),
+        scope: "PRODUCTS",
+        subtotal,
+        items: resolvedItems.map((i) => ({
+          productId: i.productId,
+          price: i.price,
+          quantity: i.quantity,
+        })),
+        userId: session?.user?.id || null,
+        phone: cleanPhone,
+      });
+
+      if (!couponValidation.valid) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: couponValidation.error || "The entered coupon code could not be applied.",
+          },
+          { status: 400 }
+        );
+      }
+
+      validatedCouponId = couponValidation.coupon?.id || null;
+      validatedCouponCode = couponValidation.coupon?.code || null;
+      finalDiscount = couponValidation.discountAmount;
+      isFreeShippingCoupon = couponValidation.isFreeShipping;
+    }
+
     const deliveryCalc = calculateDeliveryFee({
       customerLat: parsedLat,
       customerLng: parsedLng,
       subtotal,
-      isFreeShippingCoupon: couponCode === "FREESHIP",
+      isFreeShippingCoupon,
     });
 
     // Deferred delivery charges: shipping fee is calculated and confirmed manually by clinic admin
     const shippingFee = 0;
-    const finalDiscount = Math.min(subtotal, Math.max(0, Number(discountAmount) || 0));
     const total = Math.max(0, subtotal - finalDiscount);
 
     let finalDeliveryNotes = deliveryNotes || null;
-    if (couponCode) {
-      finalDeliveryNotes = `[COUPON APPLIED: ${couponCode} | DISCOUNT: ₨ ${finalDiscount}] ` + (finalDeliveryNotes || "");
+    if (validatedCouponCode) {
+      finalDeliveryNotes = `[COUPON APPLIED: ${validatedCouponCode} | DISCOUNT: ₨ ${finalDiscount}] ` + (finalDeliveryNotes || "");
     }
     finalDeliveryNotes = `[DELIVERY: Pending Clinic Confirmation] ` + (finalDeliveryNotes || "");
 
@@ -306,8 +341,11 @@ export async function POST(request: NextRequest) {
             orderStatus: "PENDING_CONFIRMATION",
             subtotal,
             shippingFee: 0,
+            discountAmount: finalDiscount,
             total,
             dueAmount: total,
+            couponId: validatedCouponId,
+            couponCode: validatedCouponCode,
             userId: session?.user?.id || null,
             items: {
               create: resolvedItems.map((item) => ({
@@ -329,6 +367,25 @@ export async function POST(request: NextRequest) {
             items: true,
           },
         });
+
+        // Record coupon redemption if coupon used
+        if (validatedCouponId) {
+          await tx.coupon.update({
+            where: { id: validatedCouponId },
+            data: { usageCount: { increment: 1 } },
+          });
+
+          await tx.couponRedemption.create({
+            data: {
+              couponId: validatedCouponId,
+              userId: session?.user?.id || null,
+              phone: cleanPhone,
+              orderId: createdOrder.id,
+              discountAmount: finalDiscount,
+              orderTotal: total,
+            },
+          });
+        }
 
         // Reserve stock for the ordered items in this transaction
         const itemsToReserve = resolvedItems

@@ -27,6 +27,7 @@ import {
   X,
   RotateCcw,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
 
 export default function CartDrawer() {
@@ -55,6 +56,7 @@ export default function CartDrawer() {
     success: boolean;
     message: string;
   } | null>(null);
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
   const [catalogProducts, setCatalogProducts] = useState<Product[]>([]);
   const [quickAddedId, setQuickAddedId] = useState<string | null>(null);
 
@@ -86,14 +88,19 @@ export default function CartDrawer() {
     .filter((p) => !cartProductIds.includes(p.id) && p.sizes && p.sizes.length > 0)
     .slice(0, 3);
 
-  const handleApplyCoupon = (e: React.FormEvent) => {
+  const handleApplyCoupon = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!couponInput.trim()) return;
-    const result = applyCoupon(couponInput);
-    setCouponFeedback(result);
-    if (result.success) {
-      setCouponInput("");
-      setTimeout(() => setCouponFeedback(null), 4000);
+    setApplyingCoupon(true);
+    try {
+      const result = await applyCoupon(couponInput);
+      setCouponFeedback(result);
+      if (result.success) {
+        setCouponInput("");
+        setTimeout(() => setCouponFeedback(null), 4000);
+      }
+    } finally {
+      setApplyingCoupon(false);
     }
   };
 
@@ -386,9 +393,11 @@ export default function CartDrawer() {
                   </div>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-surface-inverse hover:bg-surface-inverse-hover text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors shrink-0 cursor-pointer"
+                    disabled={applyingCoupon}
+                    className="px-4 py-2 bg-surface-inverse hover:bg-surface-inverse-hover text-white text-xs font-semibold uppercase tracking-wider rounded-xl transition-colors shrink-0 cursor-pointer disabled:opacity-60 flex items-center gap-1.5"
                   >
-                    Apply
+                    {applyingCoupon && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    <span>{applyingCoupon ? "Applying..." : "Apply"}</span>
                   </button>
                 </form>
               )}

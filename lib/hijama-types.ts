@@ -199,5 +199,9 @@ export interface CreateHijamaBookingInput {
   userId?: string | null;
   adminNotes?: string | null;
   feeAmount?: number;
+  originalFee?: number;
+  discountAmount?: number;
+  couponId?: string | null;
+  couponCode?: string | null;
   paymentStatus?: "UNPAID" | "PAID_AT_CLINIC";
 }

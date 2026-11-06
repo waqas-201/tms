@@ -9,6 +9,7 @@ import {
 } from "@/lib/email";
 import { createAdminNotification } from "@/lib/notifications";
 import { getAvailableSlotsForDate } from "@/lib/clinic-schedule";
+import { validateCoupon, recordCouponRedemption } from "@/lib/coupons";
 
 export async function GET(request: NextRequest) {
   try {
@@ -81,8 +82,6 @@ export async function GET(request: NextRequest) {
     const mapped = consultations.map((c) => ({
       ...c,
       fullName: c.patientName || c.user?.name || "Patient",
-      // Never mask a missing number behind "Via Account": staff need to see that
-      // the contact detail is missing so they can add it from the dossier.
       phone: c.patientPhone || c.user?.phone || null,
       email: c.patientEmail || c.user?.email || null,
       city: c.user?.city || "Pakistan",
@@ -150,17 +149,12 @@ export async function POST(request: NextRequest) {
       reportSize,
       status: requestedStatus,
       userId: requestedUserId,
-      // Older forms posted these names; accept them so the phone number is
-      // never silently dropped from a booking.
       fullName,
       phone,
       staffBooking: requestedStaffBooking,
+      couponCode,
     } = body;
 
-    // Staff accounts are for managing the platform, not for booking as
-    // patients. A staff member may still create a booking on behalf of a
-    // phone/WhatsApp patient, but only with an explicit staffBooking flag and
-    // the patient's own contact details.
     const isStaffBooking = staffSession && requestedStaffBooking === true;
     if (staffSession && !isStaffBooking) {
       return NextResponse.json(
@@ -258,8 +252,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Contact resolution (defaults to user account info). A staff-created
-    // booking must never inherit the staff member's own contact details.
+    // Contact resolution
     const effectiveName =
       patientName?.trim() ||
       fullName?.trim() ||
@@ -276,7 +269,6 @@ export async function POST(request: NextRequest) {
       (isStaffBooking ? null : (session.user as any)?.phone) ||
       null;
 
-    // Phone is mandatory: clinic staff must be able to call every patient.
     if (!effectivePhone || String(effectivePhone).replace(/\D/g, "").length < 7) {
       return NextResponse.json(
         {
@@ -289,13 +281,49 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Staff-created phone bookings must carry the patient's name too.
     if (isStaffBooking && !patientName?.trim() && !fullName?.trim()) {
       return NextResponse.json(
         { success: false, error: "Patient name is required for a staff booking." },
         { status: 400 }
       );
     }
+
+    // Consultation Fee & Coupon Handling
+    const consultSetting = await prisma.consultationSetting.findUnique({
+      where: { id: "default" },
+    });
+    const standardFee = consultSetting?.isFeeActive !== false ? (consultSetting?.standardFee ?? 1500) : 0;
+
+    let validatedCouponId: string | null = null;
+    let validatedCouponCode: string | null = null;
+    let discountAmount = 0;
+
+    if (couponCode && String(couponCode).trim()) {
+      const couponValidation = await validateCoupon({
+        code: String(couponCode).trim(),
+        scope: "CONSULTATION",
+        subtotal: standardFee,
+        userId: targetUserId,
+        phone: effectivePhone,
+      });
+
+      if (!couponValidation.valid) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: couponValidation.error || "The coupon code could not be applied for this consultation.",
+          },
+          { status: 400 }
+        );
+      }
+
+      validatedCouponId = couponValidation.coupon?.id || null;
+      validatedCouponCode = couponValidation.coupon?.code || null;
+      discountAmount = couponValidation.discountAmount;
+    }
+
+    const feeAmount = Math.max(0, standardFee - discountAmount);
+    const paymentStatus = feeAmount === 0 ? "FREE_VOUCHER" : "UNPAID";
 
     // Generate ticket number: CON-YYYY-XXXX
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
@@ -316,6 +344,11 @@ export async function POST(request: NextRequest) {
         reportName: reportName ? String(reportName).trim() : null,
         reportSize: reportSize ? String(reportSize).trim() : null,
         status: initialStatus,
+        feeAmount,
+        discountAmount,
+        paymentStatus,
+        couponId: validatedCouponId,
+        couponCode: validatedCouponCode,
       },
       include: {
         user: {
@@ -324,8 +357,18 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // In-app staff alert for patient self-bookings. Staff-created phone
-    // bookings do not need to notify the staff member who just made them.
+    if (validatedCouponId) {
+      await recordCouponRedemption({
+        couponId: validatedCouponId,
+        userId: targetUserId,
+        phone: effectivePhone,
+        consultationId: consultation.id,
+        discountAmount,
+        orderTotal: feeAmount,
+      }).catch((err) => console.error("Error recording consultation coupon redemption:", err));
+    }
+
+    // In-app staff alert for patient self-bookings
     if (!isStaffBooking) {
       await createAdminNotification({
         type: "CONSULTATION",
@@ -334,13 +377,15 @@ export async function POST(request: NextRequest) {
           consultation.consultationType === "IN_PERSON"
             ? "In-person"
             : "Online"
-        } · ${consultation.appointmentDate} ${consultation.appointmentSlot}`,
+        } · ${consultation.appointmentDate} ${consultation.appointmentSlot}${
+          validatedCouponCode ? ` · Coupon: ${validatedCouponCode} (-₨ ${discountAmount})` : ""
+        }`,
         link: "/admin?tab=consultations",
         entityId: consultation.id,
       });
     }
 
-    // Background Email Triggers (non-blocking)
+    // Background Email Triggers
     const emailPhone = effectivePhone || "Not provided";
     const emailCity = (consultation.user as any)?.city || "Pakistan";
     const emailSymptoms = consultation.primarySymptoms || "General Clinical Health Assessment";

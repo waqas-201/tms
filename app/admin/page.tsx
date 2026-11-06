@@ -25,6 +25,7 @@ import {
   Users,
   ArrowRight,
   Receipt,
+  Tag,
 } from "lucide-react";
 import ProductFormModal from "@/app/components/ProductFormModal";
 import ReceiveStockModal from "@/app/components/inventory/ReceiveStockModal";
@@ -42,6 +43,7 @@ import OrdersTab from "@/app/components/admin/OrdersTab";
 import UsersTab from "@/app/components/admin/UsersTab";
 import AccountingTab from "@/app/components/admin/AccountingTab";
 import StaffAdminsTab from "@/app/components/admin/StaffAdminsTab";
+import CouponsTab from "@/app/components/admin/CouponsTab";
 import NotificationBell from "@/app/components/admin/NotificationBell";
 import SurfaceFade from "@/app/components/motion/SurfaceFade";
 import { ROLES, isStaffRole } from "@/lib/rbac-base";
@@ -57,11 +59,13 @@ type AdminTab =
   | "schedule"
   | "hijama"
   | "users"
-  | "staff";
+  | "staff"
+  | "coupons";
 
 const TABS: { id: AdminTab; label: string; icon: typeof Package; adminOnly?: boolean; superAdminOnly?: boolean }[] = [
   { id: "orders", label: "Orders", icon: ShoppingBag },
   { id: "accounting", label: "Accounting & Payments", icon: Receipt },
+  { id: "coupons", label: "Coupons & Flash Promos", icon: Tag, adminOnly: true },
   { id: "products", label: "Products", icon: Package },
   { id: "inventory", label: "Stock", icon: Warehouse },
   { id: "consultations", label: "Consultations & Rx", icon: Activity },
@@ -399,6 +403,8 @@ export default function AdminDashboardPage() {
           {activeTab === "orders" && <OrdersTab />}
 
           {activeTab === "accounting" && <AccountingTab />}
+
+          {activeTab === "coupons" && <CouponsTab />}
 
           {activeTab === "products" && (
             <ProductsTab

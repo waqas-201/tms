@@ -240,6 +240,47 @@ export default function ConsultationModal({
 
   // Submission state
   const [submitting, setSubmitting] = useState(false);
+  const [consultationCouponCode, setConsultationCouponCode] = useState("");
+  const [appliedConsultationCoupon, setAppliedConsultationCoupon] = useState<{ id: string; code: string; description: string; discountAmount: number } | null>(null);
+  const [validatingConsultCoupon, setValidatingConsultCoupon] = useState(false);
+  const [consultCouponError, setConsultCouponError] = useState<string | null>(null);
+  const [consultCouponSuccess, setConsultCouponSuccess] = useState<string | null>(null);
+
+  const handleApplyConsultationCoupon = async () => {
+    if (!consultationCouponCode.trim()) return;
+    setValidatingConsultCoupon(true);
+    setConsultCouponError(null);
+    setConsultCouponSuccess(null);
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: consultationCouponCode.trim().toUpperCase(),
+          scope: "CONSULTATION",
+          subtotal: 1500,
+          phone: patientPhone || (sessionData?.user as any)?.phone,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        setConsultCouponError(json.error || "Invalid coupon for consultation.");
+        return;
+      }
+      setAppliedConsultationCoupon({
+        id: json.data.coupon.id,
+        code: json.data.coupon.code,
+        description: json.data.coupon.description,
+        discountAmount: json.data.discountAmount,
+      });
+      setConsultCouponSuccess(`Coupon "${json.data.coupon.code}" applied! -₨ ${json.data.discountAmount.toLocaleString()}`);
+      setConsultationCouponCode("");
+    } catch (err: any) {
+      setConsultCouponError(err.message || "Failed to validate coupon.");
+    } finally {
+      setValidatingConsultCoupon(false);
+    }
+  };
   const [bookingSuccess, setBookingSuccess] = useState<any | null>(null);
   const [bookingError, setBookingError] = useState<string | null>(null);
 
@@ -445,6 +486,7 @@ export default function ConsultationModal({
           reportUrl: attachedFile?.url || undefined,
           reportName: attachedFile?.name || undefined,
           reportSize: attachedFile?.size || undefined,
+          couponCode: appliedConsultationCoupon ? appliedConsultationCoupon.code : undefined,
         }),
       });
 
@@ -905,6 +947,57 @@ Please confirm my appointment.`;
                         </button>
                       )}
                     </div>
+                  </div>
+
+                  {/* Consultation Voucher / Promo Coupon */}
+                  <div className="p-3 bg-surface border border-line rounded-xl space-y-1.5 text-xs">
+                    <label className="text-[11px] font-bold text-ink flex items-center justify-between">
+                      <span>Have a Consultation Voucher or Promo Code?</span>
+                      {appliedConsultationCoupon && (
+                        <span className="text-success font-semibold">Discount / Voucher Active</span>
+                      )}
+                    </label>
+                    {appliedConsultationCoupon ? (
+                      <div className="p-2 bg-success-soft/90 border border-success-line rounded-lg flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-success font-semibold">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>{appliedConsultationCoupon.code}</span>
+                          <span className="text-[11px] font-normal">({appliedConsultationCoupon.description})</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => { setAppliedConsultationCoupon(null); setConsultCouponSuccess(null); }}
+                          className="text-xs text-danger hover:underline font-semibold cursor-pointer"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="e.g. TIBBIFREE or HAKIM100"
+                          value={consultationCouponCode}
+                          onChange={(e) => setConsultationCouponCode(e.target.value.toUpperCase())}
+                          className="flex-1 px-3 py-1.5 bg-white border border-line rounded-lg text-xs uppercase font-mono"
+                        />
+                        <button
+                          type="button"
+                          disabled={validatingConsultCoupon || !consultationCouponCode.trim()}
+                          onClick={handleApplyConsultationCoupon}
+                          className="px-3 py-1.5 bg-primary hover:bg-brand-green-800 text-white font-bold rounded-lg text-xs uppercase disabled:opacity-50 flex items-center gap-1 cursor-pointer transition-colors"
+                        >
+                          {validatingConsultCoupon && <Loader2 className="w-3 h-3 animate-spin" />}
+                          <span>Apply</span>
+                        </button>
+                      </div>
+                    )}
+                    {consultCouponError && (
+                      <p className="text-[11px] text-danger">{consultCouponError}</p>
+                    )}
+                    {consultCouponSuccess && (
+                      <p className="text-[11px] text-success">{consultCouponSuccess}</p>
+                    )}
                   </div>
 
                   {/* Submit Button */}

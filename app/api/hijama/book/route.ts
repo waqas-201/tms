@@ -5,6 +5,7 @@ import { isStaffRole } from "@/lib/rbac-base";
 import prisma from "@/lib/prisma";
 import { createAdminNotification } from "@/lib/notifications";
 import { sendAdminHijamaNotificationEmail } from "@/lib/email";
+import { validateCoupon, recordCouponRedemption } from "@/lib/coupons";
 
 export async function POST(request: NextRequest) {
   try {
@@ -60,6 +61,45 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Authoritative Coupon Validation for Hijama
+    let validatedCouponId: string | null = null;
+    let validatedCouponCode: string | null = null;
+    let originalFee = 2500;
+    let discountAmount = 0;
+
+    const hijamaSettings = await prisma.hijamaSetting.findUnique({
+      where: { id: "default" },
+    });
+    if (hijamaSettings?.standardFee) {
+      originalFee = hijamaSettings.standardFee;
+    }
+
+    if (body.couponCode && String(body.couponCode).trim()) {
+      const couponValidation = await validateCoupon({
+        code: String(body.couponCode).trim(),
+        scope: "HIJAMA",
+        subtotal: originalFee,
+        userId: session.user.id,
+        phone: body.phone,
+      });
+
+      if (!couponValidation.valid) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: couponValidation.error || "The coupon code could not be applied for Hijama.",
+          },
+          { status: 400 }
+        );
+      }
+
+      validatedCouponId = couponValidation.coupon?.id || null;
+      validatedCouponCode = couponValidation.coupon?.code || null;
+      discountAmount = couponValidation.discountAmount;
+    }
+
+    const feeAmount = Math.max(0, originalFee - discountAmount);
+
     const booking = await createHijamaBooking({
       fullName: body.fullName,
       phone: body.phone,
@@ -70,16 +110,32 @@ export async function POST(request: NextRequest) {
       appointmentSlot: body.appointmentSlot,
       cuppingReason: body.cuppingReason,
       contraindications: body.contraindications,
-      // Patients can never set their own fee, payment state, notes, or
-      // attach a booking to someone else's account.
-      paymentStatus: "UNPAID",
+      paymentStatus: feeAmount === 0 ? "PAID_AT_CLINIC" : "UNPAID",
+      feeAmount,
+      originalFee,
+      discountAmount,
+      couponId: validatedCouponId,
+      couponCode: validatedCouponCode,
       userId: session.user.id,
     });
+
+    if (validatedCouponId) {
+      await recordCouponRedemption({
+        couponId: validatedCouponId,
+        userId: session.user.id,
+        phone: body.phone,
+        hijamaBookingId: booking.id,
+        discountAmount,
+        orderTotal: feeAmount,
+      }).catch((err) => console.error("Error recording Hijama coupon redemption:", err));
+    }
 
     await createAdminNotification({
       type: "HIJAMA",
       title: `New Hijama booking ${booking.ticketNumber}`,
-      message: `${booking.fullName} · ${booking.phone} · ${booking.gender} · ${booking.appointmentDate} ${booking.appointmentSlot}`,
+      message: `${booking.fullName} · ${booking.phone} · ${booking.gender} · ${booking.appointmentDate} ${booking.appointmentSlot}${
+        validatedCouponCode ? ` · Coupon: ${validatedCouponCode} (-₨ ${discountAmount})` : ""
+      }`,
       link: "/admin?tab=hijama",
       entityId: booking.id,
     });

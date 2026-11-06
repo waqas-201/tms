@@ -593,7 +593,7 @@ export async function getUpcomingSunnahDates(
 
 
 /**
- * Creates a new Hijama booking with capacity validation and unique ticket number generation.
+ * Creates a new Hijama booking with capacity validation, coupon support, and unique ticket number generation.
  */
 export async function createHijamaBooking(
   data: CreateHijamaBookingInput
@@ -650,7 +650,9 @@ export async function createHijamaBooking(
   // 3. Settings, Hijri Date, Fee, and Contraindications
   const settings = await getHijamaSettings();
   const hijri = getHijriDate(data.appointmentDate, settings.moonSightingOffset);
-  const fee = data.feeAmount !== undefined ? data.feeAmount : settings.standardFee;
+  const baseFee = data.originalFee !== undefined ? data.originalFee : settings.standardFee;
+  const discount = data.discountAmount || 0;
+  const fee = data.feeAmount !== undefined ? data.feeAmount : Math.max(0, baseFee - discount);
 
   let contraindicationsJson: string | null = null;
   if (data.contraindications) {
@@ -720,7 +722,11 @@ export async function createHijamaBooking(
           contraindications: contraindicationsJson,
           status: "CONFIRMED",
           feeAmount: fee,
-          paymentStatus: data.paymentStatus || "UNPAID",
+          originalFee: baseFee,
+          discountAmount: discount,
+          couponId: data.couponId || null,
+          couponCode: data.couponCode || null,
+          paymentStatus: data.paymentStatus || (fee === 0 ? "PAID_AT_CLINIC" : "UNPAID"),
           adminNotes: data.adminNotes?.trim() || null,
           userId: data.userId || null,
         },

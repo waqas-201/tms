@@ -78,6 +78,11 @@ const nextConfig: NextConfig = {
         hostname: "www.tameeresehat.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.sanity.io",
+        pathname: "/**",
+      },
     ],
   },
   async redirects() {

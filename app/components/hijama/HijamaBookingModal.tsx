@@ -141,6 +141,49 @@ export default function HijamaBookingModal({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [confirmedBooking, setConfirmedBooking] = useState<any | null>(null);
   const [copiedTicket, setCopiedTicket] = useState<boolean>(false);
+  const [couponCodeInput, setCouponCodeInput] = useState("");
+  const [appliedHijamaCoupon, setAppliedHijamaCoupon] = useState<{ id: string; code: string; description: string; discountAmount: number; discountType: string } | null>(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+  const [couponSuccess, setCouponSuccess] = useState<string | null>(null);
+
+  const handleApplyHijamaCoupon = async () => {
+    if (!couponCodeInput.trim()) return;
+    setValidatingCoupon(true);
+    setCouponError(null);
+    setCouponSuccess(null);
+    try {
+      const baseFee = availability?.standardFee || 2500;
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: couponCodeInput.trim().toUpperCase(),
+          scope: "HIJAMA",
+          subtotal: baseFee,
+          phone: details.phone || (session?.user as any)?.phone,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        setCouponError(json.error || "Invalid coupon code for Hijama.");
+        return;
+      }
+      setAppliedHijamaCoupon({
+        id: json.data.coupon.id,
+        code: json.data.coupon.code,
+        description: json.data.coupon.description,
+        discountAmount: json.data.discountAmount,
+        discountType: json.data.coupon.discountType,
+      });
+      setCouponSuccess(`Coupon "${json.data.coupon.code}" applied! -₨ ${json.data.discountAmount.toLocaleString()}`);
+      setCouponCodeInput("");
+    } catch (err: any) {
+      setCouponError(err.message || "Failed to validate coupon.");
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
 
   const router = useRouter();
 
@@ -325,8 +368,11 @@ export default function HijamaBookingModal({
             ? `Other: ${screening.customReason}`
             : screening.cuppingReason,
         contraindications: contraindicationsObj,
-        feeAmount: availability?.standardFee || 1250,
-        paymentStatus: "UNPAID",
+        feeAmount: Math.max(0, (availability?.standardFee || 2500) - (appliedHijamaCoupon?.discountAmount || 0)),
+        originalFee: availability?.standardFee || 2500,
+        discountAmount: appliedHijamaCoupon?.discountAmount || 0,
+        couponCode: appliedHijamaCoupon ? appliedHijamaCoupon.code : null,
+        paymentStatus: Math.max(0, (availability?.standardFee || 2500) - (appliedHijamaCoupon?.discountAmount || 0)) === 0 ? "PAID_AT_CLINIC" : "UNPAID",
       };
 
       const res = await fetch("/api/hijama/book", {
@@ -1128,6 +1174,62 @@ export default function HijamaBookingModal({
               </form>
             )}
 
+            {/* Hijama Promo Coupon Input */}
+            <div className="p-3.5 rounded-2xl bg-white border border-line space-y-2 text-xs">
+              <label className="block text-xs font-bold text-ink">
+                Hijama Promotional / Referral Coupon Code
+              </label>
+              {appliedHijamaCoupon ? (
+                <div className="p-2.5 bg-success-soft/80 border border-success-line rounded-xl flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-success font-semibold">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <span>{appliedHijamaCoupon.code}</span>
+                    <span className="text-[11px] font-normal text-success">
+                      (-₨ {appliedHijamaCoupon.discountAmount.toLocaleString()})
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { setAppliedHijamaCoupon(null); setCouponSuccess(null); }}
+                    className="text-xs text-danger hover:underline font-semibold cursor-pointer"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="e.g. SUNNAH15 or HIJAMA500"
+                    value={couponCodeInput}
+                    onChange={(e) => setCouponCodeInput(e.target.value.toUpperCase())}
+                    className="flex-1 px-3 py-2 text-xs rounded-xl border border-line-strong bg-surface focus:outline-none focus:ring-2 focus:ring-primary uppercase font-mono"
+                  />
+                  <button
+                    type="button"
+                    disabled={validatingCoupon || !couponCodeInput.trim()}
+                    onClick={handleApplyHijamaCoupon}
+                    className="px-4 py-2 bg-primary hover:bg-brand-green-800 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-colors disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                  >
+                    {validatingCoupon && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                    <span>{validatingCoupon ? "Validating..." : "Apply"}</span>
+                  </button>
+                </div>
+              )}
+              {couponError && (
+                <p className="text-[11px] text-danger flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{couponError}</span>
+                </p>
+              )}
+              {couponSuccess && (
+                <p className="text-[11px] text-success flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  <span>{couponSuccess}</span>
+                </p>
+              )}
+            </div>
+
             {/* Booking Summary Box */}
             <div className="p-4 rounded-2xl bg-surface border border-line space-y-2 text-xs">
               <div className="flex items-center justify-between border-b border-line pb-2 font-bold text-ink">
@@ -1148,8 +1250,18 @@ export default function HijamaBookingModal({
                   <span className="font-semibold text-ink">{screening.cuppingReason}</span>
                 </div>
                 <div>
-                  <span className="block text-[10px] text-ink-subtle">Clinical Fee:</span>
-                  <span className="font-bold text-primary">1 cup: ₨ 250 each (5 cups min. · Pay at Clinic)</span>
+                  <span className="block text-[10px] text-ink-subtle">Session Fee:</span>
+                  <div className="font-bold text-ink">
+                    {appliedHijamaCoupon ? (
+                      <div>
+                        <span className="line-through text-ink-muted text-[11px] mr-1.5">₨ {(availability?.standardFee || 2500).toLocaleString()}</span>
+                        <span className="text-primary font-bold">₨ {Math.max(0, (availability?.standardFee || 2500) - appliedHijamaCoupon.discountAmount).toLocaleString()}</span>
+                        <span className="text-[10px] text-success block">Coupon {appliedHijamaCoupon.code} applied</span>
+                      </div>
+                    ) : (
+                      <span className="text-primary">₨ {(availability?.standardFee || 2500).toLocaleString()} (Pay at Clinic)</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

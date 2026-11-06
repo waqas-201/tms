@@ -12,46 +12,15 @@ export interface CartItem {
 }
 
 export interface AppliedCoupon {
+  id?: string;
   code: string;
   description: string;
-  discountType: "percentage" | "fixed" | "free_shipping";
+  discountType: "percentage" | "fixed" | "free_shipping" | "free_service" | string;
   discountValue: number; // e.g. 10 for 10%, 200 for 200 PKR
-  minSubtotal?: number;
+  minSubtotal?: number | null;
+  maxDiscountCap?: number | null;
+  isFreeShipping?: boolean;
 }
-
-export const AVAILABLE_COUPONS: Record<string, AppliedCoupon> = {
-  HAKIM10: {
-    code: "HAKIM10",
-    description: "10% Off Your Entire Order",
-    discountType: "percentage",
-    discountValue: 10,
-  },
-  FREESHIP: {
-    code: "FREESHIP",
-    description: "100% Free Nationwide Delivery",
-    discountType: "free_shipping",
-    discountValue: 0,
-  },
-  SEHAT200: {
-    code: "SEHAT200",
-    description: "₨ 200 Flat Off (Orders over ₨ 1,500)",
-    discountType: "fixed",
-    discountValue: 200,
-    minSubtotal: 1500,
-  },
-  RAMADAN15: {
-    code: "RAMADAN15",
-    description: "15% Special Seasonal Discount",
-    discountType: "percentage",
-    discountValue: 15,
-  },
-  TAMEER50: {
-    code: "TAMEER50",
-    description: "₨ 50 Off First Order",
-    discountType: "fixed",
-    discountValue: 50,
-  },
-};
 
 interface CartContextType {
   cart: CartItem[];
@@ -67,7 +36,7 @@ interface CartContextType {
   discountAmount: number;
   total: number;
   appliedCoupon: AppliedCoupon | null;
-  applyCoupon: (code: string) => { success: boolean; message: string };
+  applyCoupon: (code: string) => Promise<{ success: boolean; message: string }>;
   removeCoupon: () => void;
   freeShippingThreshold: number;
   remainingForFreeShipping: number;
@@ -141,8 +110,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const savedCoupon = localStorage.getItem("tms_coupon_v1");
       if (savedCoupon) {
         const parsed = JSON.parse(savedCoupon);
-        if (AVAILABLE_COUPONS[parsed.code]) {
-          setAppliedCoupon(AVAILABLE_COUPONS[parsed.code]);
+        if (parsed && parsed.code) {
+          setAppliedCoupon(parsed);
         }
       }
     } catch (e) {
@@ -344,15 +313,22 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const freeShippingThreshold = CLINIC_INFO.freeShippingThreshold; // 2000 PKR
 
-  // Calculate discount
+  // Calculate discount dynamically with minimum subtotal and max cap enforcement
   let discountAmount = 0;
   if (appliedCoupon && subtotal > 0) {
     if (appliedCoupon.minSubtotal && subtotal < appliedCoupon.minSubtotal) {
       discountAmount = 0;
-    } else if (appliedCoupon.discountType === "percentage") {
-      discountAmount = Math.round((subtotal * appliedCoupon.discountValue) / 100);
-    } else if (appliedCoupon.discountType === "fixed") {
-      discountAmount = Math.min(subtotal, appliedCoupon.discountValue);
+    } else {
+      const dtype = appliedCoupon.discountType?.toLowerCase();
+      if (dtype === "percentage") {
+        let calc = (subtotal * appliedCoupon.discountValue) / 100;
+        if (appliedCoupon.maxDiscountCap) {
+          calc = Math.min(calc, appliedCoupon.maxDiscountCap);
+        }
+        discountAmount = Math.min(subtotal, Math.round(calc));
+      } else if (dtype === "fixed") {
+        discountAmount = Math.min(subtotal, Math.round(appliedCoupon.discountValue));
+      }
     }
   }
 
@@ -361,25 +337,64 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const total = Math.max(0, subtotal - discountAmount);
   const remainingForFreeShipping = 0;
 
-  // Apply coupon
-  const applyCoupon = (code: string): { success: boolean; message: string } => {
+  // Authoritative server-side coupon application
+  const applyCoupon = async (
+    code: string
+  ): Promise<{ success: boolean; message: string }> => {
     const cleanCode = code.trim().toUpperCase();
-    const coupon = AVAILABLE_COUPONS[cleanCode];
-
-    if (!coupon) {
-      return { success: false, message: "Invalid coupon code. Try HAKIM10 or FREESHIP" };
+    if (!cleanCode) {
+      return { success: false, message: "Please enter a coupon code." };
     }
 
-    if (coupon.minSubtotal && subtotal < coupon.minSubtotal) {
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: cleanCode,
+          scope: "PRODUCTS",
+          subtotal,
+          items: cart.map((item) => ({
+            productId: item.product.id,
+            price: item.selectedSize.price,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        return {
+          success: false,
+          message: data.error || `Coupon "${cleanCode}" could not be applied.`,
+        };
+      }
+
+      const validated = data.data.coupon;
+      const applied: AppliedCoupon = {
+        id: validated.id,
+        code: validated.code,
+        description: validated.description,
+        discountType: validated.discountType.toLowerCase(),
+        discountValue: validated.discountValue,
+        minSubtotal: validated.minSubtotal,
+        maxDiscountCap: validated.maxDiscountCap,
+        isFreeShipping: validated.isFreeShipping || validated.discountType.toUpperCase() === "FREE_SHIPPING",
+      };
+
+      setAppliedCoupon(applied);
+      showToast(`Coupon "${cleanCode}" applied: ${applied.description}!`);
+      return {
+        success: true,
+        message: data.data.message || `Coupon "${cleanCode}" applied successfully!`,
+      };
+    } catch (err) {
+      console.error("Coupon validation error:", err);
       return {
         success: false,
-        message: `Coupon requires minimum order of ₨ ${coupon.minSubtotal.toLocaleString()}`,
+        message: "Failed to validate coupon with server. Please try again.",
       };
     }
-
-    setAppliedCoupon(coupon);
-    showToast(`Coupon "${cleanCode}" applied: ${coupon.description}!`);
-    return { success: true, message: `Coupon "${cleanCode}" applied successfully!` };
   };
 
   const removeCoupon = () => {

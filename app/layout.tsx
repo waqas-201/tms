@@ -9,10 +9,14 @@ import Footer from "@/app/components/Footer";
 import WhatsAppFloat from "@/app/components/WhatsAppFloat";
 import Toast from "@/app/components/Toast";
 import ClientModals from "@/app/components/ClientModals";
+import { Suspense } from "react";
 import RouteFade from "@/app/components/motion/RouteFade";
 import { CLINIC_INFO } from "@/app/data/products";
 import { BRAND } from "@/lib/brand-colors";
 import { SITE_URL } from "@/lib/site";
+import { SanityLive } from "@/lib/sanity/live";
+import { DraftModeBanner } from "@/app/components/sanity/DraftModeBanner";
+import { AnnouncementBanner } from "@/app/components/sanity/AnnouncementBanner";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -190,6 +194,9 @@ export default function RootLayout({
         <CartProvider>
           <ConsultationProvider>
             <SmoothScroll>
+              <Suspense fallback={null}>
+                <AnnouncementBanner />
+              </Suspense>
               <Header />
               <main className="flex-1">
                 <RouteFade>{children}</RouteFade>
@@ -198,6 +205,10 @@ export default function RootLayout({
               <WhatsAppFloat />
               <Toast />
               <ClientModals />
+              <SanityLive />
+              <Suspense fallback={null}>
+                <DraftModeBanner />
+              </Suspense>
             </SmoothScroll>
           </ConsultationProvider>
         </CartProvider>

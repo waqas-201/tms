@@ -11,26 +11,27 @@ datasource db {
 // -------------------------------------------------------------
 
 model User {
-  id            String                @id @default(cuid())
-  name          String
-  email         String                @unique
-  emailVerified Boolean               @default(false)
-  image         String?
-  role          String                @default("user") // "super_admin" | "admin" | "user"
-  phone         String?
-  city          String?
-  address       String?
-  latitude      Float?
-  longitude     Float?
-  isActive      Boolean               @default(true)
-  deletedAt     DateTime?
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  orders        Order[]
-  consultations ConsultationRequest[]
-  hijamaBookings HijamaBooking[]
+  id                String                @id @default(cuid())
+  name              String
+  email             String                @unique
+  emailVerified     Boolean               @default(false)
+  image             String?
+  role              String                @default("user") // "super_admin" | "admin" | "user"
+  phone             String?
+  city              String?
+  address           String?
+  latitude          Float?
+  longitude         Float?
+  isActive          Boolean               @default(true)
+  deletedAt         DateTime?
+  createdAt         DateTime              @default(now())
+  updatedAt         DateTime              @updatedAt
+  sessions          Session[]
+  accounts          Account[]
+  orders            Order[]
+  consultations     ConsultationRequest[]
+  hijamaBookings    HijamaBooking[]
+  couponRedemptions CouponRedemption[]
 
   @@map("user")
 }
@@ -210,10 +211,14 @@ model Order {
   orderStatus        String          @default("PENDING") // "PENDING" | "CONFIRMED" | "DISPATCHED" | "DELIVERED" | "CANCELLED"
   subtotal           Float
   shippingFee        Float           @default(0)
+  discountAmount     Float           @default(0)
   total              Float
   paidAmount         Float           @default(0)
   dueAmount          Float           @default(0)
   trackingNote       String?
+  couponId           String?
+  coupon             Coupon?         @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  couponCode         String?
   userId             String?
   user               User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
   items              OrderItem[]
@@ -246,6 +251,16 @@ model OrderItem {
 // Clinical Consultation & Patient Inquiries
 // -------------------------------------------------------------
 
+model ConsultationSetting {
+  id          String   @id @default("default")
+  standardFee Float    @default(1500) // PKR standard consultation fee
+  isFeeActive Boolean  @default(true) // Whether consultations have a charge or are complimentary
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("consultation_setting")
+}
+
 model ConsultationRequest {
   id                  String   @id @default(cuid())
   ticketNumber        String   @unique // e.g. CON-2026-8921
@@ -262,6 +277,12 @@ model ConsultationRequest {
   reportName          String?
   reportSize          String?
   status              String   @default("NEW") // "NEW" | "CONFIRMED" | "RESCHEDULED" | "PRESCRIBED" | "COMPLETED" | "CANCELLED"
+  feeAmount           Float    @default(0)
+  discountAmount      Float    @default(0)
+  paymentStatus       String   @default("UNPAID") // "UNPAID" | "PAID_AT_CLINIC" | "FREE_VOUCHER" | "PAID_ONLINE"
+  couponId            String?
+  coupon              Coupon?  @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  couponCode          String?
   hakimNotes          String?
   prescribedTreatment String?
   createdAt           DateTime @default(now())
@@ -360,8 +381,13 @@ model HijamaBooking {
   cuppingReason     String?  // Pain relief, migraine, general detox, sunnah revival, etc.
   contraindications String?  // Stored JSON string of safety screening answers (blood thinners, pregnancy, etc.)
   status            String   @default("PENDING") // "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW"
-  feeAmount         Float    @default(2500) // PKR
+  feeAmount         Float    @default(2500) // PKR final payable
+  originalFee       Float    @default(2500) // PKR standard base fee
+  discountAmount    Float    @default(0)    // PKR coupon discount applied
   paymentStatus     String   @default("UNPAID") // "UNPAID" | "PAID_AT_CLINIC"
+  couponId          String?
+  coupon            Coupon?  @relation(fields: [couponId], references: [id], onDelete: SetNull)
+  couponCode        String?
   adminNotes        String?
   userId            String?
   user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
@@ -424,6 +450,61 @@ model DeliverySetting {
   updatedAt                 DateTime @updatedAt
 
   @@map("delivery_setting")
+}
+
+// -------------------------------------------------------------
+// Marketing & Coupons Engine
+// -------------------------------------------------------------
+
+model Coupon {
+  id                  String             @id @default(cuid())
+  code                String             @unique // Stored UPPERCASE, e.g. "SEHAT20"
+  description         String
+  scope               String             @default("PRODUCTS") // "PRODUCTS" | "HIJAMA" | "CONSULTATION" | "ALL" | "CATEGORY"
+  discountType        String             @default("PERCENTAGE") // "PERCENTAGE" | "FIXED" | "FREE_SHIPPING" | "FREE_SERVICE"
+  discountValue       Float              // e.g. 15 for 15%, 500 for 500 PKR
+  minSubtotal         Float?             // Minimum order or booking subtotal required
+  maxDiscountCap      Float?             // Max PKR cap for percentage discounts
+  targetCategoryId    String?            // If scope is CATEGORY, target category slug or id
+  targetProductIds    String?            // JSON string array of specific product IDs
+  startDate           DateTime?
+  endDate             DateTime?
+  usageLimit          Int?               // Total allowed redemptions across all users
+  usageCount          Int                @default(0)
+  perUserLimit        Int                @default(1) // Allowed redemptions per user / phone number
+  isActive            Boolean            @default(true)
+  isFlashSale         Boolean            @default(false)
+  flashSaleBannerText String?            // e.g. "⚡ Flash Offer: 20% Off All Murabba Preserves!"
+  flashSaleBadge      String?            // e.g. "FLASH 20% OFF"
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  redemptions         CouponRedemption[]
+  orders              Order[]
+  hijamaBookings      HijamaBooking[]
+  consultations       ConsultationRequest[]
+
+  @@map("coupon")
+}
+
+model CouponRedemption {
+  id              String               @id @default(cuid())
+  couponId        String
+  coupon          Coupon               @relation(fields: [couponId], references: [id], onDelete: Cascade)
+  userId          String?
+  user            User?                @relation(fields: [userId], references: [id], onDelete: SetNull)
+  phone           String?              // Normalized phone / WhatsApp
+  orderId         String?
+  hijamaBookingId String?
+  consultationId  String?
+  discountAmount  Float
+  orderTotal      Float?
+  redeemedAt      DateTime             @default(now())
+
+  @@index([couponId])
+  @@index([userId])
+  @@index([phone])
+  @@map("coupon_redemption")
 }
 
 // -------------------------------------------------------------

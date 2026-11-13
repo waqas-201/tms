@@ -48,7 +48,7 @@ export default function ClinicVisitingSection() {
                 <p className="text-xs text-ink-body leading-relaxed">
                   {CLINIC_INFO.karachiAddress || CLINIC_INFO.address}
                 </p>
-                <div className="pt-1">
+                <div className="pt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
                   <a
                     href={CLINIC_INFO.googleMapsUrlKarachi || CLINIC_INFO.googleMapsUrl}
                     target="_blank"
@@ -57,6 +57,14 @@ export default function ClinicVisitingSection() {
                   >
                     <Navigation className="w-3.5 h-3.5" />
                     <span>Get Directions (Karachi)</span>
+                  </a>
+                  <a
+                    href={`tel:${CLINIC_INFO.phone}`}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+                    dir="ltr"
+                  >
+                    <Phone className="w-3 h-3 text-secondary-text" />
+                    <span>{CLINIC_INFO.phoneFormatted}</span>
                   </a>
                 </div>
               </div>
@@ -70,7 +78,7 @@ export default function ClinicVisitingSection() {
                 <p className="text-xs text-ink-body leading-relaxed">
                   {CLINIC_INFO.rawalpindiAddress}
                 </p>
-                <div className="pt-1">
+                <div className="pt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
                   <a
                     href={CLINIC_INFO.googleMapsUrlRawalpindi}
                     target="_blank"
@@ -79,6 +87,14 @@ export default function ClinicVisitingSection() {
                   >
                     <Navigation className="w-3.5 h-3.5" />
                     <span>Get Directions (Rawalpindi)</span>
+                  </a>
+                  <a
+                    href={`tel:${CLINIC_INFO.rawalpindiPhone}`}
+                    className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+                    dir="ltr"
+                  >
+                    <Phone className="w-3 h-3 text-secondary-text" />
+                    <span>{CLINIC_INFO.rawalpindiPhoneFormatted}</span>
                   </a>
                 </div>
               </div>

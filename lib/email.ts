@@ -1315,7 +1315,7 @@ export async function sendAppointmentStatusEmail(params: {
       </p>
       <p style="margin: 12px 0 0 0; font-size: 11px; color: ${BRAND.inkSubtle}; line-height: 1.5;">
         <strong>Karachi Matab:</strong> Plot no L, 41 Korangi Crossing Rd, Sector 31 B Korangi, Karachi.<br />
-        <strong>Rawalpindi Matab:</strong> Shop No. 6, Brothers Plaza, Opposite Awan CNG, Near Bank of Punjab, Main Adiala Road, Rawalpindi.
+        <strong>Rawalpindi Matab:</strong> Shop No. 6, Brothers Plaza, Opposite Awan CNG, Near Bank of Punjab, Main Adiala Road, Rawalpindi (Tel: +92 300 2551793).
       </p>
     </div>
 

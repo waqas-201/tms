@@ -193,7 +193,7 @@ export default function OrderInvoiceModal({
                   <strong>Karachi Matab:</strong> {CLINIC_INFO.karachiAddress || CLINIC_INFO.address}
                 </p>
                 <p className="text-[10px] text-ink-body">
-                  <strong>Rawalpindi Matab:</strong> {CLINIC_INFO.rawalpindiAddress}
+                  <strong>Rawalpindi Matab:</strong> {CLINIC_INFO.rawalpindiAddress} &nbsp;·&nbsp; Tel: {CLINIC_INFO.rawalpindiPhoneFormatted}
                 </p>
                 <p className="text-[11px] text-ink-body">
                   Helpline / WhatsApp: +92 335 3547888

@@ -139,14 +139,23 @@ export default function ContactPage() {
                     <p className="text-ink-body leading-relaxed mt-0.5">
                       {CLINIC_INFO.karachiAddress || CLINIC_INFO.address}
                     </p>
-                    <a
-                      href={CLINIC_INFO.googleMapsUrlKarachi || CLINIC_INFO.googleMapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block text-primary hover:text-secondary-text font-semibold text-[11px] mt-1 underline"
-                    >
-                      Open Karachi in Google Maps →
-                    </a>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11px]">
+                      <a
+                        href={CLINIC_INFO.googleMapsUrlKarachi || CLINIC_INFO.googleMapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:text-secondary-text font-semibold underline"
+                      >
+                        Open Karachi in Google Maps →
+                      </a>
+                      <a
+                        href={`tel:${CLINIC_INFO.phone}`}
+                        className="text-primary hover:text-secondary-text font-bold"
+                        dir="ltr"
+                      >
+                        Phone: {CLINIC_INFO.phoneFormatted}
+                      </a>
+                    </div>
                   </div>
                 </div>
 
@@ -163,14 +172,23 @@ export default function ContactPage() {
                     <p className="text-ink-body leading-relaxed mt-0.5">
                       {CLINIC_INFO.rawalpindiAddress}
                     </p>
-                    <a
-                      href={CLINIC_INFO.googleMapsUrlRawalpindi}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-block text-primary hover:text-secondary-text font-semibold text-[11px] mt-1 underline"
-                    >
-                      Open Rawalpindi in Google Maps →
-                    </a>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11px]">
+                      <a
+                        href={CLINIC_INFO.googleMapsUrlRawalpindi}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-primary hover:text-secondary-text font-semibold underline"
+                      >
+                        Open Rawalpindi in Google Maps →
+                      </a>
+                      <a
+                        href={`tel:${CLINIC_INFO.rawalpindiPhone}`}
+                        className="text-primary hover:text-secondary-text font-bold"
+                        dir="ltr"
+                      >
+                        Phone: {CLINIC_INFO.rawalpindiPhoneFormatted}
+                      </a>
+                    </div>
                   </div>
                 </div>
 

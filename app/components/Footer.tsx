@@ -250,14 +250,23 @@ export default function Footer() {
                 <div>
                   <span className="font-semibold text-white block">Karachi Matab (Main):</span>
                   <span>{CLINIC_INFO.karachiAddress || CLINIC_INFO.address}</span>
-                  <a
-                    href={CLINIC_INFO.googleMapsUrlKarachi || CLINIC_INFO.googleMapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-brand-gold-300 hover:underline font-semibold text-[11px] mt-0.5"
-                  >
-                    View Karachi Map &rarr;
-                  </a>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11px]">
+                    <a
+                      href={CLINIC_INFO.googleMapsUrlKarachi || CLINIC_INFO.googleMapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-gold-300 hover:underline font-semibold"
+                    >
+                      View Karachi Map &rarr;
+                    </a>
+                    <a
+                      href={`tel:${CLINIC_INFO.phone}`}
+                      className="text-white hover:text-brand-gold-300 font-medium"
+                      dir="ltr"
+                    >
+                      Tel: {CLINIC_INFO.phoneFormatted}
+                    </a>
+                  </div>
                 </div>
               </div>
 
@@ -267,14 +276,23 @@ export default function Footer() {
                 <div>
                   <span className="font-semibold text-white block">Rawalpindi Matab:</span>
                   <span>{CLINIC_INFO.rawalpindiAddress}</span>
-                  <a
-                    href={CLINIC_INFO.googleMapsUrlRawalpindi}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-brand-gold-300 hover:underline font-semibold text-[11px] mt-0.5"
-                  >
-                    View Rawalpindi Map &rarr;
-                  </a>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-[11px]">
+                    <a
+                      href={CLINIC_INFO.googleMapsUrlRawalpindi}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-gold-300 hover:underline font-semibold"
+                    >
+                      View Rawalpindi Map &rarr;
+                    </a>
+                    <a
+                      href={`tel:${CLINIC_INFO.rawalpindiPhone}`}
+                      className="text-white hover:text-brand-gold-300 font-medium"
+                      dir="ltr"
+                    >
+                      Tel: {CLINIC_INFO.rawalpindiPhoneFormatted}
+                    </a>
+                  </div>
                 </div>
               </div>
 

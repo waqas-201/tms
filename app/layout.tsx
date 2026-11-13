@@ -169,7 +169,7 @@ export default function RootLayout({
         image: `${SITE_URL}/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg`,
         description:
           "Matab Tameer-e-Sehat clinic branch in Rawalpindi, Pakistan. Classical Tibbi wisdom, personalized Hakeem consultations, pure steam distillates (Arqiyat), and small-batch herbal preserves (Murabbajaat).",
-        telephone: CLINIC_INFO.phoneFormatted,
+        telephone: CLINIC_INFO.rawalpindiPhoneFormatted,
         email: CLINIC_INFO.email,
         address: {
           "@type": "PostalAddress",

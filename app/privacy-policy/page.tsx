@@ -102,9 +102,8 @@ export default function PrivacyPolicyPage() {
               You may request an update or deletion of your contact records or order details at any time by contacting our support team or visiting our Karachi or Rawalpindi clinics.
             </p>
             <div className="bg-surface-subtle p-4 rounded-lg border border-border mt-3 text-xs md:text-sm text-ink-muted space-y-1.5">
-              <p><strong>Karachi Clinic:</strong> {CLINIC_INFO.karachiAddress || CLINIC_INFO.address}</p>
-              <p><strong>Rawalpindi Clinic:</strong> {CLINIC_INFO.rawalpindiAddress}</p>
-              <p><strong>Phone / WhatsApp:</strong> {CLINIC_INFO.phone}</p>
+              <p><strong>Karachi Clinic:</strong> {CLINIC_INFO.karachiAddress || CLINIC_INFO.address} (Tel: {CLINIC_INFO.phoneFormatted})</p>
+              <p><strong>Rawalpindi Clinic:</strong> {CLINIC_INFO.rawalpindiAddress} (Tel: {CLINIC_INFO.rawalpindiPhoneFormatted})</p>
               <p><strong>Timings:</strong> {CLINIC_INFO.timings}</p>
             </div>
           </section>

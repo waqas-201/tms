@@ -59,14 +59,24 @@ export default function ClinicCallCard() {
             <span>
               <strong className="text-primary">Karachi Matab:</strong> {CLINIC_INFO.karachiAddress || CLINIC_INFO.address}
               <br />
-              <a
-                href={CLINIC_INFO.googleMapsUrlKarachi || CLINIC_INFO.googleMapsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-primary hover:underline"
-              >
-                View Karachi Map &rarr;
-              </a>
+              <span className="text-[10px]">
+                <a
+                  href={CLINIC_INFO.googleMapsUrlKarachi || CLINIC_INFO.googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-primary hover:underline"
+                >
+                  View Karachi Map &rarr;
+                </a>
+                {" · "}
+                <a
+                  href={`tel:${CLINIC_INFO.phone}`}
+                  className="font-bold text-ink hover:text-primary"
+                  dir="ltr"
+                >
+                  Tel: {CLINIC_INFO.phoneFormatted}
+                </a>
+              </span>
             </span>
           </p>
 
@@ -75,14 +85,24 @@ export default function ClinicCallCard() {
             <span>
               <strong className="text-primary">Rawalpindi Matab:</strong> {CLINIC_INFO.rawalpindiAddress}
               <br />
-              <a
-                href={CLINIC_INFO.googleMapsUrlRawalpindi}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-primary hover:underline"
-              >
-                View Rawalpindi Map &rarr;
-              </a>
+              <span className="text-[10px]">
+                <a
+                  href={CLINIC_INFO.googleMapsUrlRawalpindi}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-primary hover:underline"
+                >
+                  View Rawalpindi Map &rarr;
+                </a>
+                {" · "}
+                <a
+                  href={`tel:${CLINIC_INFO.rawalpindiPhone}`}
+                  className="font-bold text-ink hover:text-primary"
+                  dir="ltr"
+                >
+                  Tel: {CLINIC_INFO.rawalpindiPhoneFormatted}
+                </a>
+              </span>
             </span>
           </p>
         </div>

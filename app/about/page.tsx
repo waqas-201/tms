@@ -139,7 +139,7 @@ export default function AboutPage() {
                     <strong>Karachi Matab:</strong> Plot no L, 41 Korangi Crossing Rd, Sector 31 B Korangi, Karachi.
                   </p>
                   <p>
-                    <strong>Rawalpindi Matab:</strong> Shop No. 6, Brothers Plaza, Opposite Awan CNG, Near Bank of Punjab, Main Adiala Road, Rawalpindi.
+                    <strong>Rawalpindi Matab:</strong> Shop No. 6, Brothers Plaza, Opposite Awan CNG, Near Bank of Punjab, Main Adiala Road, Rawalpindi (Tel: {CLINIC_INFO.rawalpindiPhoneFormatted}).
                   </p>
                   <p className="text-ink-muted text-[11px] pt-0.5">
                     We maintain clean, hygienic standards for herb preparation, fresh distillations, and patient care across both branches.

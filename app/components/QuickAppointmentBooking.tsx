@@ -136,10 +136,10 @@ export default function QuickAppointmentBooking() {
                 </div>
                 <div>
                   <h4 className="font-serif text-xs sm:text-sm font-bold text-primary">
-                    2. In-Person Karachi Clinic Visit
+                    2. In-Person Clinic Visit
                   </h4>
                   <p className="text-xs text-ink-muted">
-                    Pulse diagnosis (Nabz) and custom formulation at Korangi Crossing Clinic, Karachi.
+                    Pulse diagnosis (Nabz) and custom formulation at our Karachi &amp; Rawalpindi clinics.
                   </p>
                 </div>
               </div>

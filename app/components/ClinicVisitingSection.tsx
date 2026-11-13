@@ -21,60 +21,84 @@ export default function ClinicVisitingSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
 
-          {/* Left Column: Karachi Physical Dispensary Information (7 cols) */}
+          {/* Left Column: Dispensaries Information (7 cols) */}
           <Reveal className="lg:col-span-7 space-y-5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-green-50 border border-brand-green-200 text-primary text-xs font-semibold">
               <Building2 className="w-3.5 h-3.5 text-secondary-text" />
-              <span>In-Person Physical Clinic</span>
+              <span>In-Person Physical Clinics</span>
             </div>
 
             <div className="space-y-2">
               <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-primary leading-tight">
-                Visit Our Clinic in Karachi
+                Visit Our Clinics in Karachi &amp; Rawalpindi
               </h2>
               <p className="text-xs sm:text-sm text-ink-body">
-                In-person pulse examination (Nabz) and freshly prepared botanical remedies at our Korangi clinic.
+                In-person pulse examination (Nabz) and freshly prepared botanical remedies at our Karachi and Rawalpindi matabs.
               </p>
             </div>
 
-            {/* Structured Clinic Timings & Location Cards */}
+            {/* Structured Clinic Location Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-              {/* Location Card */}
+              {/* Karachi Location Card */}
               <div className="p-4 rounded-2xl bg-white border border-line space-y-2">
                 <div className="flex items-center gap-2 text-primary">
                   <MapPin className="w-4 h-4 text-secondary-text" />
-                  <h4 className="font-serif text-xs sm:text-sm font-bold">Clinic Address</h4>
+                  <h4 className="font-serif text-xs sm:text-sm font-bold">Karachi Matab (Main)</h4>
                 </div>
                 <p className="text-xs text-ink-body leading-relaxed">
-                  {CLINIC_INFO.address}
+                  {CLINIC_INFO.karachiAddress || CLINIC_INFO.address}
                 </p>
                 <div className="pt-1">
                   <a
-                    href={CLINIC_INFO.googleMapsUrl}
+                    href={CLINIC_INFO.googleMapsUrlKarachi || CLINIC_INFO.googleMapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary"
                   >
                     <Navigation className="w-3.5 h-3.5" />
-                    <span>Get Directions on Google Maps</span>
+                    <span>Get Directions (Karachi)</span>
                   </a>
                 </div>
               </div>
 
-              {/* Consultation Hours Card */}
+              {/* Rawalpindi Location Card */}
               <div className="p-4 rounded-2xl bg-white border border-line space-y-2">
                 <div className="flex items-center gap-2 text-primary">
-                  <Clock className="w-4 h-4 text-secondary-text" />
-                  <h4 className="font-serif text-xs sm:text-sm font-bold">Visiting Hours</h4>
+                  <MapPin className="w-4 h-4 text-secondary-text" />
+                  <h4 className="font-serif text-xs sm:text-sm font-bold">Rawalpindi Matab</h4>
                 </div>
-                <p className="text-xs text-ink-body">
-                  <strong>Mon – Sat:</strong> {CLINIC_INFO.timings}
+                <p className="text-xs text-ink-body leading-relaxed">
+                  {CLINIC_INFO.rawalpindiAddress}
                 </p>
-                <p className="text-xs text-secondary-text font-semibold">
-                  <strong>Friday:</strong> {CLINIC_INFO.fridayTimings}
-                </p>
-                <p className="text-[11px] text-ink-subtle">
-                  Walk-ins welcome. Booking recommended.
+                <div className="pt-1">
+                  <a
+                    href={CLINIC_INFO.googleMapsUrlRawalpindi}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary"
+                  >
+                    <Navigation className="w-3.5 h-3.5" />
+                    <span>Get Directions (Rawalpindi)</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Consultation Hours Card (spans full width or side-by-side) */}
+              <div className="sm:col-span-2 p-4 rounded-2xl bg-white border border-line space-y-2">
+                <div className="flex items-center gap-2 text-primary">
+                  <Clock className="w-4 h-4 text-secondary-text" />
+                  <h4 className="font-serif text-xs sm:text-sm font-bold">Visiting Hours (Both Branches)</h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <p className="text-xs text-ink-body">
+                    <strong>Mon – Sat:</strong> {CLINIC_INFO.timings}
+                  </p>
+                  <p className="text-xs text-secondary-text font-semibold">
+                    <strong>Friday:</strong> {CLINIC_INFO.fridayTimings}
+                  </p>
+                </div>
+                <p className="text-[11px] text-ink-subtle pt-0.5">
+                  Walk-ins welcome at both clinics. Advance booking recommended.
                 </p>
               </div>
             </div>
@@ -102,7 +126,7 @@ export default function ClinicVisitingSection() {
               </a>
 
               <a
-                href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent("Assalam-o-Alaikum Hakeem Sahib, I would like to visit your Karachi clinic for a consultation.")}`}
+                href={`https://wa.me/${CLINIC_INFO.whatsappNumber}?text=${encodeURIComponent("Assalam-o-Alaikum Hakeem Sahib, I would like to visit your clinic in Karachi/Rawalpindi for a consultation.")}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-whatsapp hover:bg-whatsapp-hover text-on-whatsapp text-xs font-bold uppercase tracking-wider rounded-xl transition-all shadow-xs"
@@ -122,7 +146,7 @@ export default function ClinicVisitingSection() {
               <div className="relative z-10 space-y-3.5">
                 <div className="inline-flex items-center gap-2 px-3 py-0.5 rounded-full bg-brand-green-900 border border-brand-green-600 text-brand-gold-500 text-xs font-semibold">
                   <Calendar className="w-3.5 h-3.5" />
-                  <span>Karachi In-Person</span>
+                  <span>Karachi &amp; Rawalpindi In-Person</span>
                 </div>
 
                 <h3 className="font-serif text-xl sm:text-2xl font-bold leading-tight">

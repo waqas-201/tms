@@ -121,7 +121,29 @@ export const CLINIC_INFO = {
   botanicalsCount: "500+",
   patientsServed: "150,000+",
   address: "Plot no L, 41 Korangi Crossing Rd, K.D.A Allah Wala Town Sector 31 B Korangi, Karachi, Pakistan",
-  city: "Karachi",
+  karachiAddress: "Plot no L, 41 Korangi Crossing Rd, K.D.A Allah Wala Town Sector 31 B Korangi, Karachi, Pakistan",
+  rawalpindiAddress: "Matab Tameer-e-Sehat, Shop No. 6, Brothers Plaza, Opposite Awan CNG, Near Bank of Punjab, Main Adiala Road, Rawalpindi, Pakistan",
+  branches: [
+    {
+      city: "Karachi",
+      name: "Karachi Clinic & Dispensary (Main Matab)",
+      shortAddress: "Plot no L, 41 Korangi Crossing Rd, Sector 31 B Korangi, Karachi",
+      address: "Plot no L, 41 Korangi Crossing Rd, K.D.A Allah Wala Town Sector 31 B Korangi, Karachi, Pakistan",
+      googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Matab+Tameer-e-sehat+Plot+no+L+41+Korangi+Crossing+Rd+Karachi",
+      timings: "Monday – Saturday: 10:00 AM – 9:00 PM (PKT)",
+      fridayTimings: "Friday: 3:00 PM – 9:00 PM",
+    },
+    {
+      city: "Rawalpindi",
+      name: "Rawalpindi Clinic & Dispensary",
+      shortAddress: "Shop No. 6, Brothers Plaza, Opposite Awan CNG, Near Bank of Punjab, Main Adiala Road, Rawalpindi",
+      address: "Matab Tameer-e-Sehat, Shop No. 6, Brothers Plaza, Opposite Awan CNG, Near Bank of Punjab, Main Adiala Road, Rawalpindi, Pakistan",
+      googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Matab+Tameer-e-Sehat+Shop+No+6+Brothers+Plaza+Opposite+Awan+CNG+Near+Bank+of+Punjab+Main+Adiala+Road+Rawalpindi",
+      timings: "Monday – Saturday: 10:00 AM – 9:00 PM (PKT)",
+      fridayTimings: "Friday: 3:00 PM – 9:00 PM",
+    },
+  ],
+  city: "Karachi & Rawalpindi",
   country: "Pakistan",
   phone: "0335-3547888",
   phoneFormatted: "+92 335 3547888",
@@ -133,9 +155,11 @@ export const CLINIC_INFO = {
   freeShippingThreshold: 2000,
   flatShippingFee: 200,
   googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Matab+Tameer-e-sehat+Plot+no+L+41+Korangi+Crossing+Rd+Karachi",
+  googleMapsUrlKarachi: "https://www.google.com/maps/search/?api=1&query=Matab+Tameer-e-sehat+Plot+no+L+41+Korangi+Crossing+Rd+Karachi",
+  googleMapsUrlRawalpindi: "https://www.google.com/maps/search/?api=1&query=Matab+Tameer-e-Sehat+Shop+No+6+Brothers+Plaza+Opposite+Awan+CNG+Near+Bank+of+Punjab+Main+Adiala+Road+Rawalpindi",
   googleShareUrl: "https://www.google.com/maps/search/?api=1&query=Matab+Tameer-e-sehat+Karachi",
   googleReviewUrl: "https://www.google.com/search?q=Matab+Tameer-e-sehat+Karachi#lrd=0x3eb33b7b6c5bb5d1:0x6d1a5cb55bed2dd2,1,,,",
-  googleSearchUrl: "https://www.google.com/search?q=Matab+Tameer-e-sehat+Karachi",
+  googleSearchUrl: "https://www.google.com/search?q=Matab+Tameer-e-sehat",
 };
 
 export const TESTIMONIALS = [

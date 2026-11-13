@@ -509,7 +509,7 @@ export default function ConsultationModal({
     const modeLabel =
       consultationType === "ONLINE"
         ? "Online Telehealth Consultation"
-        : "In-Person Karachi Clinic Visit";
+        : "In-Person Clinic Visit (Karachi / Rawalpindi)";
 
     const msg = `Assalam-o-Alaikum Hakeem Tahir Hameed Sahib,
 I have booked a consultation slot on Tameer-e-Sehat:
@@ -777,7 +777,7 @@ Please confirm my appointment.`;
                           </span>
                         </div>
                         <p className="text-[11px] text-ink-subtle mt-1">
-                          Visit Hakeem Tahir Hameed at Korangi, Karachi.
+                          Visit our clinics in Karachi or Rawalpindi.
                         </p>
                       </button>
                     </div>

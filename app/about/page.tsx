@@ -129,14 +129,22 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <h4 className="font-serif text-sm font-bold text-primary">
-                      Established Herbal Clinic
+                      Established Herbal Clinics
                     </h4>
-                    <p className="text-xs text-ink-muted">Karachi, Sindh, Pakistan</p>
+                    <p className="text-xs text-ink-muted">Karachi &amp; Rawalpindi, Pakistan</p>
                   </div>
                 </div>
-                <p className="text-xs text-ink-body leading-relaxed">
-                  Located at Plot no L, 41 Korangi Crossing Rd, Karachi. We maintain clean, hygienic standards for herb preparation, fresh distillations, and patient care.
-                </p>
+                <div className="space-y-1.5 text-xs text-ink-body leading-relaxed">
+                  <p>
+                    <strong>Karachi Matab:</strong> Plot no L, 41 Korangi Crossing Rd, Sector 31 B Korangi, Karachi.
+                  </p>
+                  <p>
+                    <strong>Rawalpindi Matab:</strong> Shop No. 6, Brothers Plaza, Opposite Awan CNG, Near Bank of Punjab, Main Adiala Road, Rawalpindi.
+                  </p>
+                  <p className="text-ink-muted text-[11px] pt-0.5">
+                    We maintain clean, hygienic standards for herb preparation, fresh distillations, and patient care across both branches.
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -352,7 +360,7 @@ export default function AboutPage() {
             Experience Natural Healing Today
           </h2>
           <p className="text-xs sm:text-sm text-on-inverse/80 max-w-xl mx-auto leading-relaxed">
-            Whether you visit our clinic in Karachi or consult online from anywhere in Pakistan, you receive genuine care and authentic herbal remedies.
+            Whether you visit our clinics in Karachi or Rawalpindi, or consult online from anywhere in Pakistan, you receive genuine care and authentic herbal remedies.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">

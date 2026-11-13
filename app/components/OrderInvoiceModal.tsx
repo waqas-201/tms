@@ -189,7 +189,12 @@ export default function OrderInvoiceModal({
                 <p className="text-[11px] uppercase tracking-widest font-semibold text-secondary-text">
                   Herbal Healthcare & Natural Dispensary
                 </p>
-                <p className="text-[11px] text-ink-body">{CLINIC_INFO.address}</p>
+                <p className="text-[10px] text-ink-body">
+                  <strong>Karachi Matab:</strong> {CLINIC_INFO.karachiAddress || CLINIC_INFO.address}
+                </p>
+                <p className="text-[10px] text-ink-body">
+                  <strong>Rawalpindi Matab:</strong> {CLINIC_INFO.rawalpindiAddress}
+                </p>
                 <p className="text-[11px] text-ink-body">
                   Helpline / WhatsApp: +92 335 3547888
                 </p>

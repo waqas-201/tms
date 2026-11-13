@@ -284,7 +284,7 @@ export async function sendVerificationEmail({ to, name, url, otp }: SendEmailPar
           <tr>
             <td style="background-color: ${BRAND.surface}; padding: 20px 32px; border-top: 1px solid ${BRAND.surfaceSunken}; text-align: center;">
               <p style="margin: 0 0 6px 0; font-size: 12px; color: ${BRAND.inkSubtle}; font-weight: 500;">
-                Matab Tameer-e-Sehat · Korangi Crossing, Karachi, Pakistan
+                Matab Tameer-e-Sehat · Karachi &amp; Rawalpindi, Pakistan
               </p>
               <p style="margin: 0; font-size: 11px; color: ${BRAND.inkSubtle};">
                 Zero Steroids · 100% Herbal · Classical Tibb-e-Unani
@@ -434,7 +434,7 @@ export async function sendPasswordResetEmail({ to, name, url, otp }: SendEmailPa
           <tr>
             <td style="background-color: ${BRAND.surface}; padding: 20px 32px; border-top: 1px solid ${BRAND.surfaceSunken}; text-align: center;">
               <p style="margin: 0 0 6px 0; font-size: 12px; color: ${BRAND.inkSubtle}; font-weight: 500;">
-                Matab Tameer-e-Sehat · Korangi Crossing, Karachi, Pakistan
+                Matab Tameer-e-Sehat · Karachi &amp; Rawalpindi, Pakistan
               </p>
               <p style="margin: 0; font-size: 11px; color: ${BRAND.inkSubtle};">
                 Need help? Contact our clinical helpline on WhatsApp.
@@ -730,7 +730,7 @@ export async function sendOrderConfirmationEmail(params: OrderConfirmationEmailP
           <tr>
             <td style="background-color: ${BRAND.surface}; padding: 20px 28px; border-top: 1px solid ${BRAND.line}; text-align: center;">
               <p style="margin: 0 0 4px 0; font-size: 12px; color: ${BRAND.inkBody}; font-weight: 600;">
-                Matab Tameer-e-Sehat · Korangi Crossing, Karachi, Pakistan
+                Matab Tameer-e-Sehat · Karachi &amp; Rawalpindi, Pakistan
               </p>
               <p style="margin: 0; font-size: 11px; color: ${BRAND.inkSubtle};">
                 100% Botanical Unani Formulations · Zero Steroids · Registered Tabib
@@ -1314,7 +1314,8 @@ export async function sendAppointmentStatusEmail(params: {
         </a>
       </p>
       <p style="margin: 12px 0 0 0; font-size: 11px; color: ${BRAND.inkSubtle}; line-height: 1.5;">
-        Plot no L, 41 Korangi Crossing Rd, K.D.A Allah Wala Town Sector 31 B Korangi, Karachi.
+        <strong>Karachi Matab:</strong> Plot no L, 41 Korangi Crossing Rd, Sector 31 B Korangi, Karachi.<br />
+        <strong>Rawalpindi Matab:</strong> Shop No. 6, Brothers Plaza, Opposite Awan CNG, Near Bank of Punjab, Main Adiala Road, Rawalpindi.
       </p>
     </div>
 
@@ -1421,7 +1422,7 @@ export async function sendHakimPrescriptionEmail(params: {
     </div>
 
     <div style="background-color: ${BRAND.surface}; padding: 16px 24px; border-top: 1px solid ${BRAND.line}; text-align: center; font-size: 11px; color: ${BRAND.inkSubtle};">
-      Matab Tameer-e-Sehat · Est. 1990 · Korangi Crossing, Karachi
+      Matab Tameer-e-Sehat · Est. 1990 · Karachi &amp; Rawalpindi
     </div>
   </div>
 </body>
@@ -1494,7 +1495,7 @@ export async function sendAdminPromotionEmail(params: {
     </div>
 
     <div style="background-color: ${BRAND.surface}; padding: 16px 20px; border-radius: 8px; font-size: 12px; color: ${BRAND.inkSubtle}; text-align: center; margin-top: 24px;">
-      Matab Tameer-e-Sehat · Est. 1990 · Korangi Crossing, Karachi
+      Matab Tameer-e-Sehat · Est. 1990 · Karachi &amp; Rawalpindi
     </div>
   </div>
 </body>

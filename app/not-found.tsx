@@ -46,11 +46,11 @@ export default function NotFound() {
       badge: "Sunnah Days",
     },
     {
-      title: "Clinic & Contact",
-      description: "Visit our Korangi clinic in Karachi or view timings.",
+      title: "Clinics & Contact",
+      description: "Visit our clinics in Karachi & Rawalpindi or view timings.",
       href: "/contact",
       icon: MapPin,
-      badge: "Karachi Clinic",
+      badge: "Our Clinics",
     },
   ];
 

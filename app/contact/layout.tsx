@@ -5,16 +5,16 @@ import { SITE_URL } from "@/lib/site";
 
 
 export const metadata: Metadata = {
-  title: "Contact Us, Clinic Location & Hakeem Timings",
+  title: "Contact Us, Clinic Locations & Hakeem Timings",
   description:
-    "Visit Matab Tameer-e-Sehat in Korangi Karachi or contact our Hakeem directly via WhatsApp & phone. Monday to Saturday clinic hours, directions, and FAQs.",
+    "Visit Matab Tameer-e-Sehat in Karachi & Rawalpindi or contact our Hakeem directly via WhatsApp & phone. Monday to Saturday clinic hours, directions, and FAQs.",
   alternates: {
     canonical: `${SITE_URL}/contact`,
   },
   openGraph: {
-    title: "Contact Matab Tameer-e-Sehat | Herbal Clinic Karachi",
+    title: "Contact Matab Tameer-e-Sehat | Herbal Clinics in Karachi & Rawalpindi",
     description:
-      "Get in touch with Tameer-e-Sehat clinic in Karachi. Physical clinic address, consultation helpline, WhatsApp support, and delivery assistance.",
+      "Get in touch with Tameer-e-Sehat clinics in Karachi and Rawalpindi. Physical clinic addresses, consultation helpline, WhatsApp support, and delivery assistance.",
     url: `${SITE_URL}/contact`,
     siteName: "Tameer-e-Sehat",
     locale: "en_PK",
@@ -24,15 +24,15 @@ export const metadata: Metadata = {
         url: "/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg",
         width: 1200,
         height: 630,
-        alt: "Contact Matab Tameer-e-Sehat Karachi Clinic",
+        alt: "Contact Matab Tameer-e-Sehat Herbal Clinics",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Contact Matab Tameer-e-Sehat | Herbal Clinic Karachi",
+    title: "Contact Matab Tameer-e-Sehat | Herbal Clinics in Karachi & Rawalpindi",
     description:
-      "Visit our clinic in Korangi Karachi or chat with our team on WhatsApp for herbal orders and consultation support.",
+      "Visit our clinics in Karachi and Rawalpindi or chat with our team on WhatsApp for herbal orders and consultation support.",
     images: ["/images/Natures-Pharmacy-Floral-Bottle-with-Herbs-and-Medicine.jpg"],
   },
 };
@@ -49,7 +49,7 @@ export default function ContactLayout({
         "@type": "ContactPage",
         name: "Contact Matab Tameer-e-Sehat",
         description:
-          "Contact details, physical location, opening hours, and direct consultation channels for Matab Tameer-e-Sehat in Karachi.",
+          "Contact details, physical locations in Karachi & Rawalpindi, opening hours, and direct consultation channels for Matab Tameer-e-Sehat.",
         url: `${SITE_URL}/contact`,
       },
       {
@@ -57,10 +57,10 @@ export default function ContactLayout({
         mainEntity: [
           {
             "@type": "Question",
-            name: "Can I visit your physical clinic in Karachi?",
+            name: "Can I visit your physical clinics in Karachi or Rawalpindi?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "Yes! Our clinic is located at Plot no L, 41 Korangi Crossing Rd, Sector 31 B Korangi, Karachi. We welcome visitors Monday through Saturday from 10:00 AM to 9:00 PM.",
+              text: "Yes! We welcome visitors at both of our physical branches:\n• Karachi Clinic: Plot no L, 41 Korangi Crossing Rd, Sector 31 B Korangi, Karachi.\n• Rawalpindi Clinic: Shop No. 6, Brothers Plaza, Opposite Awan CNG, Near Bank of Punjab, Main Adiala Road, Rawalpindi.\nBoth clinics are open Monday through Saturday from 10:00 AM to 9:00 PM (Friday from 3:00 PM).",
             },
           },
           {
@@ -68,7 +68,7 @@ export default function ContactLayout({
             name: "How does the online consultation work for other cities?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "If you live in Lahore, Islamabad, Rawalpindi, Peshawar, Quetta, or any other city across Pakistan, simply fill out our short consultation form or message us on WhatsApp. Our Hakeem will review your symptoms and advise you directly.",
+              text: "If you live anywhere across Pakistan, simply fill out our short consultation form or message us on WhatsApp. Our Hakeem will review your symptoms and advise you directly.",
             },
           },
           {

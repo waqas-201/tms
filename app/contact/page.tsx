@@ -17,12 +17,12 @@ import {
 
 const FAQS = [
   {
-    q: "Can I visit your physical clinic in Karachi?",
-    a: "Yes! Our clinic is located at Plot no L, 41 Korangi Crossing Rd, Sector 31 B Korangi, Karachi. We welcome visitors Monday through Saturday from 10:00 AM to 9:00 PM.",
+    q: "Can I visit your physical clinics in Karachi or Rawalpindi?",
+    a: "Yes! We welcome visitors at both of our physical branches:\n• Karachi Clinic: Plot no L, 41 Korangi Crossing Rd, Sector 31 B Korangi, Karachi.\n• Rawalpindi Clinic: Shop No. 6, Brothers Plaza, Opposite Awan CNG, Near Bank of Punjab, Main Adiala Road, Rawalpindi.\nBoth clinics are open Monday through Saturday from 10:00 AM to 9:00 PM (Friday from 3:00 PM to 9:00 PM).",
   },
   {
     q: "How does the online consultation work for other cities?",
-    a: "If you live in Lahore, Islamabad, Rawalpindi, Peshawar, Quetta, or any other city across Pakistan, simply fill out our short consultation form or message us on WhatsApp. Our Hakeem will review your symptoms and advise you directly.",
+    a: "If you live in Lahore, Islamabad, Peshawar, Quetta, Multan, Faisalabad, or any other city across Pakistan, simply fill out our short consultation form or message us on WhatsApp. Our Hakeem will review your symptoms and advise you directly.",
   },
   {
     q: "What are your delivery times and Cash on Delivery policy?",
@@ -92,7 +92,7 @@ export default function ContactPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-4 relative z-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-green-900 border border-brand-green-600 text-brand-gold-500 text-xs font-medium tracking-wide">
             <Building2 className="w-3.5 h-3.5" />
-            <span>Clinic & Support</span>
+            <span>Clinics & Support</span>
           </div>
 
           <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-white leading-tight">
@@ -100,7 +100,7 @@ export default function ContactPage() {
           </h1>
 
           <p className="text-base sm:text-lg text-on-inverse/90 font-serif italic max-w-xl mx-auto">
-            Get in touch with us for questions, order help, or to visit our clinic in Karachi.
+            Get in touch with us for questions, order help, or to visit our clinics in Karachi &amp; Rawalpindi.
           </p>
 
           <p className="text-xs sm:text-sm text-on-inverse/80 max-w-xl mx-auto leading-relaxed">
@@ -118,40 +118,69 @@ export default function ContactPage() {
             <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line shadow-xs space-y-6">
               <div className="space-y-1 border-b border-sand-100 pb-4">
                 <h3 className="font-serif text-lg font-bold text-primary">
-                  Karachi Clinic & Store
+                  Our Clinic Locations
                 </h3>
                 <p className="text-xs text-ink-muted">
-                  Serving families continuously since 1990.
+                  Serving families continuously since 1990 in Karachi and Rawalpindi.
                 </p>
               </div>
 
-              <div className="space-y-4 text-xs">
+              <div className="space-y-5 text-xs">
+                {/* Karachi Clinic */}
                 <div className="flex items-start gap-3.5">
                   <div className="w-9 h-9 rounded-lg bg-surface border border-line flex items-center justify-center text-secondary-text shrink-0 mt-0.5">
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-ink">Address</h4>
+                    <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-brand-green-50 text-primary mb-1">
+                      Karachi Clinic (Main Matab)
+                    </span>
+                    <h4 className="font-bold text-ink">Karachi Address</h4>
                     <p className="text-ink-body leading-relaxed mt-0.5">
-                      {CLINIC_INFO.address}
+                      {CLINIC_INFO.karachiAddress || CLINIC_INFO.address}
                     </p>
                     <a
-                      href={CLINIC_INFO.googleMapsUrl}
+                      href={CLINIC_INFO.googleMapsUrlKarachi || CLINIC_INFO.googleMapsUrl}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-block text-primary hover:text-secondary-text font-semibold text-[11px] mt-1 underline"
                     >
-                      Open in Google Maps (Matab Tameer-e-sehat) →
+                      Open Karachi in Google Maps →
                     </a>
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3.5">
+                {/* Rawalpindi Clinic */}
+                <div className="flex items-start gap-3.5 pt-4 border-t border-sand-100">
+                  <div className="w-9 h-9 rounded-lg bg-surface border border-line flex items-center justify-center text-secondary-text shrink-0 mt-0.5">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-brand-green-50 text-primary mb-1">
+                      Rawalpindi Clinic
+                    </span>
+                    <h4 className="font-bold text-ink">Rawalpindi Address</h4>
+                    <p className="text-ink-body leading-relaxed mt-0.5">
+                      {CLINIC_INFO.rawalpindiAddress}
+                    </p>
+                    <a
+                      href={CLINIC_INFO.googleMapsUrlRawalpindi}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block text-primary hover:text-secondary-text font-semibold text-[11px] mt-1 underline"
+                    >
+                      Open Rawalpindi in Google Maps →
+                    </a>
+                  </div>
+                </div>
+
+                {/* Phone & WhatsApp */}
+                <div className="flex items-start gap-3.5 pt-4 border-t border-sand-100">
                   <div className="w-9 h-9 rounded-lg bg-surface border border-line flex items-center justify-center text-secondary-text shrink-0 mt-0.5">
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-ink">Phone & WhatsApp</h4>
+                    <h4 className="font-bold text-ink">Helpline & WhatsApp (Both Clinics)</h4>
                     <a
                       href={`tel:${CLINIC_INFO.phone}`}
                       className="text-primary hover:text-secondary-text font-medium block mt-0.5"
@@ -162,7 +191,8 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-3.5">
+                {/* Opening Hours */}
+                <div className="flex items-start gap-3.5 pt-4 border-t border-sand-100">
                   <div className="w-9 h-9 rounded-lg bg-surface border border-line flex items-center justify-center text-secondary-text shrink-0 mt-0.5">
                     <Clock className="w-4 h-4" />
                   </div>

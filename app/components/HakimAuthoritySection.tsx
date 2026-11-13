@@ -128,7 +128,7 @@ export default function HakimAuthoritySection() {
                 <div className="flex items-center justify-between pt-1 text-[11px] text-ink-subtle border-t border-sand-100">
                   <span className="flex items-center gap-1">
                     <MapPin className="w-3.5 h-3.5 text-secondary-text" />
-                    <span>Korangi Crossing Rd, Korangi, Karachi</span>
+                    <span>Karachi &amp; Rawalpindi Clinics</span>
                   </span>
                   <span className="font-semibold text-primary">Walk-ins &amp; Online</span>
                 </div>
@@ -335,7 +335,7 @@ export default function HakimAuthoritySection() {
               <div className="p-3 bg-brand-green-50 rounded-xl border border-brand-green-200 text-xs text-primary flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-primary shrink-0" />
                 <span>
-                  Located on Korangi Crossing Road in Korangi, Karachi, with convenient parking outside the clinic.
+                  Clinics located in Karachi (Korangi Crossing) and Rawalpindi (Main Adiala Road), with convenient parking outside.
                 </span>
               </div>
             </div>

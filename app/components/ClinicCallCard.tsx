@@ -45,30 +45,47 @@ export default function ClinicCallCard() {
         </a>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-ink-body">
+      <div className="space-y-2 text-[11px] text-ink-body">
         <p className="flex items-start gap-1.5">
           <Clock className="w-3.5 h-3.5 text-secondary-text shrink-0 mt-0.5" />
           <span>
-            {CLINIC_INFO.timings}
-            <br />
-            {CLINIC_INFO.fridayTimings}
+            {CLINIC_INFO.timings} &nbsp;|&nbsp; {CLINIC_INFO.fridayTimings}
           </span>
         </p>
-        <p className="flex items-start gap-1.5">
-          <MapPin className="w-3.5 h-3.5 text-secondary-text shrink-0 mt-0.5" />
-          <span>
-            {CLINIC_INFO.address}
-            <br />
-            <a
-              href={CLINIC_INFO.googleMapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-semibold text-primary hover:underline"
-            >
-              View on Google Maps
-            </a>
-          </span>
-        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-brand-green-200/60">
+          <p className="flex items-start gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-secondary-text shrink-0 mt-0.5" />
+            <span>
+              <strong className="text-primary">Karachi Matab:</strong> {CLINIC_INFO.karachiAddress || CLINIC_INFO.address}
+              <br />
+              <a
+                href={CLINIC_INFO.googleMapsUrlKarachi || CLINIC_INFO.googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-primary hover:underline"
+              >
+                View Karachi Map &rarr;
+              </a>
+            </span>
+          </p>
+
+          <p className="flex items-start gap-1.5">
+            <MapPin className="w-3.5 h-3.5 text-secondary-text shrink-0 mt-0.5" />
+            <span>
+              <strong className="text-primary">Rawalpindi Matab:</strong> {CLINIC_INFO.rawalpindiAddress}
+              <br />
+              <a
+                href={CLINIC_INFO.googleMapsUrlRawalpindi}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-primary hover:underline"
+              >
+                View Rawalpindi Map &rarr;
+              </a>
+            </span>
+          </p>
+        </div>
       </div>
     </div>
   );

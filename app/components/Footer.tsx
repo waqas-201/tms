@@ -241,24 +241,44 @@ export default function Footer() {
           {/* Clinic & Contact Info */}
           <div className="space-y-3">
             <h4 className="font-serif text-sm font-semibold text-brand-gold-300 uppercase tracking-wider">
-              Clinic & Store
+              Our Clinics & Dispensaries
             </h4>
-            <div className="space-y-2.5 text-xs text-on-inverse/90">
+            <div className="space-y-3 text-xs text-on-inverse/90">
+              {/* Karachi Clinic */}
               <div className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 text-brand-gold-300 shrink-0 mt-0.5" />
                 <div>
-                  <span>{CLINIC_INFO.address}</span>
+                  <span className="font-semibold text-white block">Karachi Matab (Main):</span>
+                  <span>{CLINIC_INFO.karachiAddress || CLINIC_INFO.address}</span>
                   <a
-                    href={CLINIC_INFO.googleMapsUrl}
+                    href={CLINIC_INFO.googleMapsUrlKarachi || CLINIC_INFO.googleMapsUrl}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="block text-brand-gold-300 hover:underline font-semibold text-[11px] mt-0.5"
                   >
-                    View on Google Maps (Matab Tameer-e-sehat) &rarr;
+                    View Karachi Map &rarr;
                   </a>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+
+              {/* Rawalpindi Clinic */}
+              <div className="flex items-start gap-2 pt-2 border-t border-brand-green-900/40">
+                <MapPin className="w-4 h-4 text-brand-gold-300 shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-semibold text-white block">Rawalpindi Matab:</span>
+                  <span>{CLINIC_INFO.rawalpindiAddress}</span>
+                  <a
+                    href={CLINIC_INFO.googleMapsUrlRawalpindi}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-brand-gold-300 hover:underline font-semibold text-[11px] mt-0.5"
+                  >
+                    View Rawalpindi Map &rarr;
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1 border-t border-brand-green-900/50">
                 <Phone className="w-4 h-4 text-brand-gold-300 shrink-0" />
                 <a href={`tel:${CLINIC_INFO.phone}`} className="hover:text-white" dir="ltr">
                   {CLINIC_INFO.phoneFormatted}
@@ -283,7 +303,7 @@ export default function Footer() {
                   onClick={() =>
                     openConsultation({
                       mode: "PHYSICAL",
-                      message: "I would like to book an in-person consultation appointment at the Karachi clinic with Hakeem Tahir Hameed.",
+                      message: "I would like to book an in-person consultation appointment at the clinic with Hakeem Tahir Hameed.",
                     })
                   }
                   className="inline-flex items-center gap-1.5 text-xs text-brand-gold-300 hover:text-brand-gold-200 font-semibold hover:underline cursor-pointer"
@@ -300,7 +320,7 @@ export default function Footer() {
         <div className="pt-8 border-t border-brand-green-900/60">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-on-inverse/85 text-center sm:text-left">
             <p>
-              &copy; {new Date().getFullYear()} {CLINIC_INFO.brandName}. All rights reserved. Registered Herbal Health Clinic, Karachi, Pakistan.
+              &copy; {new Date().getFullYear()} {CLINIC_INFO.brandName}. All rights reserved. Registered Herbal Health Clinic, Karachi &amp; Rawalpindi, Pakistan.
             </p>
             <div className="flex flex-wrap items-center justify-center sm:justify-end gap-x-3 gap-y-1.5 text-on-inverse/90">
               <Link

@@ -99,10 +99,11 @@ export default function PrivacyPolicyPage() {
               </h2>
             </div>
             <p className="text-sm text-ink-muted leading-relaxed">
-              You may request an update or deletion of your contact records or order details at any time by contacting our support team or visiting our Karachi clinic.
+              You may request an update or deletion of your contact records or order details at any time by contacting our support team or visiting our Karachi or Rawalpindi clinics.
             </p>
-            <div className="bg-surface-subtle p-4 rounded-lg border border-border mt-3 text-xs md:text-sm text-ink-muted space-y-1">
-              <p><strong>Clinic Address:</strong> {CLINIC_INFO.address}</p>
+            <div className="bg-surface-subtle p-4 rounded-lg border border-border mt-3 text-xs md:text-sm text-ink-muted space-y-1.5">
+              <p><strong>Karachi Clinic:</strong> {CLINIC_INFO.karachiAddress || CLINIC_INFO.address}</p>
+              <p><strong>Rawalpindi Clinic:</strong> {CLINIC_INFO.rawalpindiAddress}</p>
               <p><strong>Phone / WhatsApp:</strong> {CLINIC_INFO.phone}</p>
               <p><strong>Timings:</strong> {CLINIC_INFO.timings}</p>
             </div>

@@ -1,4 +1,4 @@
-import { betterAuth } from "better-auth";
+import { betterAuth, APIError } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { emailOTP } from "better-auth/plugins";
 import prisma from "./prisma";
@@ -222,11 +222,21 @@ export const auth = betterAuth({
             select: { isActive: true, deletedAt: true },
           });
 
-          if (dbUser?.deletedAt) {
-            throw new Error("This account has been deleted or deactivated.");
+          if (!dbUser) return;
+
+          // If the account was previously soft-deleted, but the user is actively authenticating or verifying:
+          if (dbUser.deletedAt) {
+            await prisma.user.update({
+              where: { id: session.userId },
+              data: { deletedAt: null, isActive: true },
+            });
+            return;
           }
-          if (dbUser && dbUser.isActive === false) {
-            throw new Error("This account has been suspended by clinic administration.");
+
+          if (dbUser.isActive === false) {
+            throw new APIError("FORBIDDEN", {
+              message: "This account has been suspended by clinic administration.",
+            });
           }
         },
         // On every fresh login session, attach any guest bookings that were

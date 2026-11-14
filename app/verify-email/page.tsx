@@ -141,7 +141,11 @@ function VerifyEmailContent() {
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          throw new Error(data.message || "Invalid or expired verification code.");
+          throw new Error(
+            data.message ||
+              (typeof data.error === "string" ? data.error : data.error?.message) ||
+              "Invalid or expired verification code."
+          );
         }
       }
 

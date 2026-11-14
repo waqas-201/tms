@@ -26,6 +26,7 @@ import {
   ArrowRight,
   Receipt,
   Tag,
+  TrendingUp,
 } from "lucide-react";
 import ProductFormModal from "@/app/components/ProductFormModal";
 import ReceiveStockModal from "@/app/components/inventory/ReceiveStockModal";
@@ -44,11 +45,13 @@ import UsersTab from "@/app/components/admin/UsersTab";
 import AccountingTab from "@/app/components/admin/AccountingTab";
 import StaffAdminsTab from "@/app/components/admin/StaffAdminsTab";
 import CouponsTab from "@/app/components/admin/CouponsTab";
+import AnalyticsTab from "@/app/components/admin/AnalyticsTab";
 import NotificationBell from "@/app/components/admin/NotificationBell";
 import SurfaceFade from "@/app/components/motion/SurfaceFade";
 import { ROLES, isStaffRole } from "@/lib/rbac-base";
 
 type AdminTab =
+  | "analytics"
   | "orders"
   | "accounting"
   | "products"
@@ -63,6 +66,7 @@ type AdminTab =
   | "coupons";
 
 const TABS: { id: AdminTab; label: string; icon: typeof Package; adminOnly?: boolean; superAdminOnly?: boolean }[] = [
+  { id: "analytics", label: "Executive Analytics", icon: TrendingUp, adminOnly: true },
   { id: "orders", label: "Orders", icon: ShoppingBag },
   { id: "accounting", label: "Accounting & Payments", icon: Receipt },
   { id: "coupons", label: "Coupons & Flash Promos", icon: Tag, adminOnly: true },
@@ -400,6 +404,8 @@ export default function AdminDashboardPage() {
         )}
 
         <SurfaceFade surfaceKey={activeTab}>
+          {activeTab === "analytics" && <AnalyticsTab />}
+
           {activeTab === "orders" && <OrdersTab />}
 
           {activeTab === "accounting" && <AccountingTab />}

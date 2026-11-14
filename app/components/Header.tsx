@@ -330,6 +330,7 @@ export default function Header() {
     // { name: "Specialties", href: "/specialties", icon: Activity },
     // Hijama removed from nav - now an emphasized inline calendar section on home page
     // { name: "Hijama", href: "/hijama", icon: Droplets },
+    { name: "Learn", href: "/learn", icon: BookOpen, badge: "Hikmat" },
     { name: "Articles", href: "/articles", icon: BookOpen },
     { name: "Consult", href: "/consultation", icon: Stethoscope },
     { name: "About Us", href: "/about", icon: Building2 },

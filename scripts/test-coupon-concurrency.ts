@@ -286,6 +286,21 @@ function createMockTransactionClient(
         });
         return JSON.parse(JSON.stringify(items));
       },
+      count: async ({ where }: any) => {
+        const items = store.redemptions.filter((r) => {
+          if (where.couponId && r.couponId !== where.couponId) return false;
+          if (where.OR && Array.isArray(where.OR)) {
+            const matchesOr = where.OR.some((cond: any) => {
+              if (cond.userId && r.userId === cond.userId) return true;
+              if (cond.phone && r.phone === cond.phone) return true;
+              return false;
+            });
+            if (!matchesOr) return false;
+          }
+          return true;
+        });
+        return items.length;
+      },
       create: async ({ data }: any) => {
         const newRecord: MockCouponRedemption = {
           id: `red_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
@@ -1034,8 +1049,43 @@ async function runCouponConcurrencyTestSuite() {
   const emptyReversal = await reverseCouponRedemption({}, tx4);
   assert(emptyReversal.reversed === false, "Empty parameters safely return { reversed: false } without throwing");
 
+  const bareCouponReversal = await reverseCouponRedemption({ couponId: "cpn_consult_001" }, tx4);
+  assert(bareCouponReversal.reversed === false, "Bare couponId without entity reference safely rejected with { reversed: false }");
+
   const nonExistentReversal = await reverseCouponRedemption({ orderId: "non_existent_ord_999" }, tx4);
   assert(nonExistentReversal.reversed === false, "Non-existent orderId safely returns { reversed: false } without throwing");
+
+  // 5. Per-User Limit Validation inside Transaction
+  console.log(`\n ${colors.dim}--> Testing per-user limit enforcement inside transaction...${colors.reset}`);
+  // First redemption by user on perUserLimit: 1 coupon
+  await recordCouponRedemption(
+    {
+      couponId: "cpn_hijama_001",
+      hijamaBookingId: "hij_booking_user_1",
+      phone: "03451112233",
+      discountAmount: 500,
+    },
+    tx4
+  );
+
+  let perUserBlocked = false;
+  try {
+    // Attempt second redemption with identical normalized phone
+    await recordCouponRedemption(
+      {
+        couponId: "cpn_hijama_001",
+        hijamaBookingId: "hij_booking_user_2",
+        phone: "03451112233",
+        discountAmount: 500,
+      },
+      tx4
+    );
+  } catch (err: any) {
+    if (err.message.includes("maximum redemption limit")) {
+      perUserBlocked = true;
+    }
+  }
+  assert(perUserBlocked === true, "Per-user limit enforced inside transaction: duplicate customer redemption rejected");
 
   // ===========================================================================
   // Summary & Final Verdict

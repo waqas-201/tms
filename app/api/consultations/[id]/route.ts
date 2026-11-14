@@ -7,6 +7,7 @@ import {
   sendHakimPrescriptionEmail,
 } from "@/lib/email";
 import { normalizePhoneNumber } from "@/lib/phone";
+import { reverseCouponRedemption } from "@/lib/coupons";
 
 export async function GET(
   request: NextRequest,
@@ -155,33 +156,39 @@ export async function PATCH(
       targetUserId = linkedUser.id;
     }
 
-    const updated = await prisma.consultationRequest.update({
-      where: { id: existing.id },
-      data: {
-        ...(status && { status }),
-        ...(appointmentDate !== undefined && { appointmentDate }),
-        ...(appointmentSlot !== undefined && { appointmentSlot }),
-        ...(consultationType !== undefined && { consultationType }),
-        ...(primarySymptoms !== undefined && { primarySymptoms }),
-        ...(hakimNotes !== undefined && { hakimNotes }),
-        ...(prescribedTreatment !== undefined && { prescribedTreatment }),
-        ...(userId && { userId: targetUserId }),
-        ...(patientName !== undefined &&
-          typeof patientName === "string" &&
-          patientName.trim() && { patientName: patientName.trim() }),
-        ...(normalizedPhone !== undefined && {
-          patientPhone: normalizedPhone,
-        }),
-        ...(patientEmail !== undefined && {
-          patientEmail:
-            typeof patientEmail === "string" && patientEmail.trim()
-              ? patientEmail.trim().toLowerCase()
-              : null,
-        }),
-      },
-      include: {
-        user: { select: { id: true, name: true, email: true, phone: true } },
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      if (status === "CANCELLED" && previousStatus !== "CANCELLED") {
+        await reverseCouponRedemption({ consultationId: existing.id }, tx);
+      }
+
+      return await tx.consultationRequest.update({
+        where: { id: existing.id },
+        data: {
+          ...(status && { status }),
+          ...(appointmentDate !== undefined && { appointmentDate }),
+          ...(appointmentSlot !== undefined && { appointmentSlot }),
+          ...(consultationType !== undefined && { consultationType }),
+          ...(primarySymptoms !== undefined && { primarySymptoms }),
+          ...(hakimNotes !== undefined && { hakimNotes }),
+          ...(prescribedTreatment !== undefined && { prescribedTreatment }),
+          ...(userId && { userId: targetUserId }),
+          ...(patientName !== undefined &&
+            typeof patientName === "string" &&
+            patientName.trim() && { patientName: patientName.trim() }),
+          ...(normalizedPhone !== undefined && {
+            patientPhone: normalizedPhone,
+          }),
+          ...(patientEmail !== undefined && {
+            patientEmail:
+              typeof patientEmail === "string" && patientEmail.trim()
+                ? patientEmail.trim().toLowerCase()
+                : null,
+          }),
+        },
+        include: {
+          user: { select: { id: true, name: true, email: true, phone: true } },
+        },
+      });
     });
 
     const contactEmail = updated.patientEmail || updated.user?.email;
@@ -272,8 +279,11 @@ export async function DELETE(
       );
     }
 
-    await prisma.consultationRequest.delete({
-      where: { id: existing.id },
+    await prisma.$transaction(async (tx) => {
+      await reverseCouponRedemption({ consultationId: existing.id }, tx);
+      await tx.consultationRequest.delete({
+        where: { id: existing.id },
+      });
     });
 
     return NextResponse.json({

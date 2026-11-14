@@ -272,7 +272,41 @@ export async function recordCouponRedemption(
   const cleanPhone = normalizePhoneNumber(params.phone);
 
   const execute = async (tx: Prisma.TransactionClient) => {
-    // Prevent last-use race conditions by performing an atomic conditional update on the coupon row
+    // 1. Fetch coupon details to inspect perUserLimit
+    const coupon = await tx.coupon.findUnique({
+      where: { id: params.couponId },
+      select: { id: true, perUserLimit: true, isActive: true },
+    });
+
+    if (!coupon || !coupon.isActive) {
+      throw new Error("Coupon usage limit has been reached or coupon is inactive.");
+    }
+
+    // 2. Enforce per-customer redemption limit inside transaction (prevents TOCTOU multi-tab races)
+    if (coupon.perUserLimit && coupon.perUserLimit > 0) {
+      const orConditions: Array<{ userId?: string; phone?: string }> = [];
+      if (params.userId) {
+        orConditions.push({ userId: params.userId });
+      }
+      if (cleanPhone) {
+        orConditions.push({ phone: cleanPhone });
+      }
+
+      if (orConditions.length > 0) {
+        const userRedemptionCount = await tx.couponRedemption.count({
+          where: {
+            couponId: params.couponId,
+            OR: orConditions,
+          },
+        });
+
+        if (userRedemptionCount >= coupon.perUserLimit) {
+          throw new Error("You have reached the maximum redemption limit for this coupon.");
+        }
+      }
+    }
+
+    // 3. Prevent last-use race conditions by performing an atomic conditional update on the coupon row
     const rowsAffected = await tx.$executeRaw`
       UPDATE "coupon"
       SET "usageCount" = "usageCount" + 1
@@ -285,7 +319,7 @@ export async function recordCouponRedemption(
       throw new Error("Coupon usage limit has been reached or coupon is inactive.");
     }
 
-    // Record individual redemption row for audit & anti-abuse checks
+    // 4. Record individual redemption row for audit & anti-abuse checks
     return await tx.couponRedemption.create({
       data: {
         couponId: params.couponId,
@@ -330,10 +364,10 @@ export async function reverseCouponRedemption(
   txClient?: Prisma.TransactionClient
 ): Promise<ReverseCouponRedemptionResult> {
   const execute = async (tx: Prisma.TransactionClient): Promise<ReverseCouponRedemptionResult> => {
-    // Guard: Require at least one identifying reference
+    // Guard: Require at least one entity reference (orderId, hijamaBookingId, or consultationId).
+    // Bare couponId queries are strictly rejected to prevent accidental reversal of arbitrary customer redemptions.
     if (
       !params.orderId &&
-      !params.couponId &&
       !params.hijamaBookingId &&
       !params.consultationId
     ) {

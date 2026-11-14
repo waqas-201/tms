@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { isStaffRole } from "@/lib/rbac-base";
+import { reverseCouponRedemption } from "@/lib/coupons";
 
 /**
  * PATCH /api/admin/hijama/[id]
@@ -40,14 +41,20 @@ export async function PATCH(
       );
     }
 
-    const updated = await prisma.hijamaBooking.update({
-      where: { id },
-      data: {
-        ...(status ? { status } : {}),
-        ...(adminNotes !== undefined ? { adminNotes } : {}),
-        ...(paymentStatus ? { paymentStatus } : {}),
-        ...(typeof feeAmount === "number" ? { feeAmount } : {}),
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      if (status === "CANCELLED" && existing.status !== "CANCELLED") {
+        await reverseCouponRedemption({ hijamaBookingId: id }, tx);
+      }
+
+      return await tx.hijamaBooking.update({
+        where: { id },
+        data: {
+          ...(status ? { status } : {}),
+          ...(adminNotes !== undefined ? { adminNotes } : {}),
+          ...(paymentStatus ? { paymentStatus } : {}),
+          ...(typeof feeAmount === "number" ? { feeAmount } : {}),
+        },
+      });
     });
 
     return NextResponse.json({
@@ -87,8 +94,11 @@ export async function DELETE(
 
     const { id } = await params;
 
-    await prisma.hijamaBooking.delete({
-      where: { id },
+    await prisma.$transaction(async (tx) => {
+      await reverseCouponRedemption({ hijamaBookingId: id }, tx);
+      await tx.hijamaBooking.delete({
+        where: { id },
+      });
     });
 
     return NextResponse.json({

@@ -166,7 +166,13 @@ export async function reserveStockForOrder(
     quantity: number;
   }[]
 ) {
-  for (const item of items) {
+  // Lexicographically sort items by productSizeId to enforce a strict, canonical
+  // lock acquisition order across transactions, preventing ABBA deadlocks during concurrent checkouts.
+  const sortedItems = [...items].sort((a, b) =>
+    a.productSizeId.localeCompare(b.productSizeId)
+  );
+
+  for (const item of sortedItems) {
     if (!item.productSizeId || item.quantity <= 0) continue;
 
     const size = await tx.productSize.findUnique({

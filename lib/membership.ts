@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { normalizePhoneNumber } from "@/lib/phone";
 import crypto from "crypto";
+import { validateReferralCode } from "@/lib/referrals";
 
 export interface CreateOrRetrieveMembershipParams {
   name: string;
@@ -9,6 +10,7 @@ export interface CreateOrRetrieveMembershipParams {
   email?: string | null;
   city?: string | null;
   signupSource?: string;
+  referralCode?: string | null;
 }
 
 export interface MembershipResult {
@@ -154,17 +156,24 @@ export async function createOrRetrieveMembership(
       let membershipId = existingUser.membershipId;
       let currentUser = existingUser;
 
-      // Assign membership ID if user was registered previously without one
+      // Assign membership ID and referral code if member was registered previously without them
       if (!membershipId) {
         membershipId = await generateMembershipId(db);
+      }
+      const membershipDigits = membershipId.replace(/[^0-9]/g, "");
+      const derivedRefCode = `REF-${membershipDigits}`;
+
+      if (!existingUser.membershipId || !existingUser.referralCode) {
         currentUser = await db.user.update({
           where: { id: existingUser.id },
-          data: { membershipId },
+          data: {
+            membershipId,
+            referralCode: existingUser.referralCode || derivedRefCode,
+          },
         });
       }
 
       // Find or create active welcome coupon for this member with unpredictable entropy
-      const membershipDigits = membershipId.replace(/[^0-9]/g, "");
       const couponPrefix = `WELCOME-${membershipDigits}`;
       let coupon = await db.coupon.findFirst({
         where: {
@@ -205,6 +214,23 @@ export async function createOrRetrieveMembership(
 
     // New member registration
     const membershipId = await generateMembershipId(db);
+    const membershipDigits = membershipId.replace(/[^0-9]/g, "");
+    const referralCode = `REF-${membershipDigits}`;
+
+    let referredById: string | null = null;
+    let actualSource = source;
+
+    if (params.referralCode) {
+      const validation = await validateReferralCode(
+        params.referralCode,
+        { phone: cleanPhone, email: userEmail },
+        db
+      );
+      if (validation.valid && validation.referrer) {
+        referredById = validation.referrer.id;
+        actualSource = "REFERRAL";
+      }
+    }
 
     const newUser = await db.user.create({
       data: {
@@ -213,14 +239,15 @@ export async function createOrRetrieveMembership(
         phone: cleanPhone,
         city: params.city?.trim() || null,
         membershipId,
-        signupSource: source,
+        referralCode,
+        referredById,
+        signupSource: actualSource,
         role: "user",
         emailVerified: false,
         isActive: true,
       },
     });
 
-    const membershipDigits = membershipId.replace(/[^0-9]/g, "");
     const randomEntropy = crypto.randomBytes(2).toString("hex").toUpperCase();
     const couponCode = `WELCOME-${membershipDigits}-${randomEntropy}`;
     const endDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);

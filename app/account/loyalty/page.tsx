@@ -18,6 +18,7 @@ import {
   AlertCircle,
   HelpCircle,
   ChevronRight,
+  Users,
 } from "lucide-react";
 
 interface LoyaltyEntry {
@@ -109,15 +110,25 @@ export default function LoyaltyAccountPage() {
             <span>Back to My Account</span>
           </Link>
 
-          <button
-            type="button"
-            onClick={fetchLoyaltyData}
-            disabled={loading}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-line rounded-xl text-xs font-medium text-ink hover:bg-surface-sunken transition-colors cursor-pointer"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-            <span>Refresh</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/account/referrals"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold hover:bg-emerald-100 transition-colors"
+            >
+              <Users className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Invite Friends (+100 pts)</span>
+            </Link>
+
+            <button
+              type="button"
+              onClick={fetchLoyaltyData}
+              disabled={loading}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-line rounded-xl text-xs font-medium text-ink hover:bg-surface-sunken transition-colors cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+              <span>Refresh</span>
+            </button>
+          </div>
         </div>
 
         {/* Header Hero Banner */}
@@ -210,6 +221,30 @@ export default function LoyaltyAccountPage() {
               Every point is worth exactly ₨ 1.00. Apply up to 25% of subtotal at checkout when balance ≥ 200 pts.
             </p>
           </div>
+        </div>
+
+        {/* Referral Program Callout Banner */}
+        <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 p-5 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+              <Users className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="font-serif font-bold text-sm text-primary">
+                Refer Friends &amp; Earn 100 Points (₨ 100) per friend
+              </h3>
+              <p className="text-xs text-ink-subtle">
+                Friends get a ₨ 200 welcome voucher, and you earn 100 points when their first order is delivered!
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/account/referrals"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-colors flex-shrink-0 shadow-xs"
+          >
+            <span>Invite Friends Now</span>
+            <ChevronRight className="w-4 h-4" />
+          </Link>
         </div>
 
         {/* Ledger Statement Section */}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createOrRetrieveMembership, maskPhone } from "@/lib/membership";
 import { normalizePhoneNumber } from "@/lib/phone";
+import { validateReferralCode } from "@/lib/referrals";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, phone, email, city, source } = body;
+    const { name, phone, email, city, source, referralCode, ref } = body;
 
     // Validate customer name
     const trimmedName = String(name || "").trim();
@@ -46,12 +47,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const providedRef = referralCode || ref ? String(referralCode || ref).trim().toUpperCase() : null;
+
+    if (providedRef) {
+      const validation = await validateReferralCode(providedRef, {
+        phone: cleanPhone,
+        email: trimmedEmail,
+      });
+      if (!validation.valid) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: validation.reason || "The provided referral code is invalid.",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     const membership = await createOrRetrieveMembership({
       name: trimmedName,
       phone: cleanPhone,
       email: trimmedEmail,
       city: city ? String(city).trim() : null,
-      signupSource: source ? String(source).trim().toUpperCase() : "QR",
+      signupSource: source ? String(source).trim().toUpperCase() : (providedRef ? "REFERRAL" : "QR"),
+      referralCode: providedRef,
     });
 
     // Privacy Guard: Prevent unauthenticated reverse phone directory scraping
@@ -63,6 +83,7 @@ export async function POST(request: NextRequest) {
           isNew: false,
           message: "Welcome back! Your membership is active.",
           membershipId: membership.membershipId,
+          referralCode: membership.user.referralCode || `REF-${membership.membershipId.replace(/[^0-9]/g, "")}`,
           maskedPhone: maskPhone(membership.user.phone),
         },
       });
@@ -73,6 +94,7 @@ export async function POST(request: NextRequest) {
       data: {
         isNew: true,
         membershipId: membership.membershipId,
+        referralCode: membership.user.referralCode || `REF-${membership.membershipId.replace(/[^0-9]/g, "")}`,
         name: membership.user.name,
         phone: membership.user.phone,
         couponCode: membership.coupon.code,

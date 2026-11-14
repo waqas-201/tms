@@ -22,22 +22,28 @@ model User {
   address           String?
   latitude          Float?
   longitude         Float?
-  membershipId      String?               @unique
-  signupSource      String                @default("WEBSITE")
-  isActive          Boolean               @default(true)
-  deletedAt         DateTime?
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
-  sessions          Session[]
-  accounts          Account[]
-  orders            Order[]
-  consultations     ConsultationRequest[]
-  hijamaBookings    HijamaBooking[]
-  couponRedemptions CouponRedemption[]
-  loyaltyLedgers    LoyaltyLedger[]
+  membershipId            String?               @unique
+  signupSource            String                @default("WEBSITE")
+  referralCode            String?               @unique
+  referredById            String?
+  referredBy              User?                 @relation("UserReferrals", fields: [referredById], references: [id])
+  referrals               User[]                @relation("UserReferrals")
+  isReferralRewardClaimed Boolean               @default(false)
+  isActive                Boolean               @default(true)
+  deletedAt               DateTime?
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  sessions                Session[]
+  accounts                Account[]
+  orders                  Order[]
+  consultations           ConsultationRequest[]
+  hijamaBookings          HijamaBooking[]
+  couponRedemptions       CouponRedemption[]
+  loyaltyLedgers          LoyaltyLedger[]
 
   @@index([phone])
   @@index([signupSource])
+  @@index([referredById])
   @@map("user")
 }
 

@@ -26,7 +26,8 @@ export type LoyaltyLedgerSource =
   | "HIJAMA"
   | "CONSULTATION"
   | "ADMIN"
-  | "EXPIRY";
+  | "EXPIRY"
+  | "REFERRAL";
 
 /**
  * Calculates current active points balance by aggregating SUM(amount) of all ledger rows.

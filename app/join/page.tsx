@@ -44,6 +44,7 @@ const DRAFT_STORAGE_KEY = "tms_membership_draft_v1";
 function JoinPageContent() {
   const searchParams = useSearchParams();
   const source = searchParams.get("src") || "QR";
+  const refParam = searchParams.get("ref") || searchParams.get("referralCode") || null;
 
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedMemberId, setCopiedMemberId] = useState(false);
@@ -104,7 +105,8 @@ function JoinPageContent() {
           phone: formData.phone,
           city: formData.city || undefined,
           email: formData.email || undefined,
-          source,
+          source: refParam ? "REFERRAL" : source,
+          referralCode: refParam || undefined,
         }),
       });
 
@@ -176,6 +178,15 @@ function JoinPageContent() {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
+              {refParam && (
+                <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <span>
+                    Invited by a friend ({refParam})! Complete registration to claim your ₨ 200 welcome voucher.
+                  </span>
+                </div>
+              )}
+
               {submitError && (
                 <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
                   {submitError}

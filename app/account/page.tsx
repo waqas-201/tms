@@ -40,6 +40,7 @@ import {
   Printer,
   Search,
   Coins,
+  Users,
 } from "lucide-react";
 
 type AccountTab =
@@ -1095,6 +1096,17 @@ export default function AccountPage() {
             <span>Loyalty Points (انعامی پوائنٹس)</span>
             <span className="px-1.5 py-0.5 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] rounded-full font-bold">
               Rewards
+            </span>
+          </Link>
+
+          <Link
+            href="/account/referrals"
+            className="pb-3 px-2 border-b-2 border-transparent text-ink-subtle hover:text-primary flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer"
+          >
+            <Users className="w-4 h-4 text-emerald-600" />
+            <span>Invite Friends (دوستوں کو مدعو کریں)</span>
+            <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] rounded-full font-bold">
+              ₨ 100
             </span>
           </Link>
 

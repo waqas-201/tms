@@ -41,6 +41,7 @@ import {
   Search,
   Coins,
   Users,
+  QrCode,
 } from "lucide-react";
 
 type AccountTab =
@@ -318,6 +319,9 @@ export default function AccountPage() {
   const [profileSuccess, setProfileSuccess] = useState<string | null>(null);
   const [profileError, setProfileError] = useState<string | null>(null);
   const [detectingAccountLocation, setDetectingAccountLocation] = useState(false);
+  const [membershipId, setMembershipId] = useState<string | null>(null);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [loyaltyBalance, setLoyaltyBalance] = useState<number>(0);
 
   useEffect(() => {
     if (sessionData?.user) {
@@ -333,6 +337,9 @@ export default function AccountPage() {
               latitude: json.data.latitude ?? null,
               longitude: json.data.longitude ?? null,
             });
+            setMembershipId(json.data.membershipId || null);
+            setReferralCode(json.data.referralCode || null);
+            setLoyaltyBalance(Number(json.data.loyaltyBalance) || 0);
           }
         })
         .catch((e) => console.error("Failed to load user profile:", e));
@@ -1056,6 +1063,102 @@ export default function AccountPage() {
             </Link>
           </div>
         )}
+
+        {/* Member Rewards & Privileges Overview Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-4 my-2">
+          {/* Card 1: Loyalty Points */}
+          <Link
+            href="/account/loyalty"
+            className="group p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-50/50 to-white border border-amber-200/80 hover:border-amber-400 transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <Coins className="w-4 h-4 text-amber-600" />
+                  <span>Loyalty Points (انعامی پوائنٹس)</span>
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                  1 pt = ₨ 1
+                </span>
+              </div>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="font-serif text-2xl sm:text-3xl font-extrabold text-ink">
+                  {loyaltyBalance.toLocaleString()}
+                </span>
+                <span className="text-xs font-semibold text-ink-subtle">points</span>
+              </div>
+              <p className="text-xs text-ink-subtle mt-1">
+                ₨ {loyaltyBalance.toLocaleString()} cash value usable as discount at checkout
+              </p>
+            </div>
+            <div className="mt-3 pt-3 border-t border-amber-200/60 flex items-center justify-between text-xs font-semibold text-amber-900 group-hover:text-amber-700">
+              <span>View ledger history &amp; rules</span>
+              <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+            </div>
+          </Link>
+
+          {/* Card 2: Clinic Membership */}
+          <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-emerald-50/50 to-white border border-emerald-200/80 shadow-2xs flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                  <span>Clinic Membership (رکنیت)</span>
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  {membershipId ? "Active Member" : "Clinic Privileges"}
+                </span>
+              </div>
+              <div className="mt-1">
+                <span className="font-mono text-base sm:text-lg font-bold text-primary">
+                  {membershipId || "TMS-M-MEMBER"}
+                </span>
+              </div>
+              <p className="text-xs text-ink-subtle mt-1">
+                2% cashback on remedies, 50 pts on Hijama, 30 pts consultations
+              </p>
+            </div>
+            <div className="mt-3 pt-3 border-t border-emerald-200/60 flex items-center justify-between text-xs font-semibold text-emerald-900">
+              <Link href="/join/poster" className="hover:underline flex items-center gap-1">
+                <QrCode className="w-3.5 h-3.5" />
+                <span>In-Clinic QR Poster</span>
+              </Link>
+              <Link href="/learn" className="hover:underline">
+                Sunnah Guide →
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 3: Referrals */}
+          <Link
+            href="/account/referrals"
+            className="group p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-teal-500/10 via-teal-50/50 to-white border border-teal-200/80 hover:border-teal-400 transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] font-bold text-teal-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-teal-600" />
+                  <span>Refer &amp; Earn (دوستوں کو مدعو کریں)</span>
+                </span>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
+                  Earn ₨ 150
+                </span>
+              </div>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span className="font-mono text-base sm:text-lg font-bold text-ink">
+                  {referralCode || "REF-XXXXX"}
+                </span>
+              </div>
+              <p className="text-xs text-ink-subtle mt-1">
+                Give friends ₨ 200 off their first order &amp; earn 150 points
+              </p>
+            </div>
+            <div className="mt-3 pt-3 border-t border-teal-200/60 flex items-center justify-between text-xs font-semibold text-teal-900 group-hover:text-teal-700">
+              <span>View friends &amp; WhatsApp share</span>
+              <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+            </div>
+          </Link>
+        </div>
 
         {/* Tab Navigation Navigation Bar */}
         <div className="flex border-b border-line space-x-2 sm:space-x-8 overflow-x-auto text-xs sm:text-sm font-semibold">

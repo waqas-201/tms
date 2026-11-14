@@ -43,6 +43,8 @@ import {
   Sun,
   Moon,
   Package,
+  Coins,
+  Users,
   BookOpen,
 } from "lucide-react";
 
@@ -809,6 +811,32 @@ export default function Header() {
                             >
                               <Truck className="w-3.5 h-3.5" />
                               <span>Track My Orders</span>
+                            </Link>
+                            <Link
+                              href="/account/loyalty" rel="nofollow"
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center justify-between"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Coins className="w-3.5 h-3.5 text-amber-600" />
+                                <span>Loyalty Rewards</span>
+                              </div>
+                              <span className="px-1.5 py-0.2 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-full border border-amber-200">
+                                Rewards
+                              </span>
+                            </Link>
+                            <Link
+                              href="/account/referrals" rel="nofollow"
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="w-full px-3.5 py-2 text-left text-ink-body hover:bg-surface flex items-center justify-between"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Users className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>Invite Friends</span>
+                              </div>
+                              <span className="px-1.5 py-0.2 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-full border border-emerald-200">
+                                ₨ 150
+                              </span>
                             </Link>
                           </>
                         )}

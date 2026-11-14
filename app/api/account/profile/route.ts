@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { normalizePhoneNumber } from "@/lib/phone";
+import { getUserLoyaltyBalance } from "@/lib/loyalty";
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,6 +30,8 @@ export async function GET(request: NextRequest) {
         address: true,
         latitude: true,
         longitude: true,
+        membershipId: true,
+        referralCode: true,
         createdAt: true,
       },
     });
@@ -40,7 +43,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true, data: user });
+    const loyaltyBalance = await getUserLoyaltyBalance(session.user.id);
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        ...user,
+        loyaltyBalance,
+      },
+    });
   } catch (error: any) {
     console.error("Error retrieving user profile:", error);
     return NextResponse.json(

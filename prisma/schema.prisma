@@ -22,6 +22,8 @@ model User {
   address           String?
   latitude          Float?
   longitude         Float?
+  membershipId      String?               @unique
+  signupSource      String                @default("WEBSITE")
   isActive          Boolean               @default(true)
   deletedAt         DateTime?
   createdAt         DateTime              @default(now())
@@ -33,6 +35,8 @@ model User {
   hijamaBookings    HijamaBooking[]
   couponRedemptions CouponRedemption[]
 
+  @@index([phone])
+  @@index([signupSource])
   @@map("user")
 }
 

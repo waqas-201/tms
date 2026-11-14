@@ -52,8 +52,10 @@ export { normalizePhoneNumber };
  * per-customer limit (by Account ID and Phone), min spend, and max discount caps.
  */
 export async function validateCoupon(
-  input: CouponValidationInput
+  input: CouponValidationInput,
+  txClient?: Prisma.TransactionClient
 ): Promise<CouponValidationResult> {
+  const db = (txClient || prisma) as Prisma.TransactionClient;
   const cleanCode = normalizeCouponCode(input.code);
 
   if (!cleanCode) {
@@ -65,7 +67,7 @@ export async function validateCoupon(
     };
   }
 
-  const coupon = await prisma.coupon.findUnique({
+  const coupon = await db.coupon.findUnique({
     where: { code: cleanCode },
   });
 
@@ -177,7 +179,7 @@ export async function validateCoupon(
     }
 
     if (orConditions.length > 0) {
-      const priorUses = await prisma.couponRedemption.count({
+      const priorUses = await db.couponRedemption.count({
         where: {
           couponId: coupon.id,
           OR: orConditions,

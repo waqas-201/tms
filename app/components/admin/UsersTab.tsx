@@ -11,6 +11,7 @@ import {
   MapPin,
   Navigation,
   Phone,
+  QrCode,
   RefreshCw,
   RotateCcw,
   Search,
@@ -36,6 +37,8 @@ interface UserItem {
   address: string | null;
   latitude: number | null;
   longitude: number | null;
+  membershipId?: string | null;
+  signupSource?: string;
   isActive: boolean;
   deletedAt: string | null;
   createdAt: string;
@@ -104,6 +107,10 @@ export default function UsersTab({ currentUserId, isSuperAdmin = false }: { curr
     suspended: 0,
     deleted: 0,
   });
+  const [membershipStats, setMembershipStats] = useState<{
+    totalMembers: number;
+    bySource: { QR: number; WEBSITE: number; REFERRAL: number; [key: string]: number };
+  } | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -262,6 +269,18 @@ export default function UsersTab({ currentUserId, isSuperAdmin = false }: { curr
     );
   };
 
+  const fetchMembershipStats = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/membership/stats", { cache: "no-store" });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setMembershipStats(json.data);
+      }
+    } catch (e) {
+      console.warn("Could not load membership stats", e);
+    }
+  }, []);
+
   const fetchUsers = useCallback(
     async (isRefresh = false) => {
       if (isRefresh) setRefreshing(true);
@@ -301,6 +320,7 @@ export default function UsersTab({ currentUserId, isSuperAdmin = false }: { curr
         if (json.counts) {
           setCounts(json.counts);
         }
+        fetchMembershipStats();
       } catch (err: unknown) {
         setError(err instanceof Error ? err.message : "Failed to load users.");
       } finally {
@@ -350,6 +370,7 @@ export default function UsersTab({ currentUserId, isSuperAdmin = false }: { curr
         if (json.counts) {
           setCounts(json.counts);
         }
+        fetchMembershipStats();
       } catch (err: unknown) {
         if (!ignore) {
           setError(err instanceof Error ? err.message : "Failed to load users.");
@@ -606,7 +627,7 @@ export default function UsersTab({ currentUserId, isSuperAdmin = false }: { curr
       )}
 
       {/* Summary strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         <button
           onClick={() => {
             setViewFilter("ALL");
@@ -711,6 +732,33 @@ export default function UsersTab({ currentUserId, isSuperAdmin = false }: { curr
           <p className="text-xl font-bold font-serif text-rose-900 mt-1">{counts.deleted}</p>
           <p className="text-[10px] text-rose-700/70 mt-0.5">Soft-deleted</p>
         </button>
+
+        {/* Clinic QR Signups Metric Tile */}
+        <div className="p-3.5 rounded-xl border border-brand-green-300 bg-brand-green-50/60 text-left transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-semibold text-brand-green-800 uppercase tracking-wider">
+              Clinic QR Signups
+            </span>
+            <QrCode className="w-4 h-4 text-brand-green-700" />
+          </div>
+          <p className="text-xl font-bold font-serif text-brand-green-950 mt-1">
+            {membershipStats?.bySource?.QR ?? 0}
+          </p>
+          <div className="flex items-center justify-between mt-0.5">
+            <p className="text-[10px] text-brand-green-800/80">
+              {membershipStats?.totalMembers ?? 0} total ({membershipStats?.bySource?.WEBSITE ?? 0} web • {membershipStats?.bySource?.REFERRAL ?? 0} ref)
+            </p>
+            <a
+              href="/join/poster"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] font-bold text-brand-green-700 hover:text-brand-green-900 underline ml-1 inline-flex items-center gap-0.5"
+              title="Print clinic reception poster with QR code"
+            >
+              Poster &rarr;
+            </a>
+          </div>
+        </div>
       </div>
 
       {/* Control Bar: Search, Role Select, Refresh, Add Staff */}
@@ -821,8 +869,24 @@ export default function UsersTab({ currentUserId, isSuperAdmin = false }: { curr
                             {user.name ? user.name[0]?.toUpperCase() : "U"}
                           </div>
                           <div>
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 flex-wrap">
                               <span className="font-semibold text-ink">{user.name}</span>
+                              {user.membershipId && (
+                                <span
+                                  className="text-[10px] font-mono font-bold bg-brand-green-100 text-brand-green-800 border border-brand-green-300 px-1.5 py-0.2 rounded"
+                                  title={`Membership ID: ${user.membershipId}`}
+                                >
+                                  {user.membershipId}
+                                </span>
+                              )}
+                              {user.signupSource === "QR" && (
+                                <span
+                                  className="text-[9px] font-bold uppercase tracking-wider bg-brand-gold-100 text-brand-gold-800 border border-brand-gold-300 px-1.5 py-0.2 rounded"
+                                  title="Acquired via Clinic QR Code Scan"
+                                >
+                                  QR
+                                </span>
+                              )}
                               {user.id === currentUserId && (
                                 <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.2 rounded font-bold">
                                   You

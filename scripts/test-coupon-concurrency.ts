@@ -153,26 +153,36 @@ function cloneStore(store: MockStore): MockStore {
   };
 }
 
-/**
- * Acquires a row-level mutex lock for a coupon ID, serializing concurrent UPDATEs
- * exactly like PostgreSQL `UPDATE "coupon" WHERE id = ...` row locks.
- */
-async function acquireCouponRowLock(store: MockStore, couponId: string): Promise<() => void> {
-  while (store.couponLocks.has(couponId)) {
-    await store.couponLocks.get(couponId);
+class AsyncMutex {
+  private queue: Promise<void> = Promise.resolve();
+
+  async acquire(): Promise<() => void> {
+    let release: () => void;
+    const next = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const current = this.queue;
+    this.queue = this.queue.then(() => next);
+    await current;
+    return release!;
   }
-  let release!: () => void;
-  const promise = new Promise<void>((resolve) => {
-    release = resolve;
-  });
-  store.couponLocks.set(couponId, promise);
-  return () => {
-    store.couponLocks.delete(couponId);
-    release();
-  };
 }
 
-function createMockTransactionClient(store: MockStore): Prisma.TransactionClient {
+const couponMutexes = new Map<string, AsyncMutex>();
+
+function getCouponMutex(couponId: string): AsyncMutex {
+  let mutex = couponMutexes.get(couponId);
+  if (!mutex) {
+    mutex = new AsyncMutex();
+    couponMutexes.set(couponId, mutex);
+  }
+  return mutex;
+}
+
+function createMockTransactionClient(
+  store: MockStore,
+  undoLog?: (() => void)[]
+): Prisma.TransactionClient {
   return {
     $executeRaw: async (query: TemplateStringsArray | any, ...values: any[]) => {
       // Reconstruct query text for pattern matching
@@ -189,7 +199,7 @@ function createMockTransactionClient(store: MockStore): Prisma.TransactionClient
       // Pattern 1: UPDATE "coupon" SET "usageCount" = "usageCount" + 1 ...
       if (sql.includes('UPDATE "coupon"') && sql.includes('"usageCount" + 1')) {
         const couponId = values[0] || (sql.match(/WHERE\s+"id"\s*=\s*'([^']+)'/) || [])[1] || "";
-        const unlock = await acquireCouponRowLock(store, couponId);
+        const unlock = await getCouponMutex(couponId).acquire();
         try {
           // Interleave delay to simulate network/disk IO during atomic row update
           await new Promise((r) => setTimeout(r, 2));
@@ -203,6 +213,9 @@ function createMockTransactionClient(store: MockStore): Prisma.TransactionClient
 
           coupon.usageCount += 1;
           coupon.updatedAt = new Date();
+          undoLog?.push(() => {
+            coupon.usageCount -= 1;
+          });
           return 1; // 1 row successfully updated
         } finally {
           unlock();
@@ -212,14 +225,18 @@ function createMockTransactionClient(store: MockStore): Prisma.TransactionClient
       // Pattern 2: UPDATE "coupon" SET "usageCount" = GREATEST(0, "usageCount" - 1) ...
       if (sql.includes('UPDATE "coupon"') && sql.includes("GREATEST(0")) {
         const couponId = values[0] || (sql.match(/WHERE\s+"id"\s*=\s*'([^']+)'/) || [])[1] || "";
-        const unlock = await acquireCouponRowLock(store, couponId);
+        const unlock = await getCouponMutex(couponId).acquire();
         try {
           await new Promise((r) => setTimeout(r, 2));
           const coupon = store.coupons.find((c) => c.id === couponId);
           if (!coupon) return 0;
 
+          const prevUsage = coupon.usageCount;
           coupon.usageCount = Math.max(0, coupon.usageCount - 1);
           coupon.updatedAt = new Date();
+          undoLog?.push(() => {
+            coupon.usageCount = prevUsage;
+          });
           return 1;
         } finally {
           unlock();
@@ -239,8 +256,12 @@ function createMockTransactionClient(store: MockStore): Prisma.TransactionClient
       update: async ({ where, data }: any) => {
         const idx = store.coupons.findIndex((c) => c.id === where.id);
         if (idx === -1) throw new Error("Coupon not found in mock store.");
+        const prevUsage = store.coupons[idx].usageCount;
         if (data.usageCount?.increment) {
           store.coupons[idx].usageCount += data.usageCount.increment;
+          undoLog?.push(() => {
+            store.coupons[idx].usageCount = prevUsage;
+          });
         }
         return JSON.parse(JSON.stringify(store.coupons[idx]));
       },
@@ -279,12 +300,19 @@ function createMockTransactionClient(store: MockStore): Prisma.TransactionClient
           redeemedAt: new Date(),
         };
         store.redemptions.push(newRecord);
+        undoLog?.push(() => {
+          const idx = store.redemptions.findIndex((r) => r.id === newRecord.id);
+          if (idx !== -1) store.redemptions.splice(idx, 1);
+        });
         return JSON.parse(JSON.stringify(newRecord));
       },
       delete: async ({ where }: any) => {
         const idx = store.redemptions.findIndex((r) => r.id === where.id);
         if (idx === -1) throw new Error("CouponRedemption not found for deletion");
         const [deleted] = store.redemptions.splice(idx, 1);
+        undoLog?.push(() => {
+          store.redemptions.push(deleted);
+        });
         return JSON.parse(JSON.stringify(deleted));
       },
     },
@@ -320,10 +348,14 @@ function createMockTransactionClient(store: MockStore): Prisma.TransactionClient
       update: async ({ where, data }: any) => {
         const idx = store.orders.findIndex((o) => o.id === where.id);
         if (idx === -1) throw new Error("Order not found in mock store.");
+        const prevOrder = JSON.parse(JSON.stringify(store.orders[idx]));
         store.orders[idx] = {
           ...store.orders[idx],
           ...data,
         };
+        undoLog?.push(() => {
+          store.orders[idx] = prevOrder;
+        });
         const res = JSON.parse(JSON.stringify(store.orders[idx]));
         res.items = store.orderItems
           .filter((i) => i.orderId === where.id)
@@ -344,6 +376,7 @@ function createMockTransactionClient(store: MockStore): Prisma.TransactionClient
         const idx = store.productSizes.findIndex((s) => s.id === where.id);
         if (idx === -1) throw new Error("ProductSize not found in mock store.");
         const current = store.productSizes[idx];
+        const prevSize = JSON.parse(JSON.stringify(current));
         let stockOnHand = current.stockOnHand;
         if (data.stockOnHand?.decrement) stockOnHand -= data.stockOnHand.decrement;
         if (data.stockOnHand?.increment) stockOnHand += data.stockOnHand.increment;
@@ -358,6 +391,9 @@ function createMockTransactionClient(store: MockStore): Prisma.TransactionClient
           stockOnHand,
           stockReserved,
         };
+        undoLog?.push(() => {
+          store.productSizes[idx] = prevSize;
+        });
         return JSON.parse(JSON.stringify(store.productSizes[idx]));
       },
     },
@@ -366,7 +402,11 @@ function createMockTransactionClient(store: MockStore): Prisma.TransactionClient
       update: async ({ where, data }: any) => {
         const idx = store.orderItems.findIndex((i) => i.id === where.id);
         if (idx === -1) throw new Error("OrderItem not found in mock store.");
+        const prevItem = JSON.parse(JSON.stringify(store.orderItems[idx]));
         store.orderItems[idx] = { ...store.orderItems[idx], ...data };
+        undoLog?.push(() => {
+          store.orderItems[idx] = prevItem;
+        });
         return JSON.parse(JSON.stringify(store.orderItems[idx]));
       },
     },
@@ -375,6 +415,10 @@ function createMockTransactionClient(store: MockStore): Prisma.TransactionClient
       create: async ({ data }: any) => {
         const mov = { id: `mov_${Date.now()}_${Math.random()}`, createdAt: new Date(), ...data };
         store.stockMovements.push(mov);
+        undoLog?.push(() => {
+          const idx = store.stockMovements.findIndex((m) => m.id === mov.id);
+          if (idx !== -1) store.stockMovements.splice(idx, 1);
+        });
         return JSON.parse(JSON.stringify(mov));
       },
       findMany: async ({ where }: any) => {
@@ -387,25 +431,23 @@ function createMockTransactionClient(store: MockStore): Prisma.TransactionClient
 }
 
 /**
- * Executes a simulated ACID transaction over the MockStore with 100% rollback guarantee.
+ * Executes a simulated ACID transaction over the MockStore with 100% atomic rollback guarantee
+ * using an undo log per transaction.
  */
 async function executeMockTx<T>(
   store: MockStore,
   fn: (tx: Prisma.TransactionClient) => Promise<T>
 ): Promise<T> {
-  const snapshot = cloneStore(store);
-  const tx = createMockTransactionClient(store);
+  const undoLog: (() => void)[] = [];
+  const tx = createMockTransactionClient(store, undoLog);
   try {
     const result = await fn(tx);
     return result;
   } catch (err) {
-    // 100% Atomic Rollback: restore previous state
-    store.coupons = snapshot.coupons;
-    store.redemptions = snapshot.redemptions;
-    store.orders = snapshot.orders;
-    store.orderItems = snapshot.orderItems;
-    store.productSizes = snapshot.productSizes;
-    store.stockMovements = snapshot.stockMovements;
+    // Replay undo log in reverse order to revert ONLY changes made by this transaction
+    for (let i = undoLog.length - 1; i >= 0; i--) {
+      undoLog[i]();
+    }
     throw err;
   }
 }

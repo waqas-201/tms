@@ -34,6 +34,7 @@ model User {
   consultations     ConsultationRequest[]
   hijamaBookings    HijamaBooking[]
   couponRedemptions CouponRedemption[]
+  loyaltyLedgers    LoyaltyLedger[]
 
   @@index([phone])
   @@index([signupSource])
@@ -544,4 +545,27 @@ model HijamaDateOverride {
   updatedAt          DateTime @updatedAt
 
   @@map("hijama_date_override")
+}
+
+// -------------------------------------------------------------
+// Loyalty & Rewards Ledger Engine
+// -------------------------------------------------------------
+
+model LoyaltyLedger {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount       Int       // Positive for credits (+50), negative for debits (-200)
+  type         String    // "EARN" | "REDEEM" | "CLAWBACK" | "REFUND" | "ADJUST" | "EXPIRE"
+  source       String    // "ORDER" | "HIJAMA" | "CONSULTATION" | "ADMIN" | "EXPIRY"
+  referenceId  String?   // Order ID, Booking ID, or Admin Session ID
+  balanceAfter Int       // Running balance snapshot after mutation
+  reason       String?   // Mandatory for manual ADMIN adjustments
+  expiresAt    DateTime? // Set for EARN entries (now + 365 days)
+  createdAt    DateTime  @default(now())
+
+  @@unique([userId, source, referenceId, type])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("loyalty_ledger")
 }

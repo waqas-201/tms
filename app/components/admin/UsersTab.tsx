@@ -24,8 +24,10 @@ import {
   UserPlus,
   Users,
   X,
+  Coins,
 } from "lucide-react";
 import { ROLES } from "@/lib/rbac-base";
+import LoyaltyAdjustModal from "./LoyaltyAdjustModal";
 
 interface UserItem {
   id: string;
@@ -124,6 +126,8 @@ export default function UsersTab({ currentUserId, isSuperAdmin = false }: { curr
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isLoyaltyModalOpen, setIsLoyaltyModalOpen] = useState(false);
+  const [loyaltyTargetUser, setLoyaltyTargetUser] = useState<UserItem | null>(null);
   const [selectedUser, setSelectedUser] = useState<UserItem | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [locatingAdd, setLocatingAdd] = useState(false);
@@ -524,6 +528,12 @@ export default function UsersTab({ currentUserId, isSuperAdmin = false }: { curr
     } finally {
       setActionLoading(false);
     }
+  };
+
+  // Open Loyalty Modal
+  const openLoyaltyModal = (user: UserItem) => {
+    setLoyaltyTargetUser(user);
+    setIsLoyaltyModalOpen(true);
   };
 
   // Open Edit Modal
@@ -1016,6 +1026,15 @@ export default function UsersTab({ currentUserId, isSuperAdmin = false }: { curr
                                 <span>Edit</span>
                               </button>
 
+                              <button
+                                onClick={() => openLoyaltyModal(user)}
+                                className="px-2.5 py-1 text-[11px] font-semibold text-amber-800 bg-amber-50 border border-amber-200 hover:bg-amber-100 rounded-lg flex items-center gap-1 transition-colors"
+                                title="Adjust Loyalty Points"
+                              >
+                                <Coins className="w-3 h-3 text-amber-600" />
+                                <span>Loyalty</span>
+                              </button>
+
                               {isSuperAdmin && user.role !== ROLES.ADMIN && user.role !== "super_admin" && !isDeleted && (
                                 <button
                                   onClick={() => {
@@ -1407,6 +1426,18 @@ export default function UsersTab({ currentUserId, isSuperAdmin = false }: { curr
           </div>
         </div>
       )}
+      {/* Modal 3: Loyalty Points Adjustment */}
+      <LoyaltyAdjustModal
+        user={loyaltyTargetUser}
+        isOpen={isLoyaltyModalOpen}
+        onClose={() => {
+          setIsLoyaltyModalOpen(false);
+          setLoyaltyTargetUser(null);
+        }}
+        onSuccess={() => {
+          fetchUsers(false);
+        }}
+      />
     </div>
   );
 }

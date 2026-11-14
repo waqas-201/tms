@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { commitShipmentForOrder, releaseReservationForOrder } from "@/lib/inventory";
 import { reverseCouponRedemption } from "@/lib/coupons";
+import { creditOrderLoyaltyPoints, reverseOrderLoyaltyPoints } from "@/lib/loyalty";
 
 export type OrderStatus =
   | "PENDING"
@@ -137,12 +138,16 @@ export async function transitionOrderStatus(
         );
       }
 
-      // Inventory transitions tied strictly to validated status change
-      if (input.orderStatus === "DISPATCHED" || input.orderStatus === "DELIVERED") {
+      // Inventory and rewards transitions tied strictly to validated status change
+      if (input.orderStatus === "DISPATCHED") {
         await commitShipmentForOrder(orderBefore.id, input.staffUserId, tx);
+      } else if (input.orderStatus === "DELIVERED") {
+        await commitShipmentForOrder(orderBefore.id, input.staffUserId, tx);
+        await creditOrderLoyaltyPoints(orderBefore.id, tx);
       } else if (input.orderStatus === "CANCELLED") {
         await releaseReservationForOrder(orderBefore.id, input.staffUserId, tx);
         await reverseCouponRedemption({ orderId: orderBefore.id }, tx);
+        await reverseOrderLoyaltyPoints(orderBefore.id, tx);
       }
     }
 

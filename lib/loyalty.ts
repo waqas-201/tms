@@ -9,7 +9,7 @@ export const MIN_REDEMPTION_POINTS = 200; // Minimum 200 Points to burn
 export const APOTHECARY_EARN_PERCENT = 0.02; // 2% of product subtotal
 export const HIJAMA_EARN_POINTS = 50; // Flat 50 points upon completion
 export const CONSULTATION_EARN_POINTS = 30; // Flat 30 points upon completion
-export const MAX_SUBTOTAL_CAP_PERCENT = 0.25; // Points can discount at most 25% of subtotal
+export const MAX_SUBTOTAL_CAP_PERCENT = 0.10; // Points can discount at most 10% of subtotal
 export const POINT_EXPIRY_DAYS = 365; // Points expire after 365 days
 export const MAX_ADMIN_ADJUSTMENT_POINTS = 5000; // ±5,000 maximum manual adjustment safety bound
 
@@ -459,7 +459,7 @@ export async function adminAdjustLoyaltyPoints(
 
 /**
  * Burns loyalty points at checkout to discount an order.
- * Enforces minimum 200 points rule, 25% order subtotal cap, and uses
+ * Enforces minimum 200 points rule, 10% order subtotal cap, and uses
  * pessimistic row locking (`SELECT ... FOR UPDATE`) to prevent TOCTOU double-redemptions.
  */
 export async function redeemLoyaltyPoints(
@@ -486,14 +486,14 @@ export async function redeemLoyaltyPoints(
     throw new Error(`Minimum redemption threshold is ${MIN_REDEMPTION_POINTS} points.`);
   }
 
-  // Rule: Enforce 25% order subtotal cap if orderSubtotal is provided
+  // Rule: Enforce 10% order subtotal cap if orderSubtotal is provided
   if (params.orderSubtotal !== undefined && params.orderSubtotal !== null) {
     const numSubtotal = Number(params.orderSubtotal);
     if (Number.isFinite(numSubtotal) && numSubtotal > 0) {
       const maxAllowed = Math.floor(numSubtotal * MAX_SUBTOTAL_CAP_PERCENT);
       if (params.points > maxAllowed) {
         throw new Error(
-          `Points redemption cannot exceed 25% of order subtotal (max ${maxAllowed} points).`
+          `Points redemption cannot exceed 10% of order subtotal (max ${maxAllowed} points).`
         );
       }
     }

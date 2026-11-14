@@ -957,7 +957,7 @@ async function runTests() {
       "Balance after burn is 80 points"
     );
 
-    // 7. Enforce 25% Order Subtotal Cap
+    // 7. Enforce 10% Order Subtotal Cap
     await adminAdjustLoyaltyPoints(
       { userId, amount: 920, reason: "Loyalty compensation", staffUserId: "admin_1" },
       mockTx
@@ -967,32 +967,32 @@ async function runTests() {
       "User balance loaded to 1,000 points for subtotal cap test"
     );
 
-    // Order subtotal = ₨ 1,000 -> 25% cap = 250 points max.
-    // Attempting to redeem 300 points on a ₨ 1,000 order must be blocked:
+    // Order subtotal = ₨ 2,500 -> 10% cap = 250 points max.
+    // Attempting to redeem 300 points on a ₨ 2,500 order must be blocked:
     let capExceededError = false;
     try {
       await redeemLoyaltyPoints(
-        { userId, points: 300, orderSubtotal: 1000, orderId: "ord_cap_test_1" },
+        { userId, points: 300, orderSubtotal: 2500, orderId: "ord_cap_test_1" },
         mockTx
       );
     } catch (err: any) {
-      if (err.message.includes("25% of order subtotal")) {
+      if (err.message.includes("10% of order subtotal")) {
         capExceededError = true;
       }
     }
     assert(
       capExceededError,
-      "Redemption exceeding 25% of order subtotal (300 pts on ₨ 1,000 order) is strictly blocked"
+      "Redemption exceeding 10% of order subtotal (300 pts on ₨ 2,500 order) is strictly blocked"
     );
 
-    // Redeeming exactly 25% (250 points on ₨ 1,000 order) must succeed:
+    // Redeeming exactly 10% (250 points on ₨ 2,500 order) must succeed:
     const validCapBurn = await redeemLoyaltyPoints(
-      { userId, points: 250, orderSubtotal: 1000, orderId: "ord_cap_test_2" },
+      { userId, points: 250, orderSubtotal: 2500, orderId: "ord_cap_test_2" },
       mockTx
     );
     assert(
       validCapBurn.redeemed === true,
-      "Redemption of exactly 25% (250 pts on ₨ 1,000 order) succeeds"
+      "Redemption of exactly 10% (250 pts on ₨ 2,500 order) succeeds"
     );
     assert(
       (await getUserLoyaltyBalance(userId, mockTx)) === 750,

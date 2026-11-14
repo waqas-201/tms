@@ -218,7 +218,7 @@ export default function LoyaltyAccountPage() {
             </div>
             <h3 className="font-serif font-bold text-sm text-primary">1:1 Cash Parity</h3>
             <p className="text-xs text-ink-subtle">
-              Every point is worth exactly ₨ 1.00. Apply up to 25% of subtotal at checkout when balance ≥ 200 pts.
+              Every point is worth exactly ₨ 1.00. Apply up to 10% of subtotal at checkout when balance ≥ 200 pts.
             </p>
           </div>
         </div>

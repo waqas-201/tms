@@ -21,7 +21,7 @@ The Tameer-e-Sehat Loyalty Program is designed as a sustainable, margin-protecte
 | **Hijama Earn Rate** | **Flat 50 Points** | Equivalent to 2% on the standard ₨ 2,500 clinical cupping fee upon verified completion. |
 | **Consultation Earn Rate** | **Flat 30 Points** | Equivalent to 2% on the standard ₨ 1,500 physician consultation fee upon verified completion. |
 | **Minimum Redemption (Burn)** | **200 Points (₨ 200)** | Blocks high-frequency micro-redemptions; ensures repeat customer engagement before first cash-out. |
-| **Maximum Subtotal Cap** | **25% of Order Subtotal** | Guarantees every sale generates at least 75% cash revenue, preventing 100% discount margin erosion. |
+| **Maximum Subtotal Cap** | **10% of Order Subtotal** | Guarantees every sale generates at least 90% cash revenue, preventing discount margin erosion. |
 | **Shipping Exclusion** | **Points cannot discount shipping** | Customers must pay third-party courier / logistics costs in cash. |
 | **Point Expiry** | **365 Days (12 Months)** | Clears inactive reward liabilities from the clinic balance sheet annually. |
 
@@ -38,7 +38,7 @@ The Tameer-e-Sehat Loyalty Program is designed as a sustainable, margin-protecte
    - Points are credited when staff mark an appointment `status: "COMPLETED"`.
 
 ### 3.2 Point Redemption (Burn)
-- At checkout (`/checkout`), eligible members with $\ge 200$ points can choose to apply points in increments of 10 up to the 25% subtotal cap.
+- At checkout (`/checkout`), eligible members with $\ge 200$ points can choose to apply points in increments of 10 up to the 10% subtotal cap.
 - Points redemption is recorded as an atomic negative ledger entry (`type: "REDEEM"`).
 - Redemptions reduce the order `dueAmount` by ₨ 1 per point redeemed.
 

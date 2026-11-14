@@ -6,6 +6,7 @@ import {
   sendAppointmentStatusEmail,
   sendHakimPrescriptionEmail,
 } from "@/lib/email";
+import { normalizePhoneNumber } from "@/lib/phone";
 
 export async function GET(
   request: NextRequest,
@@ -105,19 +106,23 @@ export async function PATCH(
           ? patientPhone.trim()
           : null;
 
-    if (
-      nextPhone !== undefined &&
-      nextPhone !== null &&
-      nextPhone !== "" &&
-      nextPhone.replace(/\D/g, "").length < 7
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Enter a valid phone / WhatsApp number (at least 7 digits).",
-        },
-        { status: 400 }
-      );
+    let normalizedPhone: string | null | undefined = undefined;
+    if (nextPhone !== undefined) {
+      if (nextPhone === null || nextPhone === "") {
+        normalizedPhone = null;
+      } else {
+        const cleaned = normalizePhoneNumber(nextPhone);
+        if (!cleaned) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: "Enter a valid phone / WhatsApp number (at least 7 digits).",
+            },
+            { status: 400 }
+          );
+        }
+        normalizedPhone = cleaned;
+      }
     }
 
     const existing = await prisma.consultationRequest.findFirst({
@@ -164,8 +169,8 @@ export async function PATCH(
         ...(patientName !== undefined &&
           typeof patientName === "string" &&
           patientName.trim() && { patientName: patientName.trim() }),
-        ...(nextPhone !== undefined && {
-          patientPhone: nextPhone ? nextPhone : null,
+        ...(normalizedPhone !== undefined && {
+          patientPhone: normalizedPhone,
         }),
         ...(patientEmail !== undefined && {
           patientEmail:

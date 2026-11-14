@@ -20,8 +20,6 @@ export default function robots(): MetadataRoute.Robots {
           "/uploads/",
           "/*?displayview=*",
           "/*?view=*",
-          "/shop/page/*",
-          "/product-category/*/page/*",
         ],
       },
     ],

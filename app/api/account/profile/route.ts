@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { normalizePhoneNumber } from "@/lib/phone";
 
 export async function GET(request: NextRequest) {
   try {
@@ -73,7 +74,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (phone !== undefined) {
-      updateData.phone = phone ? String(phone).trim() : null;
+      updateData.phone = normalizePhoneNumber(phone);
     }
 
     if (city !== undefined) {

@@ -9,7 +9,8 @@ import {
   sendOrderConfirmationEmail,
   sendAdminOrderNotificationEmail,
 } from "@/lib/email";
-import { validateCoupon } from "@/lib/coupons";
+import { validateCoupon, recordCouponRedemption } from "@/lib/coupons";
+import { normalizePhoneNumber } from "@/lib/phone";
 import { generateInvoiceToken } from "@/lib/invoice-token";
 
 export async function GET(request: NextRequest) {
@@ -69,10 +70,18 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    const enrichedOrders = orders.map((order) => ({
-      ...order,
-      invoiceToken: generateInvoiceToken(order.id, order.orderNumber),
-    }));
+    const enrichedOrders = orders.map((order) => {
+      let invoiceToken: string | null = null;
+      try {
+        invoiceToken = generateInvoiceToken(order.id, order.orderNumber);
+      } catch {
+        invoiceToken = null;
+      }
+      return {
+        ...order,
+        invoiceToken,
+      };
+    });
 
     return NextResponse.json({ success: true, data: enrichedOrders });
   } catch (error) {
@@ -156,8 +165,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const cleanPhone = String(phone).trim();
-    if (cleanPhone.replace(/\D/g, "").length < 7) {
+    const cleanPhone = normalizePhoneNumber(phone);
+    if (!cleanPhone) {
       return NextResponse.json(
         {
           success: false,
@@ -374,15 +383,10 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        // Record coupon redemption if coupon used
+        // Record coupon redemption if coupon used (atomic usage limit check)
         if (validatedCouponId) {
-          await tx.coupon.update({
-            where: { id: validatedCouponId },
-            data: { usageCount: { increment: 1 } },
-          });
-
-          await tx.couponRedemption.create({
-            data: {
+          await recordCouponRedemption(
+            {
               couponId: validatedCouponId,
               userId: session?.user?.id || null,
               phone: cleanPhone,
@@ -390,7 +394,8 @@ export async function POST(request: NextRequest) {
               discountAmount: finalDiscount,
               orderTotal: total,
             },
-          });
+            tx
+          );
         }
 
         // Reserve stock for the ordered items in this transaction
@@ -484,18 +489,34 @@ export async function POST(request: NextRequest) {
       console.error("[Admin Order Notification Email Async Error]:", err)
     );
 
+    let invoiceToken: string | null = null;
+    try {
+      invoiceToken = generateInvoiceToken(order.id, order.orderNumber);
+    } catch (tokenError) {
+      console.error(
+        "[Checkout] Warning: Failed to generate invoiceToken after order placement:",
+        tokenError instanceof Error ? tokenError.message : tokenError
+      );
+    }
+
     return NextResponse.json(
       {
         success: true,
-        data: { ...order, invoiceToken: generateInvoiceToken(order.id, order.orderNumber) },
+        data: { ...order, invoiceToken },
         message: "Order received successfully! Clinic staff will confirm delivery charges and issue your invoice shortly.",
       },
       { status: 201 }
     );
   } catch (error: any) {
     console.error("Error creating order:", error);
+    if (error?.message?.includes("Coupon usage limit")) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
-      { success: false, error: error?.message || "Failed to place order." },
+      { success: false, error: "Failed to place order. Please try again or contact support." },
       { status: 500 }
     );
   }

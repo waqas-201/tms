@@ -111,9 +111,9 @@ function getPrismaClient(): PrismaClient {
 
 // Lazy Proxy to ensure safe module evaluation during static build & route collection
 export const prisma = new Proxy({} as PrismaClient, {
-  get(_target, prop, receiver) {
+  get(_target, prop) {
     const client = getPrismaClient();
-    const value = Reflect.get(client, prop, receiver);
+    const value = Reflect.get(client, prop);
     if (typeof value === "function") {
       return value.bind(client);
     }

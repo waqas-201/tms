@@ -10,6 +10,7 @@ import {
 import { createAdminNotification } from "@/lib/notifications";
 import { getAvailableSlotsForDate } from "@/lib/clinic-schedule";
 import { validateCoupon, recordCouponRedemption } from "@/lib/coupons";
+import { normalizePhoneNumber } from "@/lib/phone";
 
 export async function GET(request: NextRequest) {
   try {
@@ -263,13 +264,15 @@ export async function POST(request: NextRequest) {
       (isStaffBooking ? "" : session.user.email) ||
       ""
     ).toLowerCase();
-    const effectivePhone =
+    const rawPhone =
       patientPhone?.trim() ||
       phone?.trim() ||
       (isStaffBooking ? null : (session.user as any)?.phone) ||
       null;
 
-    if (!effectivePhone || String(effectivePhone).replace(/\D/g, "").length < 7) {
+    const effectivePhone = normalizePhoneNumber(rawPhone);
+
+    if (!effectivePhone) {
       return NextResponse.json(
         {
           success: false,
@@ -329,44 +332,51 @@ export async function POST(request: NextRequest) {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const ticketNumber = `CON-${new Date().getFullYear()}-${randomSuffix}`;
 
-    const consultation = await prisma.consultationRequest.create({
-      data: {
-        ticketNumber,
-        userId: targetUserId,
-        consultationType: consultationType === "IN_PERSON" ? "IN_PERSON" : "ONLINE",
-        appointmentDate,
-        appointmentSlot,
-        patientName: effectiveName,
-        patientPhone: effectivePhone,
-        patientEmail: effectiveEmail || null,
-        primarySymptoms: primarySymptoms?.trim() || null,
-        reportUrl: reportUrl ? String(reportUrl).trim() : null,
-        reportName: reportName ? String(reportName).trim() : null,
-        reportSize: reportSize ? String(reportSize).trim() : null,
-        status: initialStatus,
-        feeAmount,
-        discountAmount,
-        paymentStatus,
-        couponId: validatedCouponId,
-        couponCode: validatedCouponCode,
-      },
-      include: {
-        user: {
-          select: { id: true, name: true, email: true, phone: true, city: true },
+    const consultation = await prisma.$transaction(async (tx) => {
+      const createdConsultation = await tx.consultationRequest.create({
+        data: {
+          ticketNumber,
+          userId: targetUserId,
+          consultationType: consultationType === "IN_PERSON" ? "IN_PERSON" : "ONLINE",
+          appointmentDate,
+          appointmentSlot,
+          patientName: effectiveName,
+          patientPhone: effectivePhone,
+          patientEmail: effectiveEmail || null,
+          primarySymptoms: primarySymptoms?.trim() || null,
+          reportUrl: reportUrl ? String(reportUrl).trim() : null,
+          reportName: reportName ? String(reportName).trim() : null,
+          reportSize: reportSize ? String(reportSize).trim() : null,
+          status: initialStatus,
+          feeAmount,
+          discountAmount,
+          paymentStatus,
+          couponId: validatedCouponId,
+          couponCode: validatedCouponCode,
         },
-      },
-    });
+        include: {
+          user: {
+            select: { id: true, name: true, email: true, phone: true, city: true },
+          },
+        },
+      });
 
-    if (validatedCouponId) {
-      await recordCouponRedemption({
-        couponId: validatedCouponId,
-        userId: targetUserId,
-        phone: effectivePhone,
-        consultationId: consultation.id,
-        discountAmount,
-        orderTotal: feeAmount,
-      }).catch((err) => console.error("Error recording consultation coupon redemption:", err));
-    }
+      if (validatedCouponId) {
+        await recordCouponRedemption(
+          {
+            couponId: validatedCouponId,
+            userId: targetUserId,
+            phone: effectivePhone,
+            consultationId: createdConsultation.id,
+            discountAmount,
+            orderTotal: feeAmount,
+          },
+          tx
+        );
+      }
+
+      return createdConsultation;
+    });
 
     // In-app staff alert for patient self-bookings
     if (!isStaffBooking) {

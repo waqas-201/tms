@@ -1,41 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Tameer-e-Sehat (TMS) Blueprint
 
-## Getting Started
+## System Overview
+Tameer-e-Sehat (TMS) is a full-stack Next.js healthcare and herbal apothecary platform providing online consultations, Hijama appointment scheduling, e-commerce order fulfillment, customer accounts, and role-based staff administration.
 
-First, run the development server:
-
+### Preserved Getting Started & Developer Notes
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# or yarn dev / pnpm dev / bun dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Documentation & Standards
+Open [http://localhost:3000](http://localhost:3000) with your browser to view the application.
 
 - [House Rules & Conventions](docs/conventions.md) — Coding conventions, form architecture (React Hook Form + draft persistence), data fetching (TanStack Query), and code standards.
 - [Architecture Decision Records](docs/adr/) — Architectural decisions (e.g., [ADR 0001: Motion System](docs/adr/0001-motion-system.md)).
 
-## Learn More
+## Local Interface & Invariants
+- `colorGuardConfig` in [eslint.color-guard.mjs:colorGuardConfig]
+- `default` (default export) in [eslint.colors.config.mjs:default]
+- `eslintConfig` (default export) in [eslint.config.mjs:eslintConfig]
+- `nextConfig` (default export) in [next.config.ts:nextConfig]
+- `defineConfig` (default export) in [playwright.config.ts:defineConfig]
+- `config` (default export) in [postcss.config.mjs:config]
+- `defineConfig` (default export) in [prisma.config.ts:defineConfig]
+- CLI script routine in [shot-register.mjs:run]
 
-To learn more about Next.js, take a look at the following resources:
+## Subdirectories & System Boundaries
+- [app](./app/README.md) - Next.js App Router page and layout route for `/`.
+- [components](./components/README.md) - Shared design system UI components.
+- [lib](./lib/README.md) - Core business logic, database client, auth, and backend domain utilities.
+- [prisma](./prisma/README.md) - Prisma ORM schema models, migrations, and database seed scripts.
+- [scripts](./scripts/README.md) - Operational scripts, standalone tests, and system verification routines.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Global Invariants
+- Role-Based Access Control (RBAC): Sensitive administrative routes enforce `ADMIN`, `EDITOR`, or `SUPER_ADMIN` roles via `requireRole` [lib/rbac.ts:requireRole].
+- Verification Requirements: Customer accounts must maintain verified email status prior to order submission or clinical booking [app/api/orders/route.ts:emailVerified].
+- Inventory Reservation Atomicity: Product stock must be verified and reserved atomically to prevent race conditions and overselling [lib/inventory.ts:reserveStockForOrder].
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Global Side Effects
+- PostgreSQL Database: Persistent relational storage managed via Prisma Client [lib/prisma.ts:prisma].
+- Email Dispatch: Outbound transactional notifications and order invoices sent via Resend API [lib/email.ts:email].
+- Asset Storage: Prescription reports and product media stored via UploadThing [lib/uploadthing.ts:uploadthing].
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## System Verification
+- Run: `npm run build`

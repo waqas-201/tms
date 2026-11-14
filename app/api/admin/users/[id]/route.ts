@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireRole, ROLES } from "@/lib/rbac";
 import { sendAdminPromotionEmail } from "@/lib/email";
+import { normalizePhoneNumber } from "@/lib/phone";
 
 const ADMIN_QUOTA_MAX = 3;
 
@@ -121,7 +122,7 @@ export async function PATCH(
 
     const updateData: Record<string, unknown> = {};
     if (role) updateData.role = role.toLowerCase().trim();
-    if (phone !== undefined) updateData.phone = phone ? String(phone).trim() : null;
+    if (phone !== undefined) updateData.phone = normalizePhoneNumber(phone);
     if (city !== undefined) updateData.city = city ? String(city).trim() : "Karachi";
     if (name !== undefined && name.trim()) updateData.name = name.trim();
     if (address !== undefined) {

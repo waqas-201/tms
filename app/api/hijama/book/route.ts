@@ -6,6 +6,7 @@ import prisma from "@/lib/prisma";
 import { createAdminNotification } from "@/lib/notifications";
 import { sendAdminHijamaNotificationEmail } from "@/lib/email";
 import { validateCoupon, recordCouponRedemption } from "@/lib/coupons";
+import { normalizePhoneNumber } from "@/lib/phone";
 
 export async function POST(request: NextRequest) {
   try {
@@ -60,6 +61,13 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+    const cleanPhone = normalizePhoneNumber(body?.phone);
+    if (!cleanPhone) {
+      return NextResponse.json(
+        { success: false, error: "A valid phone number is required (at least 7 digits)." },
+        { status: 400 }
+      );
+    }
 
     // Authoritative Coupon Validation for Hijama
     let validatedCouponId: string | null = null;
@@ -80,7 +88,7 @@ export async function POST(request: NextRequest) {
         scope: "HIJAMA",
         subtotal: originalFee,
         userId: session.user.id,
-        phone: body.phone,
+        phone: cleanPhone,
       });
 
       if (!couponValidation.valid) {
@@ -100,35 +108,45 @@ export async function POST(request: NextRequest) {
 
     const feeAmount = Math.max(0, originalFee - discountAmount);
 
-    const booking = await createHijamaBooking({
-      fullName: body.fullName,
-      phone: body.phone,
-      email: body.email,
-      age: Number(body.age),
-      gender: body.gender,
-      appointmentDate: body.appointmentDate,
-      appointmentSlot: body.appointmentSlot,
-      cuppingReason: body.cuppingReason,
-      contraindications: body.contraindications,
-      paymentStatus: feeAmount === 0 ? "PAID_AT_CLINIC" : "UNPAID",
-      feeAmount,
-      originalFee,
-      discountAmount,
-      couponId: validatedCouponId,
-      couponCode: validatedCouponCode,
-      userId: session.user.id,
-    });
+    const booking = await prisma.$transaction(async (tx) => {
+      const createdBooking = await createHijamaBooking(
+        {
+          fullName: body.fullName,
+          phone: cleanPhone,
+          email: body.email,
+          age: Number(body.age),
+          gender: body.gender,
+          appointmentDate: body.appointmentDate,
+          appointmentSlot: body.appointmentSlot,
+          cuppingReason: body.cuppingReason,
+          contraindications: body.contraindications,
+          paymentStatus: feeAmount === 0 ? "PAID_AT_CLINIC" : "UNPAID",
+          feeAmount,
+          originalFee,
+          discountAmount,
+          couponId: validatedCouponId,
+          couponCode: validatedCouponCode,
+          userId: session.user.id,
+        },
+        tx
+      );
 
-    if (validatedCouponId) {
-      await recordCouponRedemption({
-        couponId: validatedCouponId,
-        userId: session.user.id,
-        phone: body.phone,
-        hijamaBookingId: booking.id,
-        discountAmount,
-        orderTotal: feeAmount,
-      }).catch((err) => console.error("Error recording Hijama coupon redemption:", err));
-    }
+      if (validatedCouponId) {
+        await recordCouponRedemption(
+          {
+            couponId: validatedCouponId,
+            userId: session.user.id,
+            phone: cleanPhone,
+            hijamaBookingId: createdBooking.id,
+            discountAmount,
+            orderTotal: feeAmount,
+          },
+          tx
+        );
+      }
+
+      return createdBooking;
+    });
 
     await createAdminNotification({
       type: "HIJAMA",

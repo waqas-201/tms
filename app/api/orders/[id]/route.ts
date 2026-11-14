@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { requireRole, ROLES } from "@/lib/rbac";
-import { commitShipmentForOrder, releaseReservationForOrder } from "@/lib/inventory";
+import { transitionOrderStatus, OrderStatus, PaymentStatus } from "@/lib/orders";
 import { sendOrderConfirmationEmail } from "@/lib/email";
 import { generateInvoiceToken, verifyInvoiceToken } from "@/lib/invoice-token";
 
@@ -50,11 +50,17 @@ export async function GET(
     const hasValidToken = verifyInvoiceToken(order.id, order.orderNumber, token);
 
     if (isStaff || isOwner || hasValidToken) {
+      let invoiceToken: string | null = null;
+      try {
+        invoiceToken = generateInvoiceToken(order.id, order.orderNumber);
+      } catch {
+        invoiceToken = null;
+      }
       return NextResponse.json({
         success: true,
         data: {
           ...order,
-          invoiceToken: generateInvoiceToken(order.id, order.orderNumber),
+          invoiceToken,
         },
       });
     }
@@ -104,100 +110,75 @@ export async function PATCH(
     const body = await request.json();
     const { orderStatus, paymentStatus, trackingNote, shippingFee, deliveryNotes } = body;
 
-    const existing = await prisma.order.findFirst({
-      where: { OR: [{ id }, { orderNumber: id }] },
-      include: { items: true },
+    const { order: updated, previousStatus, statusChanged } = await transitionOrderStatus({
+      orderId: id,
+      orderStatus: orderStatus as OrderStatus | undefined,
+      paymentStatus: paymentStatus as PaymentStatus | undefined,
+      trackingNote,
+      shippingFee,
+      deliveryNotes,
+      staffUserId: session?.user?.id || null,
     });
 
-    if (!existing) {
-      return NextResponse.json(
-        { success: false, error: "Order not found." },
-        { status: 404 }
-      );
-    }
-
-    // Process inventory status transitions
-    if (orderStatus && orderStatus !== existing.orderStatus) {
-      if (orderStatus === "DISPATCHED" || orderStatus === "DELIVERED") {
-        // Physical reduction of stock from shelf (committed sale)
-        await commitShipmentForOrder(existing.id, session?.user?.id);
-      } else if (orderStatus === "CANCELLED") {
-        // Release reservation back to available stock
-        await releaseReservationForOrder(existing.id, session?.user?.id);
-      }
-    }
-
-    let calculatedTotal = existing.total;
-    let calculatedShippingFee = existing.shippingFee;
-    let calculatedDueAmount = existing.dueAmount;
-
-    if (shippingFee !== undefined && shippingFee !== null) {
-      calculatedShippingFee = Math.max(0, Number(shippingFee) || 0);
-      calculatedTotal = existing.subtotal + calculatedShippingFee;
-      calculatedDueAmount = Math.max(0, calculatedTotal - existing.paidAmount);
-    }
-
-    const updated = await prisma.order.update({
-      where: { id: existing.id },
-      data: {
-        ...(orderStatus && { orderStatus }),
-        ...(paymentStatus && { paymentStatus }),
-        ...(trackingNote !== undefined && { trackingNote }),
-        ...(deliveryNotes !== undefined && { deliveryNotes }),
-        ...(shippingFee !== undefined && shippingFee !== null && {
-          shippingFee: calculatedShippingFee,
-          total: calculatedTotal,
-          dueAmount: calculatedDueAmount,
-          deliveryFeeType: "MANUAL",
-        }),
-      },
-      include: {
-        items: {
-          include: {
-            productSize: {
-              include: { unit: true },
-            },
-          },
-        },
-      },
-    });
-
-    // If order was confirmed and email exists, dispatch invoice email
+    // If order was confirmed and email exists, dispatch invoice email via Next.js 15 after()
     if (
+      statusChanged &&
       orderStatus === "CONFIRMED" &&
-      (existing.orderStatus === "PENDING_CONFIRMATION" || existing.orderStatus === "PENDING") &&
-      existing.email
+      (previousStatus === "PENDING_CONFIRMATION" || previousStatus === "PENDING") &&
+      updated.email
     ) {
-      sendOrderConfirmationEmail({
-        to: existing.email,
-        customerName: existing.customerName,
-        orderNumber: existing.orderNumber,
-        phone: existing.phone,
-        city: existing.city,
-        address: existing.address,
-        deliveryNotes: updated.deliveryNotes,
-        paymentMethod: existing.paymentMethod,
-        items: updated.items.map((i) => ({
-          productName: i.productName,
-          sizeWeight: i.sizeWeight,
-          price: i.price,
-          quantity: i.quantity,
-          total: i.total,
-        })),
-        subtotal: updated.subtotal,
-        shippingFee: updated.shippingFee,
-        total: updated.total,
-        createdAt: updated.createdAt,
-      }).catch((err) => console.error("[Order Confirmation Email on Approval Error]:", err));
+      after(async () => {
+        try {
+          await sendOrderConfirmationEmail({
+            to: updated.email!,
+            customerName: updated.customerName,
+            orderNumber: updated.orderNumber,
+            phone: updated.phone,
+            city: updated.city,
+            address: updated.address,
+            deliveryNotes: updated.deliveryNotes,
+            paymentMethod: updated.paymentMethod,
+            items: updated.items.map((i) => ({
+              productName: i.productName,
+              sizeWeight: i.sizeWeight,
+              price: i.price,
+              quantity: i.quantity,
+              total: i.total,
+            })),
+            subtotal: updated.subtotal,
+            shippingFee: updated.shippingFee,
+            total: updated.total,
+            createdAt: updated.createdAt,
+          });
+        } catch (err) {
+          console.error("[Order Confirmation Email on Approval Error]:", err);
+        }
+      });
     }
 
     return NextResponse.json({
       success: true,
       data: updated,
-      message: `Order status updated to ${orderStatus || existing.orderStatus}.`,
+      message: `Order status updated to ${orderStatus || previousStatus}.`,
     });
   } catch (error: any) {
     console.error("Error updating order:", error);
+    if (error?.message && error.message.includes("Order not found")) {
+      return NextResponse.json(
+        { success: false, error: "Order not found." },
+        { status: 404 }
+      );
+    }
+    if (
+      error?.message &&
+      (error.message.includes("Illegal state transition") ||
+        error.message.includes("Invalid shippingFee"))
+    ) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: 400 }
+      );
+    }
     return NextResponse.json(
       { success: false, error: error?.message || "Failed to update order status." },
       { status: 500 }

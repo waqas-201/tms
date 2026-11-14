@@ -185,12 +185,10 @@ export async function reserveStockForOrder(
       );
     }
 
-    const newReserved = size.stockReserved + item.quantity;
-
-    await tx.productSize.update({
+    const updatedSize = await tx.productSize.update({
       where: { id: size.id },
       data: {
-        stockReserved: newReserved,
+        stockReserved: { increment: item.quantity },
       },
     });
 
@@ -199,8 +197,8 @@ export async function reserveStockForOrder(
         productSizeId: size.id,
         type: "RESERVE",
         quantity: -item.quantity,
-        onHandAfter: size.stockOnHand,
-        reservedAfter: newReserved,
+        onHandAfter: updatedSize.stockOnHand,
+        reservedAfter: updatedSize.stockReserved,
         reason: `Reserved for Order #${orderId}`,
         orderId,
       },
@@ -212,171 +210,172 @@ export async function reserveStockForOrder(
  * Commit stock deduction when order is marked DISPATCHED (shipped).
  * Moves units from reserved -> physically reduced (onHand).
  * Idempotent: only operates on items in RESERVED or NONE state.
+ * Supports transactional composition via optional `tx` parameter.
  */
 export async function commitShipmentForOrder(
   orderId: string,
-  userId?: string
+  userId?: string | null,
+  tx?: Prisma.TransactionClient
 ) {
-  return await prisma.$transaction(
-    async (tx) => {
-      const order = await tx.order.findUnique({
-        where: { id: orderId },
-        include: {
-          items: {
-            include: {
-              productSize: true,
-            },
+  const execute = async (client: Prisma.TransactionClient) => {
+    const order = await client.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: {
+          include: {
+            productSize: true,
           },
+        },
+      },
+    });
+
+    if (!order) throw new Error("Order not found.");
+
+    for (const item of order.items) {
+      if (!item.productSizeId || !item.productSize) continue;
+
+      // Skip already committed items
+      if (item.stockState === "COMMITTED") continue;
+
+      const size = await client.productSize.findUnique({
+        where: { id: item.productSizeId },
+      });
+      if (!size) continue;
+
+      const wasReserved = item.stockState === "RESERVED";
+
+      const updatedSize = await client.productSize.update({
+        where: { id: size.id },
+        data: {
+          stockOnHand: { decrement: item.quantity },
+          ...(wasReserved ? { stockReserved: { decrement: item.quantity } } : {}),
         },
       });
 
-      if (!order) throw new Error("Order not found.");
+      await client.orderItem.update({
+        where: { id: item.id },
+        data: {
+          stockState: "COMMITTED",
+        },
+      });
 
-      for (const item of order.items) {
-        if (!item.productSizeId || !item.productSize) continue;
+      await client.stockMovement.create({
+        data: {
+          productSizeId: size.id,
+          type: "SALE",
+          quantity: -item.quantity,
+          onHandAfter: updatedSize.stockOnHand,
+          reservedAfter: updatedSize.stockReserved,
+          reason: `Dispatched in Order ${order.orderNumber}`,
+          orderId: order.id,
+          createdById: userId || null,
+        },
+      });
+    }
 
-        // Skip already committed items
-        if (item.stockState === "COMMITTED") continue;
+    return { success: true };
+  };
 
-        const size = await tx.productSize.findUnique({
-          where: { id: item.productSizeId },
-        });
-        if (!size) continue;
+  if (tx) {
+    return await execute(tx);
+  }
 
-        const newOnHand = Math.max(0, size.stockOnHand - item.quantity);
-        // If previously reserved, decrement reserved as well
-        const wasReserved = item.stockState === "RESERVED";
-        const newReserved = wasReserved
-          ? Math.max(0, size.stockReserved - item.quantity)
-          : size.stockReserved;
+  return await prisma.$transaction(execute, { maxWait: 20000, timeout: 30000 });
+}
 
-        await tx.productSize.update({
+/**
+ * Release reserved stock if order is CANCELLED before dispatch,
+ * or return stock to shelf if a dispatched order is returned.
+ * Supports transactional composition via optional `tx` parameter.
+ */
+export async function releaseReservationForOrder(
+  orderId: string,
+  userId?: string | null,
+  tx?: Prisma.TransactionClient
+) {
+  const execute = async (client: Prisma.TransactionClient) => {
+    const order = await client.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: {
+          include: {
+            productSize: true,
+          },
+        },
+      },
+    });
+
+    if (!order) throw new Error("Order not found.");
+
+    for (const item of order.items) {
+      if (!item.productSizeId || !item.productSize) continue;
+
+      if (item.stockState === "RELEASED") continue;
+
+      const size = await client.productSize.findUnique({
+        where: { id: item.productSizeId },
+      });
+      if (!size) continue;
+
+      if (item.stockState === "RESERVED") {
+        // Release reservation atomically
+        const updatedSize = await client.productSize.update({
           where: { id: size.id },
           data: {
-            stockOnHand: newOnHand,
-            stockReserved: newReserved,
+            stockReserved: { decrement: item.quantity },
           },
         });
 
-        await tx.orderItem.update({
-          where: { id: item.id },
-          data: {
-            stockState: "COMMITTED",
-          },
-        });
-
-        await tx.stockMovement.create({
+        await client.stockMovement.create({
           data: {
             productSizeId: size.id,
-            type: "SALE",
-            quantity: -item.quantity,
-            onHandAfter: newOnHand,
-            reservedAfter: newReserved,
-            reason: `Dispatched in Order ${order.orderNumber}`,
+            type: "RELEASE",
+            quantity: item.quantity,
+            onHandAfter: updatedSize.stockOnHand,
+            reservedAfter: updatedSize.stockReserved,
+            reason: `Order ${order.orderNumber} cancelled - reservation released`,
+            orderId: order.id,
+            createdById: userId || null,
+          },
+        });
+      } else if (item.stockState === "COMMITTED") {
+        // Return previously shipped stock to on-hand atomically
+        const updatedSize = await client.productSize.update({
+          where: { id: size.id },
+          data: {
+            stockOnHand: { increment: item.quantity },
+          },
+        });
+
+        await client.stockMovement.create({
+          data: {
+            productSizeId: size.id,
+            type: "RECEIVE",
+            quantity: item.quantity,
+            onHandAfter: updatedSize.stockOnHand,
+            reservedAfter: updatedSize.stockReserved,
+            reason: `Order ${order.orderNumber} cancelled/returned - stock restocked`,
             orderId: order.id,
             createdById: userId || null,
           },
         });
       }
 
-      return { success: true };
-    },
-    { maxWait: 20000, timeout: 30000 }
-  );
-}
-
-/**
- * Release reserved stock if order is CANCELLED before dispatch,
- * or return stock to shelf if a dispatched order is returned.
- */
-export async function releaseReservationForOrder(
-  orderId: string,
-  userId?: string
-) {
-  return await prisma.$transaction(
-    async (tx) => {
-      const order = await tx.order.findUnique({
-        where: { id: orderId },
-        include: {
-          items: {
-            include: {
-              productSize: true,
-            },
-          },
+      await client.orderItem.update({
+        where: { id: item.id },
+        data: {
+          stockState: "RELEASED",
         },
       });
+    }
 
-      if (!order) throw new Error("Order not found.");
+    return { success: true };
+  };
 
-      for (const item of order.items) {
-        if (!item.productSizeId || !item.productSize) continue;
+  if (tx) {
+    return await execute(tx);
+  }
 
-        if (item.stockState === "RELEASED") continue;
-
-        const size = await tx.productSize.findUnique({
-          where: { id: item.productSizeId },
-        });
-        if (!size) continue;
-
-        if (item.stockState === "RESERVED") {
-          // Release reservation
-          const newReserved = Math.max(0, size.stockReserved - item.quantity);
-
-          await tx.productSize.update({
-            where: { id: size.id },
-            data: {
-              stockReserved: newReserved,
-            },
-          });
-
-          await tx.stockMovement.create({
-            data: {
-              productSizeId: size.id,
-              type: "RELEASE",
-              quantity: item.quantity,
-              onHandAfter: size.stockOnHand,
-              reservedAfter: newReserved,
-              reason: `Order ${order.orderNumber} cancelled - reservation released`,
-              orderId: order.id,
-              createdById: userId || null,
-            },
-          });
-        } else if (item.stockState === "COMMITTED") {
-          // Return previously shipped stock to on-hand
-          const newOnHand = size.stockOnHand + item.quantity;
-
-          await tx.productSize.update({
-            where: { id: size.id },
-            data: {
-              stockOnHand: newOnHand,
-            },
-          });
-
-          await tx.stockMovement.create({
-            data: {
-              productSizeId: size.id,
-              type: "RECEIVE",
-              quantity: item.quantity,
-              onHandAfter: newOnHand,
-              reservedAfter: size.stockReserved,
-              reason: `Order ${order.orderNumber} cancelled/returned - stock restocked`,
-              orderId: order.id,
-              createdById: userId || null,
-            },
-          });
-        }
-
-        await tx.orderItem.update({
-          where: { id: item.id },
-          data: {
-            stockState: "RELEASED",
-          },
-        });
-      }
-
-      return { success: true };
-    },
-    { maxWait: 20000, timeout: 30000 }
-  );
+  return await prisma.$transaction(execute, { maxWait: 20000, timeout: 30000 });
 }
 

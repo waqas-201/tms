@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { requireRole, ROLES } from "@/lib/rbac";
+import { normalizePhoneNumber } from "@/lib/phone";
 
 export async function GET(request: NextRequest) {
   try {
@@ -192,7 +193,7 @@ export async function POST(request: NextRequest) {
       where: { email: lowerEmail },
       data: {
         role: targetRole,
-        phone: phone || null,
+        phone: normalizePhoneNumber(phone),
         city: city || "Karachi",
         address: address?.trim() || null,
         latitude: parsedLat,

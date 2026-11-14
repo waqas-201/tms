@@ -3,6 +3,7 @@ import { requireRole, ROLES } from "@/lib/rbac";
 import prisma from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { sendAdminPromotionEmail } from "@/lib/email";
+import { normalizePhoneNumber } from "@/lib/phone";
 
 export const dynamic = "force-dynamic";
 
@@ -114,7 +115,7 @@ export async function POST(request: NextRequest) {
           role: "admin",
           isActive: true,
           deletedAt: null,
-          ...(phone ? { phone: phone.trim() } : {}),
+          ...(phone ? { phone: normalizePhoneNumber(phone) } : {}),
           ...(city ? { city: city.trim() } : {}),
         },
       });
@@ -242,7 +243,7 @@ export async function POST(request: NextRequest) {
         role: "admin",
         isActive: true,
         emailVerified: true,
-        phone: phone || null,
+        phone: normalizePhoneNumber(phone),
         city: city || null,
       },
     });

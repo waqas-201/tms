@@ -4,6 +4,7 @@ import type {
   HijamaScheduleConfig,
   HijamaSetting,
   HijamaDateOverride,
+  Prisma,
 } from "@prisma/client";
 
 // Re-export Prisma types for convenient consumer imports
@@ -596,7 +597,8 @@ export async function getUpcomingSunnahDates(
  * Creates a new Hijama booking with capacity validation, coupon support, and unique ticket number generation.
  */
 export async function createHijamaBooking(
-  data: CreateHijamaBookingInput
+  data: CreateHijamaBookingInput,
+  txClient?: Prisma.TransactionClient
 ): Promise<HijamaBooking> {
   // 1. Validate required fields
   if (!data.fullName || !data.fullName.trim()) {
@@ -671,12 +673,13 @@ export async function createHijamaBooking(
 
   const maxAttempts = 5;
   let attempts = 0;
+  const db = txClient || prisma;
 
   while (attempts < maxAttempts) {
     attempts++;
 
     // Query highest current ticket number for this year
-    const latestBooking = await prisma.hijamaBooking.findFirst({
+    const latestBooking = await db.hijamaBooking.findFirst({
       where: {
         ticketNumber: {
           startsWith: prefix,
@@ -706,7 +709,7 @@ export async function createHijamaBooking(
     const ticketNumber = `${prefix}${nextSequence.toString().padStart(4, "0")}`;
 
     try {
-      const booking = await prisma.hijamaBooking.create({
+      const booking = await db.hijamaBooking.create({
         data: {
           ticketNumber,
           fullName: data.fullName.trim(),

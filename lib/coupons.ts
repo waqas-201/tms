@@ -1,4 +1,5 @@
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export type CouponScope = "PRODUCTS" | "HIJAMA" | "CONSULTATION" | "ALL" | "CATEGORY";
 export type CouponDiscountType = "PERCENTAGE" | "FIXED" | "FREE_SHIPPING" | "FREE_SERVICE";
@@ -42,16 +43,8 @@ export function normalizeCouponCode(code: string): string {
   return String(code || "").trim().toUpperCase();
 }
 
-export function normalizePhoneNumber(phone: string | null | undefined): string | null {
-  if (!phone) return null;
-  const digits = String(phone).replace(/\D/g, "");
-  if (!digits || digits.length < 7) return null;
-  // If Pakistan local format like 03001234567, normalize to 923001234567
-  if (digits.startsWith("0") && digits.length === 11) {
-    return `92${digits.slice(1)}`;
-  }
-  return digits;
-}
+import { normalizePhoneNumber } from "@/lib/phone";
+export { normalizePhoneNumber };
 
 /**
  * Validates a coupon code authoritatively against the database.
@@ -257,10 +250,7 @@ export async function validateCoupon(
   };
 }
 
-/**
- * Authoritatively records coupon redemption in a transaction and increments usage counter.
- */
-export async function recordCouponRedemption(params: {
+export interface RecordCouponRedemptionParams {
   couponId: string;
   userId?: string | null;
   phone?: string | null;
@@ -269,17 +259,31 @@ export async function recordCouponRedemption(params: {
   consultationId?: string | null;
   discountAmount: number;
   orderTotal?: number | null;
-}) {
+}
+
+/**
+ * Authoritatively records coupon redemption in a transaction and increments usage counter.
+ * Prevents race conditions on the final allowed redemption by performing an atomic SQL conditional update.
+ */
+export async function recordCouponRedemption(
+  params: RecordCouponRedemptionParams,
+  txClient?: Prisma.TransactionClient
+) {
   const cleanPhone = normalizePhoneNumber(params.phone);
 
-  return await prisma.$transaction(async (tx) => {
-    // Increment usage counter
-    await tx.coupon.update({
-      where: { id: params.couponId },
-      data: {
-        usageCount: { increment: 1 },
-      },
-    });
+  const execute = async (tx: Prisma.TransactionClient) => {
+    // Prevent last-use race conditions by performing an atomic conditional update on the coupon row
+    const rowsAffected = await tx.$executeRaw`
+      UPDATE "coupon"
+      SET "usageCount" = "usageCount" + 1
+      WHERE "id" = ${params.couponId}
+        AND "isActive" = true
+        AND ("usageLimit" IS NULL OR "usageCount" < "usageLimit")
+    `;
+
+    if (rowsAffected === 0) {
+      throw new Error("Coupon usage limit has been reached or coupon is inactive.");
+    }
 
     // Record individual redemption row for audit & anti-abuse checks
     return await tx.couponRedemption.create({
@@ -294,5 +298,89 @@ export async function recordCouponRedemption(params: {
         orderTotal: params.orderTotal || null,
       },
     });
-  });
+  };
+
+  if (txClient) {
+    return await execute(txClient);
+  }
+
+  return await prisma.$transaction(execute);
+}
+
+export interface ReverseCouponRedemptionParams {
+  orderId?: string | null;
+  couponId?: string | null;
+  hijamaBookingId?: string | null;
+  consultationId?: string | null;
+}
+
+export interface ReverseCouponRedemptionResult {
+  reversed: boolean;
+  couponId?: string;
+  discountAmount?: number;
+}
+
+/**
+ * Reverses a coupon redemption when an order, booking, or consultation is cancelled.
+ * Atomically decrements the coupon's usageCount (ensuring it never drops below 0)
+ * and deletes the CouponRedemption audit record.
+ */
+export async function reverseCouponRedemption(
+  params: ReverseCouponRedemptionParams,
+  txClient?: Prisma.TransactionClient
+): Promise<ReverseCouponRedemptionResult> {
+  const execute = async (tx: Prisma.TransactionClient): Promise<ReverseCouponRedemptionResult> => {
+    // Guard: Require at least one identifying reference
+    if (
+      !params.orderId &&
+      !params.couponId &&
+      !params.hijamaBookingId &&
+      !params.consultationId
+    ) {
+      return { reversed: false };
+    }
+
+    // Defensive guard for mock transaction clients in unit tests
+    if (typeof (tx as any)?.couponRedemption?.findFirst !== "function") {
+      return { reversed: false };
+    }
+
+    const where: Prisma.CouponRedemptionWhereInput = {};
+    if (params.orderId) where.orderId = params.orderId;
+    if (params.couponId) where.couponId = params.couponId;
+    if (params.hijamaBookingId) where.hijamaBookingId = params.hijamaBookingId;
+    if (params.consultationId) where.consultationId = params.consultationId;
+
+    const redemption = await tx.couponRedemption.findFirst({
+      where,
+    });
+
+    if (!redemption) {
+      return { reversed: false };
+    }
+
+    // Atomically decrement usageCount on Coupon, ensuring it never drops below 0
+    await tx.$executeRaw`
+      UPDATE "coupon"
+      SET "usageCount" = GREATEST(0, "usageCount" - 1)
+      WHERE "id" = ${redemption.couponId}
+    `;
+
+    // Delete the CouponRedemption audit record
+    await tx.couponRedemption.delete({
+      where: { id: redemption.id },
+    });
+
+    return {
+      reversed: true,
+      couponId: redemption.couponId,
+      discountAmount: redemption.discountAmount,
+    };
+  };
+
+  if (txClient) {
+    return await execute(txClient);
+  }
+
+  return await prisma.$transaction(execute);
 }

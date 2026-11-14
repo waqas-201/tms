@@ -9,6 +9,7 @@ import {
 } from "@/lib/hijama";
 import { createAdminNotification } from "@/lib/notifications";
 import { sendAdminHijamaNotificationEmail } from "@/lib/email";
+import { normalizePhoneNumber } from "@/lib/phone";
 
 /**
  * Public & Authenticated Hijama Booking Creation
@@ -44,9 +45,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!phone || typeof phone !== "string" || !phone.trim()) {
+    const cleanPhone = normalizePhoneNumber(phone);
+    if (!cleanPhone) {
       return NextResponse.json(
-        { success: false, error: "Phone number is required." },
+        { success: false, error: "A valid phone number is required (at least 7 digits)." },
         { status: 400 }
       );
     }
@@ -161,7 +163,7 @@ export async function POST(request: NextRequest) {
 
     const booking = await createHijamaBooking({
       fullName: fullName.trim(),
-      phone: phone.trim(),
+      phone: cleanPhone,
       email: typeof email === "string" ? email.trim() : null,
       age: parsedAge,
       gender,
@@ -262,8 +264,9 @@ export async function GET(request: NextRequest) {
         !!session?.user?.id && booking.userId === session.user.id;
 
       if (!isStaff && !isOwner) {
-        const digits = (phone || "").replace(/\D/g, "");
-        if (digits.length < 7 || booking.phone.replace(/\D/g, "") !== digits) {
+        const callerPhone = normalizePhoneNumber(phone);
+        const bookingPhone = normalizePhoneNumber(booking.phone);
+        if (!callerPhone || !bookingPhone || callerPhone !== bookingPhone) {
           return NextResponse.json(
             {
               success: false,

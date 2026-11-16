@@ -50,6 +50,18 @@ function JoinPageContent() {
   const [copiedMemberId, setCopiedMemberId] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [successData, setSuccessData] = useState<MembershipSuccessData | null>(null);
+  const [isReferralActive, setIsReferralActive] = useState<boolean>(false);
+
+  useEffect(() => {
+    fetch("/api/marketing/settings")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && typeof json.isReferralActive === "boolean") {
+          setIsReferralActive(json.isReferralActive);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const {
     register,
@@ -105,8 +117,8 @@ function JoinPageContent() {
           phone: formData.phone,
           city: formData.city || undefined,
           email: formData.email || undefined,
-          source: refParam ? "REFERRAL" : source,
-          referralCode: refParam || undefined,
+          source: isReferralActive && refParam ? "REFERRAL" : source,
+          referralCode: isReferralActive ? refParam || undefined : undefined,
         }),
       });
 
@@ -179,12 +191,21 @@ function JoinPageContent() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
               {refParam && (
-                <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
-                  <span>
-                    Invited by a friend ({refParam})! Complete registration to claim your ₨ 200 welcome voucher.
-                  </span>
-                </div>
+                isReferralActive ? (
+                  <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    <span>
+                      Invited by a friend ({refParam})! Complete registration to claim your ₨ 200 welcome voucher.
+                    </span>
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs font-medium flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                    <span>
+                      Note: The friend referral voucher promotion is currently paused by administration.
+                    </span>
+                  </div>
+                )
               )}
 
               {submitError && (

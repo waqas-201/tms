@@ -10,6 +10,7 @@ import {
   sendAdminOrderNotificationEmail,
 } from "@/lib/email";
 import { validateCoupon, recordCouponRedemption } from "@/lib/coupons";
+import { redeemLoyaltyPoints, getUserLoyaltyBalance } from "@/lib/loyalty";
 import { normalizePhoneNumber } from "@/lib/phone";
 import { generateInvoiceToken } from "@/lib/invoice-token";
 
@@ -156,6 +157,7 @@ export async function POST(request: NextRequest) {
       paymentMethod = "COD",
       items,
       couponCode = null,
+      pointsToRedeem = 0,
     } = body;
 
     if (!customerName || !phone || !city || !address || !items || !Array.isArray(items) || items.length === 0) {
@@ -315,6 +317,45 @@ export async function POST(request: NextRequest) {
       isFreeShippingCoupon = couponValidation.isFreeShipping;
     }
 
+    // Authoritative Server-Side Loyalty Points Redemption Check
+    let pointsDiscount = 0;
+    const validatedPoints = Number(pointsToRedeem) || 0;
+    if (validatedPoints > 0) {
+      if (!session?.user?.id) {
+        return NextResponse.json(
+          { success: false, error: "Please log in to redeem loyalty points." },
+          { status: 401 }
+        );
+      }
+      const userBalance = await getUserLoyaltyBalance(session.user.id);
+      if (userBalance < validatedPoints) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Insufficient loyalty points balance (Available: ${userBalance} pts).`,
+          },
+          { status: 400 }
+        );
+      }
+      if (validatedPoints < 200) {
+        return NextResponse.json(
+          { success: false, error: "Minimum 200 loyalty points required to redeem." },
+          { status: 400 }
+        );
+      }
+      const maxAllowed = Math.floor(subtotal * 0.1);
+      if (validatedPoints > maxAllowed) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: `Loyalty points redemption cannot exceed 10% of order subtotal (Max: ${maxAllowed} pts).`,
+          },
+          { status: 400 }
+        );
+      }
+      pointsDiscount = validatedPoints; // 1 pt = ₨ 1.00
+    }
+
     const deliveryCalc = calculateDeliveryFee({
       customerLat: parsedLat,
       customerLng: parsedLng,
@@ -324,11 +365,15 @@ export async function POST(request: NextRequest) {
 
     // Deferred delivery charges: shipping fee is calculated and confirmed manually by clinic admin
     const shippingFee = 0;
-    const total = Math.max(0, subtotal - finalDiscount);
+    const combinedDiscount = finalDiscount + pointsDiscount;
+    const total = Math.max(0, subtotal - combinedDiscount);
 
     let finalDeliveryNotes = deliveryNotes || null;
     if (validatedCouponCode) {
       finalDeliveryNotes = `[COUPON APPLIED: ${validatedCouponCode} | DISCOUNT: ₨ ${finalDiscount}] ` + (finalDeliveryNotes || "");
+    }
+    if (pointsDiscount > 0) {
+      finalDeliveryNotes = `[LOYALTY REDEEMED: ${pointsDiscount} pts (-₨ ${pointsDiscount})] ` + (finalDeliveryNotes || "");
     }
     finalDeliveryNotes = `[DELIVERY: Pending Clinic Confirmation] ` + (finalDeliveryNotes || "");
 
@@ -356,7 +401,7 @@ export async function POST(request: NextRequest) {
             orderStatus: "PENDING_CONFIRMATION",
             subtotal,
             shippingFee: 0,
-            discountAmount: finalDiscount,
+            discountAmount: combinedDiscount,
             total,
             dueAmount: total,
             couponId: validatedCouponId,
@@ -393,6 +438,19 @@ export async function POST(request: NextRequest) {
               orderId: createdOrder.id,
               discountAmount: finalDiscount,
               orderTotal: total,
+            },
+            tx
+          );
+        }
+
+        // Record loyalty points redemption if points burned
+        if (pointsDiscount > 0 && session?.user?.id) {
+          await redeemLoyaltyPoints(
+            {
+              userId: session.user.id,
+              points: pointsDiscount,
+              orderId: createdOrder.id,
+              orderSubtotal: subtotal,
             },
             tx
           );

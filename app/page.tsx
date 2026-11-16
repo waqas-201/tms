@@ -1,6 +1,7 @@
 import React from "react";
 import type { Metadata } from "next";
 import HeroSection from "@/app/components/HeroSection";
+import ActiveOffersSection from "@/app/components/ActiveOffersSection";
 import ClinicalSpecialtiesSection from "@/app/components/ClinicalSpecialtiesSection";
 import HijamaCalendarSection from "@/app/components/HijamaCalendarSection";
 import PrescribedRemediesSection from "@/app/components/PrescribedRemediesSection";
@@ -19,16 +20,19 @@ export default function Home() {
       {/* 1. Clinical Healthcare Hero (Goal-focused, fast triage, proof badge) */}
       <HeroSection />
 
-      {/* 2. Clinical Specialties & What We Treat (6 core conditions, Unani root causes) */}
+      {/* 2. Live Promotional Offers, Active Coupons & Member Rewards Showcase */}
+      <ActiveOffersSection />
+
+      {/* 3. Clinical Specialties & What We Treat (6 core conditions, Unani root causes) */}
       <ClinicalSpecialtiesSection />
 
-      {/* 3. Sunnah Hijama Calendar — emphasized booking section with countdown, calendar, & live slots */}
+      {/* 4. Sunnah Hijama Calendar — emphasized booking section with countdown, calendar, & live slots */}
       <HijamaCalendarSection />
 
-      {/* 4. Curated Physician-Formulated Remedies (Live apothecary dispensary grid) */}
+      {/* 5. Curated Physician-Formulated Remedies (Live apothecary dispensary grid) */}
       <PrescribedRemediesSection />
 
-      {/* 5. Hakeem Authority & Physical Karachi Clinic Visit (Lineage, standards & Matab details) */}
+      {/* 6. Hakeem Authority & Physical Karachi Clinic Visit (Lineage, standards & Matab details) */}
       <HakimAuthoritySection />
     </>
   );

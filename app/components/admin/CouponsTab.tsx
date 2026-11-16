@@ -31,6 +31,8 @@ import {
   Gift,
   RefreshCw,
   SlidersHorizontal,
+  Users,
+  Coins,
 } from "lucide-react";
 
 interface CouponItem {
@@ -121,6 +123,63 @@ export default function CouponsTab() {
   // Categories list for CATEGORY scope
   const [categories, setCategories] = useState<Array<{ id: string; name: string; slug: string }>>([]);
 
+  // Marketing & Referral Governance Settings State
+  const [marketingSettings, setMarketingSettings] = useState<{
+    isReferralActive: boolean;
+    referrerRewardPoints: number;
+    refereeWelcomeDiscount: number;
+    referralMinOrderSubtotal: number;
+    isLoyaltyProgramActive: boolean;
+    homeBannerActive: boolean;
+    homeBannerText: string | null;
+  }>({
+    isReferralActive: false,
+    referrerRewardPoints: 100,
+    refereeWelcomeDiscount: 200,
+    referralMinOrderSubtotal: 1000,
+    isLoyaltyProgramActive: true,
+    homeBannerActive: true,
+    homeBannerText: "",
+  });
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [settingsSavedMessage, setSettingsSavedMessage] = useState<string | null>(null);
+
+  const fetchMarketingSettings = useCallback(async () => {
+    try {
+      const res = await fetch("/api/admin/marketing/settings");
+      const json = await res.json();
+      if (res.ok && json.success && json.data) {
+        setMarketingSettings(json.data);
+      }
+    } catch (e) {
+      console.warn("Failed to fetch marketing settings:", e);
+    }
+  }, []);
+
+  const handleSaveMarketingSettings = async (updates: Partial<typeof marketingSettings>) => {
+    setSavingSettings(true);
+    setSettingsSavedMessage(null);
+    try {
+      const next = { ...marketingSettings, ...updates };
+      setMarketingSettings(next);
+      const res = await fetch("/api/admin/marketing/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(next),
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Failed to update settings.");
+      }
+      setSettingsSavedMessage("Marketing & Referral program settings saved successfully!");
+      setTimeout(() => setSettingsSavedMessage(null), 3500);
+    } catch (err: any) {
+      alert(err.message || "Failed to save marketing settings.");
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
   const fetchCoupons = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -149,7 +208,8 @@ export default function CouponsTab() {
 
   useEffect(() => {
     fetchCoupons();
-  }, [fetchCoupons]);
+    fetchMarketingSettings();
+  }, [fetchCoupons, fetchMarketingSettings]);
 
   // Load categories once
   useEffect(() => {
@@ -384,6 +444,223 @@ export default function CouponsTab() {
             </span>
           </div>
           <p className="text-[11px] text-ink-subtle">Gross order value driven by coupons</p>
+        </div>
+      </div>
+
+      {/* ─── 1.5 MARKETING & REFERRAL MASTER CONTROLS ─── */}
+      <div className="p-5 sm:p-6 rounded-2xl bg-white border border-line shadow-xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-line">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <SlidersHorizontal className="w-4 h-4 text-primary" />
+              <h2 className="font-serif font-bold text-base text-ink">
+                Marketing, Referral &amp; Rewards Master Controls (مارکیٹنگ و ریفرل کنٹرول)
+              </h2>
+            </div>
+            <p className="text-xs text-ink-subtle">
+              Direct administrative switches. Changes immediately reflect across customer accounts, header navigation, and checkout.
+            </p>
+          </div>
+
+          {settingsSavedMessage && (
+            <div className="px-3 py-1.5 rounded-xl bg-success-soft text-success text-xs font-semibold border border-success-line flex items-center gap-1.5 animate-fadeIn">
+              <CheckCircle2 className="w-4 h-4 text-success" />
+              <span>{settingsSavedMessage}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          {/* Card 1: Friend Referral Program Switch */}
+          <div className={`p-4 rounded-xl border transition-all space-y-3 ${
+            marketingSettings.isReferralActive
+              ? "bg-emerald-50/50 border-emerald-200"
+              : "bg-surface border-line"
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Users className={`w-4 h-4 ${marketingSettings.isReferralActive ? "text-emerald-700" : "text-ink-subtle"}`} />
+                <span className="text-xs font-bold uppercase tracking-wider text-ink">Friend Referrals</span>
+              </div>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                marketingSettings.isReferralActive
+                  ? "bg-success-soft text-success border border-success-line"
+                  : "bg-surface-sunken text-ink-muted border border-line"
+              }`}>
+                {marketingSettings.isReferralActive ? "Active (فعال)" : "Paused (معطل)"}
+              </span>
+            </div>
+
+            <p className="text-[11px] text-ink-body">
+              {marketingSettings.isReferralActive
+                ? "Customer referral links, header invite badge, and ₨ 200 welcome discounts are active."
+                : "Referral links and UI are completely disabled and hidden on customer accounts."}
+            </p>
+
+            <div className="space-y-2 pt-2 border-t border-line/60 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-ink-subtle">Referrer Points:</span>
+                <input
+                  type="number"
+                  value={marketingSettings.referrerRewardPoints}
+                  onChange={(e) =>
+                    setMarketingSettings((p) => ({
+                      ...p,
+                      referrerRewardPoints: Number(e.target.value) || 0,
+                    }))
+                  }
+                  className="w-20 px-2 py-1 text-right font-mono bg-white border border-line rounded text-xs"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-ink-subtle">Referee Welcome (₨):</span>
+                <input
+                  type="number"
+                  value={marketingSettings.refereeWelcomeDiscount}
+                  onChange={(e) =>
+                    setMarketingSettings((p) => ({
+                      ...p,
+                      refereeWelcomeDiscount: Number(e.target.value) || 0,
+                    }))
+                  }
+                  className="w-20 px-2 py-1 text-right font-mono bg-white border border-line rounded text-xs"
+                />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-ink-subtle">Min Order Spend (₨):</span>
+                <input
+                  type="number"
+                  value={marketingSettings.referralMinOrderSubtotal}
+                  onChange={(e) =>
+                    setMarketingSettings((p) => ({
+                      ...p,
+                      referralMinOrderSubtotal: Number(e.target.value) || 0,
+                    }))
+                  }
+                  className="w-20 px-2 py-1 text-right font-mono bg-white border border-line rounded text-xs"
+                />
+              </div>
+            </div>
+
+            <button
+              type="button"
+              disabled={savingSettings}
+              onClick={() =>
+                handleSaveMarketingSettings({
+                  isReferralActive: !marketingSettings.isReferralActive,
+                })
+              }
+              className={`w-full py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                marketingSettings.isReferralActive
+                  ? "bg-danger hover:bg-danger text-white shadow-xs"
+                  : "bg-primary hover:bg-brand-green-800 text-white shadow-xs"
+              }`}
+            >
+              {savingSettings ? "Updating..." : marketingSettings.isReferralActive ? "Pause Referral Program" : "Enable Referral Program"}
+            </button>
+          </div>
+
+          {/* Card 2: Loyalty Point Engine Switch */}
+          <div className={`p-4 rounded-xl border transition-all space-y-3 ${
+            marketingSettings.isLoyaltyProgramActive
+              ? "bg-amber-50/50 border-amber-200"
+              : "bg-surface border-line"
+          }`}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Coins className={`w-4 h-4 ${marketingSettings.isLoyaltyProgramActive ? "text-amber-700" : "text-ink-subtle"}`} />
+                <span className="text-xs font-bold uppercase tracking-wider text-ink">Loyalty Point Engine</span>
+              </div>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                marketingSettings.isLoyaltyProgramActive
+                  ? "bg-amber-100 text-amber-800 border border-amber-300"
+                  : "bg-surface-sunken text-ink-muted border border-line"
+              }`}>
+                {marketingSettings.isLoyaltyProgramActive ? "Active" : "Paused"}
+              </span>
+            </div>
+
+            <p className="text-[11px] text-ink-body">
+              Automatic 2% points on apothecary orders, ₨ 50 on Sunnah Hijama, and ₨ 30 on Physician Consultations.
+            </p>
+
+            <div className="text-[11px] text-ink-subtle space-y-1 pt-2 border-t border-line/60">
+              <div>• 1:1 PKR Cash Parity per Point</div>
+              <div>• Minimum 200 points to burn at checkout</div>
+              <div>• Maximum 10% subtotal order discount cap</div>
+            </div>
+
+            <button
+              type="button"
+              disabled={savingSettings}
+              onClick={() =>
+                handleSaveMarketingSettings({
+                  isLoyaltyProgramActive: !marketingSettings.isLoyaltyProgramActive,
+                })
+              }
+              className="w-full py-2 px-3 bg-surface hover:bg-surface-sunken text-ink-body border border-line rounded-lg text-xs font-bold transition-all cursor-pointer"
+            >
+              {marketingSettings.isLoyaltyProgramActive ? "Pause Loyalty Accrual" : "Enable Loyalty Points"}
+            </button>
+          </div>
+
+          {/* Card 3: Home Page Live Offers Showcase */}
+          <div className="p-4 rounded-xl border border-line bg-surface space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-brand-gold-600" />
+                <span className="text-xs font-bold uppercase tracking-wider text-ink">Homepage Offers Showcase</span>
+              </div>
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                marketingSettings.homeBannerActive
+                  ? "bg-success-soft text-success border border-success-line"
+                  : "bg-surface-sunken text-ink-muted border border-line"
+              }`}>
+                {marketingSettings.homeBannerActive ? "Visible" : "Hidden"}
+              </span>
+            </div>
+
+            <p className="text-[11px] text-ink-body">
+              Displays the announcement pill in the Hero and the interactive active offers grid on the homepage.
+            </p>
+
+            <div className="space-y-1.5 pt-2 border-t border-line/60 text-xs">
+              <label className="text-[11px] font-medium text-ink-subtle">
+                Banner Headline:
+              </label>
+              <input
+                type="text"
+                value={marketingSettings.homeBannerText || ""}
+                onChange={(e) =>
+                  setMarketingSettings((p) => ({
+                    ...p,
+                    homeBannerText: e.target.value,
+                  }))
+                }
+                placeholder="Custom announcement badge text..."
+                className="w-full px-2.5 py-1.5 bg-white border border-line rounded-lg text-xs text-ink"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <button
+                type="button"
+                disabled={savingSettings}
+                onClick={() =>
+                  handleSaveMarketingSettings({
+                    homeBannerActive: !marketingSettings.homeBannerActive,
+                    homeBannerText: marketingSettings.homeBannerText,
+                    referrerRewardPoints: marketingSettings.referrerRewardPoints,
+                    refereeWelcomeDiscount: marketingSettings.refereeWelcomeDiscount,
+                    referralMinOrderSubtotal: marketingSettings.referralMinOrderSubtotal,
+                  })
+                }
+                className="flex-1 py-2 px-3 bg-primary hover:bg-brand-green-800 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
+              >
+                {savingSettings ? "Saving..." : "Save Settings"}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

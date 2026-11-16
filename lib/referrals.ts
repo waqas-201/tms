@@ -290,6 +290,15 @@ export async function applyReferralAttribution(
   rawCode: string,
   txClient?: Prisma.TransactionClient
 ): Promise<{ success: boolean; reason?: string; referrerId?: string }> {
+  // Policy Check: Referral Program active status
+  const settings = await getMarketingSettings();
+  if (!settings.isReferralActive) {
+    return {
+      success: false,
+      reason: "The friend referral program is currently paused or inactive.",
+    };
+  }
+
   const db = (txClient || prisma) as Prisma.TransactionClient;
 
   const referee = await db.user.findUnique({

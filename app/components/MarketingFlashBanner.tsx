@@ -21,6 +21,7 @@ interface PromoData {
 
 export default function MarketingFlashBanner() {
   const [promo, setPromo] = useState<PromoData | null>(null);
+  const [promoList, setPromoList] = useState<PromoData[]>([]);
   const [copied, setCopied] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [timeLeft, setTimeLeft] = useState<{ hours: number; minutes: number; seconds: number } | null>(null);
@@ -40,6 +41,7 @@ export default function MarketingFlashBanner() {
       .then((res) => res.json())
       .then((json) => {
         if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+          setPromoList(json.data);
           setPromo(json.data[0]);
         }
       })
@@ -107,6 +109,14 @@ export default function MarketingFlashBanner() {
           </span>
           <span className="font-medium text-white/95 text-[11px] sm:text-xs">
             {bannerMessage}
+            {promoList.length > 1 && (
+              <a
+                href="/#active-offers"
+                className="ml-2 font-bold text-brand-gold-300 underline hover:text-white transition-colors"
+              >
+                +{promoList.length - 1} more offers →
+              </a>
+            )}
           </span>
         </div>
 

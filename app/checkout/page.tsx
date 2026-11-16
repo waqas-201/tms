@@ -1172,6 +1172,59 @@ export default function CheckoutPage() {
                 )}
               </div>
 
+              {/* Loyalty Points Redemption (For authenticated patients) */}
+              {isUserAuthenticated && loyaltyBalance > 0 && (
+                <div className="pt-2 border-t border-line space-y-2">
+                  <div className="p-3 rounded-xl bg-amber-50/70 border border-amber-200/80 space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 font-bold text-amber-900">
+                        <Coins className="w-3.5 h-3.5 text-amber-600" />
+                        <span>TMS Sehat Loyalty Rewards</span>
+                      </div>
+                      <span className="font-mono font-bold text-amber-950 bg-amber-100 px-2 py-0.5 rounded-md text-[11px]">
+                        {loyaltyBalance.toLocaleString()} pts (₨ {loyaltyBalance})
+                      </span>
+                    </div>
+
+                    {loyaltyBalance >= 200 ? (
+                      redeemPoints > 0 ? (
+                        <div className="flex items-center justify-between bg-white px-2.5 py-1.5 rounded-lg border border-emerald-300 shadow-2xs">
+                          <div className="text-emerald-700 font-semibold flex items-center gap-1.5 text-xs">
+                            <Check className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>Applying {redeemPoints} Points (-₨ {redeemPoints})</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setRedeemPoints(0)}
+                            className="text-[11px] text-danger hover:underline font-semibold cursor-pointer"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between gap-2 pt-1">
+                          <span className="text-[11px] text-amber-900">
+                            Apply max 10% subtotal ({maxRedeemablePoints} pts = ₨ {maxRedeemablePoints})
+                          </span>
+                          <button
+                            type="button"
+                            disabled={maxRedeemablePoints <= 0}
+                            onClick={() => setRedeemPoints(maxRedeemablePoints)}
+                            className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-[11px] transition-colors cursor-pointer disabled:opacity-50 shadow-2xs"
+                          >
+                            Apply ₨ {maxRedeemablePoints}
+                          </button>
+                        </div>
+                      )
+                    ) : (
+                      <p className="text-[10px] text-amber-800">
+                        Min. 200 points needed to redeem at checkout ({200 - loyaltyBalance} more pts needed).
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Price Calculations */}
               <div className="space-y-2 text-xs pt-2 border-t border-line">
                 <div className="flex justify-between text-ink-body">
@@ -1183,8 +1236,15 @@ export default function CheckoutPage() {
 
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-success font-semibold">
-                    <span>Discount ({appliedCoupon?.code})</span>
+                    <span>Coupon Discount ({appliedCoupon?.code})</span>
                     <span>- ₨ {discountAmount.toLocaleString()}</span>
+                  </div>
+                )}
+
+                {redeemPoints > 0 && (
+                  <div className="flex justify-between text-emerald-700 font-semibold">
+                    <span>Points Redemption (-{redeemPoints} pts)</span>
+                    <span>- ₨ {pointsDiscount.toLocaleString()}</span>
                   </div>
                 )}
 
@@ -1202,7 +1262,7 @@ export default function CheckoutPage() {
                       <span className="text-[11px] text-ink-muted">Delivery fee will be added to your invoice</span>
                     </div>
                     <span className="text-base sm:text-lg font-bold text-ink">
-                      ₨ {payableSubtotal.toLocaleString()}
+                      ₨ {Math.max(0, payableSubtotal - pointsDiscount).toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -1266,7 +1326,7 @@ export default function CheckoutPage() {
                     </>
                   ) : (
                     <>
-                      <span>Confirm Cash on Delivery (₨ {payableSubtotal.toLocaleString()} + Delivery TBD)</span>
+                      <span>Confirm Cash on Delivery (₨ {Math.max(0, payableSubtotal - pointsDiscount).toLocaleString()} + Delivery TBD)</span>
                       <ArrowRight className="w-4 h-4 text-brand-gold-500" />
                     </>
                   )}

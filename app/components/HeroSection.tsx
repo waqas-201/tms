@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, MessageCircle, Tag, Sparkles } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useConsultation } from "@/app/context/ConsultationContext";
 
@@ -111,6 +111,23 @@ export default function HeroSection() {
   const trustRef = useRef<HTMLParagraphElement>(null);
   // How many rows of concern pills fit on phones/tablets: 0 = hidden, 1, or 2.
   const [chipRows, setChipRows] = useState<0 | 1 | 2>(1);
+  const [promoBadgeText, setPromoBadgeText] = useState<string>("Active Rewards & Coupons Available");
+
+  useEffect(() => {
+    fetch("/api/coupons/active-promos")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success) {
+          const couponCount = Array.isArray(json.coupons) ? json.coupons.length : 0;
+          if (couponCount > 0) {
+            setPromoBadgeText(`🎁 ${couponCount} Active Offer${couponCount > 1 ? "s" : ""} & Coupons Available · Save Now`);
+          } else if (json.isLoyaltyProgramActive) {
+            setPromoBadgeText("🌿 TMS Sehat Rewards: Earn cashback points on every order");
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Phones/tablets: fill exactly the remaining screen height below the header,
   // then use whatever space is left over for the concern pills.
@@ -201,6 +218,18 @@ export default function HeroSection() {
         <div ref={colRef} className="flex min-w-0 flex-1 flex-col pb-5 pt-8 sm:pb-8 sm:pt-12 lg:justify-center lg:py-0">
           {/* Main block: centred in the free height on phones */}
           <div ref={mainRef} className="my-auto min-w-0 lg:my-0">
+            {/* Live Coupons & Rewards Announcement Pill */}
+            <a
+              href="#active-offers"
+              className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-sand-50/10 hover:bg-sand-50/15 border border-brand-gold-400/50 text-brand-gold-300 hover:text-brand-gold-200 text-xs font-semibold backdrop-blur-md mb-3 sm:mb-4 transition-all group w-fit cursor-pointer shadow-xs"
+            >
+              <span className="flex h-2 w-2 rounded-full bg-brand-gold-400 animate-pulse flex-shrink-0" />
+              <span className="text-[11px] sm:text-xs font-medium">
+                {promoBadgeText}
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform text-brand-gold-400 flex-shrink-0" />
+            </a>
+
             <h1 className="text-balance font-serif text-[clamp(1.95rem,8.6vw,2.75rem)] font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.6rem] lg:leading-[1.1]">
               Heal Naturally with{" "}
               <span className="whitespace-nowrap">Tameer-e-Sehat</span>

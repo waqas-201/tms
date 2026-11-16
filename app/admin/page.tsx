@@ -6,9 +6,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useSession, signOut } from "@/lib/auth-client";
 import {
   Package,
-  Warehouse,
-  Scale,
-  FolderTree,
   RefreshCw,
   LogOut,
   Loader2,
@@ -18,15 +15,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   Layers,
-  Activity,
-  CalendarCheck,
-  Droplets,
-  ShoppingBag,
   Users,
   ArrowRight,
-  Receipt,
-  Tag,
-  TrendingUp,
 } from "lucide-react";
 import ProductFormModal from "@/app/components/ProductFormModal";
 import ReceiveStockModal from "@/app/components/inventory/ReceiveStockModal";
@@ -47,39 +37,14 @@ import StaffAdminsTab from "@/app/components/admin/StaffAdminsTab";
 import CouponsTab from "@/app/components/admin/CouponsTab";
 import AnalyticsTab from "@/app/components/admin/AnalyticsTab";
 import NotificationBell from "@/app/components/admin/NotificationBell";
+import AdminNavigation, {
+  AdminTab,
+  ADMIN_GROUPS,
+} from "@/app/components/admin/AdminNavigation";
 import SurfaceFade from "@/app/components/motion/SurfaceFade";
 import { ROLES, isStaffRole } from "@/lib/rbac-base";
 
-type AdminTab =
-  | "analytics"
-  | "orders"
-  | "accounting"
-  | "products"
-  | "inventory"
-  | "categories"
-  | "units"
-  | "consultations"
-  | "schedule"
-  | "hijama"
-  | "users"
-  | "staff"
-  | "coupons";
-
-const TABS: { id: AdminTab; label: string; icon: typeof Package; adminOnly?: boolean; superAdminOnly?: boolean }[] = [
-  { id: "analytics", label: "Executive Analytics", icon: TrendingUp, adminOnly: true },
-  { id: "orders", label: "Orders", icon: ShoppingBag },
-  { id: "accounting", label: "Accounting & Payments", icon: Receipt },
-  { id: "coupons", label: "Coupons & Flash Promos", icon: Tag, adminOnly: true },
-  { id: "products", label: "Products", icon: Package },
-  { id: "inventory", label: "Stock", icon: Warehouse },
-  { id: "consultations", label: "Consultations & Rx", icon: Activity },
-  { id: "hijama", label: "Hijama Cupping", icon: Droplets },
-  { id: "schedule", label: "Clinic Schedule", icon: CalendarCheck },
-  { id: "categories", label: "Categories", icon: FolderTree },
-  { id: "units", label: "Units", icon: Scale },
-  { id: "users", label: "Users & Access", icon: Users, adminOnly: true },
-  { id: "staff", label: "Admin Team & Cell", icon: ShieldCheck, superAdminOnly: true },
-];
+const ALL_ADMIN_TABS = ADMIN_GROUPS.flatMap((group) => group.tabs);
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -95,7 +60,7 @@ export default function AdminDashboardPage() {
   const isAdmin = userRole === ROLES.ADMIN || isSuperAdmin;
 
   const visibleTabs = useMemo(() => {
-    return TABS.filter((t) => {
+    return ALL_ADMIN_TABS.filter((t) => {
       if (t.superAdminOnly) return isSuperAdmin;
       if (t.adminOnly) return isAdmin;
       return true;
@@ -277,29 +242,13 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <nav className="flex items-center gap-1 overflow-x-auto">
-            {visibleTabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setTab(tab.id)}
-                  className={`inline-flex items-center gap-2 px-4 py-3 text-sm font-semibold border-b-2 transition-all whitespace-nowrap ${
-                    isActive
-                      ? "border-primary text-primary"
-                      : "border-transparent text-ink-muted hover:text-primary hover:border-line"
-                  }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
+        {/* Grouped Heads Navigation with Dropdowns */}
+        <AdminNavigation
+          activeTab={activeTab}
+          onSelectTab={setTab}
+          isAdmin={isAdmin}
+          isSuperAdmin={isSuperAdmin}
+        />
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">

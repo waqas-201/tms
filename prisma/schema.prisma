@@ -467,6 +467,26 @@ model DeliverySetting {
 // Marketing & Coupons Engine
 // -------------------------------------------------------------
 
+model MarketingSetting {
+  id                        String   @id @default("default")
+  isReferralActive          Boolean  @default(false)
+  referrerRewardPoints      Int      @default(100)
+  refereeWelcomeDiscount    Float    @default(200.0)
+  referralMinOrderSubtotal  Float    @default(1000.0)
+  isLoyaltyProgramActive    Boolean  @default(true)
+  apothecaryEarnPercent     Float    @default(0.02)
+  hijamaEarnPoints          Int      @default(50)
+  consultationEarnPoints    Int      @default(30)
+  minRedemptionPoints       Int      @default(200)
+  maxRedemptionSubtotalCap  Float    @default(0.10)
+  homeBannerText            String?
+  homeBannerActive          Boolean  @default(true)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  @@map("marketing_setting")
+}
+
 model Coupon {
   id                  String             @id @default(cuid())
   code                String             @unique // Stored UPPERCASE, e.g. "SEHAT20"

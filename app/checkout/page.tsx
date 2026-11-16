@@ -33,6 +33,7 @@ import {
   Lock,
   ExternalLink,
   Navigation,
+  Coins,
 } from "lucide-react";
 
 const PAKISTAN_CITIES = [
@@ -212,6 +213,13 @@ export default function CheckoutPage() {
   const isUserAuthenticated = Boolean(sessionData?.user);
   const isEmailVerified = Boolean(sessionData?.user?.emailVerified);
 
+  // Loyalty Points Redemption State
+  const [loyaltyBalance, setLoyaltyBalance] = useState<number>(0);
+  const [redeemPoints, setRedeemPoints] = useState<number>(0);
+  const maxRedeemablePoints =
+    loyaltyBalance >= 200 ? Math.min(loyaltyBalance, Math.floor(subtotal * 0.1)) : 0;
+  const pointsDiscount = redeemPoints * 1; // 1 point = ₨ 1.00
+
   // Populate form with session user & saved address details if logged in
   useEffect(() => {
     if (sessionData?.user) {
@@ -248,6 +256,15 @@ export default function CheckoutPage() {
             city: prev.city || (sessionData.user as any).city || "Karachi",
           }));
         });
+
+      fetch("/api/account/loyalty")
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.success && typeof json.pointsBalance === "number") {
+            setLoyaltyBalance(json.pointsBalance);
+          }
+        })
+        .catch(() => {});
     }
   }, [sessionData]);
 
@@ -360,6 +377,7 @@ export default function CheckoutPage() {
         }${formData.specialNotes || ""}`,
         paymentMethod: formData.paymentMethod,
         discountAmount,
+        pointsToRedeem: redeemPoints > 0 ? redeemPoints : undefined,
         couponCode: appliedCoupon ? appliedCoupon.code : null,
         items: cart.map((item) => ({
           productId: item.product.id,

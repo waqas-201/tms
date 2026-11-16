@@ -5,6 +5,7 @@ Client and server React UI components for admin.
 
 ## Interface
 - `AccountingTab` (default export) in [AccountingTab.tsx:AccountingTab]
+- `AdminNavigation` (default export), `ADMIN_GROUPS`, `AdminTab` in [AdminNavigation.tsx:AdminNavigation]
 - `PRESET_UNANI_CATEGORIES` in [CategoriesTab.tsx:PRESET_UNANI_CATEGORIES]
 - `CategoryItem` in [CategoriesTab.tsx:CategoryItem]
 - `CategoriesTab` (default export) in [CategoriesTab.tsx:CategoriesTab]

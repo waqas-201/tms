@@ -19,6 +19,8 @@ import {
   HelpCircle,
   ChevronRight,
   Users,
+  Calculator,
+  Tag,
 } from "lucide-react";
 
 interface LoyaltyEntry {
@@ -52,6 +54,19 @@ export default function LoyaltyAccountPage() {
   const [data, setData] = useState<LoyaltyData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<"ALL" | "EARN" | "REDEEM" | "ADJUST">("ALL");
+  const [isReferralActive, setIsReferralActive] = useState<boolean>(false);
+  const [calcOrderAmount, setCalcOrderAmount] = useState<number>(3000);
+
+  useEffect(() => {
+    fetch("/api/marketing/settings")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && typeof json.isReferralActive === "boolean") {
+          setIsReferralActive(json.isReferralActive);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const fetchLoyaltyData = async () => {
     setLoading(true);
@@ -111,13 +126,15 @@ export default function LoyaltyAccountPage() {
           </Link>
 
           <div className="flex items-center gap-2">
-            <Link
-              href="/account/referrals"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold hover:bg-emerald-100 transition-colors"
-            >
-              <Users className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Invite Friends (+100 pts)</span>
-            </Link>
+            {isReferralActive && (
+              <Link
+                href="/account/referrals"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold hover:bg-emerald-100 transition-colors"
+              >
+                <Users className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Invite Friends (+100 pts)</span>
+              </Link>
+            )}
 
             <button
               type="button"
@@ -223,28 +240,151 @@ export default function LoyaltyAccountPage() {
           </div>
         </div>
 
-        {/* Referral Program Callout Banner */}
-        <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 p-5 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
-              <Users className="w-5 h-5" />
+        {/* Referral Program Callout Banner (Only shown if referral program is active) */}
+        {isReferralActive && (
+          <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 p-5 rounded-2xl border border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-serif font-bold text-sm text-primary">
+                  Refer Friends &amp; Earn 100 Points (₨ 100) per friend
+                </h3>
+                <p className="text-xs text-ink-subtle">
+                  Friends get a ₨ 200 welcome voucher, and you earn 100 points when their first order is delivered!
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="font-serif font-bold text-sm text-primary">
-                Refer Friends &amp; Earn 100 Points (₨ 100) per friend
-              </h3>
-              <p className="text-xs text-ink-subtle">
-                Friends get a ₨ 200 welcome voucher, and you earn 100 points when their first order is delivered!
+            <Link
+              href="/account/referrals"
+              className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-colors flex-shrink-0 shadow-xs"
+            >
+              <span>Invite Friends Now</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+        )}
+
+        {/* Interactive Points Estimator & Calculator Widget */}
+        <div className="bg-white p-6 sm:p-7 rounded-3xl border border-line shadow-2xs space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-amber-50 text-amber-700 border border-amber-200">
+                <Calculator className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="font-serif text-lg font-bold text-primary">
+                  Interactive Points &amp; Savings Calculator (حساب کتاب تخمینہ)
+                </h2>
+                <p className="text-xs text-ink-subtle">
+                  Simulate your apothecary spend to see exact cashback earnings and maximum checkout discount.
+                </p>
+              </div>
+            </div>
+
+            {/* Quick preset chips */}
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {[1500, 2500, 5000, 10000].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setCalcOrderAmount(preset)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                    calcOrderAmount === preset
+                      ? "bg-primary text-white shadow-xs"
+                      : "bg-surface hover:bg-surface-sunken text-ink-body border border-line"
+                  }`}
+                >
+                  ₨ {preset.toLocaleString()}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3 pt-2">
+            <div className="flex items-center justify-between text-xs font-semibold">
+              <span className="text-ink-body">Simulated Order Subtotal:</span>
+              <span className="font-mono text-base font-bold text-primary">
+                ₨ {calcOrderAmount.toLocaleString()} PKR
+              </span>
+            </div>
+            <input
+              type="range"
+              min="500"
+              max="20000"
+              step="250"
+              value={calcOrderAmount}
+              onChange={(e) => setCalcOrderAmount(Number(e.target.value))}
+              className="w-full accent-primary h-2 bg-surface-sunken rounded-lg cursor-pointer"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+            <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 space-y-1">
+              <span className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">
+                Cashback Earned (2%)
+              </span>
+              <div className="font-serif text-xl sm:text-2xl font-black text-emerald-900">
+                +{Math.floor(calcOrderAmount * 0.02)} <span className="text-xs font-sans font-semibold">pts (₨ {Math.floor(calcOrderAmount * 0.02)})</span>
+              </div>
+              <p className="text-[10px] text-emerald-700">Accrued automatically on delivery</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-100 space-y-1">
+              <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wider">
+                Max Allowed Discount (10% Cap)
+              </span>
+              <div className="font-serif text-xl sm:text-2xl font-black text-amber-900">
+                ₨ {Math.floor(calcOrderAmount * 0.10).toLocaleString()} <span className="text-xs font-sans font-semibold">PKR</span>
+              </div>
+              <p className="text-[10px] text-amber-700">Burn up to this amount in points</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-primary/5 border border-primary/15 space-y-1">
+              <span className="text-[11px] font-bold text-primary uppercase tracking-wider">
+                Net Subtotal with Max Points
+              </span>
+              <div className="font-serif text-xl sm:text-2xl font-black text-primary">
+                ₨ {Math.max(0, calcOrderAmount - Math.floor(calcOrderAmount * 0.10)).toLocaleString()} <span className="text-xs font-sans font-semibold">PKR</span>
+              </div>
+              <p className="text-[10px] text-ink-subtle">Instant 10% cash savings at checkout</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Straightforward Rules Guide */}
+        <div className="p-6 sm:p-7 rounded-3xl bg-surface border border-line space-y-4">
+          <h3 className="font-serif font-bold text-base text-primary flex items-center gap-2">
+            <HelpCircle className="w-4 h-4 text-primary" />
+            <span>How TMS Sehat Rewards Work (آسان رہنمائی)</span>
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+            <div className="space-y-1 p-3.5 bg-white rounded-xl border border-line">
+              <span className="font-bold text-primary">1. Automatic Accrual</span>
+              <p className="text-ink-subtle">
+                Every purchase automatically earns 2% in points. Sunnah Hijama awards 50 points, and consultations award 30 points.
+              </p>
+            </div>
+            <div className="space-y-1 p-3.5 bg-white rounded-xl border border-line">
+              <span className="font-bold text-primary">2. 1:1 Pure Cash Parity</span>
+              <p className="text-ink-subtle">
+                1 point is always equal to ₨ 1.00 PKR. No complicated coin conversions or points inflation.
+              </p>
+            </div>
+            <div className="space-y-1 p-3.5 bg-white rounded-xl border border-line">
+              <span className="font-bold text-primary">3. Easy Checkout Redemption</span>
+              <p className="text-ink-subtle">
+                Once you reach 200 points, simply click &quot;Apply Points&quot; at checkout to offset up to 10% of your subtotal.
+              </p>
+            </div>
+            <div className="space-y-1 p-3.5 bg-white rounded-xl border border-line">
+              <span className="font-bold text-primary">4. 365-Day Lifespan</span>
+              <p className="text-ink-subtle">
+                Points remain valid for a full calendar year (365 days) from the date they are credited.
               </p>
             </div>
           </div>
-          <Link
-            href="/account/referrals"
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-colors flex-shrink-0 shadow-xs"
-          >
-            <span>Invite Friends Now</span>
-            <ChevronRight className="w-4 h-4" />
-          </Link>
         </div>
 
         {/* Ledger Statement Section */}

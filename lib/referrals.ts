@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { normalizePhoneNumber } from "@/lib/phone";
 import { generateMembershipId } from "@/lib/membership";
 import { getUserLoyaltyBalance, POINT_EXPIRY_DAYS } from "@/lib/loyalty";
+import { getMarketingSettings } from "@/lib/marketing-settings";
 
 /**
  * Referral Engine Policy Constants (Governed by approved Milestone M6 specification)
@@ -25,6 +26,7 @@ export interface ReferralValidationResult {
 }
 
 export interface UserReferralStats {
+  enabled: boolean;
   referralCode: string;
   shareUrl: string;
   totalReferred: number;
@@ -145,6 +147,12 @@ export async function validateReferralCode(
 
   if (!cleanCode) {
     return { valid: false, reason: "Referral code is required." };
+  }
+
+  // 0. Policy Check: Referral Program active status
+  const settings = await getMarketingSettings();
+  if (!settings.isReferralActive) {
+    return { valid: false, reason: "The friend referral program is currently paused or inactive." };
   }
 
   // 1. Look up referrer by referralCode, or fallback to membershipId
@@ -360,6 +368,15 @@ export async function processReferralRewardOnDelivery(
 
   if (!order) {
     return { rewarded: false, reason: `Order not found: ${orderId}` };
+  }
+
+  // Check marketing policy: is referral program active?
+  const settings = await getMarketingSettings();
+  if (!settings.isReferralActive) {
+    return {
+      rewarded: false,
+      reason: "Friend referral program is currently disabled by administration.",
+    };
   }
 
   // 2. Validate status and qualification threshold (net settled subtotal >= ₨ 1,000)
@@ -628,6 +645,7 @@ export async function getUserReferralStats(
   txClient?: Prisma.TransactionClient
 ): Promise<UserReferralStats> {
   const db = (txClient || prisma) as Prisma.TransactionClient;
+  const settings = await getMarketingSettings();
 
   const referralCode = await ensureUserReferralCode(userId, db);
   const shareUrl = `${originUrl.replace(/\/$/, "")}/join?ref=${referralCode}`;
@@ -647,9 +665,10 @@ export async function getUserReferralStats(
   const totalReferred = referredUsers.length;
   const successfulReferrals = referredUsers.filter((u) => u.isReferralRewardClaimed).length;
   const pendingReferrals = totalReferred - successfulReferrals;
-  const totalPointsEarned = successfulReferrals * REFERRER_REWARD_POINTS;
+  const totalPointsEarned = successfulReferrals * (settings.referrerRewardPoints || REFERRER_REWARD_POINTS);
 
   return {
+    enabled: settings.isReferralActive,
     referralCode,
     shareUrl,
     totalReferred,

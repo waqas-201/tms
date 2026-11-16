@@ -1,0 +1,14 @@
+{
+  "isReferralActive": false,
+  "referrerRewardPoints": 100,
+  "refereeWelcomeDiscount": 200,
+  "referralMinOrderSubtotal": 1000,
+  "isLoyaltyProgramActive": true,
+  "apothecaryEarnPercent": 0.02,
+  "hijamaEarnPoints": 50,
+  "consultationEarnPoints": 30,
+  "minRedemptionPoints": 200,
+  "maxRedemptionSubtotalCap": 0.1,
+  "homeBannerText": "Special Offers & Rewards: Save with active coupons & earn loyalty perks on every order!",
+  "homeBannerActive": true
+}

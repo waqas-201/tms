@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   ArrowRight,
   MessageCircle,
+  AlertCircle,
 } from "lucide-react";
 
 interface ReferralFriend {
@@ -28,6 +29,7 @@ interface ReferralFriend {
 }
 
 interface ReferralData {
+  enabled?: boolean;
   referralCode: string;
   shareUrl: string;
   totalReferred: number;
@@ -159,12 +161,34 @@ export default function AccountReferralsPage() {
         ) : (
           data && (
             <>
+              {/* Program Inactive / Paused Alert */}
+              {data.enabled === false && (
+                <div className="bg-amber-50/90 border border-amber-200 text-amber-900 p-5 rounded-2xl flex items-start gap-3 shadow-2xs">
+                  <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <h3 className="font-serif font-bold text-sm text-amber-950">
+                      Friend Referral Program Currently Paused (ریفرل پروگرام فی الوقت معطل ہے)
+                    </h3>
+                    <p className="text-xs text-amber-800 leading-relaxed">
+                      Administration has temporarily deactivated the friend referral program. New invites cannot be processed, and referee welcome discounts are disabled. Any points previously earned remain safe and redeemable in your Loyalty Ledger.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Share Hub Card */}
-              <div className="bg-white p-6 sm:p-8 rounded-2xl border border-line shadow-2xs space-y-6">
-                <h2 className="text-lg font-serif font-bold text-primary flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-emerald-600" />
-                  Your Exclusive Referral Link &amp; Code
-                </h2>
+              <div className={`bg-white p-6 sm:p-8 rounded-2xl border border-line shadow-2xs space-y-6 ${data.enabled === false ? "opacity-60" : ""}`}>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-lg font-serif font-bold text-primary flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-emerald-600" />
+                    Your Exclusive Referral Link &amp; Code
+                  </h2>
+                  {data.enabled === false && (
+                    <span className="px-2.5 py-0.5 rounded-full bg-surface-sunken text-ink-muted text-xs font-semibold border border-line">
+                      Inactive
+                    </span>
+                  )}
+                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Referral Code Box */}
@@ -178,7 +202,8 @@ export default function AccountReferralsPage() {
                       </span>
                       <button
                         onClick={handleCopyCode}
-                        className="p-1.5 hover:bg-surface-sunken text-primary rounded-md transition-colors cursor-pointer"
+                        disabled={data.enabled === false}
+                        className={`p-1.5 rounded-md transition-colors ${data.enabled === false ? "opacity-50 cursor-not-allowed" : "hover:bg-surface-sunken text-primary cursor-pointer"}`}
                         title="Copy referral code"
                       >
                         {copiedCode ? (
@@ -201,7 +226,8 @@ export default function AccountReferralsPage() {
                       </span>
                       <button
                         onClick={handleCopyLink}
-                        className="p-1.5 hover:bg-surface-sunken text-primary rounded-md transition-colors cursor-pointer flex-shrink-0"
+                        disabled={data.enabled === false}
+                        className={`p-1.5 rounded-md transition-colors flex-shrink-0 ${data.enabled === false ? "opacity-50 cursor-not-allowed" : "hover:bg-surface-sunken text-primary cursor-pointer"}`}
                         title="Copy link"
                       >
                         {copiedLink ? (
@@ -216,31 +242,39 @@ export default function AccountReferralsPage() {
 
                 {/* Instant Share Buttons */}
                 <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                  <a
-                    href={whatsappShareUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white px-5 py-3 rounded-xl font-bold text-sm shadow-sm transition-all"
-                  >
-                    <MessageCircle className="w-5 h-5 fill-current" />
-                    Share on WhatsApp (واٹس ایپ پر شیئر کریں)
-                  </a>
-                  <button
-                    onClick={handleCopyLink}
-                    className="inline-flex items-center justify-center gap-2 bg-surface hover:bg-surface-sunken text-ink-body border border-line px-5 py-3 rounded-xl font-bold text-sm transition-colors cursor-pointer"
-                  >
-                    {copiedLink ? (
-                      <>
-                        <Check className="w-4 h-4 text-emerald-600" />
-                        Link Copied!
-                      </>
-                    ) : (
-                      <>
-                        <Share2 className="w-4 h-4" />
-                        Copy Share Link
-                      </>
-                    )}
-                  </button>
+                  {data.enabled === false ? (
+                    <div className="text-xs text-ink-subtle bg-surface px-4 py-3 rounded-xl border border-line w-full text-center">
+                      Inviting friends is temporarily paused by administration.
+                    </div>
+                  ) : (
+                    <>
+                      <a
+                        href={whatsappShareUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 inline-flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#1EBE5D] text-white px-5 py-3 rounded-xl font-bold text-sm shadow-sm transition-all"
+                      >
+                        <MessageCircle className="w-5 h-5 fill-current" />
+                        Share on WhatsApp (واٹس ایپ پر شیئر کریں)
+                      </a>
+                      <button
+                        onClick={handleCopyLink}
+                        className="inline-flex items-center justify-center gap-2 bg-surface hover:bg-surface-sunken text-ink-body border border-line px-5 py-3 rounded-xl font-bold text-sm transition-colors cursor-pointer"
+                      >
+                        {copiedLink ? (
+                          <>
+                            <Check className="w-4 h-4 text-emerald-600" />
+                            Link Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Share2 className="w-4 h-4" />
+                            Copy Share Link
+                          </>
+                        )}
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
 

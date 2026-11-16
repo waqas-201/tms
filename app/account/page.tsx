@@ -42,6 +42,7 @@ import {
   Coins,
   Users,
   QrCode,
+  Tag,
 } from "lucide-react";
 
 type AccountTab =
@@ -322,6 +323,18 @@ export default function AccountPage() {
   const [membershipId, setMembershipId] = useState<string | null>(null);
   const [referralCode, setReferralCode] = useState<string | null>(null);
   const [loyaltyBalance, setLoyaltyBalance] = useState<number>(0);
+  const [isReferralActive, setIsReferralActive] = useState<boolean>(false);
+
+  useEffect(() => {
+    fetch("/api/marketing/settings")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && typeof json.isReferralActive === "boolean") {
+          setIsReferralActive(json.isReferralActive);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (sessionData?.user) {
@@ -1129,35 +1142,66 @@ export default function AccountPage() {
             </div>
           </div>
 
-          {/* Card 3: Referrals */}
-          <Link
-            href="/account/referrals"
-            className="group p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-teal-500/10 via-teal-50/50 to-white border border-teal-200/80 hover:border-teal-400 transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold text-teal-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <Users className="w-4 h-4 text-teal-600" />
-                  <span>Refer &amp; Earn (دوستوں کو مدعو کریں)</span>
-                </span>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
-                  Earn ₨ 150
-                </span>
+          {/* Card 3: Referrals (when active) OR Promotions & Coupons (when paused) */}
+          {isReferralActive ? (
+            <Link
+              href="/account/referrals"
+              className="group p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-teal-500/10 via-teal-50/50 to-white border border-teal-200/80 hover:border-teal-400 transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold text-teal-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <Users className="w-4 h-4 text-teal-600" />
+                    <span>Refer &amp; Earn (دوستوں کو مدعو کریں)</span>
+                  </span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800 border border-teal-200">
+                    Earn ₨ 100
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="font-mono text-base sm:text-lg font-bold text-ink">
+                    {referralCode || "REF-XXXXX"}
+                  </span>
+                </div>
+                <p className="text-xs text-ink-subtle mt-1">
+                  Give friends ₨ 200 off their first order &amp; earn 100 points
+                </p>
               </div>
-              <div className="flex items-baseline gap-2 mt-1">
-                <span className="font-mono text-base sm:text-lg font-bold text-ink">
-                  {referralCode || "REF-XXXXX"}
-                </span>
+              <div className="mt-3 pt-3 border-t border-teal-200/60 flex items-center justify-between text-xs font-semibold text-teal-900 group-hover:text-teal-700">
+                <span>View friends &amp; WhatsApp share</span>
+                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
               </div>
-              <p className="text-xs text-ink-subtle mt-1">
-                Give friends ₨ 200 off their first order &amp; earn 150 points
-              </p>
-            </div>
-            <div className="mt-3 pt-3 border-t border-teal-200/60 flex items-center justify-between text-xs font-semibold text-teal-900 group-hover:text-teal-700">
-              <span>View friends &amp; WhatsApp share</span>
-              <span className="group-hover:translate-x-0.5 transition-transform">→</span>
-            </div>
-          </Link>
+            </Link>
+          ) : (
+            <Link
+              href="/#active-offers"
+              className="group p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-amber-50/40 to-white border border-amber-200/80 hover:border-amber-400 transition-all shadow-2xs hover:shadow-xs flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[11px] font-bold text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <Tag className="w-4 h-4 text-amber-600" />
+                    <span>Active Offers &amp; Rewards</span>
+                  </span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                    Discounts
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="font-mono text-base sm:text-lg font-bold text-ink">
+                    Store Promotions
+                  </span>
+                </div>
+                <p className="text-xs text-ink-subtle mt-1">
+                  Browse live promotional codes and clinical vouchers
+                </p>
+              </div>
+              <div className="mt-3 pt-3 border-t border-amber-200/60 flex items-center justify-between text-xs font-semibold text-amber-900 group-hover:text-amber-700">
+                <span>View all active deals</span>
+                <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+              </div>
+            </Link>
+          )}
         </div>
 
         {/* Tab Navigation Navigation Bar */}
@@ -1202,16 +1246,18 @@ export default function AccountPage() {
             </span>
           </Link>
 
-          <Link
-            href="/account/referrals"
-            className="pb-3 px-2 border-b-2 border-transparent text-ink-subtle hover:text-primary flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer"
-          >
-            <Users className="w-4 h-4 text-emerald-600" />
-            <span>Invite Friends (دوستوں کو مدعو کریں)</span>
-            <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] rounded-full font-bold">
-              ₨ 100
-            </span>
-          </Link>
+          {isReferralActive && (
+            <Link
+              href="/account/referrals"
+              className="pb-3 px-2 border-b-2 border-transparent text-ink-subtle hover:text-primary flex items-center gap-2 transition-colors whitespace-nowrap cursor-pointer"
+            >
+              <Users className="w-4 h-4 text-emerald-600" />
+              <span>Invite Friends (دوستوں کو مدعو کریں)</span>
+              <span className="px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] rounded-full font-bold">
+                Rewards
+              </span>
+            </Link>
+          )}
 
           <button
             onClick={() => setActiveTab("wishlist")}

@@ -41,11 +41,13 @@ if (typeof process !== "undefined" && typeof process.emitWarning === "function")
   };
 }
 
-// Load .env if DATABASE_URL is not set (e.g. standalone scripts, tsx)
+// Load .env.local or .env if DATABASE_URL is not set (e.g. standalone scripts, tsx)
 if (!process.env.DATABASE_URL) {
+  const envLocalPath = path.resolve(process.cwd(), ".env.local");
   const envPath = path.resolve(process.cwd(), ".env");
-  if (fs.existsSync(envPath)) {
-    const content = fs.readFileSync(envPath, "utf-8");
+  const targetEnvPath = fs.existsSync(envLocalPath) ? envLocalPath : fs.existsSync(envPath) ? envPath : null;
+  if (targetEnvPath) {
+    const content = fs.readFileSync(targetEnvPath, "utf-8");
     for (const line of content.split("\n")) {
       const trimmed = line.trim();
       if (trimmed && !trimmed.startsWith("#") && trimmed.includes("=")) {
@@ -91,7 +93,7 @@ function getPrismaClient(): PrismaClient {
 
   const pool = new Pool({
     connectionString,
-    max: 20,
+    max: 10,
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 15000,
   });
@@ -101,10 +103,8 @@ function getPrismaClient(): PrismaClient {
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 
-  if (process.env.NODE_ENV !== "production") {
-    globalForPrisma.prisma = client;
-    globalForPrisma.pgPool = pool;
-  }
+  globalForPrisma.prisma = client;
+  globalForPrisma.pgPool = pool;
 
   return client;
 }
